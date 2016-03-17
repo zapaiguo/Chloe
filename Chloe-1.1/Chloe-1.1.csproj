@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8DBE020E-20A7-48BA-9F06-A46BB8E43031}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Chloe</RootNamespace>
+    <AssemblyName>Chloe-1.1</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\DelegateCreateManage.cs" />
+    <Compile Include="Core\Entity\AssociationAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Core\Entity\ColumnAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Core\Entity\IgnoreAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Core\Entity\TableAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Core\IGroupingQuery.cs" />
+    <Compile Include="Core\IOrderedQuery`.cs" />
+    <Compile Include="Core\IQuery.cs" />
+    <Compile Include="Core\IQuery`.cs" />
+    <Compile Include="Extensions\DataReaderExtensions.cs" />
+    <Compile Include="Extensions\DbExpressionExtensions.cs" />
+    <Compile Include="Extensions\DeriveType.cs" />
+    <Compile Include="Extensions\ExpressionExtensions.cs" />
+    <Compile Include="Extensions\ReflectionExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Query\DbExpressionEqualizer.cs" />
+    <Compile Include="Query\DbExpressionVisitorBase.cs" />
+    <Compile Include="Query\DbExpressions\DbAddExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbAndExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbBinaryExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbCaseWhenExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbColumnAccessExpression.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Query\DbExpressions\DbColumnExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbConvertExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbSqlQueryExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbSubQueryExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbTableAccessExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbTableExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbConstantExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbDivideExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbEqualExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbExpressionType.cs" />
+    <Compile Include="Query\DbExpressions\DbGreaterThanExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbGreaterThanOrEqualExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbLessThanExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbLessThanOrEqualExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbMemberExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbMethodCallExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbMultiplyExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbNotEqualExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbNotExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbOrExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbParameterExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbSubtractExpression.cs" />
+    <Compile Include="Query\DbExpressionVisitor`.cs" />
+    <Compile Include="Query\ExpressionVisitor1.cs" />
+    <Compile Include="Query\ExpressionVisitor`.cs" />
+    <Compile Include="Query\Implementation\DbColumnExpressionVisitor.cs" />
+    <Compile Include="Query\Implementation\JoinConditionExpressionVisitor.cs" />
+    <Compile Include="Query\Implementation\SqlExpressionVisitor.cs" />
+    <Compile Include="Query\ISqlState.cs" />
+    <Compile Include="Query\Mapping\MappingData.cs" />
+    <Compile Include="Query\Mapping\MappingMember.cs" />
+    <Compile Include="Query\Mapping\MappingNavMember.cs" />
+    <Compile Include="Query\QueryExpressions\IncludeExpression.cs" />
+    <Compile Include="Query\QueryExpressions\RootQueryExpression.cs" />
+    <Compile Include="Query\QueryState\SubQueryState.cs" />
+    <Compile Include="Query\Query`.cs" />
+    <Compile Include="Query\Visitors\GeneralSelectExpressionVisitor.cs" />
+    <Compile Include="Query\Visitors\RootSelectExpressionVisitor.cs" />
+    <Compile Include="Query\SqlModel.cs" />
+    <Compile Include="Query\SqlState.cs" />
+    <Compile Include="Query\TablePart.cs" />
+    <Compile Include="Query\Implementation\BaseExpressionVisitor.cs" />
+    <Compile Include="Query\Implementation\GeneralExpressionVisitor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Query\IRawEntity.cs" />
+    <Compile Include="Query\JoinTablePart.cs" />
+    <Compile Include="Query\JoinType.cs" />
+    <Compile Include="Query\MappingMembers.cs" />
+    <Compile Include="Query\OrderPart.cs" />
+    <Compile Include="Query\OrderType.cs" />
+    <Compile Include="Query\QueryExpressions\OrderExpression.cs" />
+    <Compile Include="Query\QueryExpressions\QueryExpression.cs" />
+    <Compile Include="Query\QueryExpressions\QueryExpressionType.cs" />
+    <Compile Include="Query\QueryExpressions\SelectExpression.cs" />
+    <Compile Include="Query\QueryExpressions\SingleParameterFnQueryExpression.cs" />
+    <Compile Include="Query\QueryExpressions\SkipExpression.cs" />
+    <Compile Include="Query\QueryExpressions\TakeExpression.cs" />
+    <Compile Include="Query\QueryExpressions\WhereExpression.cs" />
+    <Compile Include="Query\Descriptors\MappingFieldDescriptor.cs" />
+    <Compile Include="Query\Descriptors\MappingMemberDescriptor.cs" />
+    <Compile Include="Query\Descriptors\MappingPropertyDescriptor.cs" />
+    <Compile Include="Query\Descriptors\MappingTypeDescriptor.cs" />
+    <Compile Include="Query\Descriptors\MemberDescriptor.cs" />
+    <Compile Include="Query\Descriptors\NavigationFieldDescriptor.cs" />
+    <Compile Include="Query\Descriptors\NavigationMemberDescriptor.cs" />
+    <Compile Include="Query\Descriptors\NavigationPropertyDescriptor.cs" />
+    <Compile Include="Mapper\IObjectActivtor.cs" />
+    <Compile Include="Query\IQueryState.cs" />
+    <Compile Include="Mapper\IValueSetter.cs" />
+    <Compile Include="Mapper\MappingMemberBinder.cs" />
+    <Compile Include="Mapper\NavigationMemberBinder.cs" />
+    <Compile Include="Mapper\ObjectActivtor.cs" />
+    <Compile Include="Query\Q.cs" />
+    <Compile Include="Query\QueryExpressionReducer.cs" />
+    <Compile Include="Query\QueryState\LimitQueryState.cs" />
+    <Compile Include="Query\QueryState\BaseQueryState.cs" />
+    <Compile Include="Query\QueryState\RootQueryState.cs" />
+    <Compile Include="Query\QueryState\GeneralQueryState.cs" />
+    <Compile Include="Query\QueryState\SkipQueryState.cs" />
+    <Compile Include="Query\QueryState\TakeQueryState.cs" />
+    <Compile Include="Query\ResultElement.cs" />
+    <Compile Include="Query\Visitors\SelectExpressionVisitor.cs" />
+    <Compile Include="Query\SelectEntity.cs" />
+    <Compile Include="Query\RootEntity.cs" />
+    <Compile Include="Mapper\EntityMapper.cs" />
+    <Compile Include="Utility\UtilConstants.cs" />
+    <Compile Include="Utility\Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Core\Database\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
