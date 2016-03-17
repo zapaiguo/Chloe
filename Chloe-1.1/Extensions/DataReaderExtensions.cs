@@ -14,12 +14,6 @@ namespace Chloe.Extensions
     {
         public static short Reader_GetInt16(this IDataReader reader, int ordinal)
         {
-            //if (reader.IsDBNull(ordinal))
-            //{
-            //    string name = reader.GetName(ordinal);
-            //    throw new Exception(name + " 不可为空");
-            //}
-            //Convert.
             try
             {
                 return reader.GetInt16(ordinal);
