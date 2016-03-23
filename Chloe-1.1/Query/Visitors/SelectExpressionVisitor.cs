@@ -38,17 +38,20 @@ namespace Chloe.Query
 
         MappingMembers VisitSelectBody(Expression exp)
         {
-            NewExpression newExpression = exp as NewExpression;
-            if (newExpression != null)
+            if (exp.NodeType == ExpressionType.New)
             {
-                return this.VisitNewExpression(newExpression);
+                return this.VisitNewExpression((NewExpression)exp);
             }
 
-            MemberInitExpression initExp = exp as MemberInitExpression;
-
-            if (initExp != null)
+            if (exp.NodeType == ExpressionType.MemberInit)
             {
-                return this.VisitMemberInit(initExp);
+                return this.VisitMemberInit((MemberInitExpression)exp);
+            }
+
+            if (exp.NodeType == ExpressionType.MemberAccess)
+            {
+
+                return this.VisitNavigationMember((MemberExpression)exp);
             }
 
             throw new NotSupportedException();
@@ -61,30 +64,27 @@ namespace Chloe.Query
         /// <returns></returns>
         protected virtual MappingMembers VisitNewExpression(NewExpression exp)
         {
-            MappingMembers result = new MappingMembers(exp.Type);
-            for (int i = 0; i < exp.Members.Count; i++)
+            MappingMembers result = new MappingMembers(exp.Constructor);
+            ParameterInfo[] parames = exp.Constructor.GetParameters();
+            for (int i = 0; i < parames.Length; i++)
             {
-                PropertyInfo member = (PropertyInfo)exp.Members[i];
+                ParameterInfo pi = parames[i];
                 Expression argExp = exp.Arguments[i];
-
-                //是数据库映射类型
-                if (Utils.IsMapType(member.PropertyType))
+                if (Utils.IsMapType(pi.ParameterType))
                 {
                     DbExpression dbExpression = this.VisistExpression(argExp);
-
-                    result.SelectedMembers.Add(member, dbExpression);
+                    result.ConstructorParameters.Add(pi, dbExpression);
                 }
-                else if (argExp.NodeType == ExpressionType.MemberAccess)
-                {
-                    //访问了导航属性
-                    MappingMembers subResult = this.VisitNavigationMember((MemberExpression)argExp);
-                    result.SubResultEntities.Add(member, subResult);
-                }
+                //else if (argExp.NodeType == ExpressionType.MemberAccess)
+                //{
+                //    //访问了导航属性
+                //    MappingMembers subResult = this.VisitNavigationMember((MemberExpression)argExp);
+                //    result.ConstructorEntityParameters.Add(pi, subResult);
+                //}
                 else
                 {
-                    //对于非数据库映射类型，只支持 NewExpression 和 MemberInitExpression
                     MappingMembers subResult = this.VisitSelectBody(argExp);
-                    result.SubResultEntities.Add(member, subResult);
+                    result.ConstructorEntityParameters.Add(pi, subResult);
                 }
             }
 
@@ -93,16 +93,7 @@ namespace Chloe.Query
 
         protected virtual MappingMembers VisitMemberInit(MemberInitExpression init)
         {
-            if (init.NewExpression.Arguments.Count > 0)
-                throw new NotSupportedException("有参构造函数");
-
-            MappingMembers result = new MappingMembers(init.Type);
-
-            NewExpression n = init.NewExpression;
-            if (n.Arguments.Count > 0)
-            {
-                throw new NotSupportedException();
-            }
+            MappingMembers result = this.VisitNewExpression(init.NewExpression);
 
             foreach (MemberBinding binding in init.Bindings)
             {
@@ -121,12 +112,12 @@ namespace Chloe.Query
                     DbExpression dbExpression = this.VisistExpression(memberAssignment.Expression);
                     result.SelectedMembers.Add(member, dbExpression);
                 }
-                else if (memberAssignment.Expression.NodeType == ExpressionType.MemberAccess)
-                {
-                    //访问了导航属性
-                    MappingMembers subResult = this.VisitNavigationMember((MemberExpression)memberAssignment.Expression);
-                    result.SubResultEntities.Add(member, subResult);
-                }
+                //else if (memberAssignment.Expression.NodeType == ExpressionType.MemberAccess)
+                //{
+                //    //访问了导航属性
+                //    MappingMembers subResult = this.VisitNavigationMember((MemberExpression)memberAssignment.Expression);
+                //    result.SubResultEntities.Add(member, subResult);
+                //}
                 else
                 {
                     //对于非数据库映射类型，只支持 NewExpression 和 MemberInitExpression

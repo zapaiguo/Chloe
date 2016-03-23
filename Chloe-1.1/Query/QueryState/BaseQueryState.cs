@@ -100,45 +100,6 @@ namespace Chloe.Query.QueryState
 
             return orderPart;
         }
-        protected static void FillColumnList(List<DbColumnExpression> columnList, MappingMembers mappingMembers, MappingMember mappingMember)
-        {
-            foreach (var kv in mappingMembers.SelectedMembers)
-            {
-                MemberInfo member = kv.Key;
-                DbExpression exp = kv.Value;
-
-                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, member.Name);
-                columnList.Add(columnExp);
-
-                if (mappingMember != null)
-                {
-                    int ordinal = columnList.Count - 1;
-                    mappingMember.MappingMembers.Add(member, ordinal);
-                }
-            }
-
-            foreach (var kv in mappingMembers.SubResultEntities)
-            {
-                MemberInfo member = kv.Key;
-                MappingMembers val = kv.Value;
-
-                MappingNavMember navMappingMember = null;
-                if (mappingMember != null)
-                {
-                    navMappingMember = new MappingNavMember(val.Type);
-                    mappingMember.MappingNavMembers.Add(kv.Key, navMappingMember);
-
-                    //TODO 设置 AssociatingColumnOrdinal
-                    //if (val.IsIncludeMember)
-                    //{
-                    //TODO 获取关联的键
-                    navMappingMember.AssociatingMemberInfo = val.AssociatingMemberInfo;
-                    //}
-                }
-
-                FillColumnList(columnList, val, navMappingMember);
-            }
-        }
 
         public virtual MappingData GenerateMappingData()
         {

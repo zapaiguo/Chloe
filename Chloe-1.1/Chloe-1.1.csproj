@@ -58,6 +58,7 @@
     <Compile Include="Extensions\DeriveType.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />
+    <Compile Include="Mapper\EntityConstructor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\DbExpressionEqualizer.cs" />
     <Compile Include="Query\DbExpressionVisitorBase.cs" />
@@ -99,8 +100,7 @@
     <Compile Include="Query\Implementation\SqlExpressionVisitor.cs" />
     <Compile Include="Query\ISqlState.cs" />
     <Compile Include="Query\Mapping\MappingData.cs" />
-    <Compile Include="Query\Mapping\MappingMember.cs" />
-    <Compile Include="Query\Mapping\MappingNavMember.cs" />
+    <Compile Include="Query\Mapping\MappingEntity.cs" />
     <Compile Include="Query\QueryExpressions\IncludeExpression.cs" />
     <Compile Include="Query\QueryExpressions\RootQueryExpression.cs" />
     <Compile Include="Query\QueryState\SubQueryState.cs" />
@@ -153,7 +153,7 @@
     <Compile Include="Query\Visitors\SelectExpressionVisitor.cs" />
     <Compile Include="Query\SelectEntity.cs" />
     <Compile Include="Query\RootEntity.cs" />
-    <Compile Include="Mapper\EntityMapper.cs" />
+    <Compile Include="Mapper\EntityMemberMapper.cs" />
     <Compile Include="Utility\UtilConstants.cs" />
     <Compile Include="Utility\Utils.cs" />
   </ItemGroup>

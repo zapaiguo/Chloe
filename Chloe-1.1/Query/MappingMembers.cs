@@ -1,4 +1,5 @@
 ﻿using Chloe.Query.DbExpressions;
+using Chloe.Query.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,18 +9,25 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query
 {
+    public abstract class SelectMappingObject
+    {
+        public abstract Type EntityType { get; }
+    }
+
     public class MappingMembers
     {
-        public MappingMembers(Type type)
+        public MappingMembers(ConstructorInfo constructor)
         {
-            this.Type = type;
+            this.Constructor = constructor;
             this.SelectedMembers = new Dictionary<MemberInfo, DbExpression>();
             this.SubResultEntities = new Dictionary<MemberInfo, MappingMembers>();
         }
         /// <summary>
         /// 返回类型
         /// </summary>
-        public Type Type { get; protected set; }
+        public ConstructorInfo Constructor { get; protected set; }
+        public Dictionary<ParameterInfo, DbExpression> ConstructorParameters { get; private set; }
+        public Dictionary<ParameterInfo, MappingMembers> ConstructorEntityParameters { get; private set; }
         public Dictionary<MemberInfo, DbExpression> SelectedMembers { get; protected set; }
         public Dictionary<MemberInfo, MappingMembers> SubResultEntities { get; protected set; }
         //public bool IsIncludeMember { get; set; }
@@ -48,5 +56,75 @@ namespace Chloe.Query
 
             return ret;
         }
+
+        //public void FillColumnList(List<DbColumnExpression> columnList, MappingEntity mappingMember)
+        //{
+        //    MappingMembers mappingMembers = this;
+        //    foreach (var kv in mappingMembers.SelectedMembers)
+        //    {
+        //        MemberInfo member = kv.Key;
+        //        DbExpression exp = kv.Value;
+
+        //        DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, member.Name);
+        //        columnList.Add(columnExp);
+
+        //        if (mappingMember != null)
+        //        {
+        //            int ordinal = columnList.Count - 1;
+        //            mappingMember.Members.Add(member, ordinal);
+        //        }
+        //    }
+
+        //    foreach (var kv in mappingMembers.SubResultEntities)
+        //    {
+        //        MemberInfo member = kv.Key;
+        //        MappingMembers val = kv.Value;
+
+        //        MappingEntityMember navMappingMember = null;
+        //        if (mappingMember != null)
+        //        {
+        //            navMappingMember = new MappingEntityMember(val.Constructor);
+        //            mappingMember.EntityMembers.Add(kv.Key, navMappingMember);
+
+        //            //TODO 设置 AssociatingColumnOrdinal
+        //            //if (val.IsIncludeMember)
+        //            //{
+        //            //TODO 获取关联的键
+        //            navMappingMember.AssociatingMemberInfo = val.AssociatingMemberInfo;
+        //            //}
+        //        }
+
+        //        val.FillColumnList(columnList, navMappingMember);
+        //    }
+        //}
+
+        public MappingEntity GetMappingEntity(List<DbColumnExpression> columnList)
+        {
+            MappingEntity mappingEntity = new MappingEntity(this.Constructor);
+            MappingMembers mappingMembers = this;
+            foreach (var kv in mappingMembers.SelectedMembers)
+            {
+                MemberInfo member = kv.Key;
+                DbExpression exp = kv.Value;
+
+                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, member.Name);
+                columnList.Add(columnExp);
+
+                int ordinal = columnList.Count - 1;
+                mappingEntity.Members.Add(member, ordinal);
+            }
+
+            foreach (var kv in mappingMembers.SubResultEntities)
+            {
+                MemberInfo member = kv.Key;
+                MappingMembers val = kv.Value;
+
+                MappingEntity navMappingMember = val.GetMappingEntity(columnList);
+                mappingEntity.EntityMembers.Add(kv.Key, navMappingMember);
+            }
+
+            return mappingEntity;
+        }
+
     }
 }

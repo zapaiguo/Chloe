@@ -37,7 +37,7 @@ namespace Chloe.Query
             {
                 IncludeMemberInfo includeMemberInfo = kv.Value;
                 MappingTypeDescriptor navigationMemberTypeDescriptor = includeMemberInfo.MemberTypeDescriptor;
-                MappingMembers subMappingResult = new MappingMembers(navigationMemberTypeDescriptor.EntityType);
+                MappingMembers subMappingResult = new MappingMembers(navigationMemberTypeDescriptor.EntityType.GetConstructor(new Type[0]));
                 if (includeMemberInfo.IsIncludeMember)
                 {
                     //subMappingResult.IsIncludeMember = includeMemberInfo.IsIncludeMember;
@@ -52,7 +52,7 @@ namespace Chloe.Query
         {
             IncludeMemberInfo includeMemberInfo = this._rawEntity.IncludeNavigationMember(exp);
 
-            MappingMembers subMappingResult = new MappingMembers(includeMemberInfo.MemberTypeDescriptor.EntityType);
+            MappingMembers subMappingResult = new MappingMembers(includeMemberInfo.MemberTypeDescriptor.EntityType.GetConstructor(new Type[0]));
             if (includeMemberInfo.IsIncludeMember)
             {
                 //subMappingResult.IsIncludeMember = includeMemberInfo.IsIncludeMember;

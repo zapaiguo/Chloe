@@ -40,7 +40,9 @@ namespace Chloe.Query.QueryState
             TablePart tablePart = this._rawEntity.RootTablePart;
             //设置 table 的一些必要信息
 
-            ResultElement result = new ResultElement(this._elementType, tablePart);
+            ResultElement result = new ResultElement(tablePart);
+            MappingMembers mm = new MappingMembers(this._elementType.GetConstructor(new Type[0]));
+            result.MappingMembers = mm;
 
             //在这解析所有表达式树，如 where、order、select、IncludeNavigationMember 等
             //解析 where 表达式，得出的 DbExpression 
@@ -71,7 +73,7 @@ namespace Chloe.Query.QueryState
 
                 MappingTypeDescriptor navigationMemberTypeDescriptor = includeMemberInfo.MemberTypeDescriptor;
 
-                MappingMembers subMappingResult = new MappingMembers(navigationMemberTypeDescriptor.EntityType);
+                MappingMembers subMappingResult = new MappingMembers(navigationMemberTypeDescriptor.EntityType.GetConstructor(new Type[0]));
 
                 if (includeMemberInfo.IsIncludeMember)
                 {
@@ -86,7 +88,7 @@ namespace Chloe.Query.QueryState
 
         public override IQueryState UpdateSelectResult(SelectExpression selectExpression)
         {
-            ResultElement result = new ResultElement(selectExpression.ElementType, this._rawEntity.RootTablePart);
+            ResultElement result = new ResultElement(this._rawEntity.RootTablePart);
 
             //解析 where order 表达式树
             //解析 selectExpression
@@ -117,8 +119,9 @@ namespace Chloe.Query.QueryState
 
         public override MappingData GenerateMappingData()
         {
-            MappingData data = new MappingData(this._rawEntity.TypeDescriptor.EntityType);
-            MappingMember mappingMember = new MappingMember(data.EntityType);
+            MappingData data = new MappingData();
+            ConstructorInfo constructorInfo = this._rawEntity.TypeDescriptor.EntityType.GetConstructor(new Type[0]);//获取默认构造函数
+            MappingEntity mappingMember = new MappingEntity(constructorInfo);
 
             //------------
             DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
@@ -136,12 +139,12 @@ namespace Chloe.Query.QueryState
             //============
 
             data.SqlQuery = sqlQuery;
-            data.MappingInfo = mappingMember;
+            data.MappingEntity = mappingMember;
 
             return data;
         }
 
-        void FillColumnList(List<DbColumnExpression> columnList, TablePart tablePart, List<MappingMemberDescriptor> mappingMemberDescriptors, Dictionary<MemberInfo, IncludeMemberInfo> includedNavigationMembers, MappingMember mappingMember)
+        void FillColumnList(List<DbColumnExpression> columnList, TablePart tablePart, List<MappingMemberDescriptor> mappingMemberDescriptors, Dictionary<MemberInfo, IncludeMemberInfo> includedNavigationMembers, MappingEntity mappingMember)
         {
             foreach (MappingMemberDescriptor mappingMemberDescriptor in mappingMemberDescriptors)
             {
@@ -154,7 +157,7 @@ namespace Chloe.Query.QueryState
                 if (mappingMember != null)
                 {
                     int ordinal = columnList.Count - 1;
-                    mappingMember.MappingMembers.Add(mappingMemberDescriptor.MemberInfo, ordinal);
+                    mappingMember.Members.Add(mappingMemberDescriptor.MemberInfo, ordinal);
                 }
             }
 
@@ -164,24 +167,22 @@ namespace Chloe.Query.QueryState
 
                 MappingTypeDescriptor navigationMemberTypeDescriptor = includeMemberInfo.MemberTypeDescriptor;
 
-                MappingMembers subMappingResult = new MappingMembers(navigationMemberTypeDescriptor.EntityType);
-
                 //MemberInfo associatingColumnMemberInfo = null;
-                MappingNavMember navMappingMember = null;
+                MappingEntity navMappingMember = null;
                 if (mappingMember != null)
                 {
-                    navMappingMember = new MappingNavMember(includeMemberInfo.MemberDescriptor.MemberType);
-                    mappingMember.MappingNavMembers.Add(kv.Key, navMappingMember);
+                    navMappingMember = new MappingEntity(includeMemberInfo.MemberDescriptor.MemberType.GetConstructor(new Type[0]));
+                    mappingMember.EntityMembers.Add(kv.Key, navMappingMember);
 
                     //TODO 设置 AssociatingColumnOrdinal
-                    if (includeMemberInfo.IsIncludeMember)
-                    {
-                        //TODO 获取关联的键
-                        //navMappingMember.AssociatingColumnOrdinal = null; //在下面调用的 FillColumnList1 中设置
-                        //获取关联的 MemberInfo ，传递到下面调用的 FillColumnList1 中，以便设置 navMappingMember.AssociatingColumnOrdinal
-                        //associatingColumnMemberInfo = includeMemberInfo.GetAssociatingMemberInfo();
-                        navMappingMember.AssociatingMemberInfo = includeMemberInfo.GetAssociatingMemberInfo();
-                    }
+                    //if (includeMemberInfo.IsIncludeMember)
+                    //{
+                    //    //TODO 获取关联的键
+                    //    //navMappingMember.AssociatingColumnOrdinal = null; //在下面调用的 FillColumnList1 中设置
+                    //    //获取关联的 MemberInfo ，传递到下面调用的 FillColumnList1 中，以便设置 navMappingMember.AssociatingColumnOrdinal
+                    //    //associatingColumnMemberInfo = includeMemberInfo.GetAssociatingMemberInfo();
+                    //    navMappingMember.AssociatingMemberInfo = includeMemberInfo.GetAssociatingMemberInfo();
+                    //}
                 }
 
                 this.FillColumnList(columnList, includeMemberInfo.TablePart, navigationMemberTypeDescriptor.MappingMemberDescriptors, includeMemberInfo.IncludeMembers, navMappingMember);

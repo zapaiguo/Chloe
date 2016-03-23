@@ -72,8 +72,8 @@ namespace Chloe.Query.QueryState
 
         public override MappingData GenerateMappingData()
         {
-            MappingData data = new MappingData(this._result.Type);
-            MappingMember mappingMember = new MappingMember(data.EntityType);
+            MappingData data = new MappingData();
+            //MappingEntity mappingMember = new MappingEntity(this._result.MappingMembers.Constructor);
 
             //------------
             DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
@@ -98,19 +98,20 @@ namespace Chloe.Query.QueryState
                 this.VisistOrderExpressions(visitor, sqlQuery.Orders);
 
             tablePart.SetTableNameByNumber(0);
-            FillColumnList(sqlQuery.Columns, this._result.MappingMembers, mappingMember);
+            MappingEntity mappingMember = this._result.MappingMembers.GetMappingEntity(sqlQuery.Columns);
+            //FillColumnList(sqlQuery.Columns, this._result.MappingMembers, mappingMember);
             sqlQuery.Table = tablePart;
             //============
 
             data.SqlQuery = sqlQuery;
-            data.MappingInfo = mappingMember;
+            data.MappingEntity = mappingMember;
 
             return data;
         }
 
         public override IQueryState UpdateSelectResult(SelectExpression selectExpression)
         {
-            ResultElement result = new ResultElement(selectExpression.ElementType, this._result.TablePart);
+            ResultElement result = new ResultElement(this._result.TablePart);
 
             //解析 where order 表达式树
             //解析 selectExpression

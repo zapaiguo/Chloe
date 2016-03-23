@@ -1,4 +1,5 @@
 ﻿using Chloe.Core;
+using Chloe.Query.Mapping;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
@@ -10,20 +11,17 @@ using System.Threading.Tasks;
 
 namespace Chloe.Mapper
 {
-    public class EntityMapper
+    public class EntityMemberMapper
     {
         Dictionary<MemberInfo, Action<object, IDataReader, int>> _mappingMemberSetters = new Dictionary<MemberInfo, Action<object, IDataReader, int>>();
         Dictionary<MemberInfo, Action<object, object>> _navigationMemberSetters = new Dictionary<MemberInfo, Action<object, object>>();
 
-        EntityMapper(Type t)
+        EntityMemberMapper(Type t)
         {
             this.Type = t;
             this.Init();
         }
 
-        /// <summary>
-        /// 得考虑匿名类型
-        /// </summary>
         void Init()
         {
             Type t = this.Type;
@@ -57,7 +55,6 @@ namespace Chloe.Mapper
                 {
                     if (member.MemberType == MemberTypes.Property)
                     {
-                        //throw new NotImplementedException();
                         Action<object, object> valueSetter = null;
                         this._navigationMemberSetters.Add(member, valueSetter);
                     }
@@ -75,7 +72,6 @@ namespace Chloe.Mapper
         }
 
         public Type Type { get; private set; }
-        public Func<object> InstanceCreator { get; private set; }
 
         public Action<object, IDataReader, int> GetMemberSetter(MemberInfo memberInfo)
         {
@@ -90,14 +86,14 @@ namespace Chloe.Mapper
             return valueSetter;
         }
 
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, EntityMapper> _instanceCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, EntityMapper>();
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, EntityMemberMapper> _instanceCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, EntityMemberMapper>();
 
-        public static EntityMapper GetInstance(Type type)
+        public static EntityMemberMapper GetInstance(Type type)
         {
-            EntityMapper instance;
+            EntityMemberMapper instance;
             if (!_instanceCache.TryGetValue(type, out instance))
             {
-                instance = new EntityMapper(type);
+                instance = new EntityMemberMapper(type);
                 instance = _instanceCache.GetOrAdd(type, instance);
             }
 

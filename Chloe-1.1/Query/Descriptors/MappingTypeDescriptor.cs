@@ -175,52 +175,6 @@ namespace Chloe.Query
             return memberDescriptor;
         }
 
-        #region
-        //public bool TryGetSetValueActionByColumnName(string columnName, out Action<object, IDataReader, int> del)
-        //{
-        //    MappingMemberDescriptor memberDescriptor = this._mappingMemberDescriptors.Where(a => a.ColumnName == columnName).FirstOrDefault();
-        //    return this.TryGetSetValueAction(memberDescriptor, out del);
-        //}
-        //public bool TryGetSetValueActionByMemberInfo(MemberInfo memberInfo, out Action<object, IDataReader, int> del)
-        //{
-        //    MappingMemberDescriptor memberDescriptor = this._mappingMemberDescriptors.Where(a => a.MemberInfo == memberInfo).FirstOrDefault();
-        //    return this.TryGetSetValueAction(memberDescriptor, out del);
-        //}
-        //public bool TryGetSetValueActionByMemberName(string memberName, out Action<object, IDataReader, int> del)
-        //{
-        //    MappingMemberDescriptor memberDescriptor = this._mappingMemberDescriptors.Where(a => a.MemberInfo.Name == memberName).FirstOrDefault();
-        //    return this.TryGetSetValueAction(memberDescriptor, out del);
-        //}
-        //public bool TryGetSetValueActionByMemberInfo(MemberInfo memberInfo, out Action<object, object> del)
-        //{
-        //    NavigationMemberDescriptor memberDescriptor = this._navigationMemberDescriptors.Where(a => a.MemberInfo == memberInfo).FirstOrDefault();
-        //    return this.TryGetSetValueAction(memberDescriptor, out del);
-        //}
-
-        //bool TryGetSetValueAction(MappingMemberDescriptor memberDescriptor, out Action<object, IDataReader, int> del)
-        //{
-        //    del = null;
-        //    if (memberDescriptor == null)
-        //    {
-        //        return false;
-        //    }
-
-        //    del = memberDescriptor.ValueSetter;
-        //    return true;
-        //}
-        //bool TryGetSetValueAction(NavigationMemberDescriptor memberDescriptor, out Action<object, object> del)
-        //{
-        //    del = null;
-        //    if (memberDescriptor == null)
-        //    {
-        //        return false;
-        //    }
-
-        //    del = memberDescriptor.ValueSetter;
-        //    return true;
-        //}
-        #endregion
-
         static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, MappingTypeDescriptor> _entityDescriptorCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, MappingTypeDescriptor>();
 
         public static MappingTypeDescriptor GetEntityDescriptor(Type type)

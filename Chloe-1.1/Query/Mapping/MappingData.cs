@@ -9,12 +9,13 @@ namespace Chloe.Query.Mapping
 {
     public class MappingData
     {
-        public MappingData(Type entityType)
+        public MappingData()
         {
-            this.EntityType = entityType;
+            //this.EntityType = entityType;
         }
-        public Type EntityType { get; set; }
-        public MappingMember MappingInfo { get; set; }
+        //public Type EntityType { get; set; }
+        //public MappingMember MappingInfo { get; set; }
+        public MappingEntity MappingEntity { get; set; }
         public DbSqlQueryExpression SqlQuery { get; set; }
     }
 }

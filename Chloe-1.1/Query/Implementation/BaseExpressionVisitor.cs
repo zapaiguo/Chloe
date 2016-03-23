@@ -13,18 +13,7 @@ namespace Chloe.Query.Implementation
     {
         static BaseExpressionVisitor()
         {
-            //_DbBooleanDbExpressionTypes = new List<DbExpressionType>();
-            //_DbBooleanDbExpressionTypes.Add(DbExpressionType.Equal);
-            //_DbBooleanDbExpressionTypes.Add(DbExpressionType.NotEqual);
-            //_DbBooleanDbExpressionTypes.Add(DbExpressionType.LessThan);
-            //_DbBooleanDbExpressionTypes.Add(DbExpressionType.LessThanOrEqual);
-            //_DbBooleanDbExpressionTypes.Add(DbExpressionType.GreaterThan);
-            //_DbBooleanDbExpressionTypes.Add(DbExpressionType.GreaterThanOrEqual);
-            //_DbBooleanDbExpressionTypes.Add(DbExpressionType.And);
-            //_DbBooleanDbExpressionTypes.Add(DbExpressionType.Or);
-            //_DbBooleanDbExpressionTypes.Add(DbExpressionType.Not);
-            //_DbBooleanDbExpressionTypes.Add(DbExpressionType.In);
-            //_DbBooleanDbExpressionTypes.TrimExcess();
+         
         }
 
         protected override DbExpression VisitLambda(LambdaExpression lambda)

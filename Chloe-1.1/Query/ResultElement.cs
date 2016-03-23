@@ -14,14 +14,15 @@ namespace Chloe.Query
     /// </summary>
     public class ResultElement
     {
-        public ResultElement(Type type, TablePart tablePart)
+        public ResultElement(TablePart tablePart)
         {
-            this.Type = type;
+            //this.Constructor = constructor;
             this.TablePart = tablePart;
             this.OrderParts = new List<OrderPart>();
-            this.MappingMembers = new MappingMembers(type);
+            //this.MappingMembers = new MappingMembers(constructor);
         }
-        public Type Type { get; protected set; }
+        //public Type Type { get; protected set; }
+        //public ConstructorInfo Constructor { get; private set; }
 
         public MappingMembers MappingMembers { get; set; }
 

@@ -35,15 +35,15 @@ namespace Chloe.Query.QueryState
         }
         public override MappingData GenerateMappingData()
         {
-            MappingData data = new MappingData(this._prevResult.Type);
-            MappingMember mappingMember = new MappingMember(data.EntityType);
+            MappingData data = new MappingData();
+            MappingEntity mappingMember;
 
             //------------
-            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery(mappingMember);
+            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery(out mappingMember);
             //============
 
             data.SqlQuery = sqlQuery;
-            data.MappingInfo = mappingMember;
+            data.MappingEntity = mappingMember;
 
             return data;
         }
@@ -51,8 +51,9 @@ namespace Chloe.Query.QueryState
         public virtual IQueryState AsSubQueryState()
         {
             ResultElement prevResult = this._prevResult;
-            MappingMembers prevPappingMembers = prevResult.MappingMembers;
-            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery(null);
+            MappingMembers prevMappingMembers = prevResult.MappingMembers;
+            MappingEntity mappingMember;
+            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery(out mappingMember);
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
             DbTableExpression tableExp = new DbTableExpression(subQuery);
@@ -61,10 +62,10 @@ namespace Chloe.Query.QueryState
 
             //得将 subQuery.SqlQuery.Orders 告诉 以下创建的 result
 
-            ResultElement result = new ResultElement(prevResult.Type, tablePart);
+            ResultElement result = new ResultElement(tablePart);
             result.IsFromSubQuery = true;
 
-            MappingMembers mappingMembers = prevPappingMembers;//生成 MappingMembers，目前可以直接用 prevPappingMembers，还没影响
+            MappingMembers mappingMembers = prevMappingMembers;//生成 MappingMembers，目前可以直接用 prevPappingMembers，还没影响
             result.MappingMembers = mappingMembers;
 
             //将 orderPart 传递下去
@@ -106,6 +107,6 @@ namespace Chloe.Query.QueryState
             GeneralQueryState queryState = new GeneralQueryState(result);
             return queryState;
         }
-        public abstract DbSqlQueryExpression CreateSqlQuery(MappingMember mappingMember);
+        public abstract DbSqlQueryExpression CreateSqlQuery(out MappingEntity mappingMember);
     }
 }

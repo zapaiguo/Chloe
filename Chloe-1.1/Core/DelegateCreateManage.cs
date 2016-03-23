@@ -12,7 +12,20 @@ using Chloe.Utility;
 
 namespace Chloe.Core
 {
-    internal static class DelegateCreateManage
+    public class DelegateCreateManageTest
+    {
+        int Id = 10;
+        public DelegateCreateManageTest(int a, DelegateCreateManageTest b)
+        {
+            this.A = a;
+            this.B = b;
+        }
+
+        public int A { get; set; }
+        public DelegateCreateManageTest B { get; set; }
+    }
+
+    public static class DelegateCreateManage
     {
         #region
         public static Action<object, IDataReader, int> CreateSetValueFromReaderDelegate(MemberInfo member)
@@ -177,6 +190,53 @@ namespace Chloe.Core
 
             return del;
         }
+
+
+        public static Func<object> CreateObjectGenerator(Type type)
+        {
+            Func<object> ret = null;
+
+            DynamicMethod dm = new DynamicMethod("CreateObject_" + Guid.NewGuid().ToString(), typeof(object), null, true);
+            ILGenerator il = dm.GetILGenerator();
+            //OpCodes os = null;
+
+            //var obj = il.DeclareLocal(typeof(object));   //生成对象变量
+            //if()
+            ConstructorInfo ctor = type.GetConstructors().First();
+            ParameterInfo[] parameters = ctor.GetParameters();
+
+            foreach (var parameter in parameters)
+            {
+                var lb = il.DeclareLocal(parameter.ParameterType);
+                il.Emit(OpCodes.Ldloc, lb);
+            }
+
+            il.Emit(OpCodes.Newobj, ctor);
+            il.Emit(OpCodes.Ret);
+
+            ret = (Func<object>)dm.CreateDelegate(typeof(Func<object>));
+            return ret;
+        }
+        public static Action<object, int> GetSetValue(MemberInfo member)
+        {
+            Action<object, int> del = null;
+
+            DynamicMethod dm = new DynamicMethod("SetValueFromReader_" + Guid.NewGuid().ToString(), null, new Type[] { typeof(object), typeof(int) }, false);
+            ILGenerator il = dm.GetILGenerator();
+
+            il.Emit(OpCodes.Ldarg_S, 0);//将第一个参数 object 对象加载到栈顶
+            il.Emit(OpCodes.Castclass, member.DeclaringType);//将 object 对象转换为强类型对象 此时栈顶为强类型的对象
+            //il.Emit(OpCodes.Pop);
+            il.Emit(OpCodes.Ldarg_S, 1);
+
+            SetValueIL(il, member); // object.XX = value; 此时栈顶为空
+
+            il.Emit(OpCodes.Ret);
+
+            del = (Action<object, int>)dm.CreateDelegate(typeof(Action<object, int>));
+            return del;
+        }
+
 
         #endregion
 

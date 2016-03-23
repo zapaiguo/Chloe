@@ -40,7 +40,7 @@ namespace Chloe.Query.QueryState
         }
 
 
-        public override DbSqlQueryExpression CreateSqlQuery(MappingMember mappingMember)
+        public override DbSqlQueryExpression CreateSqlQuery(out MappingEntity mappingMember)
         {
             ResultElement prevResult = this._prevResult;
             MappingMembers prevPappingMembers = prevResult.MappingMembers;
@@ -54,7 +54,8 @@ namespace Chloe.Query.QueryState
             sqlQuery.Orders = prevResult.OrderParts;
             sqlQuery.TakeCount = this.Count;
             sqlQuery.SkipCount = null;
-            FillColumnList(sqlQuery.Columns, prevPappingMembers, mappingMember);
+            mappingMember = prevPappingMembers.GetMappingEntity(sqlQuery.Columns);
+            //FillColumnList(sqlQuery.Columns, prevPappingMembers, mappingMember);
 
             return sqlQuery;
         }

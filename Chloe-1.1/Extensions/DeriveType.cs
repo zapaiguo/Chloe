@@ -12,12 +12,4 @@ namespace Chloe
         Parameter,
         Constant,
     }
-
-    //internal enum DbExpressionDeriveType
-    //{
-    //    Unknown,
-    //    Parameter,
-    //    Constant,
-    //}
-
 }

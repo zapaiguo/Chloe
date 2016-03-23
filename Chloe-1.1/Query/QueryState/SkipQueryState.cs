@@ -38,7 +38,7 @@ namespace Chloe.Query.QueryState
         {
             throw new NotSupportedException("SkipQueryState.AppendOrderExpression(OrderExpression orderExp)");
         }
-        public override DbSqlQueryExpression CreateSqlQuery(MappingMember mappingMember)
+        public override DbSqlQueryExpression CreateSqlQuery(out MappingEntity mappingMember)
         {
             ResultElement prevResult = this._prevResult;
             MappingMembers prevPappingMembers = prevResult.MappingMembers;
@@ -51,8 +51,8 @@ namespace Chloe.Query.QueryState
             sqlQuery.Where = prevResult.WhereExpression;
             sqlQuery.Orders = prevResult.OrderParts;
             sqlQuery.TakeCount = null;
-            sqlQuery.SkipCount = this.Count; ;
-            FillColumnList(sqlQuery.Columns, prevPappingMembers, mappingMember);
+            sqlQuery.SkipCount = this.Count;
+            mappingMember = prevPappingMembers.GetMappingEntity(sqlQuery.Columns);
 
             return sqlQuery;
         }
