@@ -98,7 +98,7 @@ namespace Chloe.Query.QueryState
                 this.VisistOrderExpressions(visitor, sqlQuery.Orders);
 
             tablePart.SetTableNameByNumber(0);
-            MappingEntity mappingMember = this._result.MappingMembers.GetMappingEntity(sqlQuery.Columns);
+            MappingEntity mappingMember = this._result.MappingMembers.GetMappingEntity(sqlQuery);
             //FillColumnList(sqlQuery.Columns, this._result.MappingMembers, mappingMember);
             sqlQuery.Table = tablePart;
             //============

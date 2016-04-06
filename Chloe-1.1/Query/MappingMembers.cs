@@ -9,11 +9,6 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query
 {
-    public abstract class SelectMappingObject
-    {
-        public abstract Type EntityType { get; }
-    }
-
     public class MappingMembers
     {
         public MappingMembers(ConstructorInfo constructor)
@@ -98,8 +93,9 @@ namespace Chloe.Query
         //    }
         //}
 
-        public MappingEntity GetMappingEntity(List<DbColumnExpression> columnList)
+        public MappingEntity GetMappingEntity(DbSqlQueryExpression sqlQuery)
         {
+            List<DbColumnExpression> columnList = sqlQuery.Columns;
             MappingEntity mappingEntity = new MappingEntity(this.Constructor);
             MappingMembers mappingMembers = this;
             foreach (var kv in mappingMembers.SelectedMembers)
@@ -107,7 +103,8 @@ namespace Chloe.Query
                 MemberInfo member = kv.Key;
                 DbExpression exp = kv.Value;
 
-                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, member.Name);
+                string alias = sqlQuery.GenerateUniqueColumnAlias(member.Name);
+                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
                 columnList.Add(columnExp);
 
                 int ordinal = columnList.Count - 1;
@@ -119,7 +116,7 @@ namespace Chloe.Query
                 MemberInfo member = kv.Key;
                 MappingMembers val = kv.Value;
 
-                MappingEntity navMappingMember = val.GetMappingEntity(columnList);
+                MappingEntity navMappingMember = val.GetMappingEntity(sqlQuery);
                 mappingEntity.EntityMembers.Add(kv.Key, navMappingMember);
             }
 

@@ -18,18 +18,17 @@ namespace Chloe.Query.DbExpressions
         }
         public int? TakeCount { get; set; }
         public int? SkipCount { get; set; }
-        public List<DbColumnExpression> Columns { get; set; }
+        public List<DbColumnExpression> Columns { get; private set; }
         public TablePart Table { get; set; }
         public DbExpression Where { get; set; }
-        public List<DbExpression> Groups { get; set; }
+        public List<DbExpression> Groups { get; private set; }
         public DbExpression Having { get; set; }
-        public List<OrderPart> Orders { get; set; }
+        public List<OrderPart> Orders { get; private set; }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {
             return visitor.Visit(this);
         }
-
 
         public void UpdateWhereExpression(DbExpression whereExpression)
         {
@@ -37,6 +36,19 @@ namespace Chloe.Query.DbExpressions
                 this.Where = whereExpression;
             else if (whereExpression != null)
                 this.Where = new DbAndExpression(this.Where, whereExpression);
+        }
+
+        public string GenerateUniqueColumnAlias(string prefix = "C")
+        {
+            string alias = prefix;
+            int i = 0;
+            while (this.Columns.Any(a => a.Alias == alias))
+            {
+                alias = prefix + i.ToString();
+                i++;
+            }
+
+            return alias;
         }
     }
 }

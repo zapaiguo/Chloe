@@ -71,8 +71,6 @@ namespace Chloe.Query.QueryState
             //将 orderPart 传递下去
             if (prevResult.OrderParts.Count > 0)
             {
-                const string c = "C";
-                int startIndex = 0;
                 for (int i = 0; i < prevResult.OrderParts.Count; i++)
                 {
                     OrderPart orderPart = prevResult.OrderParts[i];
@@ -89,12 +87,7 @@ namespace Chloe.Query.QueryState
                     }
                     else
                     {
-                        alias = c + (startIndex++).ToString();
-                        while (sqlQuery.Columns.Any(a => a.Alias == alias))
-                        {
-                            alias = c + (startIndex++).ToString();
-                        }
-
+                        alias = sqlQuery.GenerateUniqueColumnAlias();
                         DbColumnExpression columnExp = new DbColumnExpression(orderExp.Type, orderExp, alias);
                         sqlQuery.Columns.Add(columnExp);
                     }

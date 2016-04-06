@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -75,74 +76,135 @@ namespace Chloe.Query
                     return this.VisitConditional((ConditionalExpression)exp);
                 case ExpressionType.Constant:
                     return this.VisitConstant((ConstantExpression)exp);
-                //case ExpressionType.Parameter:
-                //    return this.VisitParameter((ParameterExpression)exp);
+                case ExpressionType.Parameter:
+                    return this.VisitParameter((ParameterExpression)exp);
                 case ExpressionType.MemberAccess:
                     return this.VisitMemberAccess((MemberExpression)exp);
                 case ExpressionType.Call:
                     return this.VisitMethodCall((MethodCallExpression)exp);
-                    
-                //case ExpressionType.New:
-                //    return this.VisitNew((NewExpression)exp);
+                case ExpressionType.New:
+                    return this.VisitNew((NewExpression)exp);
                 case ExpressionType.NewArrayInit:
                     //case ExpressionType.NewArrayBounds:
                     return this.VisitNewArray((NewArrayExpression)exp);
                 //case ExpressionType.Invoke:
                 //    return this.VisitInvocation((InvocationExpression)exp);
-                //case ExpressionType.MemberInit:
-                //    return this.VisitMemberInit((MemberInitExpression)exp);
-                //case ExpressionType.ListInit:
-                //    return this.VisitListInit((ListInitExpression)exp);
+                case ExpressionType.MemberInit:
+                    return this.VisitMemberInit((MemberInitExpression)exp);
+                case ExpressionType.ListInit:
+                    return this.VisitListInit((ListInitExpression)exp);
                 default:
                     throw new Exception(string.Format("Unhandled expression type: '{0}'", exp.NodeType));
             }
         }
 
-        protected abstract T VisitUnary(UnaryExpression u);
-
-        protected abstract T VisitUnary_Not(UnaryExpression u);
-
-        protected abstract T VisitUnary_Convert(UnaryExpression u);
-
-        protected abstract T VisitBinary(BinaryExpression b);
-
-        protected abstract T VisitBinary_Add(BinaryExpression b);
-
-        protected abstract T VisitBinary_Subtract(BinaryExpression b);
-
-        protected abstract T VisitBinary_Multiply(BinaryExpression b);
-
-        protected abstract T VisitBinary_Divide(BinaryExpression b);
-
-        protected abstract T VisitBinary_And(BinaryExpression b);
-
-        protected abstract T VisitBinary_Or(BinaryExpression b);
-
-        protected abstract T VisitConstant(ConstantExpression c);
-
-        protected abstract T VisitBinary_LessThan(BinaryExpression b);
-
-        protected abstract T VisitBinary_LessThanOrEqual(BinaryExpression b);
-
-        protected abstract T VisitBinary_GreaterThan(BinaryExpression b);
-
-        protected abstract T VisitBinary_GreaterThanOrEqual(BinaryExpression b);
-
-        protected abstract T VisitBinary_Equal(BinaryExpression b);
-
-        protected abstract T VisitBinary_NotEqual(BinaryExpression b);
-
-        protected abstract T VisitBinary_Coalesce(BinaryExpression b);
-
-        protected abstract T VisitLambda(LambdaExpression lambda);
-
-        protected abstract T VisitMemberAccess(MemberExpression exp);
-
-        protected abstract T VisitConditional(ConditionalExpression exp);
-
-        protected abstract T VisitMethodCall(MethodCallExpression exp);
-
-        protected abstract T VisitNewArray(NewArrayExpression exp);
-
+        protected virtual T VisitUnary(UnaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitUnary_Not(UnaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitUnary_Convert(UnaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_Add(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_Subtract(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_Multiply(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_Divide(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_And(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_Or(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitConstant(ConstantExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitParameter(ParameterExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_LessThan(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_LessThanOrEqual(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_GreaterThan(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_GreaterThanOrEqual(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_Equal(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_NotEqual(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_Coalesce(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitLambda(LambdaExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitMemberAccess(MemberExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitConditional(ConditionalExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitMethodCall(MethodCallExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitNew(NewExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitNewArray(NewArrayExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitMemberInit(MemberInitExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitListInit(ListInitExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
     }
 }

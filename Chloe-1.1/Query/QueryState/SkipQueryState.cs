@@ -49,10 +49,10 @@ namespace Chloe.Query.QueryState
             DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
             sqlQuery.Table = prevTablePart;
             sqlQuery.Where = prevResult.WhereExpression;
-            sqlQuery.Orders = prevResult.OrderParts;
+            sqlQuery.Orders.AddRange(prevResult.OrderParts);
             sqlQuery.TakeCount = null;
             sqlQuery.SkipCount = this.Count;
-            mappingMember = prevPappingMembers.GetMappingEntity(sqlQuery.Columns);
+            mappingMember = prevPappingMembers.GetMappingEntity(sqlQuery);
 
             return sqlQuery;
         }

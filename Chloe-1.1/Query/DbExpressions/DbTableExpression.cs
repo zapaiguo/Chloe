@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.DbExpressions
 {
+    /// <summary>
+    /// User as T1   (select * from User) as T1
+    /// </summary>
     public class DbTableExpression : DbExpression
     {
         DbExpression _body;
@@ -24,8 +27,11 @@ namespace Chloe.Query.DbExpressions
             this._alias = alias;
         }
 
-        public virtual DbExpression Body { get { return this._body; } }
-        public virtual string Alias { get { return this._alias; } set { this._alias = value; } }
+        /// <summary>
+        /// User、(select * from User)
+        /// </summary>
+        public DbExpression Body { get { return this._body; } }
+        public string Alias { get { return this._alias; } set { this._alias = value; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

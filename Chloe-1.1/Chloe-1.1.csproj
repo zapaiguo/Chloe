@@ -95,12 +95,15 @@
     <Compile Include="Query\DbExpressionVisitor`.cs" />
     <Compile Include="Query\ExpressionVisitor1.cs" />
     <Compile Include="Query\ExpressionVisitor`.cs" />
+    <Compile Include="Query\IMappingObjectExpression.cs" />
     <Compile Include="Query\Implementation\DbColumnExpressionVisitor.cs" />
     <Compile Include="Query\Implementation\JoinConditionExpressionVisitor.cs" />
     <Compile Include="Query\Implementation\SqlExpressionVisitor.cs" />
     <Compile Include="Query\ISqlState.cs" />
+    <Compile Include="Query\Mapping\IObjectActivtorCreator.cs" />
     <Compile Include="Query\Mapping\MappingData.cs" />
     <Compile Include="Query\Mapping\MappingEntity.cs" />
+    <Compile Include="Query\Mapping\MappingField.cs" />
     <Compile Include="Query\QueryExpressions\IncludeExpression.cs" />
     <Compile Include="Query\QueryExpressions\RootQueryExpression.cs" />
     <Compile Include="Query\QueryState\SubQueryState.cs" />

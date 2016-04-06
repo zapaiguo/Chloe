@@ -13,7 +13,7 @@ namespace Chloe.Query.Implementation
     {
         static BaseExpressionVisitor()
         {
-         
+
         }
 
         protected override DbExpression VisitLambda(LambdaExpression lambda)
@@ -522,43 +522,13 @@ namespace Chloe.Query.Implementation
             return operand;
         }
 
-
-        //static DbExpression SureCaseWhenReturnDbExpression(DbExpression exp)
-        //{
-        //    var nodeType = exp.NodeType;
-        //    if ((nodeType == DbExpressionType.Call && ((DbMethodCallExpression)exp).Type == Utils.TypeOfBoolean) || _DbBooleanDbExpressionTypes.Contains(nodeType))
-        //    {
-        //        List<KeyValuePair<DbExpression, DbExpression>> whenThenExps = new List<KeyValuePair<DbExpression, DbExpression>>(1);
-        //        whenThenExps.Add(new KeyValuePair<DbExpression, DbExpression>(exp, trueDbConstantExp));
-        //        DbExpression elseExp = falseDbConstantExp;
-        //        return DbExpression.CaseWhen(whenThenExps.AsReadOnly(), elseExp, Utils.TypeOfBoolean);
-        //    }
-        //    return exp;
-        //}
-
         static Expression trueConstantExp = Expression.Constant(true, UtilConstants.TypeOfBoolean);
         static Expression trueConvertExp = Expression.Convert(Expression.Constant(true, UtilConstants.TypeOfBoolean), UtilConstants.TypeOfBoolean_Nullable);
         static Expression falseConstantExp = Expression.Constant(false, UtilConstants.TypeOfBoolean);
         static Expression falseConvertExp = Expression.Convert(Expression.Constant(false, UtilConstants.TypeOfBoolean), UtilConstants.TypeOfBoolean_Nullable);
 
-
         static DbConstantExpression trueDbConstantExp = DbExpression.Constant(true, UtilConstants.TypeOfBoolean);
         static DbConstantExpression falseDbConstantExp = DbExpression.Constant(false, UtilConstants.TypeOfBoolean);
         static DbEqualExpression trueEqualFalseExp = DbExpression.Equal(trueDbConstantExp, falseDbConstantExp);
-
-        //static List<DbExpressionType> _DbBooleanDbExpressionTypes;
-
-        protected override DbExpression VisitNewArray(NewArrayExpression exp)
-        {
-            throw new NotImplementedException(exp.ToString());
-        }
-        protected override DbExpression VisitBinary(BinaryExpression exp)
-        {
-            throw new NotImplementedException(exp.ToString());
-        }
-        protected override DbExpression VisitUnary(UnaryExpression exp)
-        {
-            throw new NotImplementedException(exp.ToString());
-        }
     }
 }

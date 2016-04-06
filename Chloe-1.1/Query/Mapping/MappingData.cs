@@ -15,7 +15,7 @@ namespace Chloe.Query.Mapping
         }
         //public Type EntityType { get; set; }
         //public MappingMember MappingInfo { get; set; }
-        public MappingEntity MappingEntity { get; set; }
+        public IObjectActivtorCreator MappingEntity { get; set; }
         public DbSqlQueryExpression SqlQuery { get; set; }
     }
 }

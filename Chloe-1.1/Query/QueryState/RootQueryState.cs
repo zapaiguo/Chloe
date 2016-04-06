@@ -134,7 +134,7 @@ namespace Chloe.Query.QueryState
             this.VisistOrderExpressions(visitor, sqlQuery.Orders);
 
             tablePart.SetTableNameByNumber(0);
-            this.FillColumnList(sqlQuery.Columns, tablePart, this._rawEntity.TypeDescriptor.MappingMemberDescriptors, this._rawEntity.IncludedNavigationMembers, mappingMember);
+            this.FillColumnList(sqlQuery, tablePart, this._rawEntity.TypeDescriptor.MappingMemberDescriptors, this._rawEntity.IncludedNavigationMembers, mappingMember);
             sqlQuery.Table = tablePart;
             //============
 
@@ -144,13 +144,15 @@ namespace Chloe.Query.QueryState
             return data;
         }
 
-        void FillColumnList(List<DbColumnExpression> columnList, TablePart tablePart, List<MappingMemberDescriptor> mappingMemberDescriptors, Dictionary<MemberInfo, IncludeMemberInfo> includedNavigationMembers, MappingEntity mappingMember)
+        void FillColumnList(DbSqlQueryExpression sqlQuery, TablePart tablePart, List<MappingMemberDescriptor> mappingMemberDescriptors, Dictionary<MemberInfo, IncludeMemberInfo> includedNavigationMembers, MappingEntity mappingMember)
         {
+            List<DbColumnExpression> columnList = sqlQuery.Columns;
             foreach (MappingMemberDescriptor mappingMemberDescriptor in mappingMemberDescriptors)
             {
                 DbTableExpression tableExpression = tablePart.Table;
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(mappingMemberDescriptor.MemberType, tableExpression, mappingMemberDescriptor.ColumnName);
-                DbColumnExpression columnExp = new DbColumnExpression(mappingMemberDescriptor.MemberType, columnAccessExpression, mappingMemberDescriptor.ColumnName + "_Alias");
+                string alias = sqlQuery.GenerateUniqueColumnAlias(mappingMemberDescriptor.ColumnName);
+                DbColumnExpression columnExp = new DbColumnExpression(mappingMemberDescriptor.MemberType, columnAccessExpression, alias);
 
                 columnList.Add(columnExp);
 
@@ -185,7 +187,7 @@ namespace Chloe.Query.QueryState
                     //}
                 }
 
-                this.FillColumnList(columnList, includeMemberInfo.TablePart, navigationMemberTypeDescriptor.MappingMemberDescriptors, includeMemberInfo.IncludeMembers, navMappingMember);
+                this.FillColumnList(sqlQuery, includeMemberInfo.TablePart, navigationMemberTypeDescriptor.MappingMemberDescriptors, includeMemberInfo.IncludeMembers, navMappingMember);
             }
         }
 

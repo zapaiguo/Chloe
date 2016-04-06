@@ -9,31 +9,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.Mapping
 {
-
-    public abstract class MappingObject
-    {
-        public abstract Type EntityType { get; }
-        public abstract IObjectActivtor CreateObjectActivtor();
-    }
-
-    public class MappingField : MappingObject
-    {
-        Type _type;
-        public MappingField(Type type, int readerOrdinal)
-        {
-            this._type = type;
-            this.ReaderOrdinal = readerOrdinal;
-        }
-        public int ReaderOrdinal { get; private set; }
-        public override Type EntityType { get { return this._type; } }
-
-        public override IObjectActivtor CreateObjectActivtor()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class MappingEntity
+    public class MappingEntity : IObjectActivtorCreator
     {
         public MappingEntity(ConstructorInfo constructor)
         {
@@ -42,15 +18,14 @@ namespace Chloe.Query.Mapping
             this.ConstructorParameters = new Dictionary<ParameterInfo, int>();
             this.ConstructorEntityParameters = new Dictionary<ParameterInfo, MappingEntity>();
             this.Members = new Dictionary<MemberInfo, int>();
-            this.EntityMembers = new Dictionary<MemberInfo, MappingEntity>();
+            this.EntityMembers = new Dictionary<MemberInfo, IObjectActivtorCreator>();
         }
-        //public Type EntityType { get; private set; }
         public ConstructorInfo Constructor { get; private set; }
         public Dictionary<ParameterInfo, int> ConstructorParameters { get; private set; }
         public Dictionary<ParameterInfo, MappingEntity> ConstructorEntityParameters { get; private set; }
 
         public Dictionary<MemberInfo, int> Members { get; private set; }
-        public Dictionary<MemberInfo, MappingEntity> EntityMembers { get; private set; }
+        public Dictionary<MemberInfo, IObjectActivtorCreator> EntityMembers { get; private set; }
 
         public IObjectActivtor CreateObjectActivtor()
         {
@@ -86,5 +61,4 @@ namespace Chloe.Query.Mapping
             return ret;
         }
     }
-
 }
