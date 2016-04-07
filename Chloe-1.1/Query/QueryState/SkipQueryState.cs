@@ -13,35 +13,19 @@ namespace Chloe.Query.QueryState
 {
     internal sealed class SkipQueryState : SubQueryState
     {
-        public SkipQueryState(int count, IQueryState prevQueryState)
-            : base(prevQueryState)
+        public SkipQueryState(int count, ResultElement resultElement)
+            : base(resultElement)
         {
             this.Count = count;
         }
 
 
         public int Count { get; set; }
-        public override ResultElement Result
-        {
-            get
-            {
-                IQueryState queryState = this.AsSubQueryState();
-                return queryState.Result;
-            }
-        }
 
-        public override void AppendWhereExpression(WhereExpression whereExp)
+        public override DbSqlQueryExpression CreateSqlQuery(out IObjectActivtorCreator mappingMember)
         {
-            throw new NotSupportedException("SkipQueryState.AppendWhereExpression(WhereExpression whereExp)");
-        }
-        public override void AppendOrderExpression(OrderExpression orderExp)
-        {
-            throw new NotSupportedException("SkipQueryState.AppendOrderExpression(OrderExpression orderExp)");
-        }
-        public override DbSqlQueryExpression CreateSqlQuery(out MappingEntity mappingMember)
-        {
-            ResultElement prevResult = this._prevResult;
-            MappingMembers prevPappingMembers = prevResult.MappingMembers;
+            ResultElement prevResult = this.Result;
+            var prevPappingMembers = prevResult.MappingObjectExpression;
 
             TablePart prevTablePart = prevResult.TablePart;
             prevTablePart.SetTableNameByNumber(0);
@@ -52,7 +36,7 @@ namespace Chloe.Query.QueryState
             sqlQuery.Orders.AddRange(prevResult.OrderParts);
             sqlQuery.TakeCount = null;
             sqlQuery.SkipCount = this.Count;
-            mappingMember = prevPappingMembers.GetMappingEntity(sqlQuery);
+            mappingMember = prevPappingMembers.GenarateObjectActivtorCreator(sqlQuery);
 
             return sqlQuery;
         }

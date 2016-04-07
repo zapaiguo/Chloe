@@ -15,6 +15,7 @@ namespace Chloe.Query.QueryState
 {
     internal sealed class RootQueryState : BaseQueryState
     {
+        ResultElement _resultElement;
         Type _elementType;
         RootEntity _rawEntity;
         public RootQueryState(Type elementType)
@@ -27,8 +28,29 @@ namespace Chloe.Query.QueryState
         {
             RootEntity rawEntity = new RootEntity(this._elementType);
             this._rawEntity = rawEntity;
+
+            //TODO init _resultElement
+            this._resultElement = null;
         }
 
+        public override IQueryState AppendWhereExpression(WhereExpression whereExp)
+        {
+            BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
+            var dbExp = visitor.Visit(whereExp.Expression);
+            this._resultElement.UpdateWhereExpression(dbExp);
+            return this;
+        }
+        public override IQueryState AppendOrderExpression(OrderExpression orderExp)
+        {
+            if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.OrderByDesc)
+                this._resultElement.OrderParts.Clear();
+
+            BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
+            var r = VisistOrderExpression(visitor, orderExp);
+            this._resultElement.OrderParts.Add(r);
+
+            return this;
+        }
 
         /// <summary>
         /// 当前 querystate 作为一个源表，传递到下个 querystate
@@ -36,24 +58,26 @@ namespace Chloe.Query.QueryState
         public override ResultElement Result { get { return this.GetResultElement(); } }
         ResultElement GetResultElement()
         {
-            BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
-            TablePart tablePart = this._rawEntity.RootTablePart;
-            //设置 table 的一些必要信息
+            return this._resultElement;
 
-            ResultElement result = new ResultElement(tablePart);
-            MappingMembers mm = new MappingMembers(this._elementType.GetConstructor(new Type[0]));
-            result.MappingMembers = mm;
+            //BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
+            //TablePart tablePart = this._rawEntity.RootTablePart;
+            ////设置 table 的一些必要信息
 
-            //在这解析所有表达式树，如 where、order、select、IncludeNavigationMember 等
-            //解析 where 表达式，得出的 DbExpression 
+            //ResultElement result = new ResultElement(tablePart);
+            //MappingMembers mm = new MappingMembers(this._elementType.GetConstructor(new Type[0]));
+            //result.MappingMembers = mm;
 
-            result.UpdateWhereExpression(VisistWhereExpressions(visitor, this.WhereExpressions));
+            ////在这解析所有表达式树，如 where、order、select、IncludeNavigationMember 等
+            ////解析 where 表达式，得出的 DbExpression 
 
-            this.VisistOrderExpressions(visitor, result.OrderParts);
+            //result.UpdateWhereExpression(VisistWhereExpressions(visitor, this.WhereExpressions));
 
-            this.SetMembers(tablePart, this._rawEntity.IncludedNavigationMembers, this._rawEntity.TypeDescriptor.MappingMemberDescriptors, result.MappingMembers);
+            //this.VisistOrderExpressions(visitor, result.OrderParts);
 
-            return result;
+            //this.SetMembers(tablePart, this._rawEntity.IncludedNavigationMembers, this._rawEntity.TypeDescriptor.MappingMemberDescriptors, result.MappingMembers);
+
+            //return result;
         }
 
         void SetMembers(TablePart tablePart, Dictionary<MemberInfo, IncludeMemberInfo> includedNavigationMembers, List<MappingMemberDescriptor> mappingMemberDescriptors, MappingMembers mappingResult)
@@ -88,60 +112,79 @@ namespace Chloe.Query.QueryState
 
         public override IQueryState UpdateSelectResult(SelectExpression selectExpression)
         {
-            ResultElement result = new ResultElement(this._rawEntity.RootTablePart);
+            ResultElement result = new ResultElement(this._resultElement.TablePart);
 
-            //解析 where order 表达式树
-            //解析 selectExpression
-            //构建一个新的 ResultElement
-            BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
-            SelectExpressionVisitor selectExpressionVisitor = new RootSelectExpressionVisitor(visitor, this._rawEntity);
-            MappingMembers mappingMembers = selectExpressionVisitor.Visit(selectExpression.Expression);
+            SelectExpressionVisitor1 visistor = null;
 
-            result.MappingMembers = mappingMembers;
-
-            result.UpdateWhereExpression(VisistWhereExpressions(visitor, this.WhereExpressions));
-
-            this.VisistOrderExpressions(visitor, result.OrderParts);
+            IMappingObjectExpression r = visistor.Visit(selectExpression.Expression);
+            result.MappingObjectExpression = r;
+            result.OrderParts.AddRange(this._resultElement.OrderParts);
+            result.UpdateWhereExpression(this._resultElement.WhereExpression);
 
             return new GeneralQueryState(result);
-        }
 
-        public override void IncludeNavigationMember(Expression exp)
-        {
-            LambdaExpression lambdaExpression = (LambdaExpression)exp;
-            Expression body = lambdaExpression.Body;
 
-            if (body.NodeType != ExpressionType.MemberAccess)
-                throw new NotSupportedException(string.Format("Include path", exp.ToString()));
+            //ResultElement result = new ResultElement(this._rawEntity.RootTablePart);
 
-            this._rawEntity.IncludeNavigationMember((MemberExpression)body);
+            ////解析 where order 表达式树
+            ////解析 selectExpression
+            ////构建一个新的 ResultElement
+            //BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
+            //SelectExpressionVisitor selectExpressionVisitor = new RootSelectExpressionVisitor(visitor, this._rawEntity);
+            //MappingMembers mappingMembers = selectExpressionVisitor.Visit(selectExpression.Expression);
+
+            //result.MappingMembers = mappingMembers;
+
+            //result.UpdateWhereExpression(VisistWhereExpressions(visitor, this.WhereExpressions));
+
+            //this.VisistOrderExpressions(visitor, result.OrderParts);
+
+            //return new GeneralQueryState(result);
         }
 
         public override MappingData GenerateMappingData()
         {
             MappingData data = new MappingData();
-            ConstructorInfo constructorInfo = this._rawEntity.TypeDescriptor.EntityType.GetConstructor(new Type[0]);//获取默认构造函数
-            MappingEntity mappingMember = new MappingEntity(constructorInfo);
 
-            //------------
             DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
+            TablePart tablePart = this._resultElement.TablePart;
 
-            BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
-            TablePart tablePart = this._rawEntity.RootTablePart;
-
-            sqlQuery.UpdateWhereExpression(VisistWhereExpressions(visitor, this.WhereExpressions));
-
-            this.VisistOrderExpressions(visitor, sqlQuery.Orders);
-
-            tablePart.SetTableNameByNumber(0);
-            this.FillColumnList(sqlQuery, tablePart, this._rawEntity.TypeDescriptor.MappingMemberDescriptors, this._rawEntity.IncludedNavigationMembers, mappingMember);
             sqlQuery.Table = tablePart;
-            //============
+            sqlQuery.Orders.AddRange(this._resultElement.OrderParts);
+            sqlQuery.UpdateWhereExpression(this._resultElement.WhereExpression);
+            tablePart.SetTableNameByNumber(0);
+
+            var oac = this._resultElement.MappingObjectExpression.GenarateObjectActivtorCreator(sqlQuery);
 
             data.SqlQuery = sqlQuery;
-            data.MappingEntity = mappingMember;
+            data.MappingEntity = oac;
 
             return data;
+
+
+            //MappingData data = new MappingData();
+            //ConstructorInfo constructorInfo = this._rawEntity.TypeDescriptor.EntityType.GetConstructor(new Type[0]);//获取默认构造函数
+            //MappingEntity mappingMember = new MappingEntity(constructorInfo);
+
+            ////------------
+            //DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
+
+            //BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
+            //TablePart tablePart = this._rawEntity.RootTablePart;
+
+            //sqlQuery.UpdateWhereExpression(VisistWhereExpressions(visitor, this.WhereExpressions));
+
+            //this.VisistOrderExpressions(visitor, sqlQuery.Orders);
+
+            //tablePart.SetTableNameByNumber(0);
+            //this.FillColumnList(sqlQuery, tablePart, this._rawEntity.TypeDescriptor.MappingMemberDescriptors, this._rawEntity.IncludedNavigationMembers, mappingMember);
+            //sqlQuery.Table = tablePart;
+            ////============
+
+            //data.SqlQuery = sqlQuery;
+            //data.MappingEntity = mappingMember;
+
+            //return data;
         }
 
         void FillColumnList(DbSqlQueryExpression sqlQuery, TablePart tablePart, List<MappingMemberDescriptor> mappingMemberDescriptors, Dictionary<MemberInfo, IncludeMemberInfo> includedNavigationMembers, MappingEntity mappingMember)

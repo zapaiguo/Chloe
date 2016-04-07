@@ -13,47 +13,38 @@ namespace Chloe.Query.QueryState
 {
     internal sealed class LimitQueryState : SubQueryState
     {
-        int _skipCount;
-        int _takeCount;
-        public LimitQueryState(int skipCount, int takeCount, IQueryState prevQueryState)
-            : base(prevQueryState)
+        //int _skipCount;
+        //int _takeCount;
+        public LimitQueryState(int skipCount, int takeCount, ResultElement resultElement)
+            : base(resultElement)
         {
-            this._skipCount = skipCount;
-            this._takeCount = takeCount;
+            this.SkipCount = skipCount;
+            this.TakeCount = takeCount;
         }
 
         public int SkipCount
         {
-            get { return _skipCount; }
-            set { _skipCount = value; }
+            get;
+            private set;
         }
         public int TakeCount
         {
-            get { return _takeCount; }
-            set { _takeCount = value; }
+            get;
+            private set;
         }
-        public override ResultElement Result
+
+        public void UpdateTakeCount(int count)
         {
-            get
+            if (count < this.TakeCount)
             {
-                IQueryState queryState = this.AsSubQueryState();
-                return queryState.Result;
+                this.TakeCount = count;
             }
         }
 
-        public override void AppendWhereExpression(WhereExpression whereExp)
+        public override DbSqlQueryExpression CreateSqlQuery(out IObjectActivtorCreator mappingMember)
         {
-            throw new NotSupportedException("LimitQueryState.AppendWhereExpression(WhereExpression whereExp)");
-        }
-        public override void AppendOrderExpression(OrderExpression orderExp)
-        {
-            throw new NotSupportedException("LimitQueryState.AppendOrderExpression(OrderExpression orderExp)");
-        }
-
-        public override DbSqlQueryExpression CreateSqlQuery(out MappingEntity mappingMember)
-        {
-            ResultElement prevResult = this._prevResult;
-            MappingMembers prevPappingMembers = prevResult.MappingMembers;
+            ResultElement prevResult = this.Result;
+            var prevPappingMembers = prevResult.MappingObjectExpression;
 
             TablePart prevTablePart = prevResult.TablePart;
             prevTablePart.SetTableNameByNumber(0);
@@ -62,9 +53,9 @@ namespace Chloe.Query.QueryState
             sqlQuery.Table = prevTablePart;
             sqlQuery.Where = prevResult.WhereExpression;
             sqlQuery.Orders.AddRange(prevResult.OrderParts);
-            sqlQuery.TakeCount = this._takeCount;
-            sqlQuery.SkipCount = this._skipCount;
-            mappingMember = prevPappingMembers.GetMappingEntity(sqlQuery);
+            sqlQuery.TakeCount = this.TakeCount;
+            sqlQuery.SkipCount = this.SkipCount;
+            mappingMember = prevPappingMembers.GenarateObjectActivtorCreator(sqlQuery);
 
             return sqlQuery;
         }

@@ -25,21 +25,23 @@ namespace Chloe.Query
 
         protected override MappingMembers VisitNavigationMember(MemberExpression exp)
         {
-            Stack<MemberExpression> memberExpressions = exp.Reverse();
-            MappingMembers mappingMembers = this._rawEntity.MappingMembers;
+            return null;
 
-            foreach (MemberExpression memberExpression in memberExpressions)
-            {
-                MappingMembers t;
-                if (!mappingMembers.SubResultEntities.TryGetValue(memberExpression.Member, out t))
-                {
-                    throw new Exception(exp.ToString());
-                }
+            //Stack<MemberExpression> memberExpressions = exp.Reverse();
+            //MappingMembers mappingMembers = this._rawEntity.MappingMembers;
 
-                mappingMembers = t;
-            }
+            //foreach (MemberExpression memberExpression in memberExpressions)
+            //{
+            //    MappingMembers t;
+            //    if (!mappingMembers.SubResultEntities.TryGetValue(memberExpression.Member, out t))
+            //    {
+            //        throw new Exception(exp.ToString());
+            //    }
 
-            return mappingMembers;
+            //    mappingMembers = t;
+            //}
+
+            //return mappingMembers;
         }
     }
 }

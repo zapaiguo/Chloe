@@ -146,7 +146,7 @@ namespace Chloe.Query
 
         protected override IMappingObjectExpression VisitLambda(LambdaExpression exp)
         {
-            return this.Visit(((LambdaExpression)exp).Body);
+            return this.Visit(exp.Body);
         }
 
         protected override IMappingObjectExpression VisitNew(NewExpression exp)

@@ -19,21 +19,14 @@ namespace Chloe.Query.QueryState
     {
         protected BaseQueryState()
         {
-            this.WhereExpressions = new List<WhereExpression>();
-            this.OrderExpressions = new List<OrderExpression>();
         }
-        public List<WhereExpression> WhereExpressions { get; set; }
-        public List<OrderExpression> OrderExpressions { get; set; }
-        public virtual void AppendWhereExpression(WhereExpression whereExp)
+        public virtual IQueryState AppendWhereExpression(WhereExpression whereExp)
         {
-            this.WhereExpressions.Add(whereExp);
+            throw new NotImplementedException();
         }
-        public virtual void AppendOrderExpression(OrderExpression orderExp)
+        public virtual IQueryState AppendOrderExpression(OrderExpression orderExp)
         {
-            if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.OrderByDesc)
-                this.OrderExpressions.Clear();
-
-            this.OrderExpressions.Add(orderExp);
+            throw new NotImplementedException();
         }
 
         public virtual ResultElement Result
@@ -48,39 +41,35 @@ namespace Chloe.Query.QueryState
             throw new NotImplementedException();
         }
 
-        public virtual void IncludeNavigationMember(Expression exp)
-        {
-            throw new NotImplementedException();
-        }
 
-        protected void VisistOrderExpressions(BaseExpressionVisitor visitor, List<OrderPart> orderParts)
-        {
-            foreach (OrderExpression orderExp in this.OrderExpressions)
-            {
-                OrderPart orderPart = VisistOrderExpression(visitor, orderExp);
-                orderParts.Add(orderPart);
-            }
-        }
+        //protected void VisistOrderExpressions(BaseExpressionVisitor visitor, List<OrderPart> orderParts)
+        //{
+        //    foreach (OrderExpression orderExp in this.OrderExpressions)
+        //    {
+        //        OrderPart orderPart = VisistOrderExpression(visitor, orderExp);
+        //        orderParts.Add(orderPart);
+        //    }
+        //}
 
-        protected DbExpression VisistWhereExpressions(BaseExpressionVisitor visitor)
-        {
-            return VisistWhereExpressions(visitor, this.WhereExpressions);
-        }
-        protected static DbExpression VisistWhereExpressions(BaseExpressionVisitor visitor, IList<WhereExpression> whereExpressions)
-        {
-            DbExpression ret = null;
-            if (whereExpressions != null)
-                foreach (WhereExpression whereExpression in whereExpressions)
-                {
-                    DbExpression whereDbExpression = visitor.Visit(whereExpression.Expression);
-                    if (ret == null)
-                        ret = whereDbExpression;
-                    else
-                        ret = new DbAndExpression(ret, whereDbExpression);
-                }
+        //protected DbExpression VisistWhereExpressions(BaseExpressionVisitor visitor)
+        //{
+        //    return VisistWhereExpressions(visitor, this.WhereExpressions);
+        //}
+        //protected static DbExpression VisistWhereExpressions(BaseExpressionVisitor visitor, IList<WhereExpression> whereExpressions)
+        //{
+        //    DbExpression ret = null;
+        //    if (whereExpressions != null)
+        //        foreach (WhereExpression whereExpression in whereExpressions)
+        //        {
+        //            DbExpression whereDbExpression = visitor.Visit(whereExpression.Expression);
+        //            if (ret == null)
+        //                ret = whereDbExpression;
+        //            else
+        //                ret = new DbAndExpression(ret, whereDbExpression);
+        //        }
 
-            return ret;
-        }
+        //    return ret;
+        //}
         protected static OrderPart VisistOrderExpression(BaseExpressionVisitor visitor, OrderExpression orderExp)
         {
             DbExpression dbExpression = visitor.Visit(orderExp.Expression);//解析表达式树 orderExp.Expression

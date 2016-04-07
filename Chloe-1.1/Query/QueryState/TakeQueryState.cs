@@ -13,37 +13,25 @@ namespace Chloe.Query.QueryState
 {
     internal sealed class TakeQueryState : SubQueryState
     {
-        public TakeQueryState(int count, IQueryState prevQueryState)
-            : base(prevQueryState)
+        public TakeQueryState(int count, ResultElement resultElement)
+            : base(resultElement)
         {
             this.Count = count;
         }
 
-        public int Count { get; set; }
-
-        public override ResultElement Result
+        public int Count { get; private set; }
+        public void UpdateCount(int count)
         {
-            get
+            if (count < this.Count)
             {
-                IQueryState queryState = this.AsSubQueryState();
-                return queryState.Result;
+                this.Count = count;
             }
         }
 
-        public override void AppendWhereExpression(WhereExpression whereExp)
+        public override DbSqlQueryExpression CreateSqlQuery(out IObjectActivtorCreator mappingMember)
         {
-            throw new NotSupportedException("TakeQueryState.AppendWhereExpression(WhereExpression whereExp)");
-        }
-        public override void AppendOrderExpression(OrderExpression orderExp)
-        {
-            throw new NotSupportedException("TakeQueryState.AppendOrderExpression(OrderExpression orderExp)");
-        }
-
-
-        public override DbSqlQueryExpression CreateSqlQuery(out MappingEntity mappingMember)
-        {
-            ResultElement prevResult = this._prevResult;
-            MappingMembers prevPappingMembers = prevResult.MappingMembers;
+            ResultElement prevResult = this.Result;
+            IMappingObjectExpression prevPappingMembers = prevResult.MappingObjectExpression;
 
             TablePart prevTablePart = prevResult.TablePart;
             prevTablePart.SetTableNameByNumber(0);
@@ -54,8 +42,7 @@ namespace Chloe.Query.QueryState
             sqlQuery.Orders.AddRange(prevResult.OrderParts);
             sqlQuery.TakeCount = this.Count;
             sqlQuery.SkipCount = null;
-            mappingMember = prevPappingMembers.GetMappingEntity(sqlQuery);
-            //FillColumnList(sqlQuery.Columns, prevPappingMembers, mappingMember);
+            mappingMember = prevPappingMembers.GenarateObjectActivtorCreator(sqlQuery);
 
             return sqlQuery;
         }

@@ -84,10 +84,10 @@ namespace Chloe.Query
         public Dictionary<MemberInfo, IMappingObjectExpression> SubResultEntities { get; protected set; }
         //public bool IsIncludeMember { get; set; }
 
-        /// <summary>
-        /// 当 IsIncludeMember 为 true 时，AssociatingMemberInfo 为导航属性中相对应的关联属性 如 T.UserId=User.Id ,则 AssociatingMemberInfo 为 User.Id
-        /// </summary>
-        public MemberInfo AssociatingMemberInfo { get; set; }
+        ///// <summary>
+        ///// 当 IsIncludeMember 为 true 时，AssociatingMemberInfo 为导航属性中相对应的关联属性 如 T.UserId=User.Id ,则 AssociatingMemberInfo 为 User.Id
+        ///// </summary>
+        //public MemberInfo AssociatingMemberInfo { get; set; }
 
         public void AddConstructorParameter(ParameterInfo p, DbExpression exp)
         {

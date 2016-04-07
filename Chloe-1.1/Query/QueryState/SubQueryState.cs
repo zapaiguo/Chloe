@@ -13,20 +13,35 @@ namespace Chloe.Query.QueryState
 {
     internal abstract class SubQueryState : BaseQueryState, IQueryState
     {
-        protected IQueryState _prevQueryState;
-        protected ResultElement _prevResult;
-        protected SubQueryState(IQueryState prevQueryState)
+        ResultElement _resultElement;
+        protected SubQueryState(ResultElement resultElement)
         {
-            this._prevQueryState = prevQueryState;
+            this._resultElement = resultElement;
             this.Init();
         }
 
         void Init()
         {
-            this._prevResult = this._prevQueryState.Result;
         }
 
-        public IQueryState PrevQueryState { get { return this._prevQueryState; } }
+        public override ResultElement Result
+        {
+            get
+            {
+                return this._resultElement;
+            }
+        }
+
+        public override IQueryState AppendWhereExpression(WhereExpression whereExp)
+        {
+            IQueryState state = this.AsSubQueryState();
+            return state.AppendWhereExpression(whereExp);
+        }
+        public override IQueryState AppendOrderExpression(OrderExpression orderExp)
+        {
+            IQueryState state = this.AsSubQueryState();
+            return state.AppendOrderExpression(orderExp);
+        }
 
         public override IQueryState UpdateSelectResult(SelectExpression selectExpression)
         {
@@ -36,7 +51,7 @@ namespace Chloe.Query.QueryState
         public override MappingData GenerateMappingData()
         {
             MappingData data = new MappingData();
-            MappingEntity mappingMember;
+            IObjectActivtorCreator mappingMember;
 
             //------------
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery(out mappingMember);
@@ -50,9 +65,9 @@ namespace Chloe.Query.QueryState
 
         public virtual IQueryState AsSubQueryState()
         {
-            ResultElement prevResult = this._prevResult;
-            MappingMembers prevMappingMembers = prevResult.MappingMembers;
-            MappingEntity mappingMember;
+            ResultElement prevResult = this.Result;
+            IMappingObjectExpression prevMappingMembers = prevResult.MappingObjectExpression;
+            IObjectActivtorCreator mappingMember;
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery(out mappingMember);
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
@@ -65,8 +80,8 @@ namespace Chloe.Query.QueryState
             ResultElement result = new ResultElement(tablePart);
             result.IsFromSubQuery = true;
 
-            MappingMembers mappingMembers = prevMappingMembers;//生成 MappingMembers，目前可以直接用 prevPappingMembers，还没影响
-            result.MappingMembers = mappingMembers;
+            IMappingObjectExpression mappingMembers = prevMappingMembers;//生成 MappingMembers，目前可以直接用 prevPappingMembers，还没影响
+            result.MappingObjectExpression = mappingMembers;
 
             //将 orderPart 传递下去
             if (prevResult.OrderParts.Count > 0)
@@ -100,6 +115,6 @@ namespace Chloe.Query.QueryState
             GeneralQueryState queryState = new GeneralQueryState(result);
             return queryState;
         }
-        public abstract DbSqlQueryExpression CreateSqlQuery(out MappingEntity mappingMember);
+        public abstract DbSqlQueryExpression CreateSqlQuery(out IObjectActivtorCreator mappingMember);
     }
 }

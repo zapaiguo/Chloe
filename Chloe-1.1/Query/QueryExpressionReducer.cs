@@ -26,33 +26,6 @@ namespace Chloe.Query
             return queryState;
         }
 
-        void AddWhereExpression(WhereExpression exp)
-        {
-            IQueryState queryState = this._queryState;
-
-            SubQueryState subQueryState = queryState as SubQueryState;
-            if (subQueryState != null)
-            {
-                queryState = subQueryState.AsSubQueryState();
-                this._queryState = queryState;
-            }
-
-            queryState.AppendWhereExpression(exp);
-        }
-        void AddOrderExpression(OrderExpression exp)
-        {
-            IQueryState queryState = this._queryState;
-
-            SubQueryState subQueryState = queryState as SubQueryState;
-            if (subQueryState != null)
-            {
-                queryState = subQueryState.AsSubQueryState();
-                this._queryState = queryState;
-            }
-
-            queryState.AppendOrderExpression(exp);
-        }
-
         protected virtual IQueryState Reduce(QueryExpression queryExpression)
         {
             List<QueryExpression> queryExpressions = new List<QueryExpression>();
@@ -100,9 +73,9 @@ namespace Chloe.Query
                 case QueryExpressionType.Select:
                     this.VisitSelect((SelectExpression)exp);
                     break;
-                case QueryExpressionType.Include:
-                    this.VisitInclude((IncludeExpression)exp);
-                    break;
+                //case QueryExpressionType.Include:
+                //    this.VisitInclude((IncludeExpression)exp);
+                //    break;
 
                 default:
                     throw new Exception(string.Format("Unhandled queryExpression type: '{0}'", exp.NodeType));
@@ -118,19 +91,17 @@ namespace Chloe.Query
         {
             IQueryState state = this._queryState.UpdateSelectResult(exp);
             this._queryState = state;
-            return;
         }
 
-        protected virtual void VisitInclude(IncludeExpression exp)
-        {
-            this._queryState.IncludeNavigationMember(exp.Expression);
-            return;
-        }
+        //protected virtual void VisitInclude(IncludeExpression exp)
+        //{
+        //    this._queryState.IncludeNavigationMember(exp.Expression);
+        //    return;
+        //}
 
         protected virtual void VisitWhere(WhereExpression exp)
         {
-            this.AddWhereExpression(exp);
-            return;
+            this._queryState = this._queryState.AppendWhereExpression(exp);
         }
 
         protected virtual void VisitTake(TakeExpression exp)
@@ -143,29 +114,23 @@ namespace Chloe.Query
 
             if ((skipQuery = this._queryState as SkipQueryState) != null)
             {
-                limitQuery = new LimitQueryState(skipQuery.Count, count, skipQuery.PrevQueryState);
-                _queryState = limitQuery;
+                limitQuery = new LimitQueryState(skipQuery.Count, count, skipQuery.Result);
+                this._queryState = limitQuery;
                 return;
             }
             else if ((takeQuery = this._queryState as TakeQueryState) != null)
             {
-                if (count < takeQuery.Count)
-                {
-                    takeQuery.Count = count;
-                }
+                takeQuery.UpdateCount(count);
                 return;
             }
             else if ((limitQuery = this._queryState as LimitQueryState) != null)
             {
-                if (count < limitQuery.TakeCount)
-                {
-                    limitQuery.TakeCount = count;
-                }
+                limitQuery.UpdateTakeCount(count);
                 return;
             }
 
-            takeQuery = new TakeQueryState(count, this._queryState);
-            _queryState = takeQuery;
+            takeQuery = new TakeQueryState(count, this._queryState.Result);
+            this._queryState = takeQuery;
             return;
         }
 
@@ -183,15 +148,14 @@ namespace Chloe.Query
                 return;
             }
 
-            skipQuery = new SkipQueryState(exp.Count, this._queryState);
+            skipQuery = new SkipQueryState(exp.Count, this._queryState.Result);
             this._queryState = skipQuery;
             return;
         }
 
         protected virtual void VisitOrder(OrderExpression exp)
         {
-            this.AddOrderExpression(exp);
-            return;
+            this._queryState = this._queryState.AppendOrderExpression(exp);
         }
     }
 

@@ -24,7 +24,7 @@ namespace Chloe.Query
         public DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter)
         {
             Stack<MemberExpression> memberExpressions = memberExpressionDeriveParameter.Reverse();
-            MappingMembers resultEntity = this._resultEntity.MappingMembers;
+            IMappingObjectExpression resultEntity = this._resultEntity.MappingObjectExpression;
 
             DbExpression ret = null;
 
@@ -38,7 +38,7 @@ namespace Chloe.Query
                     continue;
                 }
 
-                DbExpression sqlExpression = resultEntity.GetDbExpression(member);
+                DbExpression sqlExpression = resultEntity.GetMemberExpression(member);
                 if (sqlExpression != null)
                 {
                     ret = sqlExpression;
@@ -46,7 +46,7 @@ namespace Chloe.Query
                 }
                 else
                 {
-                    MappingMembers subResultEntity = resultEntity.GetSubResultEntity(member);
+                    IMappingObjectExpression subResultEntity = resultEntity.GetNavMemberExpression(member);
                     if (subResultEntity == null)
                     {
                         throw new Exception(string.Format("属性：{0}", memberExpression.ToString()));

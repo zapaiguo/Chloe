@@ -16,16 +16,16 @@ namespace Chloe.Query
     {
         public ResultElement(TablePart tablePart)
         {
-            //this.Constructor = constructor;
             this.TablePart = tablePart;
             this.OrderParts = new List<OrderPart>();
-            //this.MappingMembers = new MappingMembers(constructor);
         }
-        //public Type Type { get; protected set; }
-        //public ConstructorInfo Constructor { get; private set; }
 
-        public MappingMembers MappingMembers { get; set; }
+        //public MappingMembers MappingMembers { get; set; }
+        public IMappingObjectExpression MappingObjectExpression { get; set; }
 
+        /// <summary>
+        /// 表示当前 OrderParts 集合内的排序是否是从子query来的
+        /// </summary>
         public bool IsFromSubQuery { get; set; }
 
         public List<OrderPart> OrderParts { get; private set; }
@@ -45,4 +45,34 @@ namespace Chloe.Query
         }
     }
 
+
+    //public class ResultState
+    //{
+    //    public ResultState(TablePart tablePart)
+    //    {
+    //        this.TablePart = tablePart;
+    //        this.OrderParts = new List<OrderPart>();
+    //    }
+
+    //    public IMappingObjectExpression MappingObjectExpression { get; set; }
+
+    //    public bool IsFromSubQuery { get; set; }
+
+    //    public List<OrderPart> OrderParts { get; private set; }
+
+    //    /// <summary>
+    //    /// 如 takequery 了以后，则 table 的 Expression 类似 (select T.Id.. from User as T),Alias 则为新生成的
+    //    /// </summary>
+    //    public TablePart TablePart { get; private set; }
+    //    public DbExpression WhereExpression { get; private set; }
+
+    //    public void UpdateWhereExpression(DbExpression whereExpression)
+    //    {
+    //        if (this.WhereExpression == null)
+    //            this.WhereExpression = whereExpression;
+    //        else if (whereExpression != null)
+    //            this.WhereExpression = new DbAndExpression(this.WhereExpression, whereExpression);
+    //    }
+
+    //}
 }

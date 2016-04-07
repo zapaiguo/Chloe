@@ -18,9 +18,9 @@ namespace Chloe.Query
         /// 源表内所拥有的字段信息
         /// </summary>
         ResultElement Result { get; }
-        void AppendWhereExpression(WhereExpression exp);
-        void AppendOrderExpression(OrderExpression exp);
-        void IncludeNavigationMember(Expression exp);
+        IQueryState AppendWhereExpression(WhereExpression exp);
+        IQueryState AppendOrderExpression(OrderExpression exp);
+        //void IncludeNavigationMember(Expression exp);
         IQueryState UpdateSelectResult(SelectExpression selectExpression);
         MappingData GenerateMappingData();
         //DbExpression ToDbExpression();
