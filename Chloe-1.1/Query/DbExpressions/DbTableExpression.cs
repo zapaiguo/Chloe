@@ -8,17 +8,17 @@ using System.Threading.Tasks;
 namespace Chloe.Query.DbExpressions
 {
     /// <summary>
-    /// User as T1   (select * from User) as T1
+    /// User as T1 , (select * from User) as T1
     /// </summary>
     public class DbTableExpression : DbExpression
     {
         DbExpression _body;
         string _alias;
 
-        public DbTableExpression(DbExpression body)
-            : this(body, null)
-        {
-        }
+        //public DbTableExpression(DbExpression body)
+        //    : this(body, null)
+        //{
+        //}
 
         public DbTableExpression(DbExpression body, string alias)
             : base(DbExpressionType.Table, UtilConstants.TypeOfVoid)
@@ -31,7 +31,7 @@ namespace Chloe.Query.DbExpressions
         /// User、(select * from User)
         /// </summary>
         public DbExpression Body { get { return this._body; } }
-        public string Alias { get { return this._alias; } set { this._alias = value; } }
+        public string Alias { get { return this._alias; } private set { this._alias = value; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

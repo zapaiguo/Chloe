@@ -17,7 +17,7 @@ namespace Chloe.Query.QueryState
     {
         ResultElement _resultElement;
         Type _elementType;
-        RootEntity _rawEntity;
+        BaseExpressionVisitor _visitor = null;
         public RootQueryState(Type elementType)
         {
             this._elementType = elementType;
@@ -26,16 +26,24 @@ namespace Chloe.Query.QueryState
 
         void Init()
         {
-            RootEntity rawEntity = new RootEntity(this._elementType);
-            this._rawEntity = rawEntity;
-
             //TODO init _resultElement
             this._resultElement = null;
         }
 
+        BaseExpressionVisitor Visitor
+        {
+            get
+            {
+                if (this._visitor == null)
+                    _visitor = new GeneralExpressionVisitor(this._resultElement.MappingObjectExpression);
+
+                return this._visitor;
+            }
+        }
+
         public override IQueryState AppendWhereExpression(WhereExpression whereExp)
         {
-            BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
+            BaseExpressionVisitor visitor = this.Visitor;
             var dbExp = visitor.Visit(whereExp.Expression);
             this._resultElement.UpdateWhereExpression(dbExp);
             return this;
@@ -45,7 +53,7 @@ namespace Chloe.Query.QueryState
             if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.OrderByDesc)
                 this._resultElement.OrderParts.Clear();
 
-            BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
+            BaseExpressionVisitor visitor = this.Visitor;
             var r = VisistOrderExpression(visitor, orderExp);
             this._resultElement.OrderParts.Add(r);
 
@@ -80,41 +88,42 @@ namespace Chloe.Query.QueryState
             //return result;
         }
 
-        void SetMembers(TablePart tablePart, Dictionary<MemberInfo, IncludeMemberInfo> includedNavigationMembers, List<MappingMemberDescriptor> mappingMemberDescriptors, MappingMembers mappingResult)
-        {
-            foreach (MappingMemberDescriptor mappingMemberDescriptor in mappingMemberDescriptors)
-            {
-                DbTableExpression tableExpression = tablePart.Table;
-                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(mappingMemberDescriptor.MemberType, tableExpression, mappingMemberDescriptor.ColumnName);
-                mappingResult.SelectedMembers.Add(mappingMemberDescriptor.MemberInfo, columnAccessExpression);
-            }
+        //void SetMembers(TablePart tablePart, Dictionary<MemberInfo, IncludeMemberInfo> includedNavigationMembers, List<MappingMemberDescriptor> mappingMemberDescriptors, MappingMembers mappingResult)
+        //{
+        //    foreach (MappingMemberDescriptor mappingMemberDescriptor in mappingMemberDescriptors)
+        //    {
+        //        DbTableExpression tableExpression = tablePart.Table;
+        //        DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(mappingMemberDescriptor.MemberType, tableExpression, mappingMemberDescriptor.ColumnName);
+        //        mappingResult.SelectedMembers.Add(mappingMemberDescriptor.MemberInfo, columnAccessExpression);
+        //    }
 
-            foreach (var kv in includedNavigationMembers)
-            {
-                //MemberInfo key = kv.Key;
-                IncludeMemberInfo includeMemberInfo = kv.Value;
-                //key.MemberType.
+        //    foreach (var kv in includedNavigationMembers)
+        //    {
+        //        //MemberInfo key = kv.Key;
+        //        IncludeMemberInfo includeMemberInfo = kv.Value;
+        //        //key.MemberType.
 
-                MappingTypeDescriptor navigationMemberTypeDescriptor = includeMemberInfo.MemberTypeDescriptor;
+        //        MappingTypeDescriptor navigationMemberTypeDescriptor = includeMemberInfo.MemberTypeDescriptor;
 
-                MappingMembers subMappingResult = new MappingMembers(navigationMemberTypeDescriptor.EntityType.GetConstructor(new Type[0]));
+        //        MappingMembers subMappingResult = new MappingMembers(navigationMemberTypeDescriptor.EntityType.GetConstructor(new Type[0]));
 
-                if (includeMemberInfo.IsIncludeMember)
-                {
-                    //TODO 获取关联的键
-                    subMappingResult.AssociatingMemberInfo = includeMemberInfo.GetAssociatingMemberInfo();
-                }
+        //        if (includeMemberInfo.IsIncludeMember)
+        //        {
+        //            //TODO 获取关联的键
+        //            subMappingResult.AssociatingMemberInfo = includeMemberInfo.GetAssociatingMemberInfo();
+        //        }
 
-                this.SetMembers(includeMemberInfo.TablePart, includeMemberInfo.IncludeMembers, navigationMemberTypeDescriptor.MappingMemberDescriptors, subMappingResult);
-                mappingResult.SubResultEntities.Add(kv.Key, subMappingResult);
-            }
-        }
+        //        this.SetMembers(includeMemberInfo.TablePart, includeMemberInfo.IncludeMembers, navigationMemberTypeDescriptor.MappingMemberDescriptors, subMappingResult);
+        //        mappingResult.SubResultEntities.Add(kv.Key, subMappingResult);
+        //    }
+        //}
 
         public override IQueryState UpdateSelectResult(SelectExpression selectExpression)
         {
-            ResultElement result = new ResultElement(this._resultElement.TablePart);
+            ResultElement result = new ResultElement();
+            result.TablePart = this._resultElement.TablePart;
 
-            SelectExpressionVisitor1 visistor = null;
+            SelectExpressionVisitor1 visistor = new SelectExpressionVisitor1(this.Visitor, this._resultElement.MappingObjectExpression);
 
             IMappingObjectExpression r = visistor.Visit(selectExpression.Expression);
             result.MappingObjectExpression = r;
@@ -152,7 +161,7 @@ namespace Chloe.Query.QueryState
             sqlQuery.Table = tablePart;
             sqlQuery.Orders.AddRange(this._resultElement.OrderParts);
             sqlQuery.UpdateWhereExpression(this._resultElement.WhereExpression);
-            tablePart.SetTableNameByNumber(0);
+            //tablePart.SetTableNameByNumber(0);
 
             var oac = this._resultElement.MappingObjectExpression.GenarateObjectActivtorCreator(sqlQuery);
 
@@ -187,52 +196,52 @@ namespace Chloe.Query.QueryState
             //return data;
         }
 
-        void FillColumnList(DbSqlQueryExpression sqlQuery, TablePart tablePart, List<MappingMemberDescriptor> mappingMemberDescriptors, Dictionary<MemberInfo, IncludeMemberInfo> includedNavigationMembers, MappingEntity mappingMember)
-        {
-            List<DbColumnExpression> columnList = sqlQuery.Columns;
-            foreach (MappingMemberDescriptor mappingMemberDescriptor in mappingMemberDescriptors)
-            {
-                DbTableExpression tableExpression = tablePart.Table;
-                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(mappingMemberDescriptor.MemberType, tableExpression, mappingMemberDescriptor.ColumnName);
-                string alias = sqlQuery.GenerateUniqueColumnAlias(mappingMemberDescriptor.ColumnName);
-                DbColumnExpression columnExp = new DbColumnExpression(mappingMemberDescriptor.MemberType, columnAccessExpression, alias);
+        //void FillColumnList(DbSqlQueryExpression sqlQuery, TablePart tablePart, List<MappingMemberDescriptor> mappingMemberDescriptors, Dictionary<MemberInfo, IncludeMemberInfo> includedNavigationMembers, MappingEntity mappingMember)
+        //{
+        //    List<DbColumnExpression> columnList = sqlQuery.Columns;
+        //    foreach (MappingMemberDescriptor mappingMemberDescriptor in mappingMemberDescriptors)
+        //    {
+        //        DbTableExpression tableExpression = tablePart.Table;
+        //        DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(mappingMemberDescriptor.MemberType, tableExpression, mappingMemberDescriptor.ColumnName);
+        //        string alias = sqlQuery.GenerateUniqueColumnAlias(mappingMemberDescriptor.ColumnName);
+        //        DbColumnExpression columnExp = new DbColumnExpression(mappingMemberDescriptor.MemberType, columnAccessExpression, alias);
 
-                columnList.Add(columnExp);
+        //        columnList.Add(columnExp);
 
-                if (mappingMember != null)
-                {
-                    int ordinal = columnList.Count - 1;
-                    mappingMember.Members.Add(mappingMemberDescriptor.MemberInfo, ordinal);
-                }
-            }
+        //        if (mappingMember != null)
+        //        {
+        //            int ordinal = columnList.Count - 1;
+        //            mappingMember.Members.Add(mappingMemberDescriptor.MemberInfo, ordinal);
+        //        }
+        //    }
 
-            foreach (KeyValuePair<MemberInfo, IncludeMemberInfo> kv in includedNavigationMembers)
-            {
-                IncludeMemberInfo includeMemberInfo = kv.Value;
+        //    foreach (KeyValuePair<MemberInfo, IncludeMemberInfo> kv in includedNavigationMembers)
+        //    {
+        //        IncludeMemberInfo includeMemberInfo = kv.Value;
 
-                MappingTypeDescriptor navigationMemberTypeDescriptor = includeMemberInfo.MemberTypeDescriptor;
+        //        MappingTypeDescriptor navigationMemberTypeDescriptor = includeMemberInfo.MemberTypeDescriptor;
 
-                //MemberInfo associatingColumnMemberInfo = null;
-                MappingEntity navMappingMember = null;
-                if (mappingMember != null)
-                {
-                    navMappingMember = new MappingEntity(includeMemberInfo.MemberDescriptor.MemberType.GetConstructor(new Type[0]));
-                    mappingMember.EntityMembers.Add(kv.Key, navMappingMember);
+        //        //MemberInfo associatingColumnMemberInfo = null;
+        //        MappingEntity navMappingMember = null;
+        //        if (mappingMember != null)
+        //        {
+        //            navMappingMember = new MappingEntity(includeMemberInfo.MemberDescriptor.MemberType.GetConstructor(new Type[0]));
+        //            mappingMember.EntityMembers.Add(kv.Key, navMappingMember);
 
-                    //TODO 设置 AssociatingColumnOrdinal
-                    //if (includeMemberInfo.IsIncludeMember)
-                    //{
-                    //    //TODO 获取关联的键
-                    //    //navMappingMember.AssociatingColumnOrdinal = null; //在下面调用的 FillColumnList1 中设置
-                    //    //获取关联的 MemberInfo ，传递到下面调用的 FillColumnList1 中，以便设置 navMappingMember.AssociatingColumnOrdinal
-                    //    //associatingColumnMemberInfo = includeMemberInfo.GetAssociatingMemberInfo();
-                    //    navMappingMember.AssociatingMemberInfo = includeMemberInfo.GetAssociatingMemberInfo();
-                    //}
-                }
+        //            //TODO 设置 AssociatingColumnOrdinal
+        //            //if (includeMemberInfo.IsIncludeMember)
+        //            //{
+        //            //    //TODO 获取关联的键
+        //            //    //navMappingMember.AssociatingColumnOrdinal = null; //在下面调用的 FillColumnList1 中设置
+        //            //    //获取关联的 MemberInfo ，传递到下面调用的 FillColumnList1 中，以便设置 navMappingMember.AssociatingColumnOrdinal
+        //            //    //associatingColumnMemberInfo = includeMemberInfo.GetAssociatingMemberInfo();
+        //            //    navMappingMember.AssociatingMemberInfo = includeMemberInfo.GetAssociatingMemberInfo();
+        //            //}
+        //        }
 
-                this.FillColumnList(sqlQuery, includeMemberInfo.TablePart, navigationMemberTypeDescriptor.MappingMemberDescriptors, includeMemberInfo.IncludeMembers, navMappingMember);
-            }
-        }
+        //        this.FillColumnList(sqlQuery, includeMemberInfo.TablePart, navigationMemberTypeDescriptor.MappingMemberDescriptors, includeMemberInfo.IncludeMembers, navMappingMember);
+        //    }
+        //}
 
     }
 }

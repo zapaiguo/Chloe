@@ -28,7 +28,7 @@ namespace Chloe.Query.QueryState
             var prevPappingMembers = prevResult.MappingObjectExpression;
 
             TablePart prevTablePart = prevResult.TablePart;
-            prevTablePart.SetTableNameByNumber(0);
+            //prevTablePart.SetTableNameByNumber(0);
 
             DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
             sqlQuery.Table = prevTablePart;

@@ -13,35 +13,35 @@ using Chloe.Query.Implementation;
 
 namespace Chloe.Query
 {
-    internal class GeneralSelectExpressionVisitor : SelectExpressionVisitor
-    {
-        ResultElement _rawEntity = null;
+    //internal class GeneralSelectExpressionVisitor : SelectExpressionVisitor
+    //{
+    //    ResultElement _rawEntity = null;
 
-        public GeneralSelectExpressionVisitor(BaseExpressionVisitor visitor, ResultElement rawEntity)
-            : base(visitor)
-        {
-            this._rawEntity = rawEntity;
-        }
+    //    public GeneralSelectExpressionVisitor(BaseExpressionVisitor visitor, ResultElement rawEntity)
+    //        : base(visitor)
+    //    {
+    //        this._rawEntity = rawEntity;
+    //    }
 
-        protected override MappingMembers VisitNavigationMember(MemberExpression exp)
-        {
-            return null;
+    //    protected override MappingMembers VisitNavigationMember(MemberExpression exp)
+    //    {
+    //        return null;
 
-            //Stack<MemberExpression> memberExpressions = exp.Reverse();
-            //MappingMembers mappingMembers = this._rawEntity.MappingMembers;
+    //        //Stack<MemberExpression> memberExpressions = exp.Reverse();
+    //        //MappingMembers mappingMembers = this._rawEntity.MappingMembers;
 
-            //foreach (MemberExpression memberExpression in memberExpressions)
-            //{
-            //    MappingMembers t;
-            //    if (!mappingMembers.SubResultEntities.TryGetValue(memberExpression.Member, out t))
-            //    {
-            //        throw new Exception(exp.ToString());
-            //    }
+    //        //foreach (MemberExpression memberExpression in memberExpressions)
+    //        //{
+    //        //    MappingMembers t;
+    //        //    if (!mappingMembers.SubResultEntities.TryGetValue(memberExpression.Member, out t))
+    //        //    {
+    //        //        throw new Exception(exp.ToString());
+    //        //    }
 
-            //    mappingMembers = t;
-            //}
+    //        //    mappingMembers = t;
+    //        //}
 
-            //return mappingMembers;
-        }
-    }
+    //        //return mappingMembers;
+    //    }
+    //}
 }

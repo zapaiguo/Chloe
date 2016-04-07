@@ -9,26 +9,39 @@ namespace Chloe.Query
 {
     public class TablePart
     {
-        const string prefix = "T";
+        //const string prefix = "T";
         public TablePart(DbTableExpression table)
         {
             this.Table = table;
             this.JoinTables = new List<JoinTablePart>();
         }
-        public DbTableExpression Table { get; set; }
+        public DbTableExpression Table { get; private set; }
 
-        public List<JoinTablePart> JoinTables { get; set; }
+        public List<JoinTablePart> JoinTables { get; private set; }
 
-
-        internal void SetTableNameByNumber(int num)
+        public bool ExistTableAlias(string alias)
         {
-            this.Table.Alias = prefix + num.ToString();
+            if (this.Table.Alias == alias)
+                return true;
 
-            if (this.JoinTables != null)
-                foreach (TablePart tablePart in this.JoinTables)
-                {
-                    tablePart.SetTableNameByNumber(++num);
-                }
+            foreach (var item in this.JoinTables)
+            {
+                if (item.ExistTableAlias(alias))
+                    return true;
+            }
+
+            return false;
         }
+
+        //internal void SetTableNameByNumber(int num)
+        //{
+        //    this.Table.Alias = prefix + num.ToString();
+
+        //    if (this.JoinTables != null)
+        //        foreach (TablePart tablePart in this.JoinTables)
+        //        {
+        //            tablePart.SetTableNameByNumber(++num);
+        //        }
+        //}
     }
 }

@@ -14,25 +14,30 @@ namespace Chloe.Query.QueryState
 {
     class GeneralQueryState : BaseQueryState, IQueryState
     {
-        //IQueryState _prevQueryState;
         ResultElement _resultElement;
-        SelectEntity _rawEntity;
-        public GeneralQueryState(/*IQueryState prevQueryState,*/ ResultElement result)
+        BaseExpressionVisitor _visitor = null;
+        public GeneralQueryState(ResultElement result)
         {
-            //this._prevQueryState = prevQueryState;
             this._resultElement = result;
             this.Init();
         }
 
         void Init()
         {
-            SelectEntity rawEntity = new SelectEntity(this._resultElement);
-            this._rawEntity = rawEntity;
         }
+        BaseExpressionVisitor Visitor
+        {
+            get
+            {
+                if (this._visitor == null)
+                    _visitor = new GeneralExpressionVisitor(this._resultElement.MappingObjectExpression);
 
+                return this._visitor;
+            }
+        }
         public override IQueryState AppendWhereExpression(WhereExpression whereExp)
         {
-            BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
+            BaseExpressionVisitor visitor = this.Visitor;
             var dbExp = visitor.Visit(whereExp.Expression);
             this._resultElement.UpdateWhereExpression(dbExp);
 
@@ -43,7 +48,7 @@ namespace Chloe.Query.QueryState
             if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.OrderByDesc)
                 this._resultElement.OrderParts.Clear();
 
-            BaseExpressionVisitor visitor = new GeneralExpressionVisitor(this._rawEntity);
+            BaseExpressionVisitor visitor = this.Visitor;
             var r = VisistOrderExpression(visitor, orderExp);
 
             if (this._resultElement.IsFromSubQuery)
@@ -65,10 +70,6 @@ namespace Chloe.Query.QueryState
             }
         }
 
-        /// <summary>
-        /// ps:该方法有 bug ，当多次调用 GetResultElement() 会得到意想不到的结果
-        /// </summary>
-        /// <returns></returns>
         ResultElement GetResultElement()
         {
             return this._resultElement;
@@ -110,7 +111,7 @@ namespace Chloe.Query.QueryState
             sqlQuery.Table = tablePart;
             sqlQuery.Orders.AddRange(this._resultElement.OrderParts);
             sqlQuery.UpdateWhereExpression(this._resultElement.WhereExpression);
-            tablePart.SetTableNameByNumber(0);
+            //tablePart.SetTableNameByNumber(0);
 
             var oac = this._resultElement.MappingObjectExpression.GenarateObjectActivtorCreator(sqlQuery);
 
@@ -158,9 +159,10 @@ namespace Chloe.Query.QueryState
 
         public override IQueryState UpdateSelectResult(SelectExpression selectExpression)
         {
-            ResultElement result = new ResultElement(this._resultElement.TablePart);
+            ResultElement result = new ResultElement();
+            result.TablePart = this._resultElement.TablePart;
 
-            SelectExpressionVisitor1 visistor = null;
+            SelectExpressionVisitor1 visistor = new SelectExpressionVisitor1(this.Visitor, this._resultElement.MappingObjectExpression);
 
             IMappingObjectExpression r = visistor.Visit(selectExpression.Expression);
             result.MappingObjectExpression = r;

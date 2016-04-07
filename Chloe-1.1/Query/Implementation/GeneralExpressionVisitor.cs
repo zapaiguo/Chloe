@@ -12,8 +12,8 @@ namespace Chloe.Query.Implementation
 {
     internal class GeneralExpressionVisitor : BaseExpressionVisitor
     {
-        IRawEntity _fromTable;
-        public GeneralExpressionVisitor(IRawEntity fromTable)
+        IMappingObjectExpression _fromTable;
+        public GeneralExpressionVisitor(IMappingObjectExpression fromTable)
         {
             this._fromTable = fromTable;
         }

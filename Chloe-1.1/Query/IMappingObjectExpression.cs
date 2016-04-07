@@ -1,8 +1,10 @@
-﻿using Chloe.Query.DbExpressions;
+﻿using Chloe.Extensions;
+using Chloe.Query.DbExpressions;
 using Chloe.Query.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,13 +14,16 @@ namespace Chloe.Query
 {
     public interface IMappingObjectExpression
     {
+        IObjectActivtorCreator GenarateObjectActivtorCreator(DbSqlQueryExpression sqlQuery);
         void AddConstructorParameter(ParameterInfo p, DbExpression exp);
         void AddConstructorEntityParameter(ParameterInfo p, IMappingObjectExpression exp);
         void AddMemberExpression(MemberInfo p, DbExpression exp);
         void AddNavMemberExpression(MemberInfo p, IMappingObjectExpression exp);
         DbExpression GetMemberExpression(MemberInfo memberInfo);
         IMappingObjectExpression GetNavMemberExpression(MemberInfo memberInfo);
-        IObjectActivtorCreator GenarateObjectActivtorCreator(DbSqlQueryExpression sqlQuery);
+        DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter);
+        IMappingObjectExpression GetNavMemberExpression(MemberExpression exp);
+
     }
 
     public class MappingFieldExpression : IMappingObjectExpression
@@ -54,6 +59,27 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
+        public DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter)
+        {
+            Stack<MemberExpression> memberExpressions = ExpressionExtensions.Reverse(memberExpressionDeriveParameter);
+
+            if (memberExpressions.Count == 0)
+                throw new Exception();
+
+            DbExpression ret = this._exp;
+
+            foreach (MemberExpression memberExpression in memberExpressions)
+            {
+                MemberInfo member = memberExpression.Member;
+                ret = DbExpression.MemberAccess(member, ret);
+            }
+
+            if (ret == null)
+                throw new Exception(memberExpressionDeriveParameter.ToString());
+
+            return ret;
+        }
+
         public IObjectActivtorCreator GenarateObjectActivtorCreator(DbSqlQueryExpression sqlQuery)
         {
             List<DbColumnExpression> columnList = sqlQuery.Columns;
@@ -63,6 +89,11 @@ namespace Chloe.Query
             int ordinal = columnList.Count - 1;
             MappingField ac = new MappingField(this._type, ordinal);
             return ac;
+        }
+
+        public IMappingObjectExpression GetNavMemberExpression(MemberExpression exp)
+        {
+            throw new NotSupportedException();
         }
     }
 
@@ -82,12 +113,6 @@ namespace Chloe.Query
         public Dictionary<ParameterInfo, IMappingObjectExpression> ConstructorEntityParameters { get; private set; }
         public Dictionary<MemberInfo, DbExpression> SelectedMembers { get; protected set; }
         public Dictionary<MemberInfo, IMappingObjectExpression> SubResultEntities { get; protected set; }
-        //public bool IsIncludeMember { get; set; }
-
-        ///// <summary>
-        ///// 当 IsIncludeMember 为 true 时，AssociatingMemberInfo 为导航属性中相对应的关联属性 如 T.UserId=User.Id ,则 AssociatingMemberInfo 为 User.Id
-        ///// </summary>
-        //public MemberInfo AssociatingMemberInfo { get; set; }
 
         public void AddConstructorParameter(ParameterInfo p, DbExpression exp)
         {
@@ -121,6 +146,69 @@ namespace Chloe.Query
             if (!this.SubResultEntities.TryGetValue(memberInfo, out ret))
             {
                 return null;
+            }
+
+            return ret;
+        }
+        public DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter)
+        {
+            Stack<MemberExpression> memberExpressions = ExpressionExtensions.Reverse(memberExpressionDeriveParameter);
+
+            DbExpression ret = null;
+            IMappingObjectExpression moe = this;
+            foreach (MemberExpression memberExpression in memberExpressions)
+            {
+                MemberInfo member = memberExpression.Member;
+
+                DbExpression e = moe.GetMemberExpression(member);
+                if (e == null)
+                {
+                    moe = moe.GetNavMemberExpression(member);
+                    if (moe == null)
+                    {
+                        if (ret == null)
+                            throw new Exception();
+                        else
+                        {
+                            ret = DbExpression.MemberAccess(member, ret);
+                            continue;
+                        }
+                    }
+
+                    if (ret != null)
+                        throw new NotSupportedException(memberExpressionDeriveParameter.ToString());
+                }
+                else
+                {
+                    if (ret != null)
+                        throw new NotSupportedException(memberExpressionDeriveParameter.ToString());
+
+                    ret = e;
+                }
+            }
+
+            if (ret == null)
+                throw new Exception(memberExpressionDeriveParameter.ToString());
+
+            return ret;
+        }
+        public IMappingObjectExpression GetNavMemberExpression(MemberExpression memberExpressionDeriveParameter)
+        {
+            Stack<MemberExpression> memberExpressions = ExpressionExtensions.Reverse(memberExpressionDeriveParameter);
+
+            if (memberExpressions.Count == 0)
+                throw new Exception();
+
+            IMappingObjectExpression ret = this;
+            foreach (MemberExpression memberExpression in memberExpressions)
+            {
+                MemberInfo member = memberExpression.Member;
+
+                ret = ret.GetNavMemberExpression(member);
+                if (ret == null)
+                {
+                    throw new NotSupportedException(memberExpressionDeriveParameter.ToString());
+                }
             }
 
             return ret;

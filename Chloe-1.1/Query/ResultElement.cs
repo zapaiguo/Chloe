@@ -14,13 +14,11 @@ namespace Chloe.Query
     /// </summary>
     public class ResultElement
     {
-        public ResultElement(TablePart tablePart)
+        public ResultElement()
         {
-            this.TablePart = tablePart;
             this.OrderParts = new List<OrderPart>();
         }
 
-        //public MappingMembers MappingMembers { get; set; }
         public IMappingObjectExpression MappingObjectExpression { get; set; }
 
         /// <summary>
@@ -33,46 +31,32 @@ namespace Chloe.Query
         /// <summary>
         /// 如 takequery 了以后，则 table 的 Expression 类似 (select T.Id.. from User as T),Alias 则为新生成的
         /// </summary>
-        public TablePart TablePart { get; private set; }
+        public TablePart TablePart { get; set; }
         public DbExpression WhereExpression { get; private set; }
 
         public void UpdateWhereExpression(DbExpression whereExpression)
         {
             if (this.WhereExpression == null)
                 this.WhereExpression = whereExpression;
-            else if (whereExpression != null)
+            else
                 this.WhereExpression = new DbAndExpression(this.WhereExpression, whereExpression);
         }
+
+        public string GenerateUniqueTableAlias(string prefix = "T")
+        {
+            if (this.TablePart == null)
+                return prefix;
+
+            string alias = prefix;
+            int i = 0;
+            while (this.TablePart.ExistTableAlias(alias))
+            {
+                alias = prefix + i.ToString();
+                i++;
+            }
+
+            return alias;
+        }
+
     }
-
-
-    //public class ResultState
-    //{
-    //    public ResultState(TablePart tablePart)
-    //    {
-    //        this.TablePart = tablePart;
-    //        this.OrderParts = new List<OrderPart>();
-    //    }
-
-    //    public IMappingObjectExpression MappingObjectExpression { get; set; }
-
-    //    public bool IsFromSubQuery { get; set; }
-
-    //    public List<OrderPart> OrderParts { get; private set; }
-
-    //    /// <summary>
-    //    /// 如 takequery 了以后，则 table 的 Expression 类似 (select T.Id.. from User as T),Alias 则为新生成的
-    //    /// </summary>
-    //    public TablePart TablePart { get; private set; }
-    //    public DbExpression WhereExpression { get; private set; }
-
-    //    public void UpdateWhereExpression(DbExpression whereExpression)
-    //    {
-    //        if (this.WhereExpression == null)
-    //            this.WhereExpression = whereExpression;
-    //        else if (whereExpression != null)
-    //            this.WhereExpression = new DbAndExpression(this.WhereExpression, whereExpression);
-    //    }
-
-    //}
 }

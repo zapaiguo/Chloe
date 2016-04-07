@@ -71,13 +71,15 @@ namespace Chloe.Query.QueryState
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery(out mappingMember);
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
-            DbTableExpression tableExp = new DbTableExpression(subQuery);
-
+            ResultElement result = new ResultElement();
+            DbTableExpression tableExp = new DbTableExpression(subQuery, result.GenerateUniqueTableAlias());
             TablePart tablePart = new TablePart(tableExp);
+
+            result.TablePart = tablePart;
 
             //得将 subQuery.SqlQuery.Orders 告诉 以下创建的 result
 
-            ResultElement result = new ResultElement(tablePart);
+
             result.IsFromSubQuery = true;
 
             IMappingObjectExpression mappingMembers = prevMappingMembers;//生成 MappingMembers，目前可以直接用 prevPappingMembers，还没影响

@@ -116,7 +116,6 @@
     <Compile Include="Query\Implementation\GeneralExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Query\IRawEntity.cs" />
     <Compile Include="Query\JoinTablePart.cs" />
     <Compile Include="Query\JoinType.cs" />
     <Compile Include="Query\MappingMembers.cs" />
@@ -154,8 +153,6 @@
     <Compile Include="Query\QueryState\TakeQueryState.cs" />
     <Compile Include="Query\ResultElement.cs" />
     <Compile Include="Query\Visitors\SelectExpressionVisitor.cs" />
-    <Compile Include="Query\SelectEntity.cs" />
-    <Compile Include="Query\RootEntity.cs" />
     <Compile Include="Mapper\EntityMemberMapper.cs" />
     <Compile Include="Utility\UtilConstants.cs" />
     <Compile Include="Utility\Utils.cs" />
