@@ -28,21 +28,14 @@ namespace Chloe.Query.QueryState
             }
         }
 
-        public override DbSqlQueryExpression CreateSqlQuery(out IObjectActivtorCreator mappingMember)
+        public override DbSqlQueryExpression CreateSqlQuery()
         {
-            ResultElement prevResult = this.Result;
-            IMappingObjectExpression prevPappingMembers = prevResult.MappingObjectExpression;
-
-            TablePart prevTablePart = prevResult.TablePart;
-            //prevTablePart.SetTableNameByNumber(0);
-
             DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
-            sqlQuery.Table = prevTablePart;
-            sqlQuery.Where = prevResult.WhereExpression;
-            sqlQuery.Orders.AddRange(prevResult.OrderParts);
+            sqlQuery.Table = this.Result.TablePart;
+            sqlQuery.Where = this.Result.WhereExpression;
+            sqlQuery.Orders.AddRange(this.Result.OrderParts);
             sqlQuery.TakeCount = this.Count;
             sqlQuery.SkipCount = null;
-            mappingMember = prevPappingMembers.GenarateObjectActivtorCreator(sqlQuery);
 
             return sqlQuery;
         }

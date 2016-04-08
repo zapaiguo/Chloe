@@ -14,15 +14,11 @@ namespace Chloe.Query
 {
     public interface IQueryState
     {
-        /// <summary>
-        /// 源表内所拥有的字段信息
-        /// </summary>
         ResultElement Result { get; }
         IQueryState AppendWhereExpression(WhereExpression exp);
         IQueryState AppendOrderExpression(OrderExpression exp);
         //void IncludeNavigationMember(Expression exp);
         IQueryState UpdateSelectResult(SelectExpression selectExpression);
         MappingData GenerateMappingData();
-        //DbExpression ToDbExpression();
     }
 }

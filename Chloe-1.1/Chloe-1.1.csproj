@@ -108,8 +108,6 @@
     <Compile Include="Query\QueryExpressions\RootQueryExpression.cs" />
     <Compile Include="Query\QueryState\SubQueryState.cs" />
     <Compile Include="Query\Query`.cs" />
-    <Compile Include="Query\Visitors\GeneralSelectExpressionVisitor.cs" />
-    <Compile Include="Query\Visitors\RootSelectExpressionVisitor.cs" />
     <Compile Include="Query\SqlState.cs" />
     <Compile Include="Query\TablePart.cs" />
     <Compile Include="Query\Implementation\BaseExpressionVisitor.cs" />

@@ -12,64 +12,92 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.QueryState
 {
-    /// <summary>
-    ///  ps:该类的部分属性和方法有 bug ，多次调用 GetResultElement() 会得到意想不到的结果
-    /// </summary>
     abstract class BaseQueryState : IQueryState
     {
-        protected BaseQueryState()
+        ResultElement _resultElement;
+        BaseExpressionVisitor _visitor = null;
+        public BaseQueryState(ResultElement resultElement)
         {
-        }
-        public virtual IQueryState AppendWhereExpression(WhereExpression whereExp)
-        {
-            throw new NotImplementedException();
-        }
-        public virtual IQueryState AppendOrderExpression(OrderExpression orderExp)
-        {
-            throw new NotImplementedException();
+            this._resultElement = resultElement;
         }
 
+        protected BaseExpressionVisitor Visitor
+        {
+            get
+            {
+                if (this._visitor == null)
+                    _visitor = new GeneralExpressionVisitor(this._resultElement.MappingObjectExpression);
+
+                return this._visitor;
+            }
+        }
         public virtual ResultElement Result
         {
             get
             {
-                throw new NotImplementedException();
+                return this._resultElement;
             }
+        }
+        public virtual IQueryState AppendWhereExpression(WhereExpression whereExp)
+        {
+            BaseExpressionVisitor visitor = this.Visitor;
+            var dbExp = visitor.Visit(whereExp.Expression);
+            this._resultElement.UpdateWhereExpression(dbExp);
+
+            return this;
+        }
+        public virtual IQueryState AppendOrderExpression(OrderExpression orderExp)
+        {
+            if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.OrderByDesc)
+                this._resultElement.OrderParts.Clear();
+
+            BaseExpressionVisitor visitor = this.Visitor;
+            var r = VisistOrderExpression(visitor, orderExp);
+
+            if (this._resultElement.IsFromSubQuery)
+            {
+                this._resultElement.OrderParts.Clear();
+                this._resultElement.IsFromSubQuery = false;
+            }
+
+            this._resultElement.OrderParts.Add(r);
+
+            return this;
         }
         public virtual IQueryState UpdateSelectResult(SelectExpression selectExpression)
         {
-            throw new NotImplementedException();
+            ResultElement result = new ResultElement();
+            result.TablePart = this._resultElement.TablePart;
+
+            SelectExpressionVisitor visistor = new SelectExpressionVisitor(this.Visitor, this._resultElement.MappingObjectExpression);
+
+            IMappingObjectExpression r = visistor.Visit(selectExpression.Expression);
+            result.MappingObjectExpression = r;
+            result.OrderParts.AddRange(this._resultElement.OrderParts);
+            result.UpdateWhereExpression(this._resultElement.WhereExpression);
+
+            return new GeneralQueryState(result);
         }
 
+        public virtual MappingData GenerateMappingData()
+        {
+            MappingData data = new MappingData();
 
-        //protected void VisistOrderExpressions(BaseExpressionVisitor visitor, List<OrderPart> orderParts)
-        //{
-        //    foreach (OrderExpression orderExp in this.OrderExpressions)
-        //    {
-        //        OrderPart orderPart = VisistOrderExpression(visitor, orderExp);
-        //        orderParts.Add(orderPart);
-        //    }
-        //}
+            DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
+            TablePart tablePart = this._resultElement.TablePart;
 
-        //protected DbExpression VisistWhereExpressions(BaseExpressionVisitor visitor)
-        //{
-        //    return VisistWhereExpressions(visitor, this.WhereExpressions);
-        //}
-        //protected static DbExpression VisistWhereExpressions(BaseExpressionVisitor visitor, IList<WhereExpression> whereExpressions)
-        //{
-        //    DbExpression ret = null;
-        //    if (whereExpressions != null)
-        //        foreach (WhereExpression whereExpression in whereExpressions)
-        //        {
-        //            DbExpression whereDbExpression = visitor.Visit(whereExpression.Expression);
-        //            if (ret == null)
-        //                ret = whereDbExpression;
-        //            else
-        //                ret = new DbAndExpression(ret, whereDbExpression);
-        //        }
+            sqlQuery.Table = tablePart;
+            sqlQuery.Orders.AddRange(this._resultElement.OrderParts);
+            sqlQuery.UpdateWhereExpression(this._resultElement.WhereExpression);
 
-        //    return ret;
-        //}
+            var moe = this._resultElement.MappingObjectExpression.GenarateObjectActivtorCreator(sqlQuery);
+
+            data.SqlQuery = sqlQuery;
+            data.MappingEntity = moe;
+
+            return data;
+        }
+
         protected static OrderPart VisistOrderExpression(BaseExpressionVisitor visitor, OrderExpression orderExp)
         {
             DbExpression dbExpression = visitor.Visit(orderExp.Expression);//解析表达式树 orderExp.Expression
@@ -89,11 +117,5 @@ namespace Chloe.Query.QueryState
 
             return orderPart;
         }
-
-        public virtual MappingData GenerateMappingData()
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }

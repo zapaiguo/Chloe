@@ -11,20 +11,15 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.QueryState
 {
-    internal abstract class SubQueryState : BaseQueryState, IQueryState
+    internal abstract class SubQueryState : IQueryState
     {
         ResultElement _resultElement;
         protected SubQueryState(ResultElement resultElement)
         {
             this._resultElement = resultElement;
-            this.Init();
         }
 
-        void Init()
-        {
-        }
-
-        public override ResultElement Result
+        public ResultElement Result
         {
             get
             {
@@ -32,65 +27,58 @@ namespace Chloe.Query.QueryState
             }
         }
 
-        public override IQueryState AppendWhereExpression(WhereExpression whereExp)
+        public virtual IQueryState AppendWhereExpression(WhereExpression whereExp)
         {
             IQueryState state = this.AsSubQueryState();
             return state.AppendWhereExpression(whereExp);
         }
-        public override IQueryState AppendOrderExpression(OrderExpression orderExp)
+        public virtual IQueryState AppendOrderExpression(OrderExpression orderExp)
         {
             IQueryState state = this.AsSubQueryState();
             return state.AppendOrderExpression(orderExp);
         }
-
-        public override IQueryState UpdateSelectResult(SelectExpression selectExpression)
+        public virtual IQueryState UpdateSelectResult(SelectExpression selectExpression)
         {
             IQueryState queryState = this.AsSubQueryState();
             return queryState.UpdateSelectResult(selectExpression);
         }
-        public override MappingData GenerateMappingData()
+
+        public virtual MappingData GenerateMappingData()
         {
             MappingData data = new MappingData();
-            IObjectActivtorCreator mappingMember;
 
-            //------------
-            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery(out mappingMember);
-            //============
+            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
+            IObjectActivtorCreator moe = this.Result.MappingObjectExpression.GenarateObjectActivtorCreator(sqlQuery);
 
             data.SqlQuery = sqlQuery;
-            data.MappingEntity = mappingMember;
+            data.MappingEntity = moe;
 
             return data;
         }
 
         public virtual IQueryState AsSubQueryState()
         {
-            ResultElement prevResult = this.Result;
-            IMappingObjectExpression prevMappingMembers = prevResult.MappingObjectExpression;
-            IObjectActivtorCreator mappingMember;
-            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery(out mappingMember);
+            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
             ResultElement result = new ResultElement();
+
             DbTableExpression tableExp = new DbTableExpression(subQuery, result.GenerateUniqueTableAlias());
             TablePart tablePart = new TablePart(tableExp);
 
             result.TablePart = tablePart;
 
+            //TODO 根据旧的生成新 MappingMembers
+            IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, tableExp);
+            result.MappingObjectExpression = newMoe;
+
             //得将 subQuery.SqlQuery.Orders 告诉 以下创建的 result
-
-
-            result.IsFromSubQuery = true;
-
-            IMappingObjectExpression mappingMembers = prevMappingMembers;//生成 MappingMembers，目前可以直接用 prevPappingMembers，还没影响
-            result.MappingObjectExpression = mappingMembers;
-
             //将 orderPart 传递下去
-            if (prevResult.OrderParts.Count > 0)
+            if (this.Result.OrderParts.Count > 0)
             {
-                for (int i = 0; i < prevResult.OrderParts.Count; i++)
+                for (int i = 0; i < this.Result.OrderParts.Count; i++)
                 {
-                    OrderPart orderPart = prevResult.OrderParts[i];
+                    OrderPart orderPart = this.Result.OrderParts[i];
                     DbExpression orderExp = orderPart.DbExpression;
 
                     string alias = null;
@@ -114,9 +102,11 @@ namespace Chloe.Query.QueryState
                 }
             }
 
+            result.IsFromSubQuery = true;
+
             GeneralQueryState queryState = new GeneralQueryState(result);
             return queryState;
         }
-        public abstract DbSqlQueryExpression CreateSqlQuery(out IObjectActivtorCreator mappingMember);
+        public abstract DbSqlQueryExpression CreateSqlQuery();
     }
 }

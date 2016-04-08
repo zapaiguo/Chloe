@@ -11,7 +11,6 @@ namespace Chloe.Query
 {
     public class MappingMemberDescriptor : MemberDescriptor
     {
-        //Action<object, IDataReader, int> _valueSetter;
         public MappingMemberDescriptor(MemberInfo memberInfo, Type memberType, MappingTypeDescriptor declaringEntityDescriptor, string columnName)
             : base(memberInfo, memberType, declaringEntityDescriptor)
         {

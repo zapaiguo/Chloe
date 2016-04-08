@@ -22,7 +22,7 @@ namespace Chloe.Query
         public IMappingObjectExpression MappingObjectExpression { get; set; }
 
         /// <summary>
-        /// 表示当前 OrderParts 集合内的排序是否是从子query来的
+        /// 表示当前 OrderParts 集合内的排序是否是从上个 query 继承来的
         /// </summary>
         public bool IsFromSubQuery { get; set; }
 

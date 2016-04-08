@@ -11,6 +11,7 @@ namespace Chloe.Utility
         static UtilConstants()
         {
         }
+        public static readonly Type[] EmptyTypeArray = new Type[0];
 
         public static readonly Type TypeOfVoid = typeof(void);
 

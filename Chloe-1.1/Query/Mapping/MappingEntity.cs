@@ -16,13 +16,13 @@ namespace Chloe.Query.Mapping
             //this.EntityType = constructor.DeclaringType;
             this.Constructor = constructor;
             this.ConstructorParameters = new Dictionary<ParameterInfo, int>();
-            this.ConstructorEntityParameters = new Dictionary<ParameterInfo, MappingEntity>();
+            this.ConstructorEntityParameters = new Dictionary<ParameterInfo, IObjectActivtorCreator>();
             this.Members = new Dictionary<MemberInfo, int>();
             this.EntityMembers = new Dictionary<MemberInfo, IObjectActivtorCreator>();
         }
         public ConstructorInfo Constructor { get; private set; }
         public Dictionary<ParameterInfo, int> ConstructorParameters { get; private set; }
-        public Dictionary<ParameterInfo, MappingEntity> ConstructorEntityParameters { get; private set; }
+        public Dictionary<ParameterInfo, IObjectActivtorCreator> ConstructorEntityParameters { get; private set; }
 
         public Dictionary<MemberInfo, int> Members { get; private set; }
         public Dictionary<MemberInfo, IObjectActivtorCreator> EntityMembers { get; private set; }

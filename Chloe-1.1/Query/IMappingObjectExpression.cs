@@ -15,6 +15,7 @@ namespace Chloe.Query
     public interface IMappingObjectExpression
     {
         IObjectActivtorCreator GenarateObjectActivtorCreator(DbSqlQueryExpression sqlQuery);
+        IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableExpression tableExp);
         void AddConstructorParameter(ParameterInfo p, DbExpression exp);
         void AddConstructorEntityParameter(ParameterInfo p, IMappingObjectExpression exp);
         void AddMemberExpression(MemberInfo p, DbExpression exp);
@@ -23,7 +24,6 @@ namespace Chloe.Query
         IMappingObjectExpression GetNavMemberExpression(MemberInfo memberInfo);
         DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter);
         IMappingObjectExpression GetNavMemberExpression(MemberExpression exp);
-
     }
 
     public class MappingFieldExpression : IMappingObjectExpression
@@ -95,6 +95,11 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
+
+        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableExpression tableExp)
+        {
+            throw new NotSupportedException();
+        }
     }
 
     public class MappingObjectExpression : IMappingObjectExpression
@@ -102,6 +107,8 @@ namespace Chloe.Query
         public MappingObjectExpression(ConstructorInfo constructor)
         {
             this.Constructor = constructor;
+            this.ConstructorParameters = new Dictionary<ParameterInfo, DbExpression>();
+            this.ConstructorEntityParameters = new Dictionary<ParameterInfo, IMappingObjectExpression>();
             this.SelectedMembers = new Dictionary<MemberInfo, DbExpression>();
             this.SubResultEntities = new Dictionary<MemberInfo, IMappingObjectExpression>();
         }
@@ -218,6 +225,30 @@ namespace Chloe.Query
             List<DbColumnExpression> columnList = sqlQuery.Columns;
             MappingEntity mappingEntity = new MappingEntity(this.Constructor);
             MappingObjectExpression mappingMembers = this;
+
+            foreach (var kv in this.ConstructorParameters)
+            {
+                ParameterInfo pi = kv.Key;
+                DbExpression exp = kv.Value;
+
+                string alias = sqlQuery.GenerateUniqueColumnAlias(pi.Name);
+                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
+
+                columnList.Add(columnExp);
+                int ordinal = columnList.Count - 1;
+
+                mappingEntity.ConstructorParameters.Add(pi, ordinal);
+            }
+
+            foreach (var kv in mappingMembers.ConstructorEntityParameters)
+            {
+                ParameterInfo pi = kv.Key;
+                IMappingObjectExpression val = kv.Value;
+
+                IObjectActivtorCreator navMappingMember = val.GenarateObjectActivtorCreator(sqlQuery);
+                mappingEntity.ConstructorEntityParameters.Add(pi, navMappingMember);
+            }
+
             foreach (var kv in mappingMembers.SelectedMembers)
             {
                 MemberInfo member = kv.Key;
@@ -225,9 +256,10 @@ namespace Chloe.Query
 
                 string alias = sqlQuery.GenerateUniqueColumnAlias(member.Name);
                 DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
-                columnList.Add(columnExp);
 
+                columnList.Add(columnExp);
                 int ordinal = columnList.Count - 1;
+
                 mappingEntity.Members.Add(member, ordinal);
             }
 
@@ -241,6 +273,65 @@ namespace Chloe.Query
             }
 
             return mappingEntity;
+        }
+
+        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableExpression tableExp)
+        {
+            List<DbColumnExpression> columnList = sqlQuery.Columns;
+            MappingObjectExpression moe = new MappingObjectExpression(this.Constructor);
+            MappingObjectExpression mappingMembers = this;
+
+            foreach (var kv in this.ConstructorParameters)
+            {
+                ParameterInfo pi = kv.Key;
+                DbExpression exp = kv.Value;
+
+                string alias = sqlQuery.GenerateUniqueColumnAlias(pi.Name);
+                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
+
+                columnList.Add(columnExp);
+                //int ordinal = columnList.Count - 1;
+                DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, tableExp, alias);
+                moe.AddConstructorParameter(pi, cae);
+            }
+
+            foreach (var kv in mappingMembers.ConstructorEntityParameters)
+            {
+                ParameterInfo pi = kv.Key;
+                IMappingObjectExpression val = kv.Value;
+
+                IMappingObjectExpression navMappingMember = val.ToNewObjectExpression(sqlQuery, tableExp);
+                moe.AddConstructorEntityParameter(pi, navMappingMember);
+            }
+
+            foreach (var kv in mappingMembers.SelectedMembers)
+            {
+                MemberInfo member = kv.Key;
+                DbExpression exp = kv.Value;
+
+                string alias = sqlQuery.GenerateUniqueColumnAlias(member.Name);
+                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
+
+                columnList.Add(columnExp);
+                //int ordinal = columnList.Count - 1;
+                DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, tableExp, alias);
+                moe.AddMemberExpression(member, cae);
+                //mappingEntity.Members.Add(member, ordinal);
+            }
+
+            foreach (var kv in mappingMembers.SubResultEntities)
+            {
+                MemberInfo member = kv.Key;
+                IMappingObjectExpression val = kv.Value;
+
+                IMappingObjectExpression navMappingMember = val.ToNewObjectExpression(sqlQuery, tableExp);
+                moe.AddNavMemberExpression(member, navMappingMember);
+
+                //IObjectActivtorCreator navMappingMember = val.GenarateObjectActivtorCreator(sqlQuery);
+                //mappingEntity.EntityMembers.Add(kv.Key, navMappingMember);
+            }
+
+            return moe;
         }
     }
 }
