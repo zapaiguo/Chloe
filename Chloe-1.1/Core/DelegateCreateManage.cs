@@ -14,19 +14,6 @@ using System.Linq.Expressions;
 
 namespace Chloe.Core
 {
-    public class DelegateCreateManageTest
-    {
-        int Id = 10;
-        public DelegateCreateManageTest(int a, DelegateCreateManageTest b)
-        {
-            this.A = a;
-            this.B = b;
-        }
-
-        public int A { get; set; }
-        public DelegateCreateManageTest B { get; set; }
-    }
-
     public static class DelegateCreateManage
     {
         #region

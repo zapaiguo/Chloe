@@ -1,5 +1,6 @@
 ﻿using Chloe.Extensions;
 using Chloe.Query.DbExpressions;
+using Chloe.Query.Descriptors;
 using Chloe.Query.Mapping;
 using System;
 using System.Collections.Generic;
@@ -105,8 +106,12 @@ namespace Chloe.Query
     public class MappingObjectExpression : IMappingObjectExpression
     {
         public MappingObjectExpression(ConstructorInfo constructor)
+            : this(EntityConstructorDescriptor.GetInstance(constructor))
         {
-            this.Constructor = constructor;
+        }
+        public MappingObjectExpression(EntityConstructorDescriptor constructorDescriptor)
+        {
+            this.ConstructorDescriptor = constructorDescriptor;
             this.ConstructorParameters = new Dictionary<ParameterInfo, DbExpression>();
             this.ConstructorEntityParameters = new Dictionary<ParameterInfo, IMappingObjectExpression>();
             this.SelectedMembers = new Dictionary<MemberInfo, DbExpression>();
@@ -115,7 +120,7 @@ namespace Chloe.Query
         /// <summary>
         /// 返回类型
         /// </summary>
-        public ConstructorInfo Constructor { get; private set; }
+        public EntityConstructorDescriptor ConstructorDescriptor { get; private set; }
         public Dictionary<ParameterInfo, DbExpression> ConstructorParameters { get; private set; }
         public Dictionary<ParameterInfo, IMappingObjectExpression> ConstructorEntityParameters { get; private set; }
         public Dictionary<MemberInfo, DbExpression> SelectedMembers { get; protected set; }
@@ -137,12 +142,26 @@ namespace Chloe.Query
         {
             this.SubResultEntities.Add(p, exp);
         }
+        /// <summary>
+        /// 考虑匿名函数构造函数参数和其只读属性的对应
+        /// </summary>
+        /// <param name="memberInfo"></param>
+        /// <returns></returns>
         public DbExpression GetMemberExpression(MemberInfo memberInfo)
         {
             DbExpression ret = null;
             if (!this.SelectedMembers.TryGetValue(memberInfo, out ret))
             {
-                return null;
+                ParameterInfo p = null;
+                if (!this.ConstructorDescriptor.MemberParameterMap.TryGetValue(memberInfo, out p))
+                {
+                    return null;
+                }
+
+                if (!this.ConstructorParameters.TryGetValue(p, out ret))
+                {
+                    return null;
+                }
             }
 
             return ret;
@@ -223,7 +242,7 @@ namespace Chloe.Query
         public IObjectActivtorCreator GenarateObjectActivtorCreator(DbSqlQueryExpression sqlQuery)
         {
             List<DbColumnExpression> columnList = sqlQuery.Columns;
-            MappingEntity mappingEntity = new MappingEntity(this.Constructor);
+            MappingEntity mappingEntity = new MappingEntity(this.ConstructorDescriptor);
             MappingObjectExpression mappingMembers = this;
 
             foreach (var kv in this.ConstructorParameters)
@@ -278,7 +297,7 @@ namespace Chloe.Query
         public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableExpression tableExp)
         {
             List<DbColumnExpression> columnList = sqlQuery.Columns;
-            MappingObjectExpression moe = new MappingObjectExpression(this.Constructor);
+            MappingObjectExpression moe = new MappingObjectExpression(this.ConstructorDescriptor);
             MappingObjectExpression mappingMembers = this;
 
             foreach (var kv in this.ConstructorParameters)

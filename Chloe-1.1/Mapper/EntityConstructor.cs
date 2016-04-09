@@ -19,47 +19,26 @@ namespace Chloe.Mapper
 
         void Init()
         {
-            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> fn = DelegateCreateManage.CreateObjectGenerator(this.ConstructorInfo);
+            ConstructorInfo constructor = this.ConstructorInfo;
+            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> fn = DelegateCreateManage.CreateObjectGenerator(constructor);
             this.InstanceCreator = fn;
-            //throw new NotImplementedException();
         }
 
         public ConstructorInfo ConstructorInfo { get; private set; }
         public Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> InstanceCreator { get; private set; }
 
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, EntityConstructor> _instanceCache = new System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, EntityConstructor>();
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, EntityConstructor> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, EntityConstructor>();
 
         public static EntityConstructor GetInstance(ConstructorInfo constructorInfo)
         {
             EntityConstructor instance;
-            if (!_instanceCache.TryGetValue(constructorInfo, out instance))
+            if (!InstanceCache.TryGetValue(constructorInfo, out instance))
             {
                 instance = new EntityConstructor(constructorInfo);
-                instance = _instanceCache.GetOrAdd(constructorInfo, instance);
+                instance = InstanceCache.GetOrAdd(constructorInfo, instance);
             }
 
             return instance;
-        }
-
-        static object T(IDataReader reader, ReaderOrdinalEnumerator roe, ObjectActivtorEnumerator oae)
-        {
-            //reader.GetInt32(roe.Next());
-            //reader.GetString(roe.Next());
-            //oae.Next().CreateInstance(reader);//as T
-            User u = new User(reader.GetInt32(roe.Next()), reader.GetString(roe.Next()), oae.Next().CreateInstance(reader) as User);
-
-            return u;
-        }
-
-        class User
-        {
-            public User(int id, string name, User u)
-            {
-
-            }
-            public int Id { get; set; }
-            public string Name { get; set; }
-            public User U { get; set; }
         }
     }
 

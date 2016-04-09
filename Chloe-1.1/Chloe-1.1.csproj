@@ -93,6 +93,7 @@
     <Compile Include="Query\DbExpressions\DbParameterExpression.cs" />
     <Compile Include="Query\DbExpressions\DbSubtractExpression.cs" />
     <Compile Include="Query\DbExpressionVisitor`.cs" />
+    <Compile Include="Query\Descriptors\EntityConstructorDescriptor.cs" />
     <Compile Include="Query\ExpressionVisitor1.cs" />
     <Compile Include="Query\ExpressionVisitor`.cs" />
     <Compile Include="Query\IMappingObjectExpression.cs" />
@@ -116,7 +117,6 @@
     </Compile>
     <Compile Include="Query\JoinTablePart.cs" />
     <Compile Include="Query\JoinType.cs" />
-    <Compile Include="Query\MappingMembers.cs" />
     <Compile Include="Query\OrderPart.cs" />
     <Compile Include="Query\OrderType.cs" />
     <Compile Include="Query\QueryExpressions\OrderExpression.cs" />

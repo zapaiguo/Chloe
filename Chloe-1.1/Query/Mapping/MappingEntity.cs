@@ -1,4 +1,5 @@
 ﻿using Chloe.Mapper;
+using Chloe.Query.Descriptors;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,16 +12,16 @@ namespace Chloe.Query.Mapping
 {
     public class MappingEntity : IObjectActivtorCreator
     {
-        public MappingEntity(ConstructorInfo constructor)
+        public MappingEntity(EntityConstructorDescriptor constructorDescriptor)
         {
             //this.EntityType = constructor.DeclaringType;
-            this.Constructor = constructor;
+            this.ConstructorDescriptor = constructorDescriptor;
             this.ConstructorParameters = new Dictionary<ParameterInfo, int>();
             this.ConstructorEntityParameters = new Dictionary<ParameterInfo, IObjectActivtorCreator>();
             this.Members = new Dictionary<MemberInfo, int>();
             this.EntityMembers = new Dictionary<MemberInfo, IObjectActivtorCreator>();
         }
-        public ConstructorInfo Constructor { get; private set; }
+        public EntityConstructorDescriptor ConstructorDescriptor { get; private set; }
         public Dictionary<ParameterInfo, int> ConstructorParameters { get; private set; }
         public Dictionary<ParameterInfo, IObjectActivtorCreator> ConstructorEntityParameters { get; private set; }
 
@@ -34,7 +35,7 @@ namespace Chloe.Query.Mapping
             * 如果 EntityType 是匿名类型的话
            */
 
-            EntityMemberMapper mapper = EntityMemberMapper.GetInstance(this.Constructor.DeclaringType);
+            EntityMemberMapper mapper = this.ConstructorDescriptor.GetEntityMemberMapper();
             List<IValueSetter> memberSetters = new List<IValueSetter>(this.Members.Count + this.EntityMembers.Count);
             foreach (var kv in this.Members)
             {
@@ -51,7 +52,7 @@ namespace Chloe.Query.Mapping
                 memberSetters.Add(binder);
             }
 
-            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> instanceCreator = EntityConstructor.GetInstance(this.Constructor).InstanceCreator;
+            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> instanceCreator = this.ConstructorDescriptor.GetInstanceCreator();
 
             List<int> readerOrdinals = this.ConstructorParameters.Select(a => a.Value).ToList();
             List<IObjectActivtor> objectActivtors = this.ConstructorEntityParameters.Select(a => a.Value.CreateObjectActivtor()).ToList();
