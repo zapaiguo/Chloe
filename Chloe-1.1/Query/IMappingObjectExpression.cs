@@ -115,7 +115,7 @@ namespace Chloe.Query
         /// <summary>
         /// 返回类型
         /// </summary>
-        public ConstructorInfo Constructor { get; protected set; }
+        public ConstructorInfo Constructor { get; private set; }
         public Dictionary<ParameterInfo, DbExpression> ConstructorParameters { get; private set; }
         public Dictionary<ParameterInfo, IMappingObjectExpression> ConstructorEntityParameters { get; private set; }
         public Dictionary<MemberInfo, DbExpression> SelectedMembers { get; protected set; }

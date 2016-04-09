@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Core;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -18,7 +19,9 @@ namespace Chloe.Mapper
 
         void Init()
         {
-            throw new NotImplementedException();
+            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> fn = DelegateCreateManage.CreateObjectGenerator(this.ConstructorInfo);
+            this.InstanceCreator = fn;
+            //throw new NotImplementedException();
         }
 
         public ConstructorInfo ConstructorInfo { get; private set; }
@@ -37,10 +40,38 @@ namespace Chloe.Mapper
 
             return instance;
         }
+
+        static object T(IDataReader reader, ReaderOrdinalEnumerator roe, ObjectActivtorEnumerator oae)
+        {
+            //reader.GetInt32(roe.Next());
+            //reader.GetString(roe.Next());
+            //oae.Next().CreateInstance(reader);//as T
+            User u = new User(reader.GetInt32(roe.Next()), reader.GetString(roe.Next()), oae.Next().CreateInstance(reader) as User);
+
+            return u;
+        }
+
+        class User
+        {
+            public User(int id, string name, User u)
+            {
+
+            }
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public User U { get; set; }
+        }
     }
 
     public struct ReaderOrdinalEnumerator
     {
+        public static readonly MethodInfo NextMethodInfo;
+        static ReaderOrdinalEnumerator()
+        {
+            MethodInfo method = typeof(ReaderOrdinalEnumerator).GetMethod("Next");
+            NextMethodInfo = method;
+        }
+
         List<int> _readerOrdinals;
         int _next;
         public ReaderOrdinalEnumerator(List<int> readerOrdinals)
@@ -50,7 +81,7 @@ namespace Chloe.Mapper
         }
         public int Next()
         {
-            if (this._next < this._readerOrdinals.Count - 1)
+            if (this._next > this._readerOrdinals.Count - 1)
                 throw new Exception();
 
             int ret = this._readerOrdinals[this._next];
@@ -62,6 +93,14 @@ namespace Chloe.Mapper
     {
         List<IObjectActivtor> _objectActivtors;
         int _next;
+
+        public static readonly MethodInfo NextMethodInfo;
+        static ObjectActivtorEnumerator()
+        {
+            MethodInfo method = typeof(ObjectActivtorEnumerator).GetMethod("Next");
+            NextMethodInfo = method;
+        }
+
         public ObjectActivtorEnumerator(List<IObjectActivtor> objectActivtors)
         {
             this._objectActivtors = objectActivtors;
@@ -69,7 +108,7 @@ namespace Chloe.Mapper
         }
         public IObjectActivtor Next()
         {
-            if (this._next < this._objectActivtors.Count - 1)
+            if (this._next > this._objectActivtors.Count - 1)
                 throw new Exception();
 
             IObjectActivtor ret = this._objectActivtors[this._next];

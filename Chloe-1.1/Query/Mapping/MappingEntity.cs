@@ -53,8 +53,8 @@ namespace Chloe.Query.Mapping
 
             Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> instanceCreator = EntityConstructor.GetInstance(this.Constructor).InstanceCreator;
 
-            List<int> readerOrdinals = null;
-            List<IObjectActivtor> objectActivtors = null;
+            List<int> readerOrdinals = this.ConstructorParameters.Select(a => a.Value).ToList();
+            List<IObjectActivtor> objectActivtors = this.ConstructorEntityParameters.Select(a => a.Value.CreateObjectActivtor()).ToList();
 
             ObjectActivtor ret = new ObjectActivtor(instanceCreator, readerOrdinals, objectActivtors, memberSetters);
 

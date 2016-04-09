@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Chloe.Query;
 using Chloe.Extensions;
 using Chloe.Utility;
+using Chloe.Mapper;
+using System.Linq.Expressions;
 
 namespace Chloe.Core
 {
@@ -190,53 +192,48 @@ namespace Chloe.Core
 
             return del;
         }
-
-
-        public static Func<object> CreateObjectGenerator(Type type)
+        public static Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> CreateObjectGenerator(ConstructorInfo constructor)
         {
-            Func<object> ret = null;
+            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> ret = null;
 
-            DynamicMethod dm = new DynamicMethod("CreateObject_" + Guid.NewGuid().ToString(), typeof(object), null, true);
-            ILGenerator il = dm.GetILGenerator();
-            //OpCodes os = null;
+            var pExp_reader = Expression.Parameter(typeof(IDataReader), "reader");
+            var pExp_readerOrdinalEnumerator = Expression.Parameter(typeof(ReaderOrdinalEnumerator), "readerOrdinalEnumerator");
+            var pExp_objectActivtorEnumerator = Expression.Parameter(typeof(ObjectActivtorEnumerator), "objectActivtorEnumerator");
 
-            //var obj = il.DeclareLocal(typeof(object));   //生成对象变量
-            //if()
-            ConstructorInfo ctor = type.GetConstructors().First();
-            ParameterInfo[] parameters = ctor.GetParameters();
+            ParameterInfo[] parameters = constructor.GetParameters();
+            List<Expression> arguments = new List<Expression>(parameters.Length);
 
-            foreach (var parameter in parameters)
+            foreach (ParameterInfo parameter in parameters)
             {
-                var lb = il.DeclareLocal(parameter.ParameterType);
-                il.Emit(OpCodes.Ldloc, lb);
+                if (Utils.IsMapType(parameter.ParameterType))
+                {
+                    var readerMethod = GetReaderMethod(parameter.ParameterType);
+                    //int ordinal = readerOrdinalEnumerator.Next();
+                    var readerOrdinal = Expression.Call(pExp_readerOrdinalEnumerator, ReaderOrdinalEnumerator.NextMethodInfo);
+                    //DataReaderExtensions.GetValue(reader,readerOrdinal)
+                    var getValue = Expression.Call(readerMethod, pExp_reader, readerOrdinal);
+                    arguments.Add(getValue);
+                }
+                else
+                {
+                    //IObjectActivtor oa = objectActivtorEnumerator.Next();
+                    var oa = Expression.Call(pExp_objectActivtorEnumerator, ObjectActivtorEnumerator.NextMethodInfo);
+                    //object obj = oa.CreateInstance(IDataReader reader);
+                    var entity = Expression.Call(oa, typeof(IObjectActivtor).GetMethod("CreateInstance"), pExp_reader);
+                    //(T)entity;
+                    var val = Expression.Convert(entity, parameter.ParameterType);
+                    arguments.Add(val);
+                }
             }
 
-            il.Emit(OpCodes.Newobj, ctor);
-            il.Emit(OpCodes.Ret);
+            var body = Expression.New(constructor, arguments);
 
-            ret = (Func<object>)dm.CreateDelegate(typeof(Func<object>));
+            //var block = Expression.Block(body);
+
+            ret = Expression.Lambda<Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object>>(body, pExp_reader, pExp_readerOrdinalEnumerator, pExp_objectActivtorEnumerator).Compile();
+
             return ret;
         }
-        public static Action<object, int> GetSetValue(MemberInfo member)
-        {
-            Action<object, int> del = null;
-
-            DynamicMethod dm = new DynamicMethod("SetValueFromReader_" + Guid.NewGuid().ToString(), null, new Type[] { typeof(object), typeof(int) }, false);
-            ILGenerator il = dm.GetILGenerator();
-
-            il.Emit(OpCodes.Ldarg_S, 0);//将第一个参数 object 对象加载到栈顶
-            il.Emit(OpCodes.Castclass, member.DeclaringType);//将 object 对象转换为强类型对象 此时栈顶为强类型的对象
-            //il.Emit(OpCodes.Pop);
-            il.Emit(OpCodes.Ldarg_S, 1);
-
-            SetValueIL(il, member); // object.XX = value; 此时栈顶为空
-
-            il.Emit(OpCodes.Ret);
-
-            del = (Action<object, int>)dm.CreateDelegate(typeof(Action<object, int>));
-            return del;
-        }
-
 
         #endregion
 

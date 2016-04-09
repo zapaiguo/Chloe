@@ -82,11 +82,6 @@ namespace Chloe.Query.DbExpressions
             return new DbEqualExpression(left, right);
         }
 
-        //public static DbTextExpression ColumnAccess(DbColumn column)
-        //{
-        //    return new DbTextExpression(column);
-        //}
-
         public static DbGreaterThanExpression GreaterThan(DbExpression left, DbExpression right)
         {
             return new DbGreaterThanExpression(left, right);
@@ -95,11 +90,6 @@ namespace Chloe.Query.DbExpressions
         {
             return new DbGreaterThanOrEqualExpression(left, right);
         }
-
-        //public static DbInExpression In(DbExpression item, IReadOnlyList<DbExpression> elements)
-        //{
-        //    return new DbInExpression(item, elements);
-        //}
 
         public static DbLessThanExpression LessThan(DbExpression left, DbExpression right)
         {
@@ -124,7 +114,6 @@ namespace Chloe.Query.DbExpressions
         {
             return new DbMultiplyExpression(returnType, left, right);
         }
-
 
         public static DbParameterExpression Parameter(object value)
         {
