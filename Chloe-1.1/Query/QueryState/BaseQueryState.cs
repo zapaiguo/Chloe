@@ -49,18 +49,18 @@ namespace Chloe.Query.QueryState
         public virtual IQueryState AppendOrderExpression(OrderExpression orderExp)
         {
             if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.OrderByDesc)
-                this._resultElement.OrderParts.Clear();
+                this._resultElement.OrderSegments.Clear();
 
             BaseExpressionVisitor visitor = this.Visitor;
             var r = VisistOrderExpression(visitor, orderExp);
 
             if (this._resultElement.IsFromSubQuery)
             {
-                this._resultElement.OrderParts.Clear();
+                this._resultElement.OrderSegments.Clear();
                 this._resultElement.IsFromSubQuery = false;
             }
 
-            this._resultElement.OrderParts.Add(r);
+            this._resultElement.OrderSegments.Add(r);
 
             return this;
         }
@@ -73,7 +73,7 @@ namespace Chloe.Query.QueryState
 
             IMappingObjectExpression r = visistor.Visit(selectExpression.Expression);
             result.MappingObjectExpression = r;
-            result.OrderParts.AddRange(this._resultElement.OrderParts);
+            result.OrderSegments.AddRange(this._resultElement.OrderSegments);
             result.UpdateWhereExpression(this._resultElement.Where);
 
             return new GeneralQueryState(result);
@@ -87,7 +87,7 @@ namespace Chloe.Query.QueryState
             var tablePart = this._resultElement.FromTable;
 
             sqlQuery.Table = tablePart;
-            sqlQuery.Orders.AddRange(this._resultElement.OrderParts);
+            sqlQuery.Orders.AddRange(this._resultElement.OrderSegments);
             sqlQuery.UpdateWhereExpression(this._resultElement.Where);
 
             var moe = this._resultElement.MappingObjectExpression.GenarateObjectActivtorCreator(sqlQuery);
@@ -98,7 +98,7 @@ namespace Chloe.Query.QueryState
             return data;
         }
 
-        protected static OrderPart VisistOrderExpression(BaseExpressionVisitor visitor, OrderExpression orderExp)
+        protected static DbOrderSegmentExpression VisistOrderExpression(BaseExpressionVisitor visitor, OrderExpression orderExp)
         {
             DbExpression dbExpression = visitor.Visit(orderExp.Expression);//解析表达式树 orderExp.Expression
             OrderType orderType;
@@ -113,7 +113,7 @@ namespace Chloe.Query.QueryState
             else
                 throw new NotSupportedException(orderExp.NodeType.ToString());
 
-            OrderPart orderPart = new OrderPart(dbExpression, orderType);
+            DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(dbExpression, orderType);
 
             return orderPart;
         }

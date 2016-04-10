@@ -14,7 +14,7 @@ namespace Chloe.Query.DbExpressions
         {
             this.Columns = new List<DbColumnExpression>();
             this.Groups = new List<DbExpression>();
-            this.Orders = new List<OrderPart>();
+            this.Orders = new List<DbOrderSegmentExpression>();
         }
         public int? TakeCount { get; set; }
         public int? SkipCount { get; set; }
@@ -23,7 +23,7 @@ namespace Chloe.Query.DbExpressions
         public DbExpression Where { get; set; }
         public List<DbExpression> Groups { get; private set; }
         public DbExpression Having { get; set; }
-        public List<OrderPart> Orders { get; private set; }
+        public List<DbOrderSegmentExpression> Orders { get; private set; }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

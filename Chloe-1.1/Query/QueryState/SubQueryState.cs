@@ -74,11 +74,11 @@ namespace Chloe.Query.QueryState
 
             //得将 subQuery.SqlQuery.Orders 告诉 以下创建的 result
             //将 orderPart 传递下去
-            if (this.Result.OrderParts.Count > 0)
+            if (this.Result.OrderSegments.Count > 0)
             {
-                for (int i = 0; i < this.Result.OrderParts.Count; i++)
+                for (int i = 0; i < this.Result.OrderSegments.Count; i++)
                 {
-                    OrderPart orderPart = this.Result.OrderParts[i];
+                    DbOrderSegmentExpression orderPart = this.Result.OrderSegments[i];
                     DbExpression orderExp = orderPart.DbExpression;
 
                     string alias = null;
@@ -98,7 +98,7 @@ namespace Chloe.Query.QueryState
                     }
 
                     DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(orderExp.Type, tableExp, alias);
-                    result.OrderParts.Add(new OrderPart(columnAccessExpression, orderPart.OrderType));
+                    result.OrderSegments.Add(new DbOrderSegmentExpression(columnAccessExpression, orderPart.OrderType));
                 }
             }
 

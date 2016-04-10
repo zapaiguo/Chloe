@@ -24,8 +24,8 @@ namespace Chloe.Query
 
         public SqlState Append(object obj)
         {
-            if (obj == null)
-                throw new ArgumentNullException("obj");
+            //if (obj == null)
+            //    throw new ArgumentNullException("obj");
 
             this._sqlStorage.Add(obj);
             return this;

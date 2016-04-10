@@ -44,7 +44,7 @@ namespace Chloe.Query.QueryState
             DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
             sqlQuery.Table = this.Result.FromTable;
             sqlQuery.Where = this.Result.Where;
-            sqlQuery.Orders.AddRange(this.Result.OrderParts);
+            sqlQuery.Orders.AddRange(this.Result.OrderSegments);
             sqlQuery.TakeCount = this.TakeCount;
             sqlQuery.SkipCount = this.SkipCount;
 

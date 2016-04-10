@@ -478,6 +478,19 @@ namespace Chloe.SqlServer
             return state;
         }
 
+        public override ISqlState Visit(DbOrderSegmentExpression exp)
+        {
+            SqlState state = new SqlState(2);
+
+            if (exp.OrderType == OrderType.Asc)
+                state.Append(exp.DbExpression.Accept(this), " ASC");
+            else if (exp.OrderType == OrderType.Desc)
+                state.Append(exp.DbExpression.Accept(this), " DESC");
+            else
+                throw new NotImplementedException("OrderType: " + exp.OrderType);
+
+            return state;
+        }
 
         ISqlState VisitDbJoinTableExpressions(List<DbJoinTableExpression> tables)
         {
@@ -521,18 +534,15 @@ namespace Chloe.SqlServer
                 columnsState.Append(column.Body.Accept(this._columnExpressionVisitor), " AS ", columnState);
             }
 
-
-            //SqlState fromTableState = this.BuildFromTableState(exp.Table);
             ISqlState fromTableState = exp.Table.Accept(this);
-            SqlState whereState = this.BuildWhereState(exp.Where);
-            SqlState orderState = this.BuildOrderState(exp.Orders);
 
             SqlState sqlState = new SqlState();
             sqlState.Append("SELECT ", columnsState, " FROM ", fromTableState);
-            if (whereState != null)
-                sqlState.Append(" ", whereState);
-            if (orderState != null)
-                sqlState.Append(" ", orderState);
+
+            SqlState whereState = this.BuildWhereState(exp.Where);
+            SqlState orderState = this.BuildOrderState(exp.Orders);
+            sqlState.Append(whereState);
+            sqlState.Append(orderState);
 
             retState = sqlState;
             return retState;
@@ -555,26 +565,26 @@ namespace Chloe.SqlServer
                 columnStates.Add(columnState);
             }
 
-            List<OrderPart> orderParts = exp.Orders;
+            List<DbOrderSegmentExpression> orderParts = exp.Orders;
             if (orderParts.Count == 0)
             {
-                OrderPart orderPart = new OrderPart(_tempDbParameterExpression, OrderType.Asc);
-                orderParts = new List<OrderPart>();
+                DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(_tempDbParameterExpression, OrderType.Asc);
+                orderParts = new List<DbOrderSegmentExpression>();
                 orderParts.Add(orderPart);
             }
 
-            //SqlState fromTableState = this.BuildFromTableState(exp.Table);
             ISqlState fromTableState = exp.Table.Accept(this);
-            SqlState whereState = this.BuildWhereState(exp.Where);
-            SqlState orderState = this.BuildOrderState(orderParts);
+
+            SqlState orderState = this.ConcatOrderSegments(orderParts);
 
             string row_numberName = CreateRowNumberName(columns);
 
             SqlState row_numberNameState = this.QuoteName(row_numberName);
             SqlState row_numberState = new SqlState();
-            row_numberState.Append("SELECT ", columnsState, ",ROW_NUMBER() OVER(", orderState, ") AS ", row_numberNameState, " FROM ", fromTableState);
-            if (whereState != null)
-                row_numberState.Append(" ", whereState);
+            row_numberState.Append("SELECT ", columnsState, ",ROW_NUMBER() OVER(ORDER BY ", orderState, ") AS ", row_numberNameState, " FROM ", fromTableState);
+
+            SqlState whereState = this.BuildWhereState(exp.Where);
+            row_numberState.Append(whereState);
 
 
             string tableAlias = "T";
@@ -614,19 +624,17 @@ namespace Chloe.SqlServer
                 columnsState.Append(column.Body.Accept(this._columnExpressionVisitor), " AS ", columnState);
             }
 
-            List<OrderPart> orderParts = exp.Orders;
+            List<DbOrderSegmentExpression> orderParts = exp.Orders;
 
-            //SqlState fromTableState = this.BuildFromTableState(exp.Table);
             ISqlState fromTableState = exp.Table.Accept(this);
-            SqlState whereState = this.BuildWhereState(exp.Where);
-            SqlState orderState = this.BuildOrderState(orderParts);
 
             SqlState sqlState = new SqlState();
             sqlState.Append("SELECT TOP (", exp.TakeCount.Value.ToString(), ") ", columnsState, " FROM ", fromTableState);
-            if (whereState != null)
-                sqlState.Append(" ", whereState);
-            if (orderState != null)
-                sqlState.Append(" ", orderState);
+
+            SqlState whereState = this.BuildWhereState(exp.Where);
+            SqlState orderState = this.BuildOrderState(orderParts);
+            sqlState.Append(whereState);
+            sqlState.Append(orderState);
 
             retState = sqlState;
             return retState;
@@ -649,26 +657,25 @@ namespace Chloe.SqlServer
                 columnStates.Add(columnState);
             }
 
-            List<OrderPart> orderParts = exp.Orders;
+            List<DbOrderSegmentExpression> orderParts = exp.Orders;
             if (orderParts.Count == 0)
             {
-                OrderPart orderPart = new OrderPart(_tempDbParameterExpression, OrderType.Asc);
-                orderParts = new List<OrderPart>();
+                DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(_tempDbParameterExpression, OrderType.Asc);
+                orderParts = new List<DbOrderSegmentExpression>();
                 orderParts.Add(orderPart);
             }
 
-            //SqlState fromTableState = this.BuildFromTableState(exp.Table);
             ISqlState fromTableState = exp.Table.Accept(this);
-            SqlState whereState = this.BuildWhereState(exp.Where);
-            SqlState orderState = this.BuildOrderState(orderParts);
+            SqlState orderState = this.ConcatOrderSegments(orderParts);
 
             string row_numberName = CreateRowNumberName(columns);
 
             SqlState row_numberNameState = this.QuoteName(row_numberName);
             SqlState row_numberState = new SqlState();
-            row_numberState.Append("SELECT ", columnsState, ",ROW_NUMBER() OVER(", orderState, ") AS ", row_numberNameState, " FROM ", fromTableState);
-            if (whereState != null)
-                row_numberState.Append(" ", whereState);
+            row_numberState.Append("SELECT ", columnsState, ",ROW_NUMBER() OVER(ORDER BY ", orderState, ") AS ", row_numberNameState, " FROM ", fromTableState);
+
+            SqlState whereState = this.BuildWhereState(exp.Where);
+            row_numberState.Append(whereState);
 
             string tableAlias = "T";
             SqlState tableState_tableAlias = this.QuoteName(tableAlias);
@@ -692,46 +699,50 @@ namespace Chloe.SqlServer
         }
         SqlState BuildWhereState(DbExpression whereExpression)
         {
-            SqlState whereState = null;
-            if (whereExpression != null)
+            SqlState whereState;
+            if (whereExpression == null)
             {
                 whereState = new SqlState();
-                whereState.Append("WHERE ", whereExpression.Accept(this));
+            }
+            else
+            {
+                whereState = new SqlState(2);
+                whereState.Append(" WHERE ", whereExpression.Accept(this));
             }
 
             return whereState;
         }
-        SqlState BuildOrderState(List<OrderPart> orderParts)
+        SqlState BuildOrderState(List<DbOrderSegmentExpression> orderSegments)
         {
-            SqlState orderState = null;
+            SqlState orderState = new SqlState();
 
-            List<OrderPart> orderPartsTemp = orderParts;
-
-            if (orderParts.Count == 0)
-                return null;
-
-            for (int i = 0; i < orderPartsTemp.Count; i++)
+            if (orderSegments.Count == 0)
             {
-                if (i == 0)
-                {
-                    orderState = new SqlState();
-                    orderState.Append("ORDER BY ");
-                }
-                else
-                {
-                    orderState.Append(",");
-                }
-
-                OrderPart orderPart = orderPartsTemp[i];
-                if (orderPart.OrderType == OrderType.Asc)
-                    orderState.Append(orderPart.DbExpression.Accept(this), " ASC");
-                else if (orderPart.OrderType == OrderType.Desc)
-                    orderState.Append(orderPart.DbExpression.Accept(this), " DESC");
-                else
-                    throw new NotImplementedException("OrderType: " + orderPart.OrderType);
+                orderState = new SqlState();
+            }
+            else
+            {
+                orderState = new SqlState(2);
+                orderState.Append(" ORDER BY ", this.ConcatOrderSegments(orderSegments));
             }
 
             return orderState;
+        }
+        SqlState ConcatOrderSegments(List<DbOrderSegmentExpression> orderSegments)
+        {
+            SqlState state = new SqlState(orderSegments.Count + 1);
+
+            for (int i = 0; i < orderSegments.Count; i++)
+            {
+                if (i > 0)
+                {
+                    state.Append(",");
+                }
+
+                state.Append(orderSegments[i].Accept(this));
+            }
+
+            return state;
         }
 
 

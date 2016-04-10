@@ -152,6 +152,10 @@ namespace Chloe.Query.Implementation
         {
             return exp.Accept(this._visitor);
         }
+        public override ISqlState Visit(DbOrderSegmentExpression exp)
+        {
+            return exp.Accept(this._visitor);
+        }
 
         ISqlState VisistDbBooleanExpression(DbExpression exp)
         {

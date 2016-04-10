@@ -63,6 +63,7 @@
     <Compile Include="Query\DbExpressionEqualizer.cs" />
     <Compile Include="Query\DbExpressions\DbFromTableExpression.cs" />
     <Compile Include="Query\DbExpressions\DbJoinTableExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbOrderSegmentExpression.cs" />
     <Compile Include="Query\DbExpressionVisitorBase.cs" />
     <Compile Include="Query\DbExpressions\DbAddExpression.cs" />
     <Compile Include="Query\DbExpressions\DbAndExpression.cs" />
@@ -111,14 +112,11 @@
     <Compile Include="Query\QueryState\SubQueryState.cs" />
     <Compile Include="Query\Query`.cs" />
     <Compile Include="Query\SqlState.cs" />
-    <Compile Include="Query\TablePart.cs" />
     <Compile Include="Query\Implementation\BaseExpressionVisitor.cs" />
     <Compile Include="Query\Implementation\GeneralExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Query\JoinTablePart.cs" />
     <Compile Include="Query\JoinType.cs" />
-    <Compile Include="Query\OrderPart.cs" />
     <Compile Include="Query\OrderType.cs" />
     <Compile Include="Query\QueryExpressions\OrderExpression.cs" />
     <Compile Include="Query\QueryExpressions\QueryExpression.cs" />

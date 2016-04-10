@@ -16,7 +16,7 @@ namespace Chloe.Query
     {
         public ResultElement()
         {
-            this.OrderParts = new List<OrderPart>();
+            this.OrderSegments = new List<DbOrderSegmentExpression>();
         }
 
         public IMappingObjectExpression MappingObjectExpression { get; set; }
@@ -26,7 +26,7 @@ namespace Chloe.Query
         /// </summary>
         public bool IsFromSubQuery { get; set; }
 
-        public List<OrderPart> OrderParts { get; private set; }
+        public List<DbOrderSegmentExpression> OrderSegments { get; private set; }
 
         /// <summary>
         /// 如 takequery 了以后，则 table 的 Expression 类似 (select T.Id.. from User as T),Alias 则为新生成的
