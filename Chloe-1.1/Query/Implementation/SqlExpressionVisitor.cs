@@ -444,7 +444,51 @@ namespace Chloe.SqlServer
             return methodHandler(exp, this);
         }
 
+        public override ISqlState Visit(DbFromTableExpression exp)
+        {
+            SqlState state = new SqlState(2);
+            state.Append(exp.Table.Accept(this));
+            state.Append(this.VisitDbJoinTableExpressions(exp.JoinTables));
+            return state;
+        }
 
+        public override ISqlState Visit(DbJoinTableExpression exp)
+        {
+            DbJoinTableExpression joinTablePart = exp;
+            string joinString = null;
+            if (joinTablePart.JoinType == JoinType.LeftJoin)
+            {
+                joinString = " LEFT JOIN ";
+            }
+            else if (joinTablePart.JoinType == JoinType.InnerJoin)
+            {
+                joinString = " INNER JOIN ";
+            }
+            else if (joinTablePart.JoinType == JoinType.RightJoin)
+            {
+                joinString = " RIGHT JOIN ";
+            }
+            else
+                throw new NotSupportedException("JoinType: " + joinTablePart.JoinType);
+
+            SqlState state = new SqlState(5);
+            state.Append(joinString, joinTablePart.Table.Accept(this), " ON ", joinTablePart.Condition.Accept(this._joinConditionExpressionVisitor));
+            state.Append(this.VisitDbJoinTableExpressions(joinTablePart.JoinTables));
+
+            return state;
+        }
+
+
+        ISqlState VisitDbJoinTableExpressions(List<DbJoinTableExpression> tables)
+        {
+            SqlState state = new SqlState(tables.Count);
+            foreach (var table in tables)
+            {
+                state.Append(table.Accept(this));
+            }
+
+            return state;
+        }
         SqlState QuoteName(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -459,31 +503,6 @@ namespace Chloe.SqlServer
             var retState = new SqlState(3);
             retState.Append("(", state, ")");
             return retState;
-        }
-        void AppendJoinTable(SqlState fromTableState, List<JoinTablePart> joinTableParts)
-        {
-            foreach (JoinTablePart joinTablePart in joinTableParts)
-            {
-                string joinString = null;
-                if (joinTablePart.JoinType == JoinType.LeftJoin)
-                {
-                    joinString = " LEFT JOIN ";
-                }
-                else if (joinTablePart.JoinType == JoinType.InnerJoin)
-                {
-                    joinString = " INNER JOIN ";
-                }
-                else if (joinTablePart.JoinType == JoinType.RightJoin)
-                {
-                    joinString = " RIGHT JOIN ";
-                }
-                else
-                    throw new NotSupportedException("JoinType: " + joinTablePart.JoinType);
-
-                fromTableState.Append(joinString, joinTablePart.Table.Accept(this), " ON ", joinTablePart.Condition.Accept(this._joinConditionExpressionVisitor));
-
-                this.AppendJoinTable(fromTableState, joinTablePart.JoinTables);
-            }
         }
         ISqlState BuildGeneralSqlState(DbSqlQueryExpression exp)
         {
@@ -503,7 +522,8 @@ namespace Chloe.SqlServer
             }
 
 
-            SqlState fromTableState = this.BuildFromTableState(exp.Table);
+            //SqlState fromTableState = this.BuildFromTableState(exp.Table);
+            ISqlState fromTableState = exp.Table.Accept(this);
             SqlState whereState = this.BuildWhereState(exp.Where);
             SqlState orderState = this.BuildOrderState(exp.Orders);
 
@@ -543,7 +563,8 @@ namespace Chloe.SqlServer
                 orderParts.Add(orderPart);
             }
 
-            SqlState fromTableState = this.BuildFromTableState(exp.Table);
+            //SqlState fromTableState = this.BuildFromTableState(exp.Table);
+            ISqlState fromTableState = exp.Table.Accept(this);
             SqlState whereState = this.BuildWhereState(exp.Where);
             SqlState orderState = this.BuildOrderState(orderParts);
 
@@ -595,7 +616,8 @@ namespace Chloe.SqlServer
 
             List<OrderPart> orderParts = exp.Orders;
 
-            SqlState fromTableState = this.BuildFromTableState(exp.Table);
+            //SqlState fromTableState = this.BuildFromTableState(exp.Table);
+            ISqlState fromTableState = exp.Table.Accept(this);
             SqlState whereState = this.BuildWhereState(exp.Where);
             SqlState orderState = this.BuildOrderState(orderParts);
 
@@ -635,7 +657,8 @@ namespace Chloe.SqlServer
                 orderParts.Add(orderPart);
             }
 
-            SqlState fromTableState = this.BuildFromTableState(exp.Table);
+            //SqlState fromTableState = this.BuildFromTableState(exp.Table);
+            ISqlState fromTableState = exp.Table.Accept(this);
             SqlState whereState = this.BuildWhereState(exp.Where);
             SqlState orderState = this.BuildOrderState(orderParts);
 
@@ -646,7 +669,6 @@ namespace Chloe.SqlServer
             row_numberState.Append("SELECT ", columnsState, ",ROW_NUMBER() OVER(", orderState, ") AS ", row_numberNameState, " FROM ", fromTableState);
             if (whereState != null)
                 row_numberState.Append(" ", whereState);
-
 
             string tableAlias = "T";
             SqlState tableState_tableAlias = this.QuoteName(tableAlias);
@@ -667,16 +689,6 @@ namespace Chloe.SqlServer
 
             retState = sqlState;
             return retState;
-        }
-
-        SqlState BuildFromTableState(TablePart tablePart)
-        {
-            SqlState fromTableState = new SqlState();
-
-            fromTableState.Append(tablePart.Table.Accept(this));
-            this.AppendJoinTable(fromTableState, tablePart.JoinTables);
-
-            return fromTableState;
         }
         SqlState BuildWhereState(DbExpression whereExpression)
         {

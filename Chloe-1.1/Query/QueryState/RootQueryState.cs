@@ -30,10 +30,10 @@ namespace Chloe.Query.QueryState
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(type);
 
-            resultElement.TablePart = CreateRootTable(typeDescriptor.TableName, resultElement.GenerateUniqueTableAlias(typeDescriptor.TableName));
+            resultElement.FromTable = CreateRootTable(typeDescriptor.TableName, resultElement.GenerateUniqueTableAlias(typeDescriptor.TableName));
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(UtilConstants.EmptyTypeArray));
 
-            DbTableExpression tableExp = resultElement.TablePart.Table;
+            DbTableExpression tableExp = resultElement.FromTable.Table;
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(item.MemberType, tableExp, item.ColumnName);
@@ -44,11 +44,11 @@ namespace Chloe.Query.QueryState
 
             return resultElement;
         }
-        static TablePart CreateRootTable(string tableName, string alias)
+        static DbFromTableExpression CreateRootTable(string tableName, string alias)
         {
             DbTableAccessExpression rootTable = new DbTableAccessExpression(tableName);
             DbTableExpression tableExp = new DbTableExpression(rootTable, alias);
-            TablePart table = new TablePart(tableExp);
+            var table = new DbFromTableExpression(tableExp);
             return table;
         }
     }

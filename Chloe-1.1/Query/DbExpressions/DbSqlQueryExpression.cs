@@ -19,7 +19,7 @@ namespace Chloe.Query.DbExpressions
         public int? TakeCount { get; set; }
         public int? SkipCount { get; set; }
         public List<DbColumnExpression> Columns { get; private set; }
-        public TablePart Table { get; set; }
+        public DbFromTableExpression Table { get; set; }
         public DbExpression Where { get; set; }
         public List<DbExpression> Groups { get; private set; }
         public DbExpression Having { get; set; }

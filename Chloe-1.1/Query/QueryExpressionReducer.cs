@@ -21,6 +21,26 @@ namespace Chloe.Query
 
         public static IQueryState ReduceQueryExpression(QueryExpression queryExpression)
         {
+            List<QueryExpression> queryExpressions = new List<QueryExpression>();
+            queryExpressions.Add(queryExpression);
+            while (queryExpression.PrevExpression != null)
+            {
+                queryExpression = queryExpression.PrevExpression;
+                queryExpressions.Add(queryExpression);
+            }
+
+            IQueryState queryState = null;
+            int maxIndex = queryExpressions.Count - 1;
+            for (int i = maxIndex; i >= 0; i--)
+            {
+                queryState = queryExpressions[i].Accept(queryState);
+            }
+
+            return queryState;
+        }
+
+        public static IQueryState ReduceQueryExpression1(QueryExpression queryExpression)
+        {
             QueryExpressionReducer reducer = new QueryExpressionReducer();
             IQueryState queryState = reducer.Reduce(queryExpression);
             return queryState;

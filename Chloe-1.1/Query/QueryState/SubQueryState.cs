@@ -64,9 +64,9 @@ namespace Chloe.Query.QueryState
             ResultElement result = new ResultElement();
 
             DbTableExpression tableExp = new DbTableExpression(subQuery, result.GenerateUniqueTableAlias());
-            TablePart tablePart = new TablePart(tableExp);
+            DbFromTableExpression tablePart = new DbFromTableExpression(tableExp);
 
-            result.TablePart = tablePart;
+            result.FromTable = tablePart;
 
             //TODO 根据旧的生成新 MappingMembers
             IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, tableExp);

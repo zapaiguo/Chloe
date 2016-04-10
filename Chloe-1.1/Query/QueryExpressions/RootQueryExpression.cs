@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Query.QueryState;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,12 @@ namespace Chloe.Query.QueryExpressions
             : base(QueryExpressionType.Root, elementType, null)
         {
 
+        }
+
+        public override IQueryState Accept(IQueryState queryState)
+        {
+            IQueryState state = new RootQueryState(this.ElementType);
+            return state;
         }
     }
 }

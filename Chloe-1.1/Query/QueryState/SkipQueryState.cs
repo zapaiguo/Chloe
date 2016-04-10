@@ -24,8 +24,8 @@ namespace Chloe.Query.QueryState
         public override DbSqlQueryExpression CreateSqlQuery()
         {
             DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
-            sqlQuery.Table = this.Result.TablePart;
-            sqlQuery.Where = this.Result.WhereExpression;
+            sqlQuery.Table = this.Result.FromTable;
+            sqlQuery.Where = this.Result.Where;
             sqlQuery.Orders.AddRange(this.Result.OrderParts);
             sqlQuery.TakeCount = null;
             sqlQuery.SkipCount = this.Count;

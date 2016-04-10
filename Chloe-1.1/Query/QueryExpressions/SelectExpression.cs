@@ -13,5 +13,11 @@ namespace Chloe.Query.QueryExpressions
             : base(QueryExpressionType.Select, elementType, prevExpression, selectExpression)
         {
         }
+
+        public override IQueryState Accept(IQueryState queryState)
+        {
+            IQueryState state = queryState.UpdateSelectResult(this);
+            return state;
+        }
     }
 }

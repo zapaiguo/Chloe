@@ -33,5 +33,7 @@ namespace Chloe.Query.DbExpressions
         Parameter,
         SubQuery,
         SqlQuery,
+        FromTable,
+        JoinTable,
     }
 }

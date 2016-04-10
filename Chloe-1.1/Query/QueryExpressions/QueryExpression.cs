@@ -42,5 +42,7 @@ namespace Chloe.Query.QueryExpressions
                 return this._elementType;
             }
         }
+
+        public abstract IQueryState Accept(IQueryState queryState);
     }
 }

@@ -31,25 +31,25 @@ namespace Chloe.Query
         /// <summary>
         /// 如 takequery 了以后，则 table 的 Expression 类似 (select T.Id.. from User as T),Alias 则为新生成的
         /// </summary>
-        public TablePart TablePart { get; set; }
-        public DbExpression WhereExpression { get; private set; }
+        public DbFromTableExpression FromTable { get; set; }
+        public DbExpression Where { get; private set; }
 
         public void UpdateWhereExpression(DbExpression whereExpression)
         {
-            if (this.WhereExpression == null)
-                this.WhereExpression = whereExpression;
+            if (this.Where == null)
+                this.Where = whereExpression;
             else
-                this.WhereExpression = new DbAndExpression(this.WhereExpression, whereExpression);
+                this.Where = new DbAndExpression(this.Where, whereExpression);
         }
 
         public string GenerateUniqueTableAlias(string prefix = "T")
         {
-            if (this.TablePart == null)
+            if (this.FromTable == null)
                 return prefix;
 
             string alias = prefix;
             int i = 0;
-            while (this.TablePart.ExistTableAlias(alias))
+            while (this.FromTable.ExistTableAlias(alias))
             {
                 alias = prefix + i.ToString();
                 i++;

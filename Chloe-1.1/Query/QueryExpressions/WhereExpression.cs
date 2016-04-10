@@ -13,5 +13,10 @@ namespace Chloe.Query.QueryExpressions
             : base(QueryExpressionType.Where, elementType, prevExpression, predicate)
         {
         }
+
+        public override IQueryState Accept(IQueryState queryState)
+        {
+            return queryState.AppendWhereExpression(this);
+        }
     }
 }

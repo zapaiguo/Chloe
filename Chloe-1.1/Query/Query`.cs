@@ -41,11 +41,11 @@ namespace Chloe.Query
             return new Query<T1>(e);
         }
 
-        public IQuery<T> Include<TProperty>(Expression<Func<T, TProperty>> path)
-        {
-            IncludeExpression e = new IncludeExpression(_expression, typeof(T), path);
-            return new Query<T>(e);
-        }
+        //public IQuery<T> Include<TProperty>(Expression<Func<T, TProperty>> path)
+        //{
+        //    IncludeExpression e = new IncludeExpression(_expression, typeof(T), path);
+        //    return new Query<T>(e);
+        //}
 
         public IQuery<T> Where(Expression<Func<T, bool>> predicate)
         {

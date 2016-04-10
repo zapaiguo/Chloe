@@ -13,6 +13,12 @@ namespace Chloe.Query.QueryExpressions
             : base(expressionType, elementType, prevExpression, predicate)
         {
         }
+
+        public override IQueryState Accept(IQueryState queryState)
+        {
+            IQueryState state = queryState.AppendOrderExpression(this);
+            return state;
+        }
     }
 
 }

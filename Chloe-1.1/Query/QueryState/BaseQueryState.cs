@@ -67,14 +67,14 @@ namespace Chloe.Query.QueryState
         public virtual IQueryState UpdateSelectResult(SelectExpression selectExpression)
         {
             ResultElement result = new ResultElement();
-            result.TablePart = this._resultElement.TablePart;
+            result.FromTable = this._resultElement.FromTable;
 
             SelectExpressionVisitor visistor = new SelectExpressionVisitor(this.Visitor, this._resultElement.MappingObjectExpression);
 
             IMappingObjectExpression r = visistor.Visit(selectExpression.Expression);
             result.MappingObjectExpression = r;
             result.OrderParts.AddRange(this._resultElement.OrderParts);
-            result.UpdateWhereExpression(this._resultElement.WhereExpression);
+            result.UpdateWhereExpression(this._resultElement.Where);
 
             return new GeneralQueryState(result);
         }
@@ -84,11 +84,11 @@ namespace Chloe.Query.QueryState
             MappingData data = new MappingData();
 
             DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
-            TablePart tablePart = this._resultElement.TablePart;
+            var tablePart = this._resultElement.FromTable;
 
             sqlQuery.Table = tablePart;
             sqlQuery.Orders.AddRange(this._resultElement.OrderParts);
-            sqlQuery.UpdateWhereExpression(this._resultElement.WhereExpression);
+            sqlQuery.UpdateWhereExpression(this._resultElement.Where);
 
             var moe = this._resultElement.MappingObjectExpression.GenarateObjectActivtorCreator(sqlQuery);
 

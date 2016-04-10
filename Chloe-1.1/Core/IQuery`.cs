@@ -12,7 +12,7 @@ namespace Chloe.Core
     {
         IQuery<T1> Select<T1>(Expression<Func<T, T1>> selector);
 
-        IQuery<T> Include<TProperty>(Expression<Func<T, TProperty>> path);
+        //IQuery<T> Include<TProperty>(Expression<Func<T, TProperty>> path);
 
         IQuery<T> Where(Expression<Func<T, bool>> predicate);
 

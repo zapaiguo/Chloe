@@ -42,6 +42,8 @@ namespace Chloe.Query
         public abstract T Visit(DbParameterExpression exp);
         public abstract T Visit(DbSubQueryExpression exp);
         public abstract T Visit(DbSqlQueryExpression exp);
+        public abstract T Visit(DbFromTableExpression exp);
+        public abstract T Visit(DbJoinTableExpression exp);
 
     }
 

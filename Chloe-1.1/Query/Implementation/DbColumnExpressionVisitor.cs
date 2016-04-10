@@ -143,6 +143,16 @@ namespace Chloe.Query.Implementation
                 return exp.Accept(this._visitor);
         }
 
+        public override ISqlState Visit(DbFromTableExpression exp)
+        {
+            return exp.Accept(this._visitor);
+        }
+
+        public override ISqlState Visit(DbJoinTableExpression exp)
+        {
+            return exp.Accept(this._visitor);
+        }
+
         ISqlState VisistDbBooleanExpression(DbExpression exp)
         {
             DbCaseWhenExpression caseWhenExpression = SqlExpressionVisitor.ConstructReturnCSharpBooleanCaseWhenExpression(exp);
