@@ -39,7 +39,6 @@ namespace Chloe.Extensions
                 return ((FieldInfo)propertyOrField).FieldType;
 
             throw new NotSupportedException("not property or field");
-            //return null;
         }
 
         public static void SetPropertyOrFieldValue(this MemberInfo propertyOrField, object obj, object value)

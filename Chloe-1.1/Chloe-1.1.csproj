@@ -76,7 +76,7 @@
     <Compile Include="Query\DbExpressions\DbConvertExpression.cs" />
     <Compile Include="Query\DbExpressions\DbSqlQueryExpression.cs" />
     <Compile Include="Query\DbExpressions\DbSubQueryExpression.cs" />
-    <Compile Include="Query\DbExpressions\DbTableAccessExpression.cs" />
+    <Compile Include="Query\DbExpressions\DbDerivedTableExpression.cs" />
     <Compile Include="Query\DbExpressions\DbTableExpression.cs" />
     <Compile Include="Query\DbExpressions\DbConstantExpression.cs" />
     <Compile Include="Query\DbExpressions\DbDivideExpression.cs" />

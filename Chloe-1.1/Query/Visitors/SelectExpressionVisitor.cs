@@ -108,5 +108,9 @@ namespace Chloe.Query
             //如 a.Order a.User 等形式
             return this.VisitNavigationMember(exp);
         }
+        protected override IMappingObjectExpression VisitParameter(ParameterExpression exp)
+        {
+            return this._moe;
+        }
     }
 }

@@ -36,7 +36,7 @@ namespace Chloe.Query
         public abstract T Visit(DbCaseWhenExpression exp);
         public abstract T Visit(DbMethodCallExpression exp);
         public abstract T Visit(DbTableExpression exp);
-        public abstract T Visit(DbTableAccessExpression exp);
+        public abstract T Visit(DbDerivedTableExpression exp);
         public abstract T Visit(DbColumnExpression exp);
         public abstract T Visit(DbColumnAccessExpression exp);
         public abstract T Visit(DbParameterExpression exp);

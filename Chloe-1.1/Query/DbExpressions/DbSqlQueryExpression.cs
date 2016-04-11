@@ -42,7 +42,7 @@ namespace Chloe.Query.DbExpressions
         {
             string alias = prefix;
             int i = 0;
-            while (this.Columns.Any(a => a.Alias == alias))
+            while (this.Columns.Any(a => a.Alias.Equals(alias, StringComparison.OrdinalIgnoreCase)))
             {
                 alias = prefix + i.ToString();
                 i++;

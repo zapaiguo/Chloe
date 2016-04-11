@@ -46,7 +46,7 @@ namespace Chloe.Query.QueryState
         }
         static DbFromTableExpression CreateRootTable(string tableName, string alias)
         {
-            DbTableAccessExpression rootTable = new DbTableAccessExpression(tableName);
+            DbDerivedTableExpression rootTable = new DbDerivedTableExpression(tableName);
             DbTableExpression tableExp = new DbTableExpression(rootTable, alias);
             var table = new DbFromTableExpression(tableExp);
             return table;

@@ -7,25 +7,20 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.DbExpressions
 {
-    public class DbTableAccessExpression : DbExpression
+    public class DbDerivedTableExpression : DbExpression
     {
         string _tableName;
-        public DbTableAccessExpression()
-            : this(null)
-        {
-        }
-        public DbTableAccessExpression(string tableName)
-            : base(DbExpressionType.TableAccess, UtilConstants.TypeOfVoid)
+        public DbDerivedTableExpression(string tableName)
+            : base(DbExpressionType.DerivedTable, UtilConstants.TypeOfVoid)
         {
             this._tableName = tableName;
         }
 
-        public virtual string TableName { get { return this._tableName; } set { this._tableName = value; } }
+        public string TableName { get { return this._tableName; } private set { this._tableName = value; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {
             return visitor.Visit(this);
         }
-
     }
 }

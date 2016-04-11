@@ -15,11 +15,6 @@ namespace Chloe.Query.DbExpressions
         DbExpression _body;
         string _alias;
 
-        //public DbTableExpression(DbExpression body)
-        //    : this(body, null)
-        //{
-        //}
-
         public DbTableExpression(DbExpression body, string alias)
             : base(DbExpressionType.Table, UtilConstants.TypeOfVoid)
         {

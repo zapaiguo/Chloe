@@ -27,7 +27,7 @@ namespace Chloe.Query.DbExpressions
         MemberAccess,
         Call,
         Table,
-        TableAccess,
+        DerivedTable,
         Column,
         ColumnAccess,
         Parameter,

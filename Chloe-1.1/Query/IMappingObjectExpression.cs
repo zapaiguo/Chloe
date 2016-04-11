@@ -36,6 +36,9 @@ namespace Chloe.Query
             this._type = type;
             this._exp = exp;
         }
+
+        public DbExpression Expression { get { return this._exp; } }
+
         public void AddConstructorParameter(ParameterInfo p, DbExpression exp)
         {
             throw new NotSupportedException();
@@ -99,7 +102,16 @@ namespace Chloe.Query
 
         public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableExpression tableExp)
         {
-            throw new NotSupportedException();
+            List<DbColumnExpression> columnList = sqlQuery.Columns;
+
+            string alias = sqlQuery.GenerateUniqueColumnAlias();
+            DbColumnExpression columnExp = new DbColumnExpression(this._type, this._exp, alias);
+
+            columnList.Add(columnExp);
+
+            DbColumnAccessExpression cae = new DbColumnAccessExpression(this._type, tableExp, alias);
+
+            return new MappingFieldExpression(this._type, cae);
         }
     }
 
@@ -193,7 +205,9 @@ namespace Chloe.Query
                     if (moe == null)
                     {
                         if (ret == null)
+                        {
                             throw new Exception();
+                        }
                         else
                         {
                             ret = DbExpression.MemberAccess(member, ret);
@@ -249,13 +263,20 @@ namespace Chloe.Query
             {
                 ParameterInfo pi = kv.Key;
                 DbExpression exp = kv.Value;
+                int ordinal;
+                DbColumnExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.Equals(exp, a.Body)).FirstOrDefault();
+                if (dbColumnExp == null)
+                {
+                    string alias = sqlQuery.GenerateUniqueColumnAlias(pi.Name);
+                    DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
 
-                string alias = sqlQuery.GenerateUniqueColumnAlias(pi.Name);
-                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
-
-                columnList.Add(columnExp);
-                int ordinal = columnList.Count - 1;
-
+                    columnList.Add(columnExp);
+                    ordinal = columnList.Count - 1;
+                }
+                else
+                {
+                    ordinal = columnList.IndexOf(dbColumnExp);
+                }
                 mappingEntity.ConstructorParameters.Add(pi, ordinal);
             }
 
@@ -273,12 +294,20 @@ namespace Chloe.Query
                 MemberInfo member = kv.Key;
                 DbExpression exp = kv.Value;
 
-                string alias = sqlQuery.GenerateUniqueColumnAlias(member.Name);
-                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
+                int ordinal;
+                DbColumnExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.Equals(exp, a.Body)).FirstOrDefault();
+                if (dbColumnExp == null)
+                {
+                    string alias = sqlQuery.GenerateUniqueColumnAlias(member.Name);
+                    DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
 
-                columnList.Add(columnExp);
-                int ordinal = columnList.Count - 1;
-
+                    columnList.Add(columnExp);
+                    ordinal = columnList.Count - 1;
+                }
+                else
+                {
+                    ordinal = columnList.IndexOf(dbColumnExp);
+                }
                 mappingEntity.Members.Add(member, ordinal);
             }
 
@@ -309,7 +338,6 @@ namespace Chloe.Query
                 DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
 
                 columnList.Add(columnExp);
-                //int ordinal = columnList.Count - 1;
                 DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, tableExp, alias);
                 moe.AddConstructorParameter(pi, cae);
             }
@@ -332,10 +360,8 @@ namespace Chloe.Query
                 DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
 
                 columnList.Add(columnExp);
-                //int ordinal = columnList.Count - 1;
                 DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, tableExp, alias);
                 moe.AddMemberExpression(member, cae);
-                //mappingEntity.Members.Add(member, ordinal);
             }
 
             foreach (var kv in mappingMembers.SubResultEntities)
@@ -345,9 +371,6 @@ namespace Chloe.Query
 
                 IMappingObjectExpression navMappingMember = val.ToNewObjectExpression(sqlQuery, tableExp);
                 moe.AddNavMemberExpression(member, navMappingMember);
-
-                //IObjectActivtorCreator navMappingMember = val.GenarateObjectActivtorCreator(sqlQuery);
-                //mappingEntity.EntityMembers.Add(kv.Key, navMappingMember);
             }
 
             return moe;

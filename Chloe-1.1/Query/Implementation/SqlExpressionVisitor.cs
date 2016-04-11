@@ -334,7 +334,7 @@ namespace Chloe.SqlServer
             state.Append(bodyState, " AS ", this.QuoteName(exp.Alias));
             return state;
         }
-        public override ISqlState Visit(DbTableAccessExpression exp)
+        public override ISqlState Visit(DbDerivedTableExpression exp)
         {
             ISqlState state = this.QuoteName(exp.TableName);
             return state;

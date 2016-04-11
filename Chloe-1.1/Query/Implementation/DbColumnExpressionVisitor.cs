@@ -103,7 +103,7 @@ namespace Chloe.Query.Implementation
         {
             return exp.Accept(this._visitor);
         }
-        public override ISqlState Visit(DbTableAccessExpression exp)
+        public override ISqlState Visit(DbDerivedTableExpression exp)
         {
             return exp.Accept(this._visitor);
         }

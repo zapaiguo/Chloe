@@ -22,6 +22,7 @@ namespace Chloe.Query.Mapping
 
         public IObjectActivtor CreateObjectActivtor()
         {
+            return null;
             throw new NotImplementedException();
         }
     }

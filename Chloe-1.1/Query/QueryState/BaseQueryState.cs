@@ -69,6 +69,8 @@ namespace Chloe.Query.QueryState
             ResultElement result = new ResultElement();
             result.FromTable = this._resultElement.FromTable;
 
+            //TODO 考虑 q.Select(a => a)、q.Select(a => new {Id=1,A = a})、q.Select(a => a.Id).Take(100).Where(a => a > 0); 等情况，即 SelectExpressionVisitor 还不支持解析 ParameterExpression
+
             SelectExpressionVisitor visistor = new SelectExpressionVisitor(this.Visitor, this._resultElement.MappingObjectExpression);
 
             IMappingObjectExpression r = visistor.Visit(selectExpression.Expression);

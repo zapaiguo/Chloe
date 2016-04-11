@@ -20,8 +20,8 @@ namespace Chloe.Query
                     return Equals((DbColumnAccessExpression)exp1, (DbColumnAccessExpression)exp2);
                 case DbExpressionType.Table:
                     return Equals((DbTableExpression)exp1, (DbTableExpression)exp2);
-                case DbExpressionType.TableAccess:
-                    return Equals((DbTableAccessExpression)exp1, (DbTableAccessExpression)exp2);
+                case DbExpressionType.DerivedTable:
+                    return Equals((DbDerivedTableExpression)exp1, (DbDerivedTableExpression)exp2);
                 case DbExpressionType.Constant:
                     return Equals((DbConstantExpression)exp1, (DbConstantExpression)exp2);
                 case DbExpressionType.Convert:
@@ -46,7 +46,7 @@ namespace Chloe.Query
                 case DbExpressionType.GreaterThanOrEqual:
                     return Equals((DbBinaryExpression)exp1, (DbBinaryExpression)exp2);
                 default:
-                    return false;
+                    return exp1 == exp2;
             }
         }
 
@@ -62,7 +62,7 @@ namespace Chloe.Query
                 return false;
             return Equals(exp1.Body, exp2.Body);
         }
-        public static bool Equals(DbTableAccessExpression exp1, DbTableAccessExpression exp2)
+        public static bool Equals(DbDerivedTableExpression exp1, DbDerivedTableExpression exp2)
         {
             return exp1.TableName == exp2.TableName;
         }
@@ -103,6 +103,7 @@ namespace Chloe.Query
 
             return true;
         }
+
         public static bool Equals(DbBinaryExpression exp1, DbBinaryExpression exp2)
         {
             if (exp1.Method != exp2.Method)
