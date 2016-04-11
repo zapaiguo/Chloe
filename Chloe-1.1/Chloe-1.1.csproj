@@ -59,6 +59,8 @@
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Mapper\EntityConstructor.cs" />
+    <Compile Include="Mapper\MappingFieldActivtor.cs" />
+    <Compile Include="Mapper\MappingTypeConstructor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\DbExpressionEqualizer.cs" />
     <Compile Include="Query\DbExpressions\DbFromTableExpression.cs" />

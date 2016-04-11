@@ -1,4 +1,5 @@
-﻿using Chloe.Mapper;
+﻿using Chloe.Core;
+using Chloe.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,8 +23,9 @@ namespace Chloe.Query.Mapping
 
         public IObjectActivtor CreateObjectActivtor()
         {
-            return null;
-            throw new NotImplementedException();
+            Func<IDataReader, int, object> fn = MappingTypeConstructor.GetInstance(this._type).InstanceCreator;
+            MappingFieldActivtor act = new MappingFieldActivtor(fn, this.ReaderOrdinal);
+            return act;
         }
     }
 }

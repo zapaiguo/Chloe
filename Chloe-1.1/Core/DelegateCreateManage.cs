@@ -16,6 +16,8 @@ namespace Chloe.Core
 {
     public static class DelegateCreateManage
     {
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Func<object, List<KeyValuePair<string, object>>>> getValuesDelegateCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Func<object, List<KeyValuePair<string, object>>>>();
+
         #region
         public static Action<object, IDataReader, int> CreateSetValueFromReaderDelegate(MemberInfo member)
         {
@@ -67,10 +69,7 @@ namespace Chloe.Core
             il.Emit(OpCodes.Stfld, field);//给字段赋值
         }
 
-
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Func<object, List<KeyValuePair<string, object>>>> getValuesDelegateCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Func<object, List<KeyValuePair<string, object>>>>();
-
-        private static Func<object, List<KeyValuePair<string, object>>> CreateGetValuesDelegate(Type t)
+        static Func<object, List<KeyValuePair<string, object>>> CreateGetValuesDelegate(Type t)
         {
             Type retType = typeof(List<KeyValuePair<string, object>>);
             Type kvType = typeof(KeyValuePair<string, object>);
@@ -167,7 +166,6 @@ namespace Chloe.Core
             del = (Func<object, List<KeyValuePair<string, object>>>)dm.CreateDelegate(typeof(Func<object, List<KeyValuePair<string, object>>>));
             return del;
         }
-
         public static Func<object, List<KeyValuePair<string, object>>> GetGetValuesDelegate(Type t)
         {
             Func<object, List<KeyValuePair<string, object>>> del;
@@ -215,13 +213,23 @@ namespace Chloe.Core
 
             var body = Expression.New(constructor, arguments);
 
-            //var block = Expression.Block(body);
-
             ret = Expression.Lambda<Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object>>(body, pExp_reader, pExp_readerOrdinalEnumerator, pExp_objectActivtorEnumerator).Compile();
 
             return ret;
         }
+        public static Func<IDataReader, int, object> CreateMappingTypeGenerator(Type type)
+        {
+            var pExp_reader = Expression.Parameter(typeof(IDataReader), "reader");
+            var pExp_readerOrdinal = Expression.Parameter(typeof(int), "readerOrdinal");
 
+            var readerMethod = GetReaderMethod(type);
+            var getValue = Expression.Call(readerMethod, pExp_reader, pExp_readerOrdinal);
+            var body = Expression.Convert(getValue, typeof(object));
+
+            Func<IDataReader, int, object> ret = Expression.Lambda<Func<IDataReader, int, object>>(body, pExp_reader, pExp_readerOrdinal).Compile();
+
+            return ret;
+        }
         #endregion
 
 
