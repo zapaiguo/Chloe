@@ -1,11 +1,11 @@
 ﻿using Chloe.Core;
 using Chloe.Core.Database;
 using Chloe.Database;
+using Chloe.Infrastructure;
 using Chloe.Mapper;
 using Chloe.Query.Mapping;
 using Chloe.Query.QueryState;
 using Chloe.Query.Visitors;
-using Chloe.SqlServer;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -17,16 +17,18 @@ namespace Chloe.Query.Internals
     {
         IQuery<T> _query;
         InternalDbSession _dbSession;
+        IDbServiceProvider _dbServiceProvider;
 
-        internal InternalQuery(IQuery<T> query, InternalDbSession dbSession)
+        internal InternalQuery(IQuery<T> query, InternalDbSession dbSession, IDbServiceProvider dbServiceProvider)
         {
             this._query = query;
             this._dbSession = dbSession;
+            this._dbServiceProvider = dbServiceProvider;
         }
 
         DbCommandFactor GenerateCommandFactor()
         {
-            DbExpressionVisitorBase visitor = SqlExpressionVisitor.CreateInstance();
+            DbExpressionVisitorBase visitor = this._dbServiceProvider.CreateDbExpressionVisitor();
             IQueryState qs = QueryExpressionReducer.ReduceQueryExpression(this._query.QueryExpression);
             MappingData data = qs.GenerateMappingData();
             ISqlState sqlState = data.SqlQuery.Accept(visitor);
@@ -66,7 +68,7 @@ namespace Chloe.Query.Internals
     {
         public static InternalQuery<T> CreateQuery<T>(IQuery<T> query, IDbConnection conn)
         {
-            return new InternalQuery<T>(query, new InternalDbSession(conn));
+            return new InternalQuery<T>(query, new InternalDbSession(conn), null);
         }
     }
 }

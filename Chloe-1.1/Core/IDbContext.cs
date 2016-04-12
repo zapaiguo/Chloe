@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Chloe
+namespace Chloe.Core
 {
     public interface IDbContext : IDisposable
     {
-        string ConnectionString { get; }
-        bool IsInTransaction { get; }
+        //string ConnectionString { get; }
+        //bool IsInTransaction { get; }
 
         IQuery<T> Query<T>() where T : new();
 
@@ -28,11 +25,11 @@ namespace Chloe
         IDataReader ExecuteReader(string sql, IDictionary<string, object> parameters);
         DataTable ExecuteDataTable(string sql, IDictionary<string, object> parameters);
 
-        IDbConnection CreateConnection();
+        //IDbConnection CreateConnection();
 
-        void BeginTran();
-        void BeginTran(IsolationLevel il);
-        void CommitTran();
-        void RollbackTran();
+        //void BeginTran();
+        //void BeginTran(IsolationLevel il);
+        //void CommitTran();
+        //void RollbackTran();
     }
 }

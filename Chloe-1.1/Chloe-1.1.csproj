@@ -40,6 +40,7 @@
     <Compile Include="Core\Database\DbCommandFactor.cs" />
     <Compile Include="Core\Database\InternalDbSession.cs" />
     <Compile Include="Core\Database\InternalDataReader.cs" />
+    <Compile Include="Core\DbContext.cs" />
     <Compile Include="Core\DelegateCreateManage.cs" />
     <Compile Include="Core\Entity\AssociationAttribute.cs">
       <SubType>Code</SubType>
@@ -53,6 +54,7 @@
     <Compile Include="Core\Entity\TableAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Core\IDbContext.cs" />
     <Compile Include="Core\IGroupingQuery.cs" />
     <Compile Include="Core\IOrderedQuery`.cs" />
     <Compile Include="Core\IQuery.cs" />
@@ -62,6 +64,9 @@
     <Compile Include="Extensions\DeriveType.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />
+    <Compile Include="Impls\DbServiceProvider.cs" />
+    <Compile Include="Impls\MsSqlContext.cs" />
+    <Compile Include="Infrastructure\IDbServiceProvider.cs" />
     <Compile Include="Mapper\EntityConstructor.cs" />
     <Compile Include="Mapper\MappingFieldActivtor.cs" />
     <Compile Include="Mapper\MappingTypeConstructor.cs" />
@@ -105,10 +110,10 @@
     <Compile Include="Query\Visitors\ExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\ExpressionVisitor`.cs" />
     <Compile Include="Query\IMappingObjectExpression.cs" />
-    <Compile Include="Query\Implementation\DbColumnExpressionVisitor.cs" />
-    <Compile Include="Query\Implementation\JoinConditionExpressionVisitor.cs" />
+    <Compile Include="Impls\DbColumnExpressionVisitor.cs" />
+    <Compile Include="Impls\JoinConditionExpressionVisitor.cs" />
     <Compile Include="Query\Internals\QueryEnumerator.cs" />
-    <Compile Include="Query\Implementation\SqlExpressionVisitor.cs" />
+    <Compile Include="Impls\SqlExpressionVisitor.cs" />
     <Compile Include="Query\Internals\InternalQuery.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -165,7 +170,9 @@
     <Compile Include="Utility\UtilConstants.cs" />
     <Compile Include="Utility\Utils.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Query\Implementation\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

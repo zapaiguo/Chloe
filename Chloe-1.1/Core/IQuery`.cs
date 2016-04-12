@@ -24,9 +24,9 @@ namespace Chloe.Core
 
         //IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate);
 
-        T QueryObject();
-        T QueryObject(Expression<Func<T, bool>> predicate);
-        List<T> QueryList();
+        T FirstOrDefault();
+        T FirstOrDefault(Expression<Func<T, bool>> predicate);
+        List<T> ToList();
 
         bool Exists();
         bool Exists(Expression<Func<T, bool>> predicate);

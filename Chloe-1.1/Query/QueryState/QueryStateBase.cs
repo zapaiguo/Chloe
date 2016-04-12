@@ -1,5 +1,4 @@
 ﻿using Chloe.DbExpressions;
-using Chloe.Query.Implementation;
 using Chloe.Query.Mapping;
 using Chloe.Query.QueryExpressions;
 using Chloe.Query.Visitors;

@@ -1,91 +1,81 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Chloe.Core;
-using Chloe.Query.Implementation;
 using Chloe.Query.QueryExpressions;
-using Chloe.Utility;
+using Chloe.Infrastructure;
+using Chloe.Query.Internals;
+using Chloe.Database;
 
 namespace Chloe.Query
 {
-    public class Query<T> : IQuery<T>//, IEnumerable<T>, IEnumerable
+    class Query<T> : IQuery<T>, IQuery
     {
         QueryExpression _expression;
+        protected InternalDbSession _dbSession;
+        protected IDbServiceProvider _dbServiceProvider;
 
-
-        //public Query(QueryExpression exp, DatabaseContext databaseContext)
-        //{
-        //    this._expression = exp;
-        //    _databaseContext = databaseContext;
-        //}
-        public Query()
-            : this(new RootQueryExpression(typeof(T)))
+        public Query(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider)
+            : this(dbSession, dbServiceProvider, new RootQueryExpression(typeof(T)))
         {
 
         }
-        protected Query(QueryExpression exp)
+        protected Query(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider, QueryExpression exp)
         {
+            this._dbSession = dbSession;
+            this._dbServiceProvider = dbServiceProvider;
             this._expression = exp;
-            //_databaseContext = databaseContext;
-            //_dbProvider = dbProvider;
         }
 
         public IQuery<T1> Select<T1>(Expression<Func<T, T1>> selector)
         {
             SelectExpression e = new SelectExpression(_expression, typeof(T1), selector);
-            return new Query<T1>(e);
+            return new Query<T1>(this._dbSession, this._dbServiceProvider, e);
         }
-
-        //public IQuery<T> Include<TProperty>(Expression<Func<T, TProperty>> path)
-        //{
-        //    IncludeExpression e = new IncludeExpression(_expression, typeof(T), path);
-        //    return new Query<T>(e);
-        //}
 
         public IQuery<T> Where(Expression<Func<T, bool>> predicate)
         {
             WhereExpression e = new WhereExpression(_expression, typeof(T), predicate);
-            return new Query<T>(e);
+            return new Query<T>(this._dbSession, this._dbServiceProvider, e);
         }
 
         public IQuery<T> Skip(int count)
         {
             SkipExpression e = new SkipExpression(_expression, typeof(T), count);
-            return new Query<T>(e);
+            return new Query<T>(this._dbSession, this._dbServiceProvider, e);
         }
         public IQuery<T> Take(int count)
         {
             TakeExpression e = new TakeExpression(_expression, typeof(T), count);
-            return new Query<T>(e);
+            return new Query<T>(this._dbSession, this._dbServiceProvider, e);
         }
 
         public IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> predicate)
         {
             OrderExpression e = new OrderExpression(QueryExpressionType.OrderBy, typeof(T), ((IQuery)this).QueryExpression, predicate);
-            return new OrderedQuery<T>(e);
+            return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
         }
         public IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate)
         {
             OrderExpression e = new OrderExpression(QueryExpressionType.OrderByDesc, typeof(T), ((IQuery)this).QueryExpression, predicate);
-            return new OrderedQuery<T>(e);
+            return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
         }
 
-        public T QueryObject()
+        public T FirstOrDefault()
         {
-            throw new NotImplementedException();
+            IEnumerable<T> iterator = this.GenenateIterator();
+            return iterator.FirstOrDefault();
         }
-        public T QueryObject(Expression<Func<T, bool>> predicate)
+        public T FirstOrDefault(Expression<Func<T, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return this.Where(predicate).FirstOrDefault();
         }
-        public List<T> QueryList()
+        public List<T> ToList()
         {
-            throw new NotImplementedException();
+            IEnumerable<T> iterator = this.GenenateIterator();
+            return iterator.ToList();
         }
 
         public bool Exists()
@@ -275,24 +265,30 @@ namespace Chloe.Query
             get { return _expression; }
         }
 
+
+        IEnumerable<T> GenenateIterator()
+        {
+            InternalQuery<T> internalQuery = new InternalQuery<T>(this, this._dbSession, this._dbServiceProvider);
+            return internalQuery;
+        }
     }
 
     internal class OrderedQuery<T> : Query<T>, IOrderedQuery<T>
     {
-        public OrderedQuery(QueryExpression exp)
-            : base(exp)
+        public OrderedQuery(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider, QueryExpression exp)
+            : base(dbSession, dbServiceProvider, exp)
         {
 
         }
         public IOrderedQuery<T> ThenBy<K>(Expression<Func<T, K>> predicate)
         {
             OrderExpression e = new OrderExpression(QueryExpressionType.ThenBy, typeof(T), ((IQuery)this).QueryExpression, predicate);
-            return new OrderedQuery<T>(e);
+            return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
         }
         public IOrderedQuery<T> ThenByDesc<K>(Expression<Func<T, K>> predicate)
         {
             OrderExpression e = new OrderExpression(QueryExpressionType.ThenByDesc, typeof(T), ((IQuery)this).QueryExpression, predicate);
-            return new OrderedQuery<T>(e);
+            return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
         }
     }
 }

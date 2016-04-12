@@ -16,52 +16,52 @@ namespace Chloe.Query.QueryExpressions
             switch ((QueryExpressionType)exp.NodeType)
             {
                 case QueryExpressionType.Root:
-                    return this.VisitRoot((RootQueryExpression)exp);
+                    return this.Visit((RootQueryExpression)exp);
                 case QueryExpressionType.Where:
-                    return this.VisitWhere((WhereExpression)exp);
+                    return this.Visit((WhereExpression)exp);
                 case QueryExpressionType.Take:
-                    return this.VisitTake((TakeExpression)exp);
+                    return this.Visit((TakeExpression)exp);
                 case QueryExpressionType.Skip:
-                    return this.VisitSkip((SkipExpression)exp);
+                    return this.Visit((SkipExpression)exp);
                 case QueryExpressionType.OrderBy:
                 case QueryExpressionType.OrderByDesc:
                 case QueryExpressionType.ThenBy:
                 case QueryExpressionType.ThenByDesc:
-                    return this.VisitOrder((OrderExpression)exp);
+                    return this.Visit((OrderExpression)exp);
 
                 case QueryExpressionType.Select:
-                    return this.VisitSelect((SelectExpression)exp);
+                    return this.Visit((SelectExpression)exp);
 
                 default:
                     throw new NotSupportedException(string.Format("Unhandled queryExpression type: '{0}'", exp.NodeType));
             }
         }
-        protected virtual T VisitRoot(RootQueryExpression exp)
+        protected virtual T Visit(RootQueryExpression exp)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual T VisitSelect(SelectExpression exp)
+        protected virtual T Visit(SelectExpression exp)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual T VisitWhere(WhereExpression exp)
+        protected virtual T Visit(WhereExpression exp)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual T VisitTake(TakeExpression exp)
+        protected virtual T Visit(TakeExpression exp)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual T VisitSkip(SkipExpression exp)
+        protected virtual T Visit(SkipExpression exp)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual T VisitOrder(OrderExpression exp)
+        protected virtual T Visit(OrderExpression exp)
         {
             throw new NotImplementedException();
         }

@@ -1,14 +1,9 @@
 ﻿using Chloe.Extensions;
 using Chloe.DbExpressions;
-using Chloe.SqlServer;
-using Chloe.Utility;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Chloe.Query;
 
-namespace Chloe.Query.Implementation
+namespace Chloe.Impls
 {
     public class JoinConditionExpressionVisitor : SqlExpressionVisitor
     {

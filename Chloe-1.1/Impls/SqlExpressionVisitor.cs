@@ -5,14 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Chloe.Query;
 using Chloe.DbExpressions;
-using Chloe.Query.Implementation;
 using System.Reflection;
 using Chloe.Extensions;
 using System.Collections;
 using Chloe.Utility;
 using System.Collections.ObjectModel;
 
-namespace Chloe.SqlServer
+namespace Chloe.Impls
 {
     public class SqlExpressionVisitor : DbExpressionVisitorBase
     {
