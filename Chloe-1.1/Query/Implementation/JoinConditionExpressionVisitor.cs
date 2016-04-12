@@ -1,5 +1,5 @@
 ﻿using Chloe.Extensions;
-using Chloe.Query.DbExpressions;
+using Chloe.DbExpressions;
 using Chloe.SqlServer;
 using Chloe.Utility;
 using System;

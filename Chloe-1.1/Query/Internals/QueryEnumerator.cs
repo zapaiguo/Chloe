@@ -1,4 +1,5 @@
-﻿using Chloe.Database;
+﻿using Chloe.Core.Database;
+using Chloe.Database;
 using Chloe.Mapper;
 using System;
 using System.Collections;
@@ -12,14 +13,14 @@ namespace Chloe.Query.Internals
 {
     static class QueryEnumeratorCreator
     {
-        public static IEnumerator<T> CreateEnumerator<T>(InternalDbSession dbSession, QueryFactor queryFactor)
+        public static IEnumerator<T> CreateEnumerator<T>(InternalDbSession dbSession, DbCommandFactor queryFactor)
         {
             return new QueryEnumerator<T>(dbSession, queryFactor);
         }
         internal struct QueryEnumerator<T> : IEnumerator<T>
         {
             InternalDbSession _dbSession;
-            QueryFactor _queryFactor;
+            DbCommandFactor _commandFactor;
             IObjectActivtor _objectActivtor;
 
             IDataReader _reader;
@@ -27,11 +28,11 @@ namespace Chloe.Query.Internals
             T _current;
             bool _hasFinished;
             bool _disposed;
-            public QueryEnumerator(InternalDbSession dbSession, QueryFactor queryFactor)
+            public QueryEnumerator(InternalDbSession dbSession, DbCommandFactor commandFactor)
             {
                 this._dbSession = dbSession;
-                this._queryFactor = queryFactor;
-                this._objectActivtor = queryFactor.ObjectActivtor;
+                this._commandFactor = commandFactor;
+                this._objectActivtor = commandFactor.ObjectActivtor;
 
                 this._reader = null;
 
@@ -52,7 +53,7 @@ namespace Chloe.Query.Internals
                 if (this._reader == null)
                 {
                     //TODO 执行 sql 语句，获取 DataReader
-                    this._reader = this._dbSession.ExecuteReader(this._queryFactor.CmdText, this._queryFactor.Parameters, CommandBehavior.Default, CommandType.Text);
+                    this._reader = this._dbSession.ExecuteReader(this._commandFactor.CommandText, this._commandFactor.Parameters, CommandBehavior.Default, CommandType.Text);
                 }
 
                 if (this._reader.Read())

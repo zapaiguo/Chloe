@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Chloe.Query;
-using Chloe.Query.DbExpressions;
+using Chloe.DbExpressions;
 using Chloe.Query.Implementation;
 using System.Reflection;
 using Chloe.Extensions;

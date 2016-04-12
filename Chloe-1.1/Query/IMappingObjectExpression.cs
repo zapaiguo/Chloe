@@ -1,14 +1,12 @@
 ﻿using Chloe.Extensions;
-using Chloe.Query.DbExpressions;
-using Chloe.Query.Descriptors;
+using Chloe.DbExpressions;
+using Chloe.Descriptors;
 using Chloe.Query.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace Chloe.Query

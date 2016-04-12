@@ -1,16 +1,7 @@
-﻿using Chloe.Query.DbExpressions;
-using Chloe.Query.Implementation;
-using Chloe.Query.QueryExpressions;
+﻿using Chloe.DbExpressions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Chloe.Extensions;
-using Chloe.Query.Mapping;
 using Chloe.Utility;
+using Chloe.Descriptors;
 
 namespace Chloe.Query.QueryState
 {

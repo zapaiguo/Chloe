@@ -1,4 +1,5 @@
 ﻿using Chloe.Core;
+using Chloe.Core.Database;
 using Chloe.Database;
 using Chloe.Mapper;
 using Chloe.Query.Mapping;
@@ -23,7 +24,7 @@ namespace Chloe.Query.Internals
             this._dbSession = dbSession;
         }
 
-        QueryFactor GenerateQueryFactor()
+        DbCommandFactor GenerateCommandFactor()
         {
             DbExpressionVisitorBase visitor = SqlExpressionVisitor.CreateInstance();
             IQueryState qs = QueryExpressionReducer.ReduceQueryExpression(this._query.QueryExpression);
@@ -34,19 +35,19 @@ namespace Chloe.Query.Internals
             string cmdText = sqlState.ToSql();
             IDictionary<string, object> parameters = visitor.ParameterStorage;
 
-            QueryFactor queryFactor = new QueryFactor(objectActivtor, cmdText, parameters);
-            return queryFactor;
+            DbCommandFactor commandFactor = new DbCommandFactor(objectActivtor, cmdText, parameters);
+            return commandFactor;
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            QueryFactor queryFactor = this.GenerateQueryFactor();
+            DbCommandFactor commandFactor = this.GenerateCommandFactor();
 
 #if DEBUG
-            Debug.WriteLine(queryFactor.CmdText);
+            Debug.WriteLine(commandFactor.CommandText);
 #endif
 
-            var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(this._dbSession, queryFactor);
+            var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(this._dbSession, commandFactor);
             return enumerator;
         }
         IEnumerator IEnumerable.GetEnumerator()
@@ -56,8 +57,8 @@ namespace Chloe.Query.Internals
 
         public override string ToString()
         {
-            QueryFactor queryFactor = this.GenerateQueryFactor();
-            return queryFactor.CmdText;
+            DbCommandFactor commandFactor = this.GenerateCommandFactor();
+            return commandFactor.CommandText;
         }
     }
 

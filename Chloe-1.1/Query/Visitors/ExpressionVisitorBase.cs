@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Chloe.Query.DbExpressions;
+using Chloe.DbExpressions;
 using Chloe.Utility;
 
 namespace Chloe.Query.Visitors

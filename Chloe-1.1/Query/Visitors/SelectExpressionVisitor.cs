@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Chloe.Extensions;
 using Chloe.Utility;
-using Chloe.Query.DbExpressions;
+using Chloe.DbExpressions;
 using Chloe.Query.Visitors;
 
 namespace Chloe.Query
