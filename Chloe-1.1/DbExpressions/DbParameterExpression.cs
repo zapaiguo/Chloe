@@ -3,6 +3,7 @@ using System;
 
 namespace Chloe.DbExpressions
 {
+    [System.Diagnostics.DebuggerDisplay("Value = {Value}")]
     public class DbParameterExpression : DbExpression
     {
         object _value;

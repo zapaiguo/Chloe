@@ -5,6 +5,7 @@ namespace Chloe.DbExpressions
     /// <summary>
     /// T.Id 纯粹的列名访问
     /// </summary>
+    [System.Diagnostics.DebuggerDisplay("ColumnName = {ColumnName}")]
     public class DbColumnAccessExpression : DbExpression
     {
         DbTableExpression _table;

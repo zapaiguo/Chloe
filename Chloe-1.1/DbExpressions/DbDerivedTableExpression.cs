@@ -2,6 +2,7 @@
 
 namespace Chloe.DbExpressions
 {
+    [System.Diagnostics.DebuggerDisplay("TableName = {TableName}")]
     public class DbDerivedTableExpression : DbExpression
     {
         string _tableName;

@@ -5,6 +5,7 @@ namespace Chloe.DbExpressions
     /// <summary>
     /// User as T1 , (select * from User) as T1
     /// </summary>
+    [System.Diagnostics.DebuggerDisplay("Alias = {Alias}")]
     public class DbTableExpression : DbExpression
     {
         DbExpression _body;

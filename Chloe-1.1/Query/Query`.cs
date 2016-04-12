@@ -8,6 +8,7 @@ using Chloe.Query.QueryExpressions;
 using Chloe.Infrastructure;
 using Chloe.Query.Internals;
 using Chloe.Database;
+using System.Diagnostics;
 
 namespace Chloe.Query
 {
@@ -270,6 +271,12 @@ namespace Chloe.Query
         {
             InternalQuery<T> internalQuery = new InternalQuery<T>(this, this._dbSession, this._dbServiceProvider);
             return internalQuery;
+        }
+
+        public override string ToString()
+        {
+            InternalQuery<T> internalQuery = new InternalQuery<T>(this, this._dbSession, this._dbServiceProvider);
+            return internalQuery.ToString();
         }
     }
 
