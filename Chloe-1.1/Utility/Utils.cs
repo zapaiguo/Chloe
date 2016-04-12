@@ -32,12 +32,7 @@ namespace Chloe.Utility
             mapTypes.TrimExcess();
         }
 
-        public static void CheckNull(object obj)
-        {
-            CheckNull(obj, null);
-        }
-
-        public static void CheckNull(object obj, string paramName)
+        public static void CheckNull(object obj, string paramName = null)
         {
             if (obj == null)
                 throw new ArgumentNullException(paramName);

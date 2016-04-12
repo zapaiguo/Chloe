@@ -11,10 +11,7 @@ namespace Chloe.Query.Mapping
     {
         public MappingData()
         {
-            //this.EntityType = entityType;
         }
-        //public Type EntityType { get; set; }
-        //public MappingMember MappingInfo { get; set; }
         public IObjectActivtorCreator MappingEntity { get; set; }
         public DbSqlQueryExpression SqlQuery { get; set; }
     }

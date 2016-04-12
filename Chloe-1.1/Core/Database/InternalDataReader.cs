@@ -1,23 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Chloe.Utility;
+using System;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chloe.Database
 {
-    internal class InternalDataReader : IDataReader, IDisposable, IDataRecord
+    class InternalDataReader : IDataReader, IDisposable, IDataRecord
     {
-        private DatabaseContext _databaseContext;
+        private InternalDbSession _dbSession;
         private IDataReader _reader;
 
-        public InternalDataReader(DatabaseContext databaseContext, IDataReader reader)
+        public InternalDataReader(InternalDbSession dbSession, IDataReader reader)
         {
-            if (databaseContext == null || reader == null)
-                throw new Exception("databaseContext 或 reader 为 null");
-            _databaseContext = databaseContext;
-            _reader = reader;
+            Utils.CheckNull(dbSession);
+            Utils.CheckNull(reader);
+
+            this._dbSession = dbSession;
+            this._reader = reader;
         }
 
         #region IDataReader
@@ -29,123 +27,122 @@ namespace Chloe.Database
         {
             if (_reader != null && !_reader.IsClosed)
                 _reader.Close();
-            _databaseContext.Complete();
+            this._dbSession.Complete();
         }
         public DataTable GetSchemaTable()
         {
-            return _reader.GetSchemaTable();
+            return this._reader.GetSchemaTable();
         }
         public bool NextResult()
         {
-            return _reader.NextResult();
+            return this._reader.NextResult();
         }
         public bool Read()
         {
-            return _reader.Read();
+            return this._reader.Read();
         }
 
         public void Dispose()
         {
-            if (_reader != null && !_reader.IsClosed)
-                _reader.Dispose();
-            _databaseContext.Complete();
-            GC.SuppressFinalize(this);
+            if (this._reader != null && !this._reader.IsClosed)
+                this._reader.Dispose();
+            this._dbSession.Complete();
         }
         #endregion
 
         #region IDataRecord
-        public int FieldCount { get { return _reader.FieldCount; } }
+        public int FieldCount { get { return this._reader.FieldCount; } }
 
-        public object this[int i] { get { return _reader[i]; } }
-        public object this[string name] { get { return _reader[name]; } }
+        public object this[int i] { get { return this._reader[i]; } }
+        public object this[string name] { get { return this._reader[name]; } }
 
         public bool GetBoolean(int i)
         {
-            return _reader.GetBoolean(i);
+            return this._reader.GetBoolean(i);
         }
         public byte GetByte(int i)
         {
-            return _reader.GetByte(i);
+            return this._reader.GetByte(i);
         }
         public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
         {
-            return _reader.GetBytes(i, fieldOffset, buffer, bufferoffset, length);
+            return this._reader.GetBytes(i, fieldOffset, buffer, bufferoffset, length);
         }
         public char GetChar(int i)
         {
-            return _reader.GetChar(i);
+            return this._reader.GetChar(i);
         }
         public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
         {
-            return _reader.GetChars(i, fieldoffset, buffer, bufferoffset, length);
+            return this._reader.GetChars(i, fieldoffset, buffer, bufferoffset, length);
         }
         public IDataReader GetData(int i)
         {
-            return _reader.GetData(i);
+            return this._reader.GetData(i);
         }
         public string GetDataTypeName(int i)
         {
-            return _reader.GetDataTypeName(i);
+            return this._reader.GetDataTypeName(i);
         }
         public DateTime GetDateTime(int i)
         {
-            return _reader.GetDateTime(i);
+            return this._reader.GetDateTime(i);
         }
         public decimal GetDecimal(int i)
         {
-            return _reader.GetDecimal(i);
+            return this._reader.GetDecimal(i);
         }
         public double GetDouble(int i)
         {
-            return _reader.GetDouble(i);
+            return this._reader.GetDouble(i);
         }
         public Type GetFieldType(int i)
         {
-            return _reader.GetFieldType(i);
+            return this._reader.GetFieldType(i);
         }
         public float GetFloat(int i)
         {
-            return _reader.GetFloat(i);
+            return this._reader.GetFloat(i);
         }
         public Guid GetGuid(int i)
         {
-            return _reader.GetGuid(i);
+            return this._reader.GetGuid(i);
         }
         public short GetInt16(int i)
         {
-            return _reader.GetInt16(i);
+            return this._reader.GetInt16(i);
         }
         public int GetInt32(int i)
         {
-            return _reader.GetInt32(i);
+            return this._reader.GetInt32(i);
         }
         public long GetInt64(int i)
         {
-            return _reader.GetInt64(i);
+            return this._reader.GetInt64(i);
         }
         public string GetName(int i)
         {
-            return _reader.GetName(i);
+            return this._reader.GetName(i);
         }
         public int GetOrdinal(string name)
         {
-            return _reader.GetOrdinal(name);
+            return this._reader.GetOrdinal(name);
         }
         public string GetString(int i)
         {
-            return _reader.GetString(i);
+            return this._reader.GetString(i);
         }
         public object GetValue(int i)
         {
-            return _reader.GetValue(i);
+            return this._reader.GetValue(i);
         }
         public int GetValues(object[] values)
         {
-            return _reader.GetValues(values);
+            return this._reader.GetValues(values);
         }
         public bool IsDBNull(int i)
         {
-            return _reader.IsDBNull(i);
+            return this._reader.IsDBNull(i);
         }
         #endregion
     }

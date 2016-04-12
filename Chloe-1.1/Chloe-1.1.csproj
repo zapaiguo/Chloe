@@ -34,8 +34,11 @@
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Database\InternalDbSession.cs" />
+    <Compile Include="Core\Database\InternalDataReader.cs" />
     <Compile Include="Core\DelegateCreateManage.cs" />
     <Compile Include="Core\Entity\AssociationAttribute.cs">
       <SubType>Code</SubType>
@@ -104,7 +107,12 @@
     <Compile Include="Query\IMappingObjectExpression.cs" />
     <Compile Include="Query\Implementation\DbColumnExpressionVisitor.cs" />
     <Compile Include="Query\Implementation\JoinConditionExpressionVisitor.cs" />
+    <Compile Include="Query\Internals\QueryEnumerator.cs" />
     <Compile Include="Query\Implementation\SqlExpressionVisitor.cs" />
+    <Compile Include="Query\Internals\InternalQuery.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Query\Internals\QueryFactor.cs" />
     <Compile Include="Query\ISqlState.cs" />
     <Compile Include="Query\Mapping\IObjectActivtorCreator.cs" />
     <Compile Include="Query\Mapping\MappingData.cs" />
@@ -156,9 +164,7 @@
     <Compile Include="Utility\UtilConstants.cs" />
     <Compile Include="Utility\Utils.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Core\Database\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
