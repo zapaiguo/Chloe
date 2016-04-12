@@ -1,18 +1,14 @@
 ﻿using Chloe.Core;
 using Chloe.Database;
 using Chloe.Mapper;
-using Chloe.Query.Implementation;
 using Chloe.Query.Mapping;
-using Chloe.Query.QueryExpressions;
+using Chloe.Query.QueryState;
+using Chloe.Query.Visitors;
 using Chloe.SqlServer;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chloe.Query.Internals
 {
@@ -27,7 +23,7 @@ namespace Chloe.Query.Internals
             this._dbSession = dbSession;
         }
 
-        QueryFactor GenerateQueryComponent()
+        QueryFactor GenerateQueryFactor()
         {
             DbExpressionVisitorBase visitor = SqlExpressionVisitor.CreateInstance();
             IQueryState qs = QueryExpressionReducer.ReduceQueryExpression(this._query.QueryExpression);
@@ -44,7 +40,7 @@ namespace Chloe.Query.Internals
 
         public IEnumerator<T> GetEnumerator()
         {
-            QueryFactor queryFactor = this.GenerateQueryComponent();
+            QueryFactor queryFactor = this.GenerateQueryFactor();
 
 #if DEBUG
             Debug.WriteLine(queryFactor.CmdText);
@@ -60,7 +56,7 @@ namespace Chloe.Query.Internals
 
         public override string ToString()
         {
-            QueryFactor queryFactor = this.GenerateQueryComponent();
+            QueryFactor queryFactor = this.GenerateQueryFactor();
             return queryFactor.CmdText;
         }
     }

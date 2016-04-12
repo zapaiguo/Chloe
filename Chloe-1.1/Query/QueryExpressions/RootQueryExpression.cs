@@ -1,4 +1,5 @@
 ﻿using Chloe.Query.QueryState;
+using Chloe.Query.Visitors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,10 @@ namespace Chloe.Query.QueryExpressions
         {
             IQueryState state = new RootQueryState(this.ElementType);
             return state;
+        }
+        public override T Accept<T>(QueryExpressionVisitor<T> visitor)
+        {
+            return visitor.Visit(this);
         }
     }
 }

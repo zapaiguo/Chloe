@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Chloe.Query.DbExpressions;
+using Chloe.Query.Visitors;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

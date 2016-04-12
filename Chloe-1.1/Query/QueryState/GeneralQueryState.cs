@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.QueryState
 {
-    class GeneralQueryState : BaseQueryState, IQueryState
+    class GeneralQueryState : QueryStateBase, IQueryState
     {
         public GeneralQueryState(ResultElement resultElement)
             : base(resultElement)

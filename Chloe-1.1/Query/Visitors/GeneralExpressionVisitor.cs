@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Chloe.Query.DbExpressions;
 using Chloe.Extensions;
 using Chloe.Utility;
 
-namespace Chloe.Query.Implementation
+namespace Chloe.Query.Visitors
 {
-    internal class GeneralExpressionVisitor : BaseExpressionVisitor
+    internal class GeneralExpressionVisitor : ExpressionVisitorBase
     {
         IMappingObjectExpression _fromTable;
         public GeneralExpressionVisitor(IMappingObjectExpression fromTable)

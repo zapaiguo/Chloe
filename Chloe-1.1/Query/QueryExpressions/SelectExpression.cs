@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Chloe.Query.QueryState;
+using System;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chloe.Query.QueryExpressions
 {
@@ -18,6 +15,10 @@ namespace Chloe.Query.QueryExpressions
         {
             IQueryState state = queryState.UpdateSelectResult(this);
             return state;
+        }
+        public override T Accept<T>(QueryExpressionVisitor<T> visitor)
+        {
+            return visitor.Visit(this);
         }
     }
 }

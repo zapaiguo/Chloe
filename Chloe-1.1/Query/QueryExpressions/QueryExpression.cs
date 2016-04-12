@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Chloe.Query.QueryState;
+using System;
 
 namespace Chloe.Query.QueryExpressions
 {
@@ -44,5 +40,6 @@ namespace Chloe.Query.QueryExpressions
         }
 
         public abstract IQueryState Accept(IQueryState queryState);
+        public abstract T Accept<T>(QueryExpressionVisitor<T> visitor);
     }
 }

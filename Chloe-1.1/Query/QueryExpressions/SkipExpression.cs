@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Chloe.Query.QueryExpressions;
 using Chloe.Query.QueryState;
+using Chloe.Query.Visitors;
 
 namespace Chloe.Query.QueryExpressions
 {
@@ -38,6 +39,10 @@ namespace Chloe.Query.QueryExpressions
                 skipQueryState = new SkipQueryState(this.Count, queryState.Result);
 
             return skipQueryState;
+        }
+        public override T Accept<T>(QueryExpressionVisitor<T> visitor)
+        {
+            return visitor.Visit(this);
         }
     }
 }

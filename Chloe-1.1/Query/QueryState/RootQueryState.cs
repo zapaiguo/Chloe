@@ -14,7 +14,7 @@ using Chloe.Utility;
 
 namespace Chloe.Query.QueryState
 {
-    internal sealed class RootQueryState : BaseQueryState
+    internal sealed class RootQueryState : QueryStateBase
     {
         Type _elementType;
         public RootQueryState(Type elementType)

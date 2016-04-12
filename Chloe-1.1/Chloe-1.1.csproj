@@ -100,10 +100,9 @@
     <Compile Include="Query\DbExpressions\DbOrExpression.cs" />
     <Compile Include="Query\DbExpressions\DbParameterExpression.cs" />
     <Compile Include="Query\DbExpressions\DbSubtractExpression.cs" />
-    <Compile Include="Query\DbExpressionVisitor`.cs" />
     <Compile Include="Query\Descriptors\EntityConstructorDescriptor.cs" />
-    <Compile Include="Query\ExpressionVisitor1.cs" />
-    <Compile Include="Query\ExpressionVisitor`.cs" />
+    <Compile Include="Query\Visitors\ExpressionVisitor.cs" />
+    <Compile Include="Query\Visitors\ExpressionVisitor`.cs" />
     <Compile Include="Query\IMappingObjectExpression.cs" />
     <Compile Include="Query\Implementation\DbColumnExpressionVisitor.cs" />
     <Compile Include="Query\Implementation\JoinConditionExpressionVisitor.cs" />
@@ -122,12 +121,12 @@
     <Compile Include="Query\QueryState\SubQueryState.cs" />
     <Compile Include="Query\Query`.cs" />
     <Compile Include="Query\SqlState.cs" />
-    <Compile Include="Query\Implementation\BaseExpressionVisitor.cs" />
-    <Compile Include="Query\Implementation\GeneralExpressionVisitor.cs">
+    <Compile Include="Query\Visitors\ExpressionVisitorBase.cs" />
+    <Compile Include="Query\Visitors\GeneralExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Query\JoinType.cs" />
-    <Compile Include="Query\OrderType.cs" />
+    <Compile Include="Query\DbExpressions\JoinType.cs" />
+    <Compile Include="Query\DbExpressions\OrderType.cs" />
     <Compile Include="Query\QueryExpressions\OrderExpression.cs" />
     <Compile Include="Query\QueryExpressions\QueryExpression.cs" />
     <Compile Include="Query\QueryExpressions\QueryExpressionType.cs" />
@@ -145,20 +144,22 @@
     <Compile Include="Query\Descriptors\NavigationMemberDescriptor.cs" />
     <Compile Include="Query\Descriptors\NavigationPropertyDescriptor.cs" />
     <Compile Include="Mapper\IObjectActivtor.cs" />
-    <Compile Include="Query\IQueryState.cs" />
+    <Compile Include="Query\QueryState\IQueryState.cs" />
     <Compile Include="Mapper\IValueSetter.cs" />
     <Compile Include="Mapper\MappingMemberBinder.cs" />
     <Compile Include="Mapper\NavigationMemberBinder.cs" />
     <Compile Include="Mapper\ObjectActivtor.cs" />
     <Compile Include="Query\Q.cs" />
-    <Compile Include="Query\QueryExpressionReducer.cs" />
     <Compile Include="Query\QueryState\LimitQueryState.cs" />
-    <Compile Include="Query\QueryState\BaseQueryState.cs" />
+    <Compile Include="Query\QueryState\QueryStateBase.cs" />
     <Compile Include="Query\QueryState\RootQueryState.cs" />
     <Compile Include="Query\QueryState\GeneralQueryState.cs" />
     <Compile Include="Query\QueryState\SkipQueryState.cs" />
     <Compile Include="Query\QueryState\TakeQueryState.cs" />
     <Compile Include="Query\ResultElement.cs" />
+    <Compile Include="Query\DbExpressions\DbExpressionVisitor`.cs" />
+    <Compile Include="Query\Visitors\QueryExpressionReducer.cs" />
+    <Compile Include="Query\QueryExpressions\QueryExpressionVisitor`.cs" />
     <Compile Include="Query\Visitors\SelectExpressionVisitor.cs" />
     <Compile Include="Mapper\EntityMemberMapper.cs" />
     <Compile Include="Utility\UtilConstants.cs" />

@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Chloe.Query.DbExpressions;
 using Chloe.Utility;
 
-namespace Chloe.Query.Implementation
+namespace Chloe.Query.Visitors
 {
-    public class BaseExpressionVisitor : ExpressionVisitor<DbExpression>
+    public class ExpressionVisitorBase : ExpressionVisitor<DbExpression>
     {
-        static BaseExpressionVisitor()
+        static ExpressionVisitorBase()
         {
 
         }

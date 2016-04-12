@@ -1,23 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Chloe.Core;
 using Chloe.Extensions;
 using Chloe.Utility;
 using Chloe.Query.DbExpressions;
-using Chloe.Query.Implementation;
+using Chloe.Query.Visitors;
 
 namespace Chloe.Query
 {
     class SelectExpressionVisitor : ExpressionVisitor<IMappingObjectExpression>
     {
-        BaseExpressionVisitor _visitor;
+        ExpressionVisitorBase _visitor;
         IMappingObjectExpression _moe;
-        public SelectExpressionVisitor(BaseExpressionVisitor visitor, IMappingObjectExpression moe)
+        public SelectExpressionVisitor(ExpressionVisitorBase visitor, IMappingObjectExpression moe)
         {
             this._visitor = visitor;
             this._moe = moe;

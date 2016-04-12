@@ -2,26 +2,21 @@
 using Chloe.Query.Implementation;
 using Chloe.Query.Mapping;
 using Chloe.Query.QueryExpressions;
+using Chloe.Query.Visitors;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chloe.Query.QueryState
 {
-    abstract class BaseQueryState : IQueryState
+    abstract class QueryStateBase : IQueryState
     {
         ResultElement _resultElement;
-        BaseExpressionVisitor _visitor = null;
-        public BaseQueryState(ResultElement resultElement)
+        ExpressionVisitorBase _visitor = null;
+        public QueryStateBase(ResultElement resultElement)
         {
             this._resultElement = resultElement;
         }
 
-        protected BaseExpressionVisitor Visitor
+        protected ExpressionVisitorBase Visitor
         {
             get
             {
@@ -40,7 +35,7 @@ namespace Chloe.Query.QueryState
         }
         public virtual IQueryState AppendWhereExpression(WhereExpression whereExp)
         {
-            BaseExpressionVisitor visitor = this.Visitor;
+            ExpressionVisitorBase visitor = this.Visitor;
             var dbExp = visitor.Visit(whereExp.Expression);
             this._resultElement.UpdateWhereExpression(dbExp);
 
@@ -51,7 +46,7 @@ namespace Chloe.Query.QueryState
             if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.OrderByDesc)
                 this._resultElement.OrderSegments.Clear();
 
-            BaseExpressionVisitor visitor = this.Visitor;
+            ExpressionVisitorBase visitor = this.Visitor;
             var r = VisistOrderExpression(visitor, orderExp);
 
             if (this._resultElement.IsFromSubQuery)
@@ -100,7 +95,7 @@ namespace Chloe.Query.QueryState
             return data;
         }
 
-        protected static DbOrderSegmentExpression VisistOrderExpression(BaseExpressionVisitor visitor, OrderExpression orderExp)
+        protected static DbOrderSegmentExpression VisistOrderExpression(ExpressionVisitorBase visitor, OrderExpression orderExp)
         {
             DbExpression dbExpression = visitor.Visit(orderExp.Expression);//解析表达式树 orderExp.Expression
             OrderType orderType;

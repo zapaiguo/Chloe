@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chloe.Query
+namespace Chloe.Query.DbExpressions
 {
-    public enum JoinType
+    public enum OrderType
     {
-        InnerJoin,
-        LeftJoin,
-        RightJoin
+        Asc,
+        Desc
     }
 }

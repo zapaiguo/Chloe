@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Chloe.Query.DbExpressions;
-
-namespace Chloe.Query
+﻿
+namespace Chloe.Query.DbExpressions
 {
     public abstract class DbExpressionVisitor<T>
     {
@@ -47,5 +41,4 @@ namespace Chloe.Query
         public abstract T Visit(DbOrderSegmentExpression exp);
 
     }
-
 }
