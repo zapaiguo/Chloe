@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 namespace Chloe.Query
 {
-    class Query<T> : IQuery<T>, IQuery
+    class Query<T> : IQuery<T>//, IQuery
     {
         QueryExpression _expression;
         protected InternalDbSession _dbSession;
@@ -32,7 +32,7 @@ namespace Chloe.Query
 
         public IQuery<T1> Select<T1>(Expression<Func<T, T1>> selector)
         {
-            SelectExpression e = new SelectExpression(_expression, typeof(T1), selector);
+            SelectExpression e = new SelectExpression(typeof(T1), _expression, selector);
             return new Query<T1>(this._dbSession, this._dbServiceProvider, e);
         }
 
@@ -44,23 +44,23 @@ namespace Chloe.Query
 
         public IQuery<T> Skip(int count)
         {
-            SkipExpression e = new SkipExpression(_expression, typeof(T), count);
+            SkipExpression e = new SkipExpression(typeof(T), this._expression, count);
             return new Query<T>(this._dbSession, this._dbServiceProvider, e);
         }
         public IQuery<T> Take(int count)
         {
-            TakeExpression e = new TakeExpression(_expression, typeof(T), count);
+            TakeExpression e = new TakeExpression(typeof(T), this._expression, count);
             return new Query<T>(this._dbSession, this._dbServiceProvider, e);
         }
 
         public IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> predicate)
         {
-            OrderExpression e = new OrderExpression(QueryExpressionType.OrderBy, typeof(T), ((IQuery)this).QueryExpression, predicate);
+            OrderExpression e = new OrderExpression(QueryExpressionType.OrderBy, typeof(T), this._expression, predicate);
             return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
         }
         public IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate)
         {
-            OrderExpression e = new OrderExpression(QueryExpressionType.OrderByDesc, typeof(T), ((IQuery)this).QueryExpression, predicate);
+            OrderExpression e = new OrderExpression(QueryExpressionType.OrderByDesc, typeof(T), this._expression, predicate);
             return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
         }
 
@@ -267,7 +267,7 @@ namespace Chloe.Query
         }
 
 
-        IEnumerable<T> GenenateIterator()
+        InternalQuery<T> GenenateIterator()
         {
             InternalQuery<T> internalQuery = new InternalQuery<T>(this, this._dbSession, this._dbServiceProvider);
             return internalQuery;
@@ -275,7 +275,7 @@ namespace Chloe.Query
 
         public override string ToString()
         {
-            InternalQuery<T> internalQuery = new InternalQuery<T>(this, this._dbSession, this._dbServiceProvider);
+            InternalQuery<T> internalQuery = this.GenenateIterator();
             return internalQuery.ToString();
         }
     }
@@ -289,12 +289,12 @@ namespace Chloe.Query
         }
         public IOrderedQuery<T> ThenBy<K>(Expression<Func<T, K>> predicate)
         {
-            OrderExpression e = new OrderExpression(QueryExpressionType.ThenBy, typeof(T), ((IQuery)this).QueryExpression, predicate);
+            OrderExpression e = new OrderExpression(QueryExpressionType.ThenBy, typeof(T), this.QueryExpression, predicate);
             return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
         }
         public IOrderedQuery<T> ThenByDesc<K>(Expression<Func<T, K>> predicate)
         {
-            OrderExpression e = new OrderExpression(QueryExpressionType.ThenByDesc, typeof(T), ((IQuery)this).QueryExpression, predicate);
+            OrderExpression e = new OrderExpression(QueryExpressionType.ThenByDesc, typeof(T), this.QueryExpression, predicate);
             return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
         }
     }

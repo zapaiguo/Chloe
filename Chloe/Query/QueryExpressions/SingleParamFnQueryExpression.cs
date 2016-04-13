@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.QueryExpressions
 {
-    public abstract class SingleParameterFnQueryExpression : QueryExpression
+    public class SingleParamFnQueryExpression : QueryExpression
     {
-        Expression _expression;
-        public SingleParameterFnQueryExpression(QueryExpressionType nodeType, Type elementType, QueryExpression prevExpression, Expression expression)
-            : base(nodeType, elementType, prevExpression)
+        private Expression _expression;
+        public SingleParamFnQueryExpression(QueryExpressionType nodeType, QueryExpression prevExpression, Expression expression)
+            : base(nodeType, prevExpression)
         {
             this._expression = expression;
         }

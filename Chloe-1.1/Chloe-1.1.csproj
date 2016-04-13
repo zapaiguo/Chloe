@@ -107,6 +107,7 @@
     <Compile Include="DbExpressions\DbParameterExpression.cs" />
     <Compile Include="DbExpressions\DbSubtractExpression.cs" />
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
+    <Compile Include="Query\QueryExpressions\FunctionExpression.cs" />
     <Compile Include="Query\Visitors\ExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\ExpressionVisitor`.cs" />
     <Compile Include="Query\IMappingObjectExpression.cs" />
@@ -136,7 +137,6 @@
     <Compile Include="Query\QueryExpressions\QueryExpression.cs" />
     <Compile Include="Query\QueryExpressions\QueryExpressionType.cs" />
     <Compile Include="Query\QueryExpressions\SelectExpression.cs" />
-    <Compile Include="Query\QueryExpressions\SingleParameterFnQueryExpression.cs" />
     <Compile Include="Query\QueryExpressions\SkipExpression.cs" />
     <Compile Include="Query\QueryExpressions\TakeExpression.cs" />
     <Compile Include="Query\QueryExpressions\WhereExpression.cs" />
@@ -163,7 +163,7 @@
     <Compile Include="Query\QueryState\TakeQueryState.cs" />
     <Compile Include="Query\ResultElement.cs" />
     <Compile Include="DbExpressions\DbExpressionVisitor`.cs" />
-    <Compile Include="Query\Visitors\QueryExpressionReducer.cs" />
+    <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />
     <Compile Include="Query\QueryExpressions\QueryExpressionVisitor`.cs" />
     <Compile Include="Query\Visitors\SelectExpressionVisitor.cs" />
     <Compile Include="Mapper\EntityMemberMapper.cs" />

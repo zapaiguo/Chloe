@@ -1,4 +1,5 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.Query.QueryExpressions;
 
 namespace Chloe.Query.QueryState
 {
@@ -11,12 +12,12 @@ namespace Chloe.Query.QueryState
         }
 
         public int Count { get; private set; }
-        public void UpdateCount(int count)
+        public override IQueryState Accept(TakeExpression exp)
         {
-            if (count < this.Count)
-            {
-                this.Count = count;
-            }
+            if (exp.Count < this.Count)
+                this.Count = exp.Count;
+
+            return this;
         }
 
         public override DbSqlQueryExpression CreateSqlQuery()

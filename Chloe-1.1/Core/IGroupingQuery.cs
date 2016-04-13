@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Core
 {
-    public interface IGroupingQuery<T> : IQuery
+    public interface IGroupingQuery<T> //: IQuery
     {
         IGroupingQuery<T> ThenBy<K>(Expression<Func<T, K>> predicate);
         IGroupingQuery<T> Having<K>(Expression<Func<T, K>> predicate);

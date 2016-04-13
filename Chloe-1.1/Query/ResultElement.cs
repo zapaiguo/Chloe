@@ -34,7 +34,7 @@ namespace Chloe.Query
         public DbFromTableExpression FromTable { get; set; }
         public DbExpression Where { get; private set; }
 
-        public void UpdateWhereExpression(DbExpression whereExpression)
+        public void UpdateCondition(DbExpression whereExpression)
         {
             if (this.Where == null)
                 this.Where = whereExpression;

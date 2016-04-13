@@ -1,6 +1,7 @@
 ﻿using Chloe.DbExpressions;
 using Chloe.Query.Mapping;
 using Chloe.Query.QueryExpressions;
+using System;
 using System.Linq;
 
 namespace Chloe.Query.QueryState
@@ -21,21 +22,36 @@ namespace Chloe.Query.QueryState
             }
         }
 
-        public virtual IQueryState AppendWhereExpression(WhereExpression whereExp)
+        public virtual IQueryState Accept(WhereExpression exp)
         {
             IQueryState state = this.AsSubQueryState();
-            return state.AppendWhereExpression(whereExp);
+            return state.Accept(exp);
         }
-        public virtual IQueryState AppendOrderExpression(OrderExpression orderExp)
+        public virtual IQueryState Accept(OrderExpression exp)
         {
             IQueryState state = this.AsSubQueryState();
-            return state.AppendOrderExpression(orderExp);
+            return state.Accept(exp);
         }
-        public virtual IQueryState UpdateSelectResult(SelectExpression selectExpression)
+        public virtual IQueryState Accept(SelectExpression exp)
         {
             IQueryState queryState = this.AsSubQueryState();
-            return queryState.UpdateSelectResult(selectExpression);
+            return queryState.Accept(exp);
         }
+        public virtual IQueryState Accept(SkipExpression exp)
+        {
+            IQueryState subQueryState = this.AsSubQueryState();
+
+            SkipQueryState state = new SkipQueryState(exp.Count, subQueryState.Result);
+            return state;
+        }
+        public virtual IQueryState Accept(TakeExpression exp)
+        {
+            IQueryState subQueryState = this.AsSubQueryState();
+
+            TakeQueryState state = new TakeQueryState(exp.Count, subQueryState.Result);
+            return state;
+        }
+
 
         public virtual MappingData GenerateMappingData()
         {

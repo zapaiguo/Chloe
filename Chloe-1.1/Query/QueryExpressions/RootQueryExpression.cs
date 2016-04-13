@@ -16,11 +16,6 @@ namespace Chloe.Query.QueryExpressions
 
         }
 
-        public override IQueryState Accept(IQueryState queryState)
-        {
-            IQueryState state = new RootQueryState(this.ElementType);
-            return state;
-        }
         public override T Accept<T>(QueryExpressionVisitor<T> visitor)
         {
             return visitor.Visit(this);

@@ -6,10 +6,12 @@ namespace Chloe.Query.QueryState
     public interface IQueryState
     {
         ResultElement Result { get; }
-        IQueryState AppendWhereExpression(WhereExpression exp);
-        IQueryState AppendOrderExpression(OrderExpression exp);
-        //void IncludeNavigationMember(Expression exp);
-        IQueryState UpdateSelectResult(SelectExpression selectExpression);
         MappingData GenerateMappingData();
+
+        IQueryState Accept(WhereExpression exp);
+        IQueryState Accept(OrderExpression exp);
+        IQueryState Accept(SelectExpression exp);
+        IQueryState Accept(SkipExpression exp);
+        IQueryState Accept(TakeExpression exp);
     }
 }

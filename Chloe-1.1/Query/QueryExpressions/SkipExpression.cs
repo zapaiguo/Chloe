@@ -12,7 +12,7 @@ namespace Chloe.Query.QueryExpressions
     public class SkipExpression : QueryExpression
     {
         private int _count;
-        public SkipExpression(QueryExpression prevExpression, Type elementType, int count)
+        public SkipExpression(Type elementType, QueryExpression prevExpression, int count)
             : base(QueryExpressionType.Skip, elementType, prevExpression)
         {
             _count = count;
@@ -23,23 +23,6 @@ namespace Chloe.Query.QueryExpressions
             get { return _count; }
         }
 
-        public override IQueryState Accept(IQueryState queryState)
-        {
-            if (this.Count < 1)
-            {
-                return queryState;
-            }
-
-            SkipQueryState skipQueryState = null;
-            if ((skipQueryState = queryState as SkipQueryState) != null)
-            {
-                skipQueryState.Count += this.Count;
-            }
-            else
-                skipQueryState = new SkipQueryState(this.Count, queryState.Result);
-
-            return skipQueryState;
-        }
         public override T Accept<T>(QueryExpressionVisitor<T> visitor)
         {
             return visitor.Visit(this);

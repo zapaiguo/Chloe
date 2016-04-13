@@ -10,7 +10,7 @@ namespace Chloe.Query.QueryState
     {
         ResultElement _resultElement;
         ExpressionVisitorBase _visitor = null;
-        public QueryStateBase(ResultElement resultElement)
+        protected QueryStateBase(ResultElement resultElement)
         {
             this._resultElement = resultElement;
         }
@@ -32,21 +32,22 @@ namespace Chloe.Query.QueryState
                 return this._resultElement;
             }
         }
-        public virtual IQueryState AppendWhereExpression(WhereExpression whereExp)
+
+        public virtual IQueryState Accept(WhereExpression exp)
         {
             ExpressionVisitorBase visitor = this.Visitor;
-            var dbExp = visitor.Visit(whereExp.Expression);
-            this._resultElement.UpdateWhereExpression(dbExp);
+            var dbExp = visitor.Visit(exp.Expression);
+            this._resultElement.UpdateCondition(dbExp);
 
             return this;
         }
-        public virtual IQueryState AppendOrderExpression(OrderExpression orderExp)
+        public virtual IQueryState Accept(OrderExpression exp)
         {
-            if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.OrderByDesc)
+            if (exp.NodeType == QueryExpressionType.OrderBy || exp.NodeType == QueryExpressionType.OrderByDesc)
                 this._resultElement.OrderSegments.Clear();
 
             ExpressionVisitorBase visitor = this.Visitor;
-            var r = VisistOrderExpression(visitor, orderExp);
+            var r = VisistOrderExpression(visitor, exp);
 
             if (this._resultElement.IsFromSubQuery)
             {
@@ -58,21 +59,29 @@ namespace Chloe.Query.QueryState
 
             return this;
         }
-        public virtual IQueryState UpdateSelectResult(SelectExpression selectExpression)
+        public virtual IQueryState Accept(SelectExpression exp)
         {
             ResultElement result = new ResultElement();
             result.FromTable = this._resultElement.FromTable;
 
-            //TODO 考虑 q.Select(a => a)、q.Select(a => new {Id=1,A = a})、q.Select(a => a.Id).Take(100).Where(a => a > 0); 等情况，即 SelectExpressionVisitor 还不支持解析 ParameterExpression
-
             SelectExpressionVisitor visistor = new SelectExpressionVisitor(this.Visitor, this._resultElement.MappingObjectExpression);
 
-            IMappingObjectExpression r = visistor.Visit(selectExpression.Expression);
+            IMappingObjectExpression r = visistor.Visit(exp.Expression);
             result.MappingObjectExpression = r;
             result.OrderSegments.AddRange(this._resultElement.OrderSegments);
-            result.UpdateWhereExpression(this._resultElement.Where);
+            result.UpdateCondition(this._resultElement.Where);
 
             return new GeneralQueryState(result);
+        }
+        public virtual IQueryState Accept(SkipExpression exp)
+        {
+            SkipQueryState state = new SkipQueryState(exp.Count, this.Result);
+            return state;
+        }
+        public virtual IQueryState Accept(TakeExpression exp)
+        {
+            TakeQueryState state = new TakeQueryState(exp.Count, this.Result);
+            return state;
         }
 
         public virtual MappingData GenerateMappingData()

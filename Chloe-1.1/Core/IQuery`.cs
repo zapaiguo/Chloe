@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Core
 {
-    public interface IQuery<T> : IQuery//, IEnumerable<T>, IEnumerable
+    public interface IQuery<T> //: IQuery//, IEnumerable<T>, IEnumerable
     {
         IQuery<T1> Select<T1>(Expression<Func<T, T1>> selector);
 

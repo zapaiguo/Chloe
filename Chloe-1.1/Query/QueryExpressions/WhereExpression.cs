@@ -4,16 +4,17 @@ using System.Linq.Expressions;
 
 namespace Chloe.Query.QueryExpressions
 {
-    public class WhereExpression : SingleParameterFnQueryExpression
+    public class WhereExpression : QueryExpression
     {
         public WhereExpression(QueryExpression prevExpression, Type elementType, Expression predicate)
-            : base(QueryExpressionType.Where, elementType, prevExpression, predicate)
+            : base(QueryExpressionType.Where, elementType, prevExpression)
         {
+            this.Expression = predicate;
         }
-
-        public override IQueryState Accept(IQueryState queryState)
+        public Expression Expression
         {
-            return queryState.AppendWhereExpression(this);
+            get;
+            private set;
         }
         public override T Accept<T>(QueryExpressionVisitor<T> visitor)
         {

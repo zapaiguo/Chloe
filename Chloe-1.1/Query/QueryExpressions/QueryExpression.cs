@@ -20,7 +20,7 @@ namespace Chloe.Query.QueryExpressions
         {
             get
             {
-                return _prevExpression;
+                return this._prevExpression;
             }
         }
 
@@ -39,7 +39,6 @@ namespace Chloe.Query.QueryExpressions
             }
         }
 
-        public abstract IQueryState Accept(IQueryState queryState);
         public abstract T Accept<T>(QueryExpressionVisitor<T> visitor);
     }
 }
