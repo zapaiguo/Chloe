@@ -95,8 +95,8 @@ namespace Chloe.Query
 
         public bool Exists()
         {
-            IEnumerable<bool> iterator = this.CreateFunctionQuery<bool>((MethodInfo)MethodBase.GetCurrentMethod(), EmptyParameterList);
-            return iterator.Single();
+            var q = (Query<int>)this.Select(a => 1).Take(1);
+            return q.GenenateIterator().Any();
         }
         public bool Exists(Expression<Func<T, bool>> predicate)
         {

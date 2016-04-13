@@ -67,6 +67,7 @@
     <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Impls\DbServiceProvider.cs" />
     <Compile Include="Impls\MsSqlContext.cs" />
+    <Compile Include="Infrastructure\IDbConnectionFactory.cs" />
     <Compile Include="Infrastructure\IDbServiceProvider.cs" />
     <Compile Include="Mapper\EntityConstructor.cs" />
     <Compile Include="Mapper\MappingFieldActivtor.cs" />

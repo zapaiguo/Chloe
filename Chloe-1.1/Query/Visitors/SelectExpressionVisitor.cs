@@ -107,5 +107,16 @@ namespace Chloe.Query
         {
             return this._moe;
         }
+        protected override IMappingObjectExpression VisitConstant(ConstantExpression exp)
+        {
+            if (Utils.IsMapType(exp.Type))
+            {
+                DbExpression dbExp = this.VisistExpression(exp);
+                MappingFieldExpression ret = new MappingFieldExpression(exp.Type, dbExp);
+                return ret;
+            }
+
+            throw new NotSupportedException(exp.ToString());
+        }
     }
 }
