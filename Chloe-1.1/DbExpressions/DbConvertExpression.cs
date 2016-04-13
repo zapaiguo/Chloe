@@ -15,7 +15,7 @@ namespace Chloe.DbExpressions
             this._method = method;
         }
         public MethodInfo Method { get { return this._method; } }
-        public virtual DbExpression Operand { get { return this._operand; } }
+        public DbExpression Operand { get { return this._operand; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

@@ -18,7 +18,7 @@ namespace Chloe.DbExpressions
         }
         protected DbExpression(DbExpressionType nodeType, Type type)
         {
-            _nodeType = nodeType;
+            this._nodeType = nodeType;
             this._type = type;
         }
 
@@ -28,7 +28,7 @@ namespace Chloe.DbExpressions
         }
         public virtual Type Type
         {
-            get { return _type; }
+            get { return this._type; }
         }
 
         public abstract T Accept<T>(DbExpressionVisitor<T> visitor);

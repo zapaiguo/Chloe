@@ -21,8 +21,8 @@ namespace Chloe.DbExpressions
         /// <summary>
         /// T.Name 部分
         /// </summary>
-        public DbExpression Body { get { return this._body; } set { this._body = value; } }
-        public string Alias { get { return this._alias; } set { this._alias = value; } }
+        public DbExpression Body { get { return this._body; } }
+        public string Alias { get { return this._alias; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

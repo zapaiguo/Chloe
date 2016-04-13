@@ -19,21 +19,24 @@ namespace Chloe.Query.Visitors
             var queryState = new RootQueryState(exp.ElementType);
             return queryState;
         }
-
-        protected override IQueryState Visit(SelectExpression exp)
-        {
-            var prevState = this.Visit(exp.PrevExpression);
-            IQueryState state = prevState.Accept(exp);
-            return state;
-        }
-
         protected override IQueryState Visit(WhereExpression exp)
         {
             var prevState = this.Visit(exp.PrevExpression);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
-
+        protected override IQueryState Visit(SelectExpression exp)
+        {
+            var prevState = this.Visit(exp.PrevExpression);
+            IQueryState state = prevState.Accept(exp);
+            return state;
+        }
+        protected override IQueryState Visit(OrderExpression exp)
+        {
+            var prevState = this.Visit(exp.PrevExpression);
+            IQueryState state = prevState.Accept(exp);
+            return state;
+        }
         protected override IQueryState Visit(TakeExpression exp)
         {
             var prevState = this.Visit(exp.PrevExpression);
@@ -48,7 +51,7 @@ namespace Chloe.Query.Visitors
             return state;
         }
 
-        protected override IQueryState Visit(OrderExpression exp)
+        protected override IQueryState Visit(FunctionExpression exp)
         {
             var prevState = this.Visit(exp.PrevExpression);
             IQueryState state = prevState.Accept(exp);

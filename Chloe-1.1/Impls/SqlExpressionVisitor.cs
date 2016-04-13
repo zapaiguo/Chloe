@@ -491,6 +491,11 @@ namespace Chloe.Impls
             return state;
         }
 
+        public override ISqlState Visit(DbFunctionExpression exp)
+        {
+            throw new NotImplementedException();
+        }
+
         ISqlState VisitDbJoinTableExpressions(List<DbJoinTableExpression> tables)
         {
             SqlState state = new SqlState(tables.Count);

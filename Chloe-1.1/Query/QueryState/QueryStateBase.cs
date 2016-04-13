@@ -2,7 +2,10 @@
 using Chloe.Query.Mapping;
 using Chloe.Query.QueryExpressions;
 using Chloe.Query.Visitors;
+using Chloe.Utility;
 using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Chloe.Query.QueryState
 {
@@ -81,6 +84,29 @@ namespace Chloe.Query.QueryState
         public virtual IQueryState Accept(TakeExpression exp)
         {
             TakeQueryState state = new TakeQueryState(exp.Count, this.Result);
+            return state;
+        }
+        public virtual IQueryState Accept(FunctionExpression exp)
+        {
+            ExpressionVisitorBase visitor = this.Visitor;
+
+            List<DbExpression> dbParameters = new List<DbExpression>(exp.Parameters.Count);
+            foreach (Expression pExp in exp.Parameters)
+            {
+                var dbExp = visitor.Visit(pExp);
+                dbParameters.Add(dbExp);
+            }
+
+            DbFunctionExpression dbFuncExp = new DbFunctionExpression(exp.ElementType, exp.Method, dbParameters);
+            MappingFieldExpression mfe = new MappingFieldExpression(exp.ElementType, dbFuncExp);
+
+            ResultElement result = new ResultElement();
+
+            result.MappingObjectExpression = mfe;
+            result.FromTable = this._resultElement.FromTable;
+            result.UpdateCondition(this._resultElement.Where);
+
+            FunctionQueryState state = new FunctionQueryState(result);
             return state;
         }
 

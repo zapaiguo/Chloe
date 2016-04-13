@@ -12,12 +12,12 @@ namespace Chloe.DbExpressions
         public DbMethodCallExpression(DbExpression @object, MethodInfo method, IReadOnlyList<DbExpression> arguments)
             : base(DbExpressionType.Call)
         {
-            _object = @object;
-            _method = method;
-            _arguments = arguments;
+            this._object = @object;
+            this._method = method;
+            this._arguments = arguments;
         }
 
-        public IReadOnlyList<DbExpression> Arguments { get { return _arguments; } }
+        public IReadOnlyList<DbExpression> Arguments { get { return this._arguments; } }
         public MethodInfo Method { get { return _method; } }
         public DbExpression Object { get { return _object; } }
         public override Type Type { get { return this.Method.ReturnType; } }

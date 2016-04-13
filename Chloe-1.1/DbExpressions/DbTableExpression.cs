@@ -22,7 +22,7 @@ namespace Chloe.DbExpressions
         /// User、(select * from User)
         /// </summary>
         public DbExpression Body { get { return this._body; } }
-        public string Alias { get { return this._alias; } private set { this._alias = value; } }
+        public string Alias { get { return this._alias; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

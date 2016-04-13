@@ -12,7 +12,7 @@ namespace Chloe.DbExpressions
             this._tableName = tableName;
         }
 
-        public string TableName { get { return this._tableName; } private set { this._tableName = value; } }
+        public string TableName { get { return this._tableName; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

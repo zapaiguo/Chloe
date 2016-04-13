@@ -11,7 +11,7 @@ namespace Chloe.Query.QueryExpressions
 {
     public class TakeExpression : QueryExpression
     {
-        private int _count;
+        int _count;
         public TakeExpression(Type elementType, QueryExpression prevExpression, int count)
             : base(QueryExpressionType.Take, elementType, prevExpression)
         {
@@ -20,12 +20,12 @@ namespace Chloe.Query.QueryExpressions
                 throw new ArgumentException("count 小于 0");
             }
 
-            _count = count;
+            this._count = count;
         }
 
         public int Count
         {
-            get { return _count; }
+            get { return this._count; }
         }
 
         public override T Accept<T>(QueryExpressionVisitor<T> visitor)

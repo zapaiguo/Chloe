@@ -59,6 +59,7 @@
     <Compile Include="Core\IOrderedQuery`.cs" />
     <Compile Include="Core\IQuery.cs" />
     <Compile Include="Core\IQuery`.cs" />
+    <Compile Include="DbExpressions\DbFunctionExpression.cs" />
     <Compile Include="Extensions\DataReaderExtensions.cs" />
     <Compile Include="Extensions\DbExpressionExtensions.cs" />
     <Compile Include="Extensions\DeriveType.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="DbExpressions\DbSubtractExpression.cs" />
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
     <Compile Include="Query\QueryExpressions\FunctionExpression.cs" />
+    <Compile Include="Query\QueryState\FunctionQueryState.cs" />
     <Compile Include="Query\Visitors\ExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\ExpressionVisitor`.cs" />
     <Compile Include="Query\IMappingObjectExpression.cs" />

@@ -31,5 +31,6 @@ namespace Chloe.DbExpressions
         FromTable,
         JoinTable,
         OrderSegment,
+        Function,
     }
 }

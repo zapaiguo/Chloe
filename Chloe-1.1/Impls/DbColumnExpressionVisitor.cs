@@ -156,6 +156,10 @@ namespace Chloe.Impls
         {
             return exp.Accept(this._visitor);
         }
+        public override ISqlState Visit(DbFunctionExpression exp)
+        {
+            return exp.Accept(this._visitor);
+        }
 
         ISqlState VisistDbBooleanExpression(DbExpression exp)
         {

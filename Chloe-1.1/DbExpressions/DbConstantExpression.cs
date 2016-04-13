@@ -8,10 +8,10 @@ namespace Chloe.DbExpressions
         public DbConstantExpression(object value, Type type)
             : base(DbExpressionType.Constant, type)
         {
-            _value = value;
+            this._value = value;
         }
 
-        public object Value { get { return _value; } }
+        public object Value { get { return this._value; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

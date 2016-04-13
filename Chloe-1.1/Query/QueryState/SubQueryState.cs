@@ -6,54 +6,51 @@ using System.Linq;
 
 namespace Chloe.Query.QueryState
 {
-    internal abstract class SubQueryState : IQueryState
+    internal abstract class SubQueryState : QueryStateBase
     {
-        ResultElement _resultElement;
         protected SubQueryState(ResultElement resultElement)
+            : base(resultElement)
         {
-            this._resultElement = resultElement;
         }
 
-        public ResultElement Result
-        {
-            get
-            {
-                return this._resultElement;
-            }
-        }
-
-        public virtual IQueryState Accept(WhereExpression exp)
+        public override IQueryState Accept(WhereExpression exp)
         {
             IQueryState state = this.AsSubQueryState();
             return state.Accept(exp);
         }
-        public virtual IQueryState Accept(OrderExpression exp)
+        public override IQueryState Accept(OrderExpression exp)
         {
             IQueryState state = this.AsSubQueryState();
             return state.Accept(exp);
         }
-        public virtual IQueryState Accept(SelectExpression exp)
+        public override IQueryState Accept(SelectExpression exp)
         {
             IQueryState queryState = this.AsSubQueryState();
             return queryState.Accept(exp);
         }
-        public virtual IQueryState Accept(SkipExpression exp)
+        public override IQueryState Accept(SkipExpression exp)
         {
             IQueryState subQueryState = this.AsSubQueryState();
 
             SkipQueryState state = new SkipQueryState(exp.Count, subQueryState.Result);
             return state;
         }
-        public virtual IQueryState Accept(TakeExpression exp)
+        public override IQueryState Accept(TakeExpression exp)
         {
             IQueryState subQueryState = this.AsSubQueryState();
 
             TakeQueryState state = new TakeQueryState(exp.Count, subQueryState.Result);
             return state;
         }
+        public override IQueryState Accept(FunctionExpression exp)
+        {
+            IQueryState subQueryState = this.AsSubQueryState();
 
+            IQueryState state = subQueryState.Accept(exp);
+            return state;
+        }
 
-        public virtual MappingData GenerateMappingData()
+        public override MappingData GenerateMappingData()
         {
             MappingData data = new MappingData();
 
@@ -66,7 +63,7 @@ namespace Chloe.Query.QueryState
             return data;
         }
 
-        public virtual IQueryState AsSubQueryState()
+        public virtual GeneralQueryState AsSubQueryState()
         {
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);

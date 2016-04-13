@@ -16,8 +16,8 @@ namespace Chloe.DbExpressions
             this._method = method;
         }
 
-        public DbExpression Left { get { return _left; } }
-        public DbExpression Right { get { return _right; } }
+        public DbExpression Left { get { return this._left; } }
+        public DbExpression Right { get { return this._right; } }
         public MethodInfo Method { get { return this._method; } }
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

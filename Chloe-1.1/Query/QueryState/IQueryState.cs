@@ -13,5 +13,6 @@ namespace Chloe.Query.QueryState
         IQueryState Accept(SelectExpression exp);
         IQueryState Accept(SkipExpression exp);
         IQueryState Accept(TakeExpression exp);
+        IQueryState Accept(FunctionExpression exp);
     }
 }

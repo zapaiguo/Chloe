@@ -10,12 +10,12 @@ namespace Chloe.DbExpressions
         public DbCaseWhenExpression(Type type, IReadOnlyList<WhenThenExpressionPair> whenThenExps, DbExpression elseExp)
             : base(DbExpressionType.CaseWhen, type)
         {
-            _whenThenExps = whenThenExps;
-            _elseExp = elseExp;
+            this._whenThenExps = whenThenExps;
+            this._elseExp = elseExp;
         }
 
-        public IReadOnlyList<WhenThenExpressionPair> WhenThenExps { get { return _whenThenExps; } }
-        public DbExpression Else { get { return _elseExp; } }
+        public IReadOnlyList<WhenThenExpressionPair> WhenThenExps { get { return this._whenThenExps; } }
+        public DbExpression Else { get { return this._elseExp; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

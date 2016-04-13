@@ -6,15 +6,15 @@ namespace Chloe.Query.QueryExpressions
 {
     public class OrderExpression : QueryExpression
     {
+        Expression _expression;
         public OrderExpression(QueryExpressionType expressionType, Type elementType, QueryExpression prevExpression, Expression predicate)
             : base(expressionType, elementType, prevExpression)
         {
-            this.Expression = predicate;
+            this._expression = predicate;
         }
         public Expression Expression
         {
-            get;
-            private set;
+            get { return this._expression; }
         }
 
         public override T Accept<T>(QueryExpressionVisitor<T> visitor)

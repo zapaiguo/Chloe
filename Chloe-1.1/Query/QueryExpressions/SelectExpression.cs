@@ -6,15 +6,15 @@ namespace Chloe.Query.QueryExpressions
 {
     public class SelectExpression : QueryExpression
     {
+        Expression _expression;
         public SelectExpression(Type elementType, QueryExpression prevExpression, Expression predicate)
             : base(QueryExpressionType.Select, elementType, prevExpression)
         {
-            this.Expression = predicate;
+            this._expression = predicate;
         }
         public Expression Expression
         {
-            get;
-            private set;
+            get { return this._expression; }
         }
         public override T Accept<T>(QueryExpressionVisitor<T> visitor)
         {

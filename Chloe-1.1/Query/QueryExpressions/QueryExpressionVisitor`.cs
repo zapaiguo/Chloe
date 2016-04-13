@@ -65,5 +65,10 @@ namespace Chloe.Query.QueryExpressions
         {
             throw new NotImplementedException();
         }
+        protected virtual T Visit(FunctionExpression exp)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

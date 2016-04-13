@@ -18,9 +18,9 @@ namespace Chloe.DbExpressions
             this._columnName = columnName;
         }
 
-        public DbTableExpression Table { get { return this._table; } set { this._table = value; } }
+        public DbTableExpression Table { get { return this._table; } }
 
-        public string ColumnName { get { return this._columnName; } set { this._columnName = value; } }
+        public string ColumnName { get { return this._columnName; } }
 
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)

@@ -26,13 +26,7 @@ namespace Chloe.DbExpressions
             this._type = type;
         }
 
-        public override Type Type
-        {
-            get
-            {
-                return this._type;
-            }
-        }
+        public override Type Type { get { return this._type; } }
         public object Value { get { return this._value; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)

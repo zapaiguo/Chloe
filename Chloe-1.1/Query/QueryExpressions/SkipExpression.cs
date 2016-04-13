@@ -11,11 +11,16 @@ namespace Chloe.Query.QueryExpressions
 {
     public class SkipExpression : QueryExpression
     {
-        private int _count;
+        int _count;
         public SkipExpression(Type elementType, QueryExpression prevExpression, int count)
             : base(QueryExpressionType.Skip, elementType, prevExpression)
         {
-            _count = count;
+            if (count < 0)
+            {
+                throw new ArgumentException("count 小于 0");
+            }
+
+            this._count = count;
         }
 
         public int Count

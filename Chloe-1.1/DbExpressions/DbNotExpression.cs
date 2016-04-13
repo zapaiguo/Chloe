@@ -4,15 +4,15 @@ namespace Chloe.DbExpressions
 {
     public class DbNotExpression : DbExpression
     {
-        private DbExpression _exp;
+        DbExpression _exp;
 
         public DbNotExpression(DbExpression exp)
             : base(DbExpressionType.Not, UtilConstants.TypeOfBoolean)
         {
-            _exp = exp;
+            this._exp = exp;
         }
 
-        public DbExpression Operand { get { return _exp; } }
+        public DbExpression Operand { get { return this._exp; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {
