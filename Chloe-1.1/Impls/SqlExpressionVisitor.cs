@@ -20,9 +20,9 @@ namespace Chloe.Impls
         DbColumnExpressionVisitor _columnExpressionVisitor = null;
         JoinConditionExpressionVisitor _joinConditionExpressionVisitor = null;
 
-        delegate ISqlState MethodHandler(DbMethodCallExpression exp, DbExpressionVisitor<ISqlState> visitor);
         delegate ISqlState BinaryWithMethodHandler(DbBinaryExpression exp, DbExpressionVisitor<ISqlState> visitor);
-        static Dictionary<string, MethodHandler> MethodHandlers = InitializeMethodHandlers();
+        static Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>> MethodHandlers = InitMethodHandlers();
+        static Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>> FuncHandlers = InitFuncHandlers();
         static Dictionary<MethodInfo, BinaryWithMethodHandler> BinaryWithMethodHandlers = null;
 
         static MethodInfo StringConcatMethod_String_String = null;
@@ -39,10 +39,10 @@ namespace Chloe.Impls
 
         public static ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes = null;
 
-        public static Type TypeOfBoolean = typeof(bool);
-        public static Type TypeOfBoolean_Nullable = typeof(bool?);
-        public static Type TypeOfDateTime = typeof(DateTime);
-        public static Type TypeOfString = typeof(string);
+        public static readonly Type TypeOfBoolean = typeof(bool);
+        public static readonly Type TypeOfBoolean_Nullable = typeof(bool?);
+        public static readonly Type TypeOfDateTime = typeof(DateTime);
+        public static readonly Type TypeOfString = typeof(string);
 
         public static DbConstantExpression StringNullConstantExpression = DbExpression.Constant(null, TypeOfString);
 
@@ -203,8 +203,8 @@ namespace Chloe.Impls
                 throw new NotSupportedException(string.Format("{0} 向 {1} 类型转换", exp.Operand.Type.Name, exp.Type.Name));
             }
 
-            SqlState state = new SqlState(5);
-            state.Append("CAST(", EnsureDbExpressionReturnCSharpBoolean(exp.Operand).Accept(this), " AS ", dbTypeString, ")");
+            SqlState state = BuildCastState(EnsureDbExpressionReturnCSharpBoolean(exp.Operand).Accept(this), dbTypeString);
+
             return state;
         }
         // +
@@ -435,7 +435,7 @@ namespace Chloe.Impls
 
         public override ISqlState Visit(DbMethodCallExpression exp)
         {
-            MethodHandler methodHandler;
+            Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState> methodHandler;
             if (!MethodHandlers.TryGetValue(exp.Method.Name, out methodHandler))
             {
                 throw new NotSupportedException(exp.Method.Name);
@@ -493,14 +493,12 @@ namespace Chloe.Impls
 
         public override ISqlState Visit(DbFunctionExpression exp)
         {
-            if (exp.Method.Name == "Count")
+            Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState> funcHandler;
+            if (!FuncHandlers.TryGetValue(exp.Method.Name, out funcHandler))
             {
-                SqlState state = new SqlState(1);
-                state.Append("COUNT(1)");
-                return state;
+                throw new NotSupportedException(exp.Method.Name);
             }
-
-            throw new NotImplementedException();
+            return funcHandler(exp, this);
         }
 
         ISqlState VisitDbJoinTableExpressions(List<DbJoinTableExpression> tables)
@@ -776,6 +774,13 @@ namespace Chloe.Impls
             state.Append(")");
             return state;
         }
+        static SqlState BuildCastState(object castObject, string targetDbTypeString)
+        {
+            SqlState state = new SqlState(5);
+            state.Append("CAST(", castObject, " AS ", targetDbTypeString, ")");
+            return state;
+        }
+
         public static bool IsConstantConvertToNullableExpression(DbExpression exp)
         {
             if (exp.NodeType != DbExpressionType.Convert)
@@ -925,9 +930,9 @@ namespace Chloe.Impls
 
         #region
 
-        static Dictionary<string, MethodHandler> InitializeMethodHandlers()
+        static Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>> InitMethodHandlers()
         {
-            var methodHandlers = new Dictionary<string, MethodHandler>(7, StringComparer.Ordinal);
+            var methodHandlers = new Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>>();
             methodHandlers.Add("Trim", Method_Trim);
             methodHandlers.Add("TrimStart", Method_TrimStart);
             methodHandlers.Add("TrimEnd", Method_TrimEnd);
@@ -936,10 +941,16 @@ namespace Chloe.Impls
             methodHandlers.Add("Contains", Method_Contains);
             methodHandlers.Add("IsNullOrEmpty", Method_IsNullOrEmpty);
 
-            return methodHandlers;
+            var ret = new Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>>(methodHandlers.Count, StringComparer.Ordinal);
+            foreach (var item in methodHandlers)
+            {
+                ret.Add(item.Key, item.Value);
+            }
+
+            return ret;
         }
 
-        static ISqlState Method_Trim(DbMethodCallExpression exp, DbExpressionVisitor<ISqlState> visitor)
+        static ISqlState Method_Trim(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             EnsureMethodDeclaringType(exp, TypeOfString);
 
@@ -951,7 +962,7 @@ namespace Chloe.Impls
             state.Append("RTRIM(LTRIM(", exp.Object.Accept(visitor), "))");
             return state;
         }
-        static ISqlState Method_TrimStart(DbMethodCallExpression exp, DbExpressionVisitor<ISqlState> visitor)
+        static ISqlState Method_TrimStart(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             EnsureMethodDeclaringType(exp, TypeOfString);
 
@@ -959,7 +970,7 @@ namespace Chloe.Impls
             state.Append("LTRIM(", exp.Object.Accept(visitor), ")");
             return state;
         }
-        static ISqlState Method_TrimEnd(DbMethodCallExpression exp, DbExpressionVisitor<ISqlState> visitor)
+        static ISqlState Method_TrimEnd(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             EnsureMethodDeclaringType(exp, TypeOfString);
 
@@ -967,7 +978,7 @@ namespace Chloe.Impls
             state.Append("RTRIM(", exp.Object.Accept(visitor), ")");
             return state;
         }
-        static ISqlState Method_StartsWith(DbMethodCallExpression exp, DbExpressionVisitor<ISqlState> visitor)
+        static ISqlState Method_StartsWith(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             EnsureMethodDeclaringType(exp, TypeOfString);
 
@@ -978,7 +989,7 @@ namespace Chloe.Impls
             state.Append(exp.Object.Accept(visitor), " LIKE ", exp.Arguments.First().Accept(visitor), " + '%'");
             return state;
         }
-        static ISqlState Method_EndsWith(DbMethodCallExpression exp, DbExpressionVisitor<ISqlState> visitor)
+        static ISqlState Method_EndsWith(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             EnsureMethodDeclaringType(exp, TypeOfString);
 
@@ -989,7 +1000,7 @@ namespace Chloe.Impls
             state.Append(exp.Object.Accept(visitor), " LIKE '%' + ", exp.Arguments.First().Accept(visitor));
             return state;
         }
-        static ISqlState Method_StringContains(DbMethodCallExpression exp, DbExpressionVisitor<ISqlState> visitor)
+        static ISqlState Method_StringContains(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             EnsureMethodDeclaringType(exp, TypeOfString);
 
@@ -997,7 +1008,7 @@ namespace Chloe.Impls
             state.Append(exp.Object.Accept(visitor), " LIKE '%' + ", exp.Arguments.First().Accept(visitor), " + '%'");
             return state;
         }
-        static ISqlState Method_IsNullOrEmpty(DbMethodCallExpression exp, DbExpressionVisitor<ISqlState> visitor)
+        static ISqlState Method_IsNullOrEmpty(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             EnsureMethodDeclaringType(exp, TypeOfString);
 
@@ -1016,7 +1027,7 @@ namespace Chloe.Impls
 
             return caseWhenExpression.Accept(visitor);
         }
-        static ISqlState Method_Contains(DbMethodCallExpression exp, DbExpressionVisitor<ISqlState> visitor)
+        static ISqlState Method_Contains(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             MethodInfo method = exp.Method;
 
@@ -1095,6 +1106,72 @@ namespace Chloe.Impls
             return state;
         }
 
+
+        #endregion
+
+        #region
+        static Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>> InitFuncHandlers()
+        {
+            var funcHandlers = new Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>>();
+            funcHandlers.Add("Count", Func_Count);
+            funcHandlers.Add("LongCount", Func_LongCount);
+            funcHandlers.Add("Sum", Func_Sum);
+            funcHandlers.Add("Max", Func_Max);
+            funcHandlers.Add("Min", Func_Min);
+            funcHandlers.Add("Average", Func_Average);
+
+            var ret = new Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>>(funcHandlers.Count, StringComparer.Ordinal);
+            foreach (var item in funcHandlers)
+            {
+                ret.Add(item.Key, item.Value);
+            }
+
+            return ret;
+        }
+
+        static ISqlState Func_Count(DbFunctionExpression exp, SqlExpressionVisitor visitor)
+        {
+            SqlState state = new SqlState(1);
+            state.Append("COUNT(1)");
+            return state;
+        }
+        static ISqlState Func_LongCount(DbFunctionExpression exp, SqlExpressionVisitor visitor)
+        {
+            SqlState state = new SqlState(1);
+            state.Append("COUNT_BIG(1)");
+            return state;
+        }
+        static ISqlState Func_Sum(DbFunctionExpression exp, SqlExpressionVisitor visitor)
+        {
+            SqlState state = new SqlState(3);
+            state.Append("SUM(", exp.Parameters.First().Accept(visitor), ")");
+            return state;
+        }
+        static ISqlState Func_Max(DbFunctionExpression exp, SqlExpressionVisitor visitor)
+        {
+            SqlState state = new SqlState(3);
+            state.Append("MAX(", exp.Parameters.First().Accept(visitor), ")");
+            return state;
+        }
+        static ISqlState Func_Min(DbFunctionExpression exp, SqlExpressionVisitor visitor)
+        {
+            SqlState state = new SqlState(3);
+            state.Append("MIN(", exp.Parameters.First().Accept(visitor), ")");
+            return state;
+        }
+        static ISqlState Func_Average(DbFunctionExpression exp, SqlExpressionVisitor visitor)
+        {
+            SqlState state = new SqlState(3);
+            state.Append("AVG(", exp.Parameters.First().Accept(visitor), ")");
+
+            string dbTypeString;
+            if (CSharpType_DbType_Mappings.TryGetValue(exp.Type, out dbTypeString))
+            {
+                state = BuildCastState(state, dbTypeString);
+            }
+
+            return state;
+        }
 
         #endregion
     }

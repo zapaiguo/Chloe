@@ -96,7 +96,7 @@ namespace Chloe.Query
 
         public bool Any()
         {
-            var q = (Query<int>)this.Select(a => 1).Take(1);
+            var q = (Query<string>)this.Select(a => "1").Take(1);
             return q.GenenateIterator().Any();
         }
         public bool Any(Expression<Func<T, bool>> predicate)

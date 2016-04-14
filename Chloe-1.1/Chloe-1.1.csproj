@@ -41,7 +41,7 @@
     <Compile Include="Core\Database\InternalDbSession.cs" />
     <Compile Include="Core\Database\InternalDataReader.cs" />
     <Compile Include="Core\DbContext.cs" />
-    <Compile Include="Core\DelegateCreateManage.cs" />
+    <Compile Include="Core\DelegateGenerator.cs" />
     <Compile Include="Core\Entity\AssociationAttribute.cs">
       <SubType>Code</SubType>
     </Compile>

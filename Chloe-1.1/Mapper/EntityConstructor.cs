@@ -20,7 +20,7 @@ namespace Chloe.Mapper
         void Init()
         {
             ConstructorInfo constructor = this.ConstructorInfo;
-            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> fn = DelegateCreateManage.CreateObjectGenerator(constructor);
+            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> fn = DelegateGenerator.CreateObjectGenerator(constructor);
             this.InstanceCreator = fn;
         }
 

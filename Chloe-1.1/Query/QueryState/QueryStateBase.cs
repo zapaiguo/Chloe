@@ -126,12 +126,6 @@ namespace Chloe.Query.QueryState
             MappingData data = new MappingData();
 
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
-            //DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
-            //var tablePart = this._resultElement.FromTable;
-
-            //sqlQuery.Table = tablePart;
-            //sqlQuery.Orders.AddRange(this._resultElement.OrderSegments);
-            //sqlQuery.UpdateWhereExpression(this._resultElement.Where);
 
             var moe = this._resultElement.MappingObjectExpression.GenarateObjectActivtorCreator(sqlQuery);
 

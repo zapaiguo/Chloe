@@ -48,7 +48,7 @@ namespace Chloe.Mapper
 
                 if (Utils.IsMapType(memberType))
                 {
-                    Action<object, IDataReader, int> valueSetter = DelegateCreateManage.CreateSetValueFromReaderDelegate(member);
+                    Action<object, IDataReader, int> valueSetter = DelegateGenerator.CreateSetValueFromReaderDelegate(member);
                     this._mappingMemberSetters.Add(member, valueSetter);
                 }
                 else

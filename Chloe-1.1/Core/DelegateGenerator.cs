@@ -14,7 +14,7 @@ using System.Linq.Expressions;
 
 namespace Chloe.Core
 {
-    public static class DelegateCreateManage
+    public static class DelegateGenerator
     {
         static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Func<object, List<KeyValuePair<string, object>>>> getValuesDelegateCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Func<object, List<KeyValuePair<string, object>>>>();
 
