@@ -11,8 +11,8 @@ namespace Chloe.Query
         List<object> _sqlStorage;
         int _recursiveDepth = 0;
         public SqlState()
+            : this(0)
         {
-            this._sqlStorage = new List<object>();
         }
 
         public int RecursiveDepth { get { return this._recursiveDepth; } }

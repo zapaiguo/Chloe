@@ -1,11 +1,14 @@
 ﻿using Chloe.DbExpressions;
 using Chloe.Query.QueryExpressions;
+using System;
 
 namespace Chloe.Query.QueryState
 {
     internal sealed class LimitQueryState : SubQueryState
     {
-        public LimitQueryState(int skipCount, int takeCount, ResultElement resultElement)
+        int _skipCount;
+        int _takeCount;
+        public LimitQueryState(ResultElement resultElement, int skipCount, int takeCount)
             : base(resultElement)
         {
             this.SkipCount = skipCount;
@@ -14,21 +17,40 @@ namespace Chloe.Query.QueryState
 
         public int SkipCount
         {
-            get;
-            private set;
+            get
+            {
+                return this._skipCount;
+            }
+            set
+            {
+                this.CheckInputCount(value, "skipCount");
+                this._skipCount = value;
+            }
         }
         public int TakeCount
         {
-            get;
-            private set;
+            get
+            {
+                return this._takeCount;
+            }
+            set
+            {
+                this.CheckInputCount(value, "takeCount");
+                this._takeCount = value;
+            }
+        }
+        void CheckInputCount(int count, string parameName)
+        {
+            if (count < 0)
+            {
+                throw new ArgumentException(parameName + " 小于 0");
+            }
         }
 
-        public void UpdateTakeCount(int count)
+        public override IQueryState Accept(SelectExpression exp)
         {
-            if (count < this.TakeCount)
-            {
-                this.TakeCount = count;
-            }
+            ResultElement result = this.CreateNewResult(exp);
+            return this.CreateQueryState(result);
         }
 
         public override IQueryState Accept(TakeExpression exp)
@@ -37,6 +59,10 @@ namespace Chloe.Query.QueryState
                 this.TakeCount = exp.Count;
 
             return this;
+        }
+        public override IQueryState CreateQueryState(ResultElement result)
+        {
+            return new LimitQueryState(result, this.SkipCount, this.TakeCount);
         }
 
         public override DbSqlQueryExpression CreateSqlQuery()

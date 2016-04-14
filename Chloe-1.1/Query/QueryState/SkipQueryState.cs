@@ -6,14 +6,38 @@ namespace Chloe.Query.QueryState
 {
     internal sealed class SkipQueryState : SubQueryState
     {
-        public SkipQueryState(int count, ResultElement resultElement)
+        int _count;
+        public SkipQueryState(ResultElement resultElement, int count)
             : base(resultElement)
         {
             this.Count = count;
         }
 
-        public int Count { get; set; }
+        public int Count
+        {
+            get
+            {
+                return this._count;
+            }
+            set
+            {
+                this.CheckInputCount(value);
+                this._count = value;
+            }
+        }
+        void CheckInputCount(int count)
+        {
+            if (count < 0)
+            {
+                throw new ArgumentException("count 小于 0");
+            }
+        }
 
+        public override IQueryState Accept(SelectExpression exp)
+        {
+            ResultElement result = this.CreateNewResult(exp);
+            return this.CreateQueryState(result);
+        }
         public override IQueryState Accept(SkipExpression exp)
         {
             if (exp.Count < 1)
@@ -27,10 +51,13 @@ namespace Chloe.Query.QueryState
         }
         public override IQueryState Accept(TakeExpression exp)
         {
-            var state = new LimitQueryState(this.Count, exp.Count, this.Result);
+            var state = new LimitQueryState(this.Result, this.Count, exp.Count);
             return state;
         }
-
+        public override IQueryState CreateQueryState(ResultElement result)
+        {
+            return new SkipQueryState(result, this.Count);
+        }
 
         public override DbSqlQueryExpression CreateSqlQuery()
         {

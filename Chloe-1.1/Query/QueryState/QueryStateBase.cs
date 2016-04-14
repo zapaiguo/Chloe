@@ -6,6 +6,7 @@ using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Linq;
 
 namespace Chloe.Query.QueryState
 {
@@ -64,26 +65,17 @@ namespace Chloe.Query.QueryState
         }
         public virtual IQueryState Accept(SelectExpression exp)
         {
-            ResultElement result = new ResultElement();
-            result.FromTable = this._resultElement.FromTable;
-
-            SelectExpressionVisitor visistor = new SelectExpressionVisitor(this.Visitor, this._resultElement.MappingObjectExpression);
-
-            IMappingObjectExpression r = visistor.Visit(exp.Expression);
-            result.MappingObjectExpression = r;
-            result.OrderSegments.AddRange(this._resultElement.OrderSegments);
-            result.UpdateCondition(this._resultElement.Where);
-
-            return new GeneralQueryState(result);
+            ResultElement result = this.CreateNewResult(exp);
+            return this.CreateQueryState(result);
         }
         public virtual IQueryState Accept(SkipExpression exp)
         {
-            SkipQueryState state = new SkipQueryState(exp.Count, this.Result);
+            SkipQueryState state = new SkipQueryState(this.Result, exp.Count);
             return state;
         }
         public virtual IQueryState Accept(TakeExpression exp)
         {
-            TakeQueryState state = new TakeQueryState(exp.Count, this.Result);
+            TakeQueryState state = new TakeQueryState(this.Result, exp.Count);
             return state;
         }
         public virtual IQueryState Accept(FunctionExpression exp)
@@ -110,16 +102,36 @@ namespace Chloe.Query.QueryState
             return state;
         }
 
+        public virtual ResultElement CreateNewResult(SelectExpression exp)
+        {
+            ResultElement result = new ResultElement();
+            result.FromTable = this._resultElement.FromTable;
+
+            SelectExpressionVisitor visistor = new SelectExpressionVisitor(this.Visitor, this._resultElement.MappingObjectExpression);
+
+            IMappingObjectExpression r = visistor.Visit(exp.Expression);
+            result.MappingObjectExpression = r;
+            result.OrderSegments.AddRange(this._resultElement.OrderSegments);
+            result.UpdateCondition(this._resultElement.Where);
+
+            return result;
+        }
+        public virtual IQueryState CreateQueryState(ResultElement result)
+        {
+            return new GeneralQueryState(result);
+        }
+
         public virtual MappingData GenerateMappingData()
         {
             MappingData data = new MappingData();
 
-            DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
-            var tablePart = this._resultElement.FromTable;
+            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
+            //DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
+            //var tablePart = this._resultElement.FromTable;
 
-            sqlQuery.Table = tablePart;
-            sqlQuery.Orders.AddRange(this._resultElement.OrderSegments);
-            sqlQuery.UpdateWhereExpression(this._resultElement.Where);
+            //sqlQuery.Table = tablePart;
+            //sqlQuery.Orders.AddRange(this._resultElement.OrderSegments);
+            //sqlQuery.UpdateWhereExpression(this._resultElement.Where);
 
             var moe = this._resultElement.MappingObjectExpression.GenarateObjectActivtorCreator(sqlQuery);
 
@@ -128,6 +140,70 @@ namespace Chloe.Query.QueryState
 
             return data;
         }
+
+        public virtual GeneralQueryState AsSubQueryState()
+        {
+            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
+            DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
+
+            ResultElement result = new ResultElement();
+
+            DbTableExpression tableExp = new DbTableExpression(subQuery, result.GenerateUniqueTableAlias());
+            DbFromTableExpression tablePart = new DbFromTableExpression(tableExp);
+
+            result.FromTable = tablePart;
+
+            //TODO 根据旧的生成新 MappingMembers
+            IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, tableExp);
+            result.MappingObjectExpression = newMoe;
+
+            //得将 subQuery.SqlQuery.Orders 告诉 以下创建的 result
+            //将 orderPart 传递下去
+            if (this.Result.OrderSegments.Count > 0)
+            {
+                for (int i = 0; i < this.Result.OrderSegments.Count; i++)
+                {
+                    DbOrderSegmentExpression orderPart = this.Result.OrderSegments[i];
+                    DbExpression orderExp = orderPart.DbExpression;
+
+                    string alias = null;
+
+                    DbColumnExpression columnExpression = sqlQuery.Columns.Where(a => DbExpressionEqualizer.Equals(orderExp, a.Body)).FirstOrDefault();
+
+                    // 对于重复的则不需要往 sqlQuery.Columns 重复添加了
+                    if (columnExpression != null)
+                    {
+                        alias = columnExpression.Alias;
+                    }
+                    else
+                    {
+                        alias = sqlQuery.GenerateUniqueColumnAlias();
+                        DbColumnExpression columnExp = new DbColumnExpression(orderExp.Type, orderExp, alias);
+                        sqlQuery.Columns.Add(columnExp);
+                    }
+
+                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(orderExp.Type, tableExp, alias);
+                    result.OrderSegments.Add(new DbOrderSegmentExpression(columnAccessExpression, orderPart.OrderType));
+                }
+            }
+
+            result.IsFromSubQuery = true;
+
+            GeneralQueryState queryState = new GeneralQueryState(result);
+            return queryState;
+        }
+        public virtual DbSqlQueryExpression CreateSqlQuery()
+        {
+            DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
+            var tablePart = this._resultElement.FromTable;
+
+            sqlQuery.Table = tablePart;
+            sqlQuery.Orders.AddRange(this._resultElement.OrderSegments);
+            sqlQuery.UpdateWhereExpression(this._resultElement.Where);
+
+            return sqlQuery;
+        }
+
 
         protected static DbOrderSegmentExpression VisistOrderExpression(ExpressionVisitorBase visitor, OrderExpression orderExp)
         {

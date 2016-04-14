@@ -74,7 +74,10 @@ namespace Chloe.Query
             IEnumerable<T> iterator = q.GenenateIterator();
             return iterator.First();
         }
-
+        public T First(Expression<Func<T, bool>> predicate)
+        {
+            return this.Where(predicate).First();
+        }
         public T FirstOrDefault()
         {
             var q = (Query<T>)this.Take(1);
@@ -83,9 +86,7 @@ namespace Chloe.Query
         }
         public T FirstOrDefault(Expression<Func<T, bool>> predicate)
         {
-            var q = (Query<T>)this.Where(predicate).Take(1);
-            IEnumerable<T> iterator = q.GenenateIterator();
-            return iterator.FirstOrDefault();
+            return this.Where(predicate).FirstOrDefault();
         }
         public List<T> ToList()
         {
@@ -93,14 +94,14 @@ namespace Chloe.Query
             return iterator.ToList();
         }
 
-        public bool Exists()
+        public bool Any()
         {
             var q = (Query<int>)this.Select(a => 1).Take(1);
             return q.GenenateIterator().Any();
         }
-        public bool Exists(Expression<Func<T, bool>> predicate)
+        public bool Any(Expression<Func<T, bool>> predicate)
         {
-            return this.Where(predicate).Exists();
+            return this.Where(predicate).Any();
         }
 
         public int Count()
@@ -331,7 +332,7 @@ namespace Chloe.Query
         }
         InternalQuery<T1> CreateFunctionQuery<T1>(MethodInfo method, List<Expression> parameters)
         {
-            FunctionExpression e = new FunctionExpression(typeof(T1), this._expression, (MethodInfo)MethodBase.GetCurrentMethod(), parameters);
+            FunctionExpression e = new FunctionExpression(typeof(T1), this._expression, method, parameters);
             var q = new Query<T1>(this._dbSession, this._dbServiceProvider, e);
             InternalQuery<T1> iterator = q.GenenateIterator();
             return iterator;

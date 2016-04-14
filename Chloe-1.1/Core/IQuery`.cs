@@ -24,12 +24,14 @@ namespace Chloe.Core
 
         //IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate);
 
+        T First();
+        T First(Expression<Func<T, bool>> predicate);
         T FirstOrDefault();
         T FirstOrDefault(Expression<Func<T, bool>> predicate);
         List<T> ToList();
 
-        bool Exists();
-        bool Exists(Expression<Func<T, bool>> predicate);
+        bool Any();
+        bool Any(Expression<Func<T, bool>> predicate);
 
         int Count();
         long LongCount();

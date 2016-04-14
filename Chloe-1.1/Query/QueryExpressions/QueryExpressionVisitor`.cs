@@ -28,9 +28,10 @@ namespace Chloe.Query.QueryExpressions
                 case QueryExpressionType.ThenBy:
                 case QueryExpressionType.ThenByDesc:
                     return this.Visit((OrderExpression)exp);
-
                 case QueryExpressionType.Select:
                     return this.Visit((SelectExpression)exp);
+                case QueryExpressionType.Function:
+                    return this.Visit((FunctionExpression)exp);
 
                 default:
                     throw new NotSupportedException(string.Format("Unhandled queryExpression type: '{0}'", exp.NodeType));

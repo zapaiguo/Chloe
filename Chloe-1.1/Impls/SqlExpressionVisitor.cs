@@ -493,6 +493,13 @@ namespace Chloe.Impls
 
         public override ISqlState Visit(DbFunctionExpression exp)
         {
+            if (exp.Method.Name == "Count")
+            {
+                SqlState state = new SqlState(1);
+                state.Append("COUNT(1)");
+                return state;
+            }
+
             throw new NotImplementedException();
         }
 

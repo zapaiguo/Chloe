@@ -15,17 +15,20 @@ namespace Chloe.Query.QueryExpressions
         public TakeExpression(Type elementType, QueryExpression prevExpression, int count)
             : base(QueryExpressionType.Take, elementType, prevExpression)
         {
-            if (count < 0)
-            {
-                throw new ArgumentException("count 小于 0");
-            }
-
+            this.CheckInputCount(count);
             this._count = count;
         }
 
         public int Count
         {
             get { return this._count; }
+        }
+        void CheckInputCount(int count)
+        {
+            if (count < 0)
+            {
+                throw new ArgumentException("count 小于 0");
+            }
         }
 
         public override T Accept<T>(QueryExpressionVisitor<T> visitor)
