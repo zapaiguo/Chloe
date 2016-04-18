@@ -14,46 +14,46 @@ namespace Chloe.Query.Visitors
             return queryExpression.Accept(_reducer);
         }
 
-        protected override IQueryState Visit(RootQueryExpression exp)
+        public override IQueryState Visit(RootQueryExpression exp)
         {
             var queryState = new RootQueryState(exp.ElementType);
             return queryState;
         }
-        protected override IQueryState Visit(WhereExpression exp)
+        public override IQueryState Visit(WhereExpression exp)
         {
-            var prevState = this.Visit(exp.PrevExpression);
+            var prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
-        protected override IQueryState Visit(SelectExpression exp)
+        public override IQueryState Visit(SelectExpression exp)
         {
-            var prevState = this.Visit(exp.PrevExpression);
+            var prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
-        protected override IQueryState Visit(OrderExpression exp)
+        public override IQueryState Visit(OrderExpression exp)
         {
-            var prevState = this.Visit(exp.PrevExpression);
+            var prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
-        protected override IQueryState Visit(TakeExpression exp)
+        public override IQueryState Visit(TakeExpression exp)
         {
-            var prevState = this.Visit(exp.PrevExpression);
-            IQueryState state = prevState.Accept(exp);
-            return state;
-        }
-
-        protected override IQueryState Visit(SkipExpression exp)
-        {
-            var prevState = this.Visit(exp.PrevExpression);
+            var prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
 
-        protected override IQueryState Visit(FunctionExpression exp)
+        public override IQueryState Visit(SkipExpression exp)
         {
-            var prevState = this.Visit(exp.PrevExpression);
+            var prevState = exp.PrevExpression.Accept(this);
+            IQueryState state = prevState.Accept(exp);
+            return state;
+        }
+
+        public override IQueryState Visit(FunctionExpression exp)
+        {
+            var prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }

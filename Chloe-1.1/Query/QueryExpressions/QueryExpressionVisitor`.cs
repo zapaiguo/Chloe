@@ -37,36 +37,36 @@ namespace Chloe.Query.QueryExpressions
                     throw new NotSupportedException(string.Format("Unhandled queryExpression type: '{0}'", exp.NodeType));
             }
         }
-        protected virtual T Visit(RootQueryExpression exp)
+        public virtual T Visit(RootQueryExpression exp)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual T Visit(SelectExpression exp)
+        public virtual T Visit(SelectExpression exp)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual T Visit(WhereExpression exp)
+        public virtual T Visit(WhereExpression exp)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual T Visit(TakeExpression exp)
+        public virtual T Visit(TakeExpression exp)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual T Visit(SkipExpression exp)
+        public virtual T Visit(SkipExpression exp)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual T Visit(OrderExpression exp)
+        public virtual T Visit(OrderExpression exp)
         {
             throw new NotImplementedException();
         }
-        protected virtual T Visit(FunctionExpression exp)
+        public virtual T Visit(FunctionExpression exp)
         {
             throw new NotImplementedException();
         }
