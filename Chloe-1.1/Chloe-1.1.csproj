@@ -166,6 +166,7 @@
     <Compile Include="Query\QueryState\TakeQueryState.cs" />
     <Compile Include="Query\ResultElement.cs" />
     <Compile Include="DbExpressions\DbExpressionVisitor`.cs" />
+    <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />
     <Compile Include="Query\QueryExpressions\QueryExpressionVisitor`.cs" />
     <Compile Include="Query\Visitors\SelectExpressionVisitor.cs" />
