@@ -114,7 +114,10 @@ namespace Chloe.Impls
         }
         public override ISqlState Visit(DbColumnExpression exp)
         {
-            return exp.Accept(this._visitor);
+            SqlState state = new SqlState(3);
+            ISqlState columnState = SqlExpressionVisitor.QuoteName(exp.Alias);
+            state.Append(exp.Body.Accept(this), " AS ", columnState);
+            return state;
         }
 
         public override ISqlState Visit(DbMemberExpression exp)

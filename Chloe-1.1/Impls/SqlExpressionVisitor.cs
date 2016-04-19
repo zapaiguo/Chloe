@@ -330,26 +330,26 @@ namespace Chloe.Impls
         {
             var state = new SqlState(3);
             ISqlState bodyState = exp.Body.Accept(this);
-            state.Append(bodyState, " AS ", this.QuoteName(exp.Alias));
+            state.Append(bodyState, " AS ", QuoteName(exp.Alias));
             return state;
         }
         public override ISqlState Visit(DbDerivedTableExpression exp)
         {
-            ISqlState state = this.QuoteName(exp.TableName);
+            ISqlState state = QuoteName(exp.TableName);
             return state;
         }
 
         public override ISqlState Visit(DbColumnAccessExpression exp)
         {
             var state = new SqlState(3);
-            state.Append(this.QuoteName(exp.Table.Alias), ".", this.QuoteName(exp.ColumnName));
+            state.Append(QuoteName(exp.Table.Alias), ".", QuoteName(exp.ColumnName));
             return state;
         }
         public override ISqlState Visit(DbColumnExpression exp)
         {
             var state = new SqlState();
             ISqlState bodyState = exp.Body.Accept(this);
-            state.Append(bodyState, " AS ", this.QuoteName(exp.Alias));
+            state.Append(bodyState, " AS ", QuoteName(exp.Alias));
             return state;
         }
         public override ISqlState Visit(DbMemberExpression exp)
@@ -405,7 +405,7 @@ namespace Chloe.Impls
         public override ISqlState Visit(DbSubQueryExpression exp)
         {
             ISqlState state = exp.SqlQuery.Accept(this);
-            return this.BracketState(state);
+            return BracketState(state);
         }
         public override ISqlState Visit(DbSqlQueryExpression exp)
         {
@@ -511,21 +511,6 @@ namespace Chloe.Impls
 
             return state;
         }
-        SqlState QuoteName(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentException("name");
-
-            SqlState state = new SqlState(3);
-            state.Append("[", name, "]");
-            return state;
-        }
-        SqlState BracketState(ISqlState state)
-        {
-            var retState = new SqlState(3);
-            retState.Append("(", state, ")");
-            return retState;
-        }
         ISqlState BuildGeneralSqlState(DbSqlQueryExpression exp)
         {
             SqlState retState = null;
@@ -539,8 +524,7 @@ namespace Chloe.Impls
                 if (i > 0)
                     columnsState.Append(",");
 
-                ISqlState columnState = this.QuoteName(column.Alias);
-                columnsState.Append(column.Body.Accept(this._columnExpressionVisitor), " AS ", columnState);
+                columnsState.Append(column.Accept(this._columnExpressionVisitor));
             }
 
             ISqlState fromTableState = exp.Table.Accept(this);
@@ -569,7 +553,7 @@ namespace Chloe.Impls
                 if (i > 0)
                     columnsState.Append(",");
 
-                ISqlState columnState = this.QuoteName(column.Alias);
+                ISqlState columnState = QuoteName(column.Alias);
                 columnsState.Append(column.Body.Accept(this._columnExpressionVisitor), " AS ", columnState);
                 columnStates.Add(columnState);
             }
@@ -588,7 +572,7 @@ namespace Chloe.Impls
 
             string row_numberName = CreateRowNumberName(columns);
 
-            SqlState row_numberNameState = this.QuoteName(row_numberName);
+            SqlState row_numberNameState = QuoteName(row_numberName);
             SqlState row_numberState = new SqlState();
             row_numberState.Append("SELECT ", columnsState, ",ROW_NUMBER() OVER(ORDER BY ", orderState, ") AS ", row_numberNameState, " FROM ", fromTableState);
 
@@ -597,7 +581,7 @@ namespace Chloe.Impls
 
 
             string tableAlias = "T";
-            SqlState tableState_tableAlias = this.QuoteName(tableAlias);
+            SqlState tableState_tableAlias = QuoteName(tableAlias);
 
             SqlState selectedColumnState_TakeSql = new SqlState();
             for (int i = 0; i < columnStates.Count; i++)
@@ -611,7 +595,7 @@ namespace Chloe.Impls
             }
 
             SqlState sqlState = new SqlState();
-            sqlState.Append("SELECT TOP (", exp.TakeCount.ToString(), ") ", selectedColumnState_TakeSql, " FROM ", this.BracketState(row_numberState), " AS ", tableState_tableAlias, " WHERE ", tableState_tableAlias, ".", row_numberNameState, " > ", exp.SkipCount.ToString());
+            sqlState.Append("SELECT TOP (", exp.TakeCount.ToString(), ") ", selectedColumnState_TakeSql, " FROM ", BracketState(row_numberState), " AS ", tableState_tableAlias, " WHERE ", tableState_tableAlias, ".", row_numberNameState, " > ", exp.SkipCount.ToString());
 
             retState = sqlState;
             return retState;
@@ -629,8 +613,7 @@ namespace Chloe.Impls
                 if (i > 0)
                     columnsState.Append(",");
 
-                SqlState columnState = this.QuoteName(column.Alias);
-                columnsState.Append(column.Body.Accept(this._columnExpressionVisitor), " AS ", columnState);
+                columnsState.Append(column.Accept(this._columnExpressionVisitor));
             }
 
             List<DbOrderSegmentExpression> orderParts = exp.Orders;
@@ -661,7 +644,7 @@ namespace Chloe.Impls
                 if (i > 0)
                     columnsState.Append(",");
 
-                SqlState columnState = this.QuoteName(column.Alias);
+                SqlState columnState = QuoteName(column.Alias);
                 columnsState.Append(column.Body.Accept(this._columnExpressionVisitor), " AS ", columnState);
                 columnStates.Add(columnState);
             }
@@ -679,7 +662,7 @@ namespace Chloe.Impls
 
             string row_numberName = CreateRowNumberName(columns);
 
-            SqlState row_numberNameState = this.QuoteName(row_numberName);
+            SqlState row_numberNameState = QuoteName(row_numberName);
             SqlState row_numberState = new SqlState();
             row_numberState.Append("SELECT ", columnsState, ",ROW_NUMBER() OVER(ORDER BY ", orderState, ") AS ", row_numberNameState, " FROM ", fromTableState);
 
@@ -687,7 +670,7 @@ namespace Chloe.Impls
             row_numberState.Append(whereState);
 
             string tableAlias = "T";
-            SqlState tableState_tableAlias = this.QuoteName(tableAlias);
+            SqlState tableState_tableAlias = QuoteName(tableAlias);
 
             SqlState selectedColumnState_TakeSql = new SqlState();
             for (int i = 0; i < columnStates.Count; i++)
@@ -701,7 +684,7 @@ namespace Chloe.Impls
             }
 
             SqlState sqlState = new SqlState();
-            sqlState.Append("SELECT ", selectedColumnState_TakeSql, " FROM ", this.BracketState(row_numberState), " AS ", tableState_tableAlias, " WHERE ", tableState_tableAlias, ".", row_numberNameState, " > ", exp.SkipCount.ToString());
+            sqlState.Append("SELECT ", selectedColumnState_TakeSql, " FROM ", BracketState(row_numberState), " AS ", tableState_tableAlias, " WHERE ", tableState_tableAlias, ".", row_numberNameState, " > ", exp.SkipCount.ToString());
 
             retState = sqlState;
             return retState;
@@ -774,12 +757,6 @@ namespace Chloe.Impls
             state.Append(")");
             return state;
         }
-        static SqlState BuildCastState(object castObject, string targetDbTypeString)
-        {
-            SqlState state = new SqlState(5);
-            state.Append("CAST(", castObject, " AS ", targetDbTypeString, ")");
-            return state;
-        }
 
         public static bool IsConstantConvertToNullableExpression(DbExpression exp)
         {
@@ -796,7 +773,28 @@ namespace Chloe.Impls
 
             return true;
         }
+        public static SqlState QuoteName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentException("name");
 
+            SqlState state = new SqlState(3);
+            state.Append("[", name, "]");
+            return state;
+        }
+        public static SqlState BracketState(ISqlState state)
+        {
+            var retState = new SqlState(3);
+            retState.Append("(", state, ")");
+            return retState;
+        }
+
+        static SqlState BuildCastState(object castObject, string targetDbTypeString)
+        {
+            SqlState state = new SqlState(5);
+            state.Append("CAST(", castObject, " AS ", targetDbTypeString, ")");
+            return state;
+        }
         static string CreateRowNumberName(List<DbColumnExpression> columns)
         {
             int ROW_NUMBER_INDEX = 1;
@@ -895,7 +893,6 @@ namespace Chloe.Impls
 
             return caseWhenExpression;
         }
-
         static Stack<DbExpression> GatherBinaryExpressionOprand(DbBinaryExpression exp)
         {
             DbExpressionType nodeType = exp.NodeType;
@@ -914,7 +911,6 @@ namespace Chloe.Impls
             items.Push(left);
             return items;
         }
-
         static bool IsDateTimeNowAccess(DbMemberExpression exp)
         {
             MemberInfo member = exp.Member;
