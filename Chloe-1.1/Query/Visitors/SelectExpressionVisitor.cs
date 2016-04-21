@@ -5,30 +5,59 @@ using Chloe.Extensions;
 using Chloe.Utility;
 using Chloe.DbExpressions;
 using Chloe.Query.Visitors;
+using System.Collections.Generic;
 
 namespace Chloe.Query
 {
     class SelectExpressionVisitor : ExpressionVisitor<IMappingObjectExpression>
     {
         ExpressionVisitorBase _visitor;
-        IMappingObjectExpression _moe;
-        public SelectExpressionVisitor(ExpressionVisitorBase visitor, IMappingObjectExpression moe)
+        LambdaExpression _lambda;
+        List<IMappingObjectExpression> _moeList;
+        SelectExpressionVisitor(List<IMappingObjectExpression> moeList)
         {
-            this._visitor = visitor;
-            this._moe = moe;
+            this._moeList = moeList;
         }
 
+        public static IMappingObjectExpression VisitSelectExpression(LambdaExpression exp, List<IMappingObjectExpression> moeList)
+        {
+            SelectExpressionVisitor visitor = new SelectExpressionVisitor(moeList);
+            return visitor.Visit(exp);
+        }
+
+        int FindParameterIndex(ParameterExpression exp)
+        {
+            int idx = this._lambda.Parameters.IndexOf(exp);
+            if (idx == -1)
+            {
+                throw new Exception("Can not find the ParameterExpression index");
+            }
+
+            return idx;
+        }
         DbExpression VisistExpression(Expression exp)
         {
             return this._visitor.Visit(exp);
         }
         IMappingObjectExpression VisitNavigationMember(MemberExpression exp)
         {
-            return this._moe.GetNavMemberExpression(exp);
+            ParameterExpression p;
+            if (ExpressionExtensions.IsDerivedFromParameter(exp, out p))
+            {
+                int idx = this.FindParameterIndex(p);
+                IMappingObjectExpression moe = this._moeList[idx];
+                return moe.GetNavMemberExpression(exp);
+            }
+            else
+            {
+                throw new Exception();
+            }
         }
 
         protected override IMappingObjectExpression VisitLambda(LambdaExpression exp)
         {
+            this._lambda = exp;
+            this._visitor = new GeneralExpressionVisitor1(exp, this._moeList);
             return this.Visit(exp.Body);
         }
 
@@ -105,7 +134,9 @@ namespace Chloe.Query
         }
         protected override IMappingObjectExpression VisitParameter(ParameterExpression exp)
         {
-            return this._moe;
+            int idx = this.FindParameterIndex(exp);
+            IMappingObjectExpression moe = this._moeList[idx];
+            return moe;
         }
         protected override IMappingObjectExpression VisitConstant(ConstantExpression exp)
         {

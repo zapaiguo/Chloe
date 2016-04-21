@@ -14,6 +14,19 @@ namespace Chloe.Query.QueryState
             this._elementType = elementType;
         }
 
+        public override FromQueryResult ToFromQueryResult()
+        {
+            if (this.Result.Where == null)
+            {
+                FromQueryResult result = new FromQueryResult();
+                result.FromTable = this.Result.FromTable;
+                result.MappingObjectExpression = this.Result.MappingObjectExpression;
+                return result;
+            }
+
+            return base.ToFromQueryResult();
+        }
+
         static ResultElement CreateResultElement(Type type)
         {
             //TODO init _resultElement

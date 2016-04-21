@@ -1,9 +1,11 @@
-﻿using Chloe.Query.QueryExpressions;
+﻿using Chloe.DbExpressions;
+using Chloe.Query.QueryExpressions;
 using Chloe.Query.QueryState;
+using System.Collections.Generic;
 
 namespace Chloe.Query.Visitors
 {
-    public class QueryExpressionVisitor : QueryExpressionVisitor<IQueryState>
+    class QueryExpressionVisitor : QueryExpressionVisitor<IQueryState>
     {
         static QueryExpressionVisitor _reducer = new QueryExpressionVisitor();
         QueryExpressionVisitor()
@@ -43,19 +45,45 @@ namespace Chloe.Query.Visitors
             IQueryState state = prevState.Accept(exp);
             return state;
         }
-
         public override IQueryState Visit(SkipExpression exp)
         {
             var prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
-
         public override IQueryState Visit(FunctionExpression exp)
         {
             var prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
+        public override IQueryState Visit(JoinQueryExpression exp)
+        {
+            ResultElement resultElement = new ResultElement();
+
+            IQueryState qs = QueryExpressionVisitor.VisitQueryExpression(exp.RootQuery.QueryExpression);
+            FromQueryResult fromQueryResult = qs.ToFromQueryResult();
+
+            DbFromTableExpression fromTable = fromQueryResult.FromTable;
+            resultElement.FromTable = fromTable;
+
+            List<IMappingObjectExpression> moeList = new List<IMappingObjectExpression>();
+            moeList.Add(fromQueryResult.MappingObjectExpression);
+
+            foreach (JoinedQueryInfo joinedQueryInfo in exp.JoinedQueries)
+            {
+                JoinQueryResult joinQueryResult = JoinQueryExpressionVisitor.VisitQueryExpression(joinedQueryInfo.Query.QueryExpression, resultElement, joinedQueryInfo.JoinType, joinedQueryInfo.Condition, moeList);
+
+                fromTable.JoinTables.Add(joinQueryResult.JoinTable);
+                moeList.Add(joinQueryResult.MappingObjectExpression);
+            }
+
+            IMappingObjectExpression moe = SelectExpressionVisitor.VisitSelectExpression(exp.Selector, moeList);
+            resultElement.MappingObjectExpression = moe;
+
+            GeneralQueryState queryState = new GeneralQueryState(resultElement);
+            return queryState;
+        }
+
     }
 }

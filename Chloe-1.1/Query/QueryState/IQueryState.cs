@@ -1,12 +1,19 @@
 ﻿using Chloe.Query.QueryExpressions;
 using Chloe.Query.Mapping;
+using Chloe.Query.Visitors;
+using Chloe.DbExpressions;
+using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace Chloe.Query.QueryState
 {
-    public interface IQueryState
+    interface IQueryState
     {
         ResultElement Result { get; }
         MappingData GenerateMappingData();
+
+        FromQueryResult ToFromQueryResult();
+        JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, DbFromTableExpression fromTable, List<IMappingObjectExpression> moeList, string tableAlias);
 
         IQueryState Accept(WhereExpression exp);
         IQueryState Accept(OrderExpression exp);

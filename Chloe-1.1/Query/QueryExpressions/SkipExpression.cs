@@ -9,7 +9,7 @@ using Chloe.Query.Visitors;
 
 namespace Chloe.Query.QueryExpressions
 {
-    public class SkipExpression : QueryExpression
+    class SkipExpression : QueryExpression
     {
         int _count;
         public SkipExpression(Type elementType, QueryExpression prevExpression, int count)

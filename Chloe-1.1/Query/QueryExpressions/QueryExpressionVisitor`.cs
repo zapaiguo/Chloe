@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.QueryExpressions
 {
-    public abstract class QueryExpressionVisitor<T>
+    abstract class QueryExpressionVisitor<T>
     {
         public virtual T Visit(QueryExpression exp)
         {
@@ -67,6 +67,10 @@ namespace Chloe.Query.QueryExpressions
             throw new NotImplementedException();
         }
         public virtual T Visit(FunctionExpression exp)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual T Visit(JoinQueryExpression exp)
         {
             throw new NotImplementedException();
         }

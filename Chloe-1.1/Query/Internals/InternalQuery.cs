@@ -28,9 +28,10 @@ namespace Chloe.Query.Internals
 
         DbCommandFactor GenerateCommandFactor()
         {
-            DbExpressionVisitorBase visitor = this._dbServiceProvider.CreateDbExpressionVisitor();
             IQueryState qs = QueryExpressionVisitor.VisitQueryExpression(this._query.QueryExpression);
             MappingData data = qs.GenerateMappingData();
+
+            DbExpressionVisitorBase visitor = this._dbServiceProvider.CreateDbExpressionVisitor();
             ISqlState sqlState = data.SqlQuery.Accept(visitor);
 
             IObjectActivtor objectActivtor = data.MappingEntity.CreateObjectActivtor();

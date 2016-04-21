@@ -1,7 +1,7 @@
 ﻿
 namespace Chloe.Query.QueryExpressions
 {
-    public enum QueryExpressionType
+    enum QueryExpressionType
     {
         Root = 1,
         Where,
@@ -14,5 +14,6 @@ namespace Chloe.Query.QueryExpressions
         Select,
         Include,
         Function,
+        JoinQuery,
     }
 }

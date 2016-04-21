@@ -11,33 +11,37 @@ using Chloe.Database;
 using System.Diagnostics;
 using Chloe.Utility;
 using System.Reflection;
+using Chloe.DbExpressions;
 
 namespace Chloe.Query
 {
-    class Query<T> : IQuery<T>//, IQuery
+    class Query<T> : QueryBase, IQuery<T>
     {
         static readonly List<Expression> EmptyParameterList = new List<Expression>(0);
 
         QueryExpression _expression;
-        protected InternalDbSession _dbSession;
-        protected IDbServiceProvider _dbServiceProvider;
+        InternalDbSession _dbSession;
+        IDbServiceProvider _dbServiceProvider;
+
+        protected InternalDbSession DbSession { get { return this._dbSession; } }
+        protected IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
 
         public Query(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider)
             : this(dbSession, dbServiceProvider, new RootQueryExpression(typeof(T)))
         {
 
         }
-        protected Query(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider, QueryExpression exp)
+        public Query(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider, QueryExpression exp)
         {
             this._dbSession = dbSession;
             this._dbServiceProvider = dbServiceProvider;
             this._expression = exp;
         }
 
-        public IQuery<T1> Select<T1>(Expression<Func<T, T1>> selector)
+        public IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector)
         {
-            SelectExpression e = new SelectExpression(typeof(T1), _expression, selector);
-            return new Query<T1>(this._dbSession, this._dbServiceProvider, e);
+            SelectExpression e = new SelectExpression(typeof(TResult), _expression, selector);
+            return new Query<TResult>(this._dbSession, this._dbServiceProvider, e);
         }
 
         public IQuery<T> Where(Expression<Func<T, bool>> predicate)
@@ -66,6 +70,20 @@ namespace Chloe.Query
         {
             OrderExpression e = new OrderExpression(QueryExpressionType.OrderByDesc, typeof(T), this._expression, predicate);
             return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
+        }
+
+        public IJoinedQuery<T, TSource> InnerJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
+        {
+            return new JoinedQuery<T, TSource>(this._dbSession, this._dbServiceProvider, this, (Query<TSource>)q, JoinType.InnerJoin, on);
+            throw new NotImplementedException();
+        }
+        public IJoinedQuery<T, TSource> LeftJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
+        {
+            throw new NotImplementedException();
+        }
+        public IJoinedQuery<T, TSource> RightJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
+        {
+            throw new NotImplementedException();
         }
 
         public T First()
@@ -319,7 +337,7 @@ namespace Chloe.Query
             return iterator.Single();
         }
 
-        public QueryExpression QueryExpression
+        public override QueryExpression QueryExpression
         {
             get { return _expression; }
         }
@@ -342,25 +360,6 @@ namespace Chloe.Query
         {
             InternalQuery<T> internalQuery = this.GenenateIterator();
             return internalQuery.ToString();
-        }
-    }
-
-    internal class OrderedQuery<T> : Query<T>, IOrderedQuery<T>
-    {
-        public OrderedQuery(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider, QueryExpression exp)
-            : base(dbSession, dbServiceProvider, exp)
-        {
-
-        }
-        public IOrderedQuery<T> ThenBy<K>(Expression<Func<T, K>> predicate)
-        {
-            OrderExpression e = new OrderExpression(QueryExpressionType.ThenBy, typeof(T), this.QueryExpression, predicate);
-            return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
-        }
-        public IOrderedQuery<T> ThenByDesc<K>(Expression<Func<T, K>> predicate)
-        {
-            OrderExpression e = new OrderExpression(QueryExpressionType.ThenByDesc, typeof(T), this.QueryExpression, predicate);
-            return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
         }
     }
 }

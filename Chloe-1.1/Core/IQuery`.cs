@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Chloe.Core
 {
-    public interface IQuery<T> //: IQuery//, IEnumerable<T>, IEnumerable
+    public interface IQuery<T> //:   IEnumerable<T>, IEnumerable
     {
-        IQuery<T1> Select<T1>(Expression<Func<T, T1>> selector);
+        IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector);
 
         //IQuery<T> Include<TProperty>(Expression<Func<T, TProperty>> path);
 
@@ -23,6 +23,9 @@ namespace Chloe.Core
         IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate);
 
         //IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate);
+        IJoinedQuery<T, TSource> InnerJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
+        IJoinedQuery<T, TSource> LeftJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
+        IJoinedQuery<T, TSource> RightJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
 
         T First();
         T First(Expression<Func<T, bool>> predicate);

@@ -9,7 +9,7 @@ using Chloe.Query.Visitors;
 
 namespace Chloe.Query.QueryExpressions
 {
-    public class TakeExpression : QueryExpression
+    class TakeExpression : QueryExpression
     {
         int _count;
         public TakeExpression(Type elementType, QueryExpression prevExpression, int count)

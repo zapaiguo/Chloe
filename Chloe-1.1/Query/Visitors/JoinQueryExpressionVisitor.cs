@@ -5,6 +5,7 @@ using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,14 +13,23 @@ namespace Chloe.Query.Visitors
 {
     class JoinQueryExpressionVisitor : QueryExpressionVisitor<JoinQueryResult>
     {
-        JoinType _joinType;
-        DbTableExpression _table;
-        DbTableExpression _relatedTable;
-        DbFromTableExpression _fromTable;
         ResultElement _resultElement;
-        JoinQueryExpressionVisitor(JoinType joinType, DbTableExpression table, DbTableExpression relatedTable)
-        {
+        JoinType _joinType;
 
+        LambdaExpression _conditionExpression;
+        List<IMappingObjectExpression> _moeList;
+        JoinQueryExpressionVisitor(ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, List<IMappingObjectExpression> moeList)
+        {
+            this._resultElement = resultElement;
+            this._joinType = joinType;
+            this._conditionExpression = conditionExpression;
+            this._moeList = moeList;
+        }
+
+        public static JoinQueryResult VisitQueryExpression(QueryExpression queryExpression, ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, List<IMappingObjectExpression> moeList)
+        {
+            JoinQueryExpressionVisitor visitor = new JoinQueryExpressionVisitor(resultElement, joinType, conditionExpression, moeList);
+            return queryExpression.Accept(visitor);
         }
 
         public override JoinQueryResult Visit(RootQueryExpression exp)
@@ -37,12 +47,13 @@ namespace Chloe.Query.Visitors
             }
 
             //TODO 解析 on 条件表达式
-            //var visitor = new GeneralExpressionVisitor(moe);
-            //visitor
-
             DbExpression condition = null;
+            List<IMappingObjectExpression> moeList = new List<IMappingObjectExpression>(this._moeList.Count + 1);
+            moeList.AddRange(this._moeList);
+            moeList.Add(moe);
+            condition = GeneralExpressionVisitor1.VisitPredicate(this._conditionExpression, moeList);
 
-            DbJoinTableExpression joinTable = new DbJoinTableExpression(this._joinType, tableExp, this._relatedTable, this._fromTable, condition);
+            DbJoinTableExpression joinTable = new DbJoinTableExpression(this._joinType, tableExp, this._resultElement.FromTable, condition);
 
             JoinQueryResult result = new JoinQueryResult();
             result.MappingObjectExpression = moe;
@@ -59,7 +70,7 @@ namespace Chloe.Query.Visitors
         }
     }
 
-    class JoinQueryResult
+    public class JoinQueryResult
     {
         public IMappingObjectExpression MappingObjectExpression { get; set; }
         public DbJoinTableExpression JoinTable { get; set; }

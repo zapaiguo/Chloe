@@ -56,8 +56,8 @@
     </Compile>
     <Compile Include="Core\IDbContext.cs" />
     <Compile Include="Core\IGroupingQuery.cs" />
+    <Compile Include="Core\IJoinedQuery`.cs" />
     <Compile Include="Core\IOrderedQuery`.cs" />
-    <Compile Include="Core\IQuery.cs" />
     <Compile Include="Core\IQuery`.cs" />
     <Compile Include="DbExpressions\DbFunctionExpression.cs" />
     <Compile Include="Extensions\DataReaderExtensions.cs" />
@@ -109,7 +109,11 @@
     <Compile Include="DbExpressions\DbParameterExpression.cs" />
     <Compile Include="DbExpressions\DbSubtractExpression.cs" />
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
+    <Compile Include="Query\JoinedQuery`.cs" />
+    <Compile Include="Query\OrderedQuery`.cs" />
+    <Compile Include="Query\QueryBase.cs" />
     <Compile Include="Query\QueryExpressions\FunctionExpression.cs" />
+    <Compile Include="Query\QueryExpressions\JoinQueryExpression.cs" />
     <Compile Include="Query\QueryState\FunctionQueryState.cs" />
     <Compile Include="Query\Visitors\ExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\ExpressionVisitor`.cs" />
@@ -131,9 +135,6 @@
     <Compile Include="Query\Query`.cs" />
     <Compile Include="Query\SqlState.cs" />
     <Compile Include="Query\Visitors\ExpressionVisitorBase.cs" />
-    <Compile Include="Query\Visitors\GeneralExpressionVisitor.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DbExpressions\JoinType.cs" />
     <Compile Include="DbExpressions\OrderType.cs" />
     <Compile Include="Query\QueryExpressions\OrderExpression.cs" />
@@ -166,6 +167,7 @@
     <Compile Include="Query\QueryState\TakeQueryState.cs" />
     <Compile Include="Query\ResultElement.cs" />
     <Compile Include="DbExpressions\DbExpressionVisitor`.cs" />
+    <Compile Include="Query\Visitors\GeneralExpressionVisitor1.cs" />
     <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />
     <Compile Include="Query\QueryExpressions\QueryExpressionVisitor`.cs" />
@@ -174,9 +176,7 @@
     <Compile Include="Utility\UtilConstants.cs" />
     <Compile Include="Utility\Utils.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Query\Implementation\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

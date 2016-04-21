@@ -181,7 +181,17 @@ namespace Chloe.Query
             IMappingObjectExpression ret = null;
             if (!this.SubResultEntities.TryGetValue(memberInfo, out ret))
             {
-                return null;
+                //从构造函数中查
+                ParameterInfo p = null;
+                if (!this.ConstructorDescriptor.MemberParameterMap.TryGetValue(memberInfo, out p))
+                {
+                    return null;
+                }
+
+                if (!this.ConstructorEntityParameters.TryGetValue(p, out ret))
+                {
+                    return null;
+                }
             }
 
             return ret;

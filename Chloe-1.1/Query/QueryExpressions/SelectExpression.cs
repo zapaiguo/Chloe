@@ -4,15 +4,15 @@ using System.Linq.Expressions;
 
 namespace Chloe.Query.QueryExpressions
 {
-    public class SelectExpression : QueryExpression
+    class SelectExpression : QueryExpression
     {
-        Expression _expression;
-        public SelectExpression(Type elementType, QueryExpression prevExpression, Expression predicate)
+        LambdaExpression _expression;
+        public SelectExpression(Type elementType, QueryExpression prevExpression, LambdaExpression predicate)
             : base(QueryExpressionType.Select, elementType, prevExpression)
         {
             this._expression = predicate;
         }
-        public Expression Expression
+        public LambdaExpression Expression
         {
             get { return this._expression; }
         }

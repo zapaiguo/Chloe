@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.QueryExpressions
 {
-    public class FunctionExpression : QueryExpression
+    class FunctionExpression : QueryExpression
     {
-         MethodInfo _method;
+        MethodInfo _method;
         ReadOnlyCollection<Expression> _parameters;
 
         public FunctionExpression(Type elementType, QueryExpression prevExpression, MethodInfo method, List<Expression> parameters)

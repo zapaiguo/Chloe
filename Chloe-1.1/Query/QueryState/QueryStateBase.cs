@@ -13,22 +13,23 @@ namespace Chloe.Query.QueryState
     abstract class QueryStateBase : IQueryState
     {
         ResultElement _resultElement;
-        ExpressionVisitorBase _visitor = null;
+        List<IMappingObjectExpression> _moeList = null;
         protected QueryStateBase(ResultElement resultElement)
         {
             this._resultElement = resultElement;
         }
 
-        protected ExpressionVisitorBase Visitor
+        protected List<IMappingObjectExpression> MoeList
         {
             get
             {
-                if (this._visitor == null)
-                    _visitor = new GeneralExpressionVisitor(this._resultElement.MappingObjectExpression);
+                if (this._moeList == null)
+                    this._moeList = new List<IMappingObjectExpression>(1) { this._resultElement.MappingObjectExpression };
 
-                return this._visitor;
+                return this._moeList;
             }
         }
+
         public virtual ResultElement Result
         {
             get
@@ -39,8 +40,7 @@ namespace Chloe.Query.QueryState
 
         public virtual IQueryState Accept(WhereExpression exp)
         {
-            ExpressionVisitorBase visitor = this.Visitor;
-            var dbExp = visitor.Visit(exp.Expression);
+            var dbExp = GeneralExpressionVisitor1.VisitPredicate(exp.Expression, this.MoeList);
             this._resultElement.UpdateCondition(dbExp);
 
             return this;
@@ -50,8 +50,7 @@ namespace Chloe.Query.QueryState
             if (exp.NodeType == QueryExpressionType.OrderBy || exp.NodeType == QueryExpressionType.OrderByDesc)
                 this._resultElement.OrderSegments.Clear();
 
-            ExpressionVisitorBase visitor = this.Visitor;
-            var r = VisistOrderExpression(visitor, exp);
+            var r = VisistOrderExpression(this.MoeList, exp);
 
             if (this._resultElement.IsFromSubQuery)
             {
@@ -80,12 +79,10 @@ namespace Chloe.Query.QueryState
         }
         public virtual IQueryState Accept(FunctionExpression exp)
         {
-            ExpressionVisitorBase visitor = this.Visitor;
-
             List<DbExpression> dbParameters = new List<DbExpression>(exp.Parameters.Count);
             foreach (Expression pExp in exp.Parameters)
             {
-                var dbExp = visitor.Visit(pExp);
+                var dbExp = GeneralExpressionVisitor1.VisitPredicate((LambdaExpression)pExp, this.MoeList);
                 dbParameters.Add(dbExp);
             }
 
@@ -107,9 +104,7 @@ namespace Chloe.Query.QueryState
             ResultElement result = new ResultElement();
             result.FromTable = this._resultElement.FromTable;
 
-            SelectExpressionVisitor visistor = new SelectExpressionVisitor(this.Visitor, this._resultElement.MappingObjectExpression);
-
-            IMappingObjectExpression r = visistor.Visit(exp.Expression);
+            IMappingObjectExpression r = SelectExpressionVisitor.VisitSelectExpression(exp.Expression, this.MoeList);
             result.MappingObjectExpression = r;
             result.OrderSegments.AddRange(this._resultElement.OrderSegments);
             result.UpdateCondition(this._resultElement.Where);
@@ -198,10 +193,10 @@ namespace Chloe.Query.QueryState
             return sqlQuery;
         }
 
-
-        protected static DbOrderSegmentExpression VisistOrderExpression(ExpressionVisitorBase visitor, OrderExpression orderExp)
+        protected static DbOrderSegmentExpression VisistOrderExpression(List<IMappingObjectExpression> moeList, OrderExpression orderExp)
         {
-            DbExpression dbExpression = visitor.Visit(orderExp.Expression);//解析表达式树 orderExp.Expression
+            DbExpression dbExpression = GeneralExpressionVisitor1.VisitPredicate(orderExp.Expression, moeList);
+            //DbExpression dbExpression = visitor.Visit(orderExp.Expression);//解析表达式树 orderExp.Expression
             OrderType orderType;
             if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.ThenBy)
             {
@@ -218,5 +213,51 @@ namespace Chloe.Query.QueryState
 
             return orderPart;
         }
+
+        public virtual FromQueryResult ToFromQueryResult()
+        {
+            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
+            DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
+
+            DbTableExpression tableExp = new DbTableExpression(subQuery, ResultElement.DefaultTablePrefix);
+            DbFromTableExpression tablePart = new DbFromTableExpression(tableExp);
+
+            IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, tableExp);
+
+            FromQueryResult result = new FromQueryResult();
+            result.FromTable = tablePart;
+            result.MappingObjectExpression = newMoe;
+            return result;
+        }
+
+        public virtual JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, DbFromTableExpression fromTable, List<IMappingObjectExpression> moeList, string tableAlias)
+        {
+            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
+            DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
+
+            string alias = tableAlias;
+            DbTableExpression tableExp = new DbTableExpression(subQuery, alias);
+
+            IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, tableExp);
+
+            List<IMappingObjectExpression> moes = new List<IMappingObjectExpression>(moeList.Count + 1);
+            moes.AddRange(moeList);
+            moes.Add(newMoe);
+            DbExpression condition = GeneralExpressionVisitor1.VisitPredicate(conditionExpression, moes);
+
+            DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType, tableExp, fromTable, condition);
+
+            JoinQueryResult result = new JoinQueryResult();
+            result.MappingObjectExpression = newMoe;
+            result.JoinTable = joinTable;
+            return result;
+        }
+    }
+
+    public class FromQueryResult
+    {
+        public DbFromTableExpression FromTable { get; set; }
+        public IMappingObjectExpression MappingObjectExpression { get; set; }
+        //public DbTableExpression Table { get; set; }
     }
 }

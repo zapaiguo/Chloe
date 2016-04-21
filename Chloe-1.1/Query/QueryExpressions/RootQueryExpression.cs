@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.QueryExpressions
 {
-    public class RootQueryExpression : QueryExpression
+    class RootQueryExpression : QueryExpression
     {
         public RootQueryExpression(Type elementType)
             : base(QueryExpressionType.Root, elementType, null)

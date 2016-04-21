@@ -3,7 +3,7 @@ using System;
 
 namespace Chloe.Query.QueryExpressions
 {
-    public abstract class QueryExpression
+    abstract class QueryExpression
     {
         QueryExpression _prevExpression;
         QueryExpressionType _nodeType;

@@ -14,6 +14,8 @@ namespace Chloe.Query
     /// </summary>
     public class ResultElement
     {
+        public const string DefaultTablePrefix = "T";
+
         public ResultElement()
         {
             this.OrderSegments = new List<DbOrderSegmentExpression>();
@@ -42,7 +44,7 @@ namespace Chloe.Query
                 this.Where = new DbAndExpression(this.Where, whereExpression);
         }
 
-        public string GenerateUniqueTableAlias(string prefix = "T")
+        public string GenerateUniqueTableAlias(string prefix = DefaultTablePrefix)
         {
             if (this.FromTable == null)
                 return prefix;
