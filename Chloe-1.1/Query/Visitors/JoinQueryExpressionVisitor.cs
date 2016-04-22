@@ -1,6 +1,7 @@
 ﻿using Chloe.DbExpressions;
 using Chloe.Descriptors;
 using Chloe.Query.QueryExpressions;
+using Chloe.Query.QueryState;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace Chloe.Query.Visitors
 
         LambdaExpression _conditionExpression;
         List<IMappingObjectExpression> _moeList;
+
         JoinQueryExpressionVisitor(ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, List<IMappingObjectExpression> moeList)
         {
             this._resultElement = resultElement;
@@ -61,7 +63,48 @@ namespace Chloe.Query.Visitors
 
             return result;
         }
+        public override JoinQueryResult Visit(WhereExpression exp)
+        {
+            JoinQueryResult ret = this.Visit(exp);
+            return ret;
+        }
+        public override JoinQueryResult Visit(OrderExpression exp)
+        {
+            JoinQueryResult ret = this.Visit(exp);
+            return ret;
+        }
+        public override JoinQueryResult Visit(SelectExpression exp)
+        {
+            JoinQueryResult ret = this.Visit(exp);
+            return ret;
+        }
+        public override JoinQueryResult Visit(SkipExpression exp)
+        {
+            JoinQueryResult ret = this.Visit(exp);
+            return ret;
+        }
+        public override JoinQueryResult Visit(TakeExpression exp)
+        {
+            JoinQueryResult ret = this.Visit(exp);
+            return ret;
+        }
+        public override JoinQueryResult Visit(FunctionExpression exp)
+        {
+            JoinQueryResult ret = this.Visit(exp);
+            return ret;
+        }
+        public override JoinQueryResult Visit(JoinQueryExpression exp)
+        {
+            JoinQueryResult ret = this.Visit(exp);
+            return ret;
+        }
 
+        JoinQueryResult Visit(QueryExpression exp)
+        {
+            IQueryState state = QueryExpressionVisitor.VisitQueryExpression(exp);
+            JoinQueryResult ret = state.ToJoinQueryResult(this._joinType, this._conditionExpression, this._resultElement.FromTable, this._moeList, this._resultElement.GenerateUniqueTableAlias());
+            return ret;
+        }
         static DbTableExpression CreateTableExpression(string tableName, string alias)
         {
             DbDerivedTableExpression rootTable = new DbDerivedTableExpression(tableName);

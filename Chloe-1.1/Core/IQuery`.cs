@@ -26,6 +26,7 @@ namespace Chloe.Core
         IJoinedQuery<T, TSource> InnerJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
         IJoinedQuery<T, TSource> LeftJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
         IJoinedQuery<T, TSource> RightJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
+        IJoinedQuery<T, TSource> FullJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
 
         T First();
         T First(Expression<Func<T, bool>> predicate);

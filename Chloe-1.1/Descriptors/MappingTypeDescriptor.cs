@@ -97,11 +97,21 @@ namespace Chloe.Descriptors
                 }
             }
 
+            if (this._mappingMemberDescriptors.Values.Where(a => a.IsPrimaryKey).Count() > 1)
+            {
+                throw new Exception(string.Format("实体类型 {0} 存在多个主键", this.EntityType.FullName));
+            }
+            //if (this._mappingMemberDescriptors.Values.Where(a => a.IsAutoIncrement).Count() > 1)
+            //{
+            //    throw new Exception("实体存在多个自增字段");
+            //}
         }
 
         MappingMemberDescriptor ConstructDbFieldDescriptor(MemberInfo member)
         {
             string columnName = null;
+            bool isPrimaryKey = false;
+            bool isAutoIncrement = false;
             var columnFlags = member.GetCustomAttributes(typeof(ColumnAttribute), true);
             if (columnFlags.Length > 0)
             {
@@ -112,11 +122,11 @@ namespace Chloe.Descriptors
                     columnName = member.Name;
                 if (columnFlag.IsAutoIncrement)
                 {
-
+                    isAutoIncrement = true;
                 }
                 if (columnFlag.IsPrimaryKey)
                 {
-
+                    isPrimaryKey = true;
                 }
             }
             else
@@ -133,14 +143,18 @@ namespace Chloe.Descriptors
             {
                 memberDescriptor = new MappingFieldDescriptor((FieldInfo)member, this, columnName);
             }
+
+            memberDescriptor.IsAutoIncrement = isAutoIncrement;
+            memberDescriptor.IsPrimaryKey = isPrimaryKey;
+
             return memberDescriptor;
         }
 
 
         public Type EntityType { get; private set; }
         public string TableName { get; private set; }
-        public List<MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors.Values.ToList(); } }
-        public List<NavigationMemberDescriptor> NavigationMemberDescriptors { get { return this._navigationMemberDescriptors.Values.ToList(); } }
+        public ICollection<MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors.Values; } }
+        public ICollection<NavigationMemberDescriptor> NavigationMemberDescriptors { get { return this._navigationMemberDescriptors.Values; } }
 
         public MappingMemberDescriptor GetMappingMemberDescriptor(string name)
         {

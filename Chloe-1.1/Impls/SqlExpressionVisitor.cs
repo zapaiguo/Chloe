@@ -467,6 +467,14 @@ namespace Chloe.Impls
             {
                 joinString = " RIGHT JOIN ";
             }
+            else if (joinTablePart.JoinType == JoinType.FullJoin)
+            {
+                joinString = " FULL JOIN ";
+            }
+            //else if (joinTablePart.JoinType == JoinType.CrossJoin)
+            //{
+            //    joinString = " CROSS JOIN ";
+            //}
             else
                 throw new NotSupportedException("JoinType: " + joinTablePart.JoinType);
 

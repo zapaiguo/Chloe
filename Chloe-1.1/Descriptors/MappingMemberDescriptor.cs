@@ -12,5 +12,7 @@ namespace Chloe.Descriptors
         }
 
         public string ColumnName { get; private set; }
+        public bool IsPrimaryKey { get; set; }
+        public bool IsAutoIncrement { get; set; }
     }
 }

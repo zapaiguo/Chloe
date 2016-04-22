@@ -5,6 +5,7 @@ namespace Chloe.DbExpressions
     {
         InnerJoin,
         LeftJoin,
-        RightJoin
+        RightJoin,
+        FullJoin
     }
 }

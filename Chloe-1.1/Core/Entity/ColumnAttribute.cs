@@ -10,7 +10,10 @@ namespace Chloe
     public class ColumnAttribute : Attribute
     {
         public ColumnAttribute() { }
-        public ColumnAttribute(string name) { Name = name; }
+        public ColumnAttribute(string name)
+        {
+            this.Name = name;
+        }
         public string Name { get; set; }
         public bool IsAutoIncrement { get; set; }
         public bool IsPrimaryKey { get; set; }

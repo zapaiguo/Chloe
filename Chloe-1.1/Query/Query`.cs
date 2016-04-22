@@ -40,12 +40,14 @@ namespace Chloe.Query
 
         public IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector)
         {
+            Utils.CheckNull(selector);
             SelectExpression e = new SelectExpression(typeof(TResult), _expression, selector);
             return new Query<TResult>(this._dbSession, this._dbServiceProvider, e);
         }
 
         public IQuery<T> Where(Expression<Func<T, bool>> predicate)
         {
+            Utils.CheckNull(predicate);
             WhereExpression e = new WhereExpression(_expression, typeof(T), predicate);
             return new Query<T>(this._dbSession, this._dbServiceProvider, e);
         }
@@ -63,27 +65,40 @@ namespace Chloe.Query
 
         public IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> predicate)
         {
+            Utils.CheckNull(predicate);
             OrderExpression e = new OrderExpression(QueryExpressionType.OrderBy, typeof(T), this._expression, predicate);
             return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
         }
         public IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate)
         {
+            Utils.CheckNull(predicate);
             OrderExpression e = new OrderExpression(QueryExpressionType.OrderByDesc, typeof(T), this._expression, predicate);
             return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
         }
 
         public IJoinedQuery<T, TSource> InnerJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
+            Utils.CheckNull(q);
+            Utils.CheckNull(on);
             return new JoinedQuery<T, TSource>(this._dbSession, this._dbServiceProvider, this, (Query<TSource>)q, JoinType.InnerJoin, on);
-            throw new NotImplementedException();
         }
         public IJoinedQuery<T, TSource> LeftJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
-            throw new NotImplementedException();
+            Utils.CheckNull(q);
+            Utils.CheckNull(on);
+            return new JoinedQuery<T, TSource>(this._dbSession, this._dbServiceProvider, this, (Query<TSource>)q, JoinType.LeftJoin, on);
         }
         public IJoinedQuery<T, TSource> RightJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
-            throw new NotImplementedException();
+            Utils.CheckNull(q);
+            Utils.CheckNull(on);
+            return new JoinedQuery<T, TSource>(this._dbSession, this._dbServiceProvider, this, (Query<TSource>)q, JoinType.RightJoin, on);
+        }
+        public IJoinedQuery<T, TSource> FullJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
+        {
+            Utils.CheckNull(q);
+            Utils.CheckNull(on);
+            return new JoinedQuery<T, TSource>(this._dbSession, this._dbServiceProvider, this, (Query<TSource>)q, JoinType.FullJoin, on);
         }
 
         public T First()
@@ -135,204 +150,244 @@ namespace Chloe.Query
 
         public int Sum(Expression<Func<T, int>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<int> iterator = this.CreateFunctionQuery<int>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public int? Sum(Expression<Func<T, int?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<int?> iterator = this.CreateFunctionQuery<int?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public long Sum(Expression<Func<T, long>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<long> iterator = this.CreateFunctionQuery<long>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public long? Sum(Expression<Func<T, long?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<long?> iterator = this.CreateFunctionQuery<long?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public decimal Sum(Expression<Func<T, decimal>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<decimal> iterator = this.CreateFunctionQuery<decimal>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public decimal? Sum(Expression<Func<T, decimal?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<decimal?> iterator = this.CreateFunctionQuery<decimal?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public double Sum(Expression<Func<T, double>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double> iterator = this.CreateFunctionQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public double? Sum(Expression<Func<T, double?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double?> iterator = this.CreateFunctionQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public float Sum(Expression<Func<T, float>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<float> iterator = this.CreateFunctionQuery<float>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public float? Sum(Expression<Func<T, float?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<float?> iterator = this.CreateFunctionQuery<float?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
 
         public int Max(Expression<Func<T, int>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<int> iterator = this.CreateFunctionQuery<int>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public int? Max(Expression<Func<T, int?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<int?> iterator = this.CreateFunctionQuery<int?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public long Max(Expression<Func<T, long>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<long> iterator = this.CreateFunctionQuery<long>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public long? Max(Expression<Func<T, long?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<long?> iterator = this.CreateFunctionQuery<long?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public decimal Max(Expression<Func<T, decimal>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<decimal> iterator = this.CreateFunctionQuery<decimal>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public decimal? Max(Expression<Func<T, decimal?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<decimal?> iterator = this.CreateFunctionQuery<decimal?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public double Max(Expression<Func<T, double>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double> iterator = this.CreateFunctionQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public double? Max(Expression<Func<T, double?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double?> iterator = this.CreateFunctionQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public float Max(Expression<Func<T, float>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<float> iterator = this.CreateFunctionQuery<float>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public float? Max(Expression<Func<T, float?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<float?> iterator = this.CreateFunctionQuery<float?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
 
         public int Min(Expression<Func<T, int>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<int> iterator = this.CreateFunctionQuery<int>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public int? Min(Expression<Func<T, int?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<int?> iterator = this.CreateFunctionQuery<int?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public long Min(Expression<Func<T, long>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<long> iterator = this.CreateFunctionQuery<long>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public long? Min(Expression<Func<T, long?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<long?> iterator = this.CreateFunctionQuery<long?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public decimal Min(Expression<Func<T, decimal>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<decimal> iterator = this.CreateFunctionQuery<decimal>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public decimal? Min(Expression<Func<T, decimal?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<decimal?> iterator = this.CreateFunctionQuery<decimal?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public double Min(Expression<Func<T, double>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double> iterator = this.CreateFunctionQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public double? Min(Expression<Func<T, double?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double?> iterator = this.CreateFunctionQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public float Min(Expression<Func<T, float>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<float> iterator = this.CreateFunctionQuery<float>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public float? Min(Expression<Func<T, float?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<float?> iterator = this.CreateFunctionQuery<float?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
 
         public double Average(Expression<Func<T, int>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double> iterator = this.CreateFunctionQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public double? Average(Expression<Func<T, int?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double?> iterator = this.CreateFunctionQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public double Average(Expression<Func<T, long>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double> iterator = this.CreateFunctionQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public double? Average(Expression<Func<T, long?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double?> iterator = this.CreateFunctionQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public decimal Average(Expression<Func<T, decimal>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<decimal> iterator = this.CreateFunctionQuery<decimal>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public decimal? Average(Expression<Func<T, decimal?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<decimal?> iterator = this.CreateFunctionQuery<decimal?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public double Average(Expression<Func<T, double>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double> iterator = this.CreateFunctionQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public double? Average(Expression<Func<T, double?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<double?> iterator = this.CreateFunctionQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public float Average(Expression<Func<T, float>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<float> iterator = this.CreateFunctionQuery<float>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }
         public float? Average(Expression<Func<T, float?>> selector)
         {
+            Utils.CheckNull(selector);
             IEnumerable<float?> iterator = this.CreateFunctionQuery<float?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
             return iterator.Single();
         }

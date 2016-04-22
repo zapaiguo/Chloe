@@ -27,25 +27,25 @@ namespace Chloe.Query.Visitors
             IQueryState state = prevState.Accept(exp);
             return state;
         }
-        public override IQueryState Visit(SelectExpression exp)
-        {
-            var prevState = exp.PrevExpression.Accept(this);
-            IQueryState state = prevState.Accept(exp);
-            return state;
-        }
         public override IQueryState Visit(OrderExpression exp)
         {
             var prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
-        public override IQueryState Visit(TakeExpression exp)
+        public override IQueryState Visit(SelectExpression exp)
         {
             var prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
         public override IQueryState Visit(SkipExpression exp)
+        {
+            var prevState = exp.PrevExpression.Accept(this);
+            IQueryState state = prevState.Accept(exp);
+            return state;
+        }
+        public override IQueryState Visit(TakeExpression exp)
         {
             var prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
