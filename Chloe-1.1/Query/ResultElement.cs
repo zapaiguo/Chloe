@@ -8,13 +8,9 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query
 {
-    /// <summary>
-    /// 用于 querystate 与 querystate 之间传递信息，当一个 querystate 传到下个 querystate 时，用该对象传递源表的信息，仅仅包含选取了哪些字段信息和导航属性，以供 querystate 生成相应的 sql 或 mappingcontext 之类的
-    /// 
-    /// </summary>
     public class ResultElement
     {
-        public const string DefaultTablePrefix = "T";
+        public const string DefaultTableAlias = "T";
 
         public ResultElement()
         {
@@ -26,7 +22,7 @@ namespace Chloe.Query
         /// <summary>
         /// 表示当前 OrderParts 集合内的排序是否是从上个 query 继承来的
         /// </summary>
-        public bool IsFromSubQuery { get; set; }
+        public bool IsOrderSegmentsFromSubQuery { get; set; }
 
         public List<DbOrderSegmentExpression> OrderSegments { get; private set; }
 
@@ -44,14 +40,15 @@ namespace Chloe.Query
                 this.Where = new DbAndExpression(this.Where, whereExpression);
         }
 
-        public string GenerateUniqueTableAlias(string prefix = DefaultTablePrefix)
+        public string GenerateUniqueTableAlias(string prefix = DefaultTableAlias)
         {
             if (this.FromTable == null)
                 return prefix;
 
             string alias = prefix;
             int i = 0;
-            while (this.FromTable.ExistTableAlias(alias))
+            DbFromTableExpression fromTable = this.FromTable;
+            while (ExistTableAlias(fromTable, alias))
             {
                 alias = prefix + i.ToString();
                 i++;
@@ -60,5 +57,31 @@ namespace Chloe.Query
             return alias;
         }
 
+        static bool ExistTableAlias(DbFromTableExpression fromTable, string alias)
+        {
+            if (fromTable.Table.Alias == alias)
+                return true;
+
+            foreach (var item in fromTable.JoinTables)
+            {
+                if (ExistTableAlias(item, alias))
+                    return true;
+            }
+
+            return false;
+        }
+        static bool ExistTableAlias(DbJoinTableExpression joinTable, string alias)
+        {
+            if (joinTable.Table.Alias == alias)
+                return true;
+
+            foreach (var item in joinTable.JoinTables)
+            {
+                if (ExistTableAlias(item, alias))
+                    return true;
+            }
+
+            return false;
+        }
     }
 }

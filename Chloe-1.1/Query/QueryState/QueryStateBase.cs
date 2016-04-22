@@ -52,10 +52,10 @@ namespace Chloe.Query.QueryState
 
             var r = VisistOrderExpression(this.MoeList, exp);
 
-            if (this._resultElement.IsFromSubQuery)
+            if (this._resultElement.IsOrderSegmentsFromSubQuery)
             {
                 this._resultElement.OrderSegments.Clear();
-                this._resultElement.IsFromSubQuery = false;
+                this._resultElement.IsOrderSegmentsFromSubQuery = false;
             }
 
             this._resultElement.OrderSegments.Add(r);
@@ -176,7 +176,7 @@ namespace Chloe.Query.QueryState
                 }
             }
 
-            result.IsFromSubQuery = true;
+            result.IsOrderSegmentsFromSubQuery = true;
 
             GeneralQueryState queryState = new GeneralQueryState(result);
             return queryState;
@@ -219,7 +219,7 @@ namespace Chloe.Query.QueryState
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
-            DbTableExpression tableExp = new DbTableExpression(subQuery, ResultElement.DefaultTablePrefix);
+            DbTableExpression tableExp = new DbTableExpression(subQuery, ResultElement.DefaultTableAlias);
             DbFromTableExpression tablePart = new DbFromTableExpression(tableExp);
 
             IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, tableExp);

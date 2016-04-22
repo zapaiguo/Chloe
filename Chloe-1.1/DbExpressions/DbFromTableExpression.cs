@@ -16,20 +16,6 @@ namespace Chloe.DbExpressions
 
         public List<DbJoinTableExpression> JoinTables { get { return this._joinTables; } }
 
-        public bool ExistTableAlias(string alias)
-        {
-            if (this.Table.Alias == alias)
-                return true;
-
-            foreach (var item in this.JoinTables)
-            {
-                if (item.ExistTableAlias(alias))
-                    return true;
-            }
-
-            return false;
-        }
-
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {
             return visitor.Visit(this);
