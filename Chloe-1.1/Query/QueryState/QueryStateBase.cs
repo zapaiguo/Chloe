@@ -40,7 +40,7 @@ namespace Chloe.Query.QueryState
 
         public virtual IQueryState Accept(WhereExpression exp)
         {
-            var dbExp = GeneralExpressionVisitor1.VisitPredicate(exp.Expression, this.MoeList);
+            var dbExp = GeneralExpressionVisitor.VisitPredicate(exp.Expression, this.MoeList);
             this._resultElement.UpdateCondition(dbExp);
 
             return this;
@@ -82,7 +82,7 @@ namespace Chloe.Query.QueryState
             List<DbExpression> dbParameters = new List<DbExpression>(exp.Parameters.Count);
             foreach (Expression pExp in exp.Parameters)
             {
-                var dbExp = GeneralExpressionVisitor1.VisitPredicate((LambdaExpression)pExp, this.MoeList);
+                var dbExp = GeneralExpressionVisitor.VisitPredicate((LambdaExpression)pExp, this.MoeList);
                 dbParameters.Add(dbExp);
             }
 
@@ -195,7 +195,7 @@ namespace Chloe.Query.QueryState
 
         protected static DbOrderSegmentExpression VisistOrderExpression(List<IMappingObjectExpression> moeList, OrderExpression orderExp)
         {
-            DbExpression dbExpression = GeneralExpressionVisitor1.VisitPredicate(orderExp.Expression, moeList);
+            DbExpression dbExpression = GeneralExpressionVisitor.VisitPredicate(orderExp.Expression, moeList);
             //DbExpression dbExpression = visitor.Visit(orderExp.Expression);//解析表达式树 orderExp.Expression
             OrderType orderType;
             if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.ThenBy)
@@ -243,7 +243,7 @@ namespace Chloe.Query.QueryState
             List<IMappingObjectExpression> moes = new List<IMappingObjectExpression>(moeList.Count + 1);
             moes.AddRange(moeList);
             moes.Add(newMoe);
-            DbExpression condition = GeneralExpressionVisitor1.VisitPredicate(conditionExpression, moes);
+            DbExpression condition = GeneralExpressionVisitor.VisitPredicate(conditionExpression, moes);
 
             DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType, tableExp, fromTable, condition);
 

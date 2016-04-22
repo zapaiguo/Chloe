@@ -57,7 +57,7 @@ namespace Chloe.Query
         protected override IMappingObjectExpression VisitLambda(LambdaExpression exp)
         {
             this._lambda = exp;
-            this._visitor = new GeneralExpressionVisitor1(exp, this._moeList);
+            this._visitor = new GeneralExpressionVisitor(exp, this._moeList);
             return this.Visit(exp.Body);
         }
 

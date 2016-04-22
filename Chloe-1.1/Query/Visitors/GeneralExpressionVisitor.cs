@@ -10,23 +10,23 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.Visitors
 {
-    internal class GeneralExpressionVisitor1 : ExpressionVisitorBase
+    internal class GeneralExpressionVisitor : ExpressionVisitorBase
     {
         LambdaExpression _lambda;
         List<IMappingObjectExpression> _moeList;
 
-        GeneralExpressionVisitor1(List<IMappingObjectExpression> moeList)
+        GeneralExpressionVisitor(List<IMappingObjectExpression> moeList)
         {
             this._moeList = moeList;
         }
-        public GeneralExpressionVisitor1(LambdaExpression lambda, List<IMappingObjectExpression> moeList)
+        public GeneralExpressionVisitor(LambdaExpression lambda, List<IMappingObjectExpression> moeList)
         {
             this._lambda = lambda;
             this._moeList = moeList;
         }
         public static DbExpression VisitPredicate(LambdaExpression lambda, List<IMappingObjectExpression> moeList)
         {
-            var visitor = new GeneralExpressionVisitor1(moeList);
+            var visitor = new GeneralExpressionVisitor(moeList);
             return visitor.Visit(lambda);
         }
 

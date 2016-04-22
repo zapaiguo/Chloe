@@ -56,7 +56,7 @@ namespace Chloe.Query.Visitors
             List<IMappingObjectExpression> moeList = new List<IMappingObjectExpression>(this._moeList.Count + 1);
             moeList.AddRange(this._moeList);
             moeList.Add(moe);
-            condition = GeneralExpressionVisitor1.VisitPredicate(this._conditionExpression, moeList);
+            condition = GeneralExpressionVisitor.VisitPredicate(this._conditionExpression, moeList);
 
             DbJoinTableExpression joinTable = new DbJoinTableExpression(this._joinType, tableExp, this._resultElement.FromTable, condition);
 
