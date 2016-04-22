@@ -46,6 +46,9 @@ namespace Chloe.Query.Visitors
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(item.MemberType, tableExp, item.ColumnName);
                 moe.AddMemberExpression(item.MemberInfo, columnAccessExpression);
+
+                if (item.IsPrimaryKey)
+                    moe.PrimaryKey = columnAccessExpression;
             }
 
             //TODO 解析 on 条件表达式

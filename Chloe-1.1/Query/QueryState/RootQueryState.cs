@@ -41,7 +41,10 @@ namespace Chloe.Query.QueryState
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(item.MemberType, tableExp, item.ColumnName);
+
                 moe.AddMemberExpression(item.MemberInfo, columnAccessExpression);
+                if (item.IsPrimaryKey)
+                    moe.PrimaryKey = columnAccessExpression;
             }
 
             resultElement.MappingObjectExpression = moe;

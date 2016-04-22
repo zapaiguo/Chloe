@@ -12,13 +12,13 @@ namespace Chloe.Query.Mapping
     {
         public MappingEntity(EntityConstructorDescriptor constructorDescriptor)
         {
-            //this.EntityType = constructor.DeclaringType;
             this.ConstructorDescriptor = constructorDescriptor;
             this.ConstructorParameters = new Dictionary<ParameterInfo, int>();
             this.ConstructorEntityParameters = new Dictionary<ParameterInfo, IObjectActivtorCreator>();
             this.Members = new Dictionary<MemberInfo, int>();
             this.EntityMembers = new Dictionary<MemberInfo, IObjectActivtorCreator>();
         }
+        public int? CheckNullOrdinal { get; set; }
         public EntityConstructorDescriptor ConstructorDescriptor { get; private set; }
         public Dictionary<ParameterInfo, int> ConstructorParameters { get; private set; }
         public Dictionary<ParameterInfo, IObjectActivtorCreator> ConstructorEntityParameters { get; private set; }
@@ -55,7 +55,7 @@ namespace Chloe.Query.Mapping
             List<int> readerOrdinals = this.ConstructorParameters.Select(a => a.Value).ToList();
             List<IObjectActivtor> objectActivtors = this.ConstructorEntityParameters.Select(a => a.Value.CreateObjectActivtor()).ToList();
 
-            ObjectActivtor ret = new ObjectActivtor(instanceCreator, readerOrdinals, objectActivtors, memberSetters);
+            ObjectActivtor ret = new ObjectActivtor(instanceCreator, readerOrdinals, objectActivtors, memberSetters, this.CheckNullOrdinal);
 
             return ret;
         }

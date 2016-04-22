@@ -127,6 +127,9 @@ namespace Chloe.Query
             this.SelectedMembers = new Dictionary<MemberInfo, DbExpression>();
             this.SubResultEntities = new Dictionary<MemberInfo, IMappingObjectExpression>();
         }
+
+        public DbExpression PrimaryKey { get; set; }
+
         /// <summary>
         /// 返回类型
         /// </summary>
@@ -316,6 +319,10 @@ namespace Chloe.Query
                 {
                     ordinal = columnList.IndexOf(dbColumnExp);
                 }
+
+                if (exp == this.PrimaryKey)
+                    mappingEntity.CheckNullOrdinal = ordinal;
+
                 mappingEntity.Members.Add(member, ordinal);
             }
 
@@ -370,6 +377,10 @@ namespace Chloe.Query
                 columnList.Add(columnExp);
                 DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, tableExp, alias);
                 moe.AddMemberExpression(member, cae);
+
+                if (exp == this.PrimaryKey)
+                    this.PrimaryKey = cae;
+
             }
 
             foreach (var kv in mappingMembers.SubResultEntities)
