@@ -9,7 +9,6 @@ namespace Chloe.Query.QueryState
 {
     interface IQueryState
     {
-        ResultElement Result { get; }
         MappingData GenerateMappingData();
 
         FromQueryResult ToFromQueryResult();
