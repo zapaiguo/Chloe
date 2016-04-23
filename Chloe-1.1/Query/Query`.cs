@@ -23,8 +23,8 @@ namespace Chloe.Query
         InternalDbSession _dbSession;
         IDbServiceProvider _dbServiceProvider;
 
-        protected InternalDbSession DbSession { get { return this._dbSession; } }
-        protected IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
+        public InternalDbSession DbSession { get { return this._dbSession; } }
+        public IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
 
         public Query(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider)
             : this(dbSession, dbServiceProvider, new RootQueryExpression(typeof(T)))
@@ -51,18 +51,6 @@ namespace Chloe.Query
             WhereExpression e = new WhereExpression(_expression, typeof(T), predicate);
             return new Query<T>(this._dbSession, this._dbServiceProvider, e);
         }
-
-        public IQuery<T> Skip(int count)
-        {
-            SkipExpression e = new SkipExpression(typeof(T), this._expression, count);
-            return new Query<T>(this._dbSession, this._dbServiceProvider, e);
-        }
-        public IQuery<T> Take(int count)
-        {
-            TakeExpression e = new TakeExpression(typeof(T), this._expression, count);
-            return new Query<T>(this._dbSession, this._dbServiceProvider, e);
-        }
-
         public IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> predicate)
         {
             Utils.CheckNull(predicate);
@@ -74,6 +62,22 @@ namespace Chloe.Query
             Utils.CheckNull(predicate);
             OrderExpression e = new OrderExpression(QueryExpressionType.OrderByDesc, typeof(T), this._expression, predicate);
             return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
+        }
+        public IQuery<T> Skip(int count)
+        {
+            SkipExpression e = new SkipExpression(typeof(T), this._expression, count);
+            return new Query<T>(this._dbSession, this._dbServiceProvider, e);
+        }
+        public IQuery<T> Take(int count)
+        {
+            TakeExpression e = new TakeExpression(typeof(T), this._expression, count);
+            return new Query<T>(this._dbSession, this._dbServiceProvider, e);
+        }
+
+        public IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate)
+        {
+            Utils.CheckNull(predicate);
+            return new GroupingQuery<T>(this, predicate);
         }
 
         public IJoinedQuery<T, TSource> InnerJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)

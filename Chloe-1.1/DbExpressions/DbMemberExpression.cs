@@ -11,7 +11,7 @@ namespace Chloe.DbExpressions
         public DbMemberExpression(MemberInfo member, DbExpression exp)
             : base(DbExpressionType.MemberAccess)
         {
-            if (member.MemberType != MemberTypes.Property || member.MemberType != MemberTypes.Field)
+            if (member.MemberType != MemberTypes.Property && member.MemberType != MemberTypes.Field)
                 throw new ArgumentException();
 
             this._member = member;

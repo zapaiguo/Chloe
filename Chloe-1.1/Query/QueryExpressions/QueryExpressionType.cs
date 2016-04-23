@@ -15,5 +15,6 @@ namespace Chloe.Query.QueryExpressions
         Include,
         Function,
         JoinQuery,
+        GroupingQuery,
     }
 }

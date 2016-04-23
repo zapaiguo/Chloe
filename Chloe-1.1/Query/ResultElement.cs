@@ -15,6 +15,7 @@ namespace Chloe.Query
         public ResultElement()
         {
             this.OrderSegments = new List<DbOrderSegmentExpression>();
+            this.GroupSegments = new List<DbExpression>();
         }
 
         public IMappingObjectExpression MappingObjectExpression { get; set; }
@@ -25,20 +26,30 @@ namespace Chloe.Query
         public bool IsOrderSegmentsFromSubQuery { get; set; }
 
         public List<DbOrderSegmentExpression> OrderSegments { get; private set; }
+        public List<DbExpression> GroupSegments { get; private set; }
 
         /// <summary>
         /// 如 takequery 了以后，则 table 的 Expression 类似 (select T.Id.. from User as T),Alias 则为新生成的
         /// </summary>
         public DbFromTableExpression FromTable { get; set; }
-        public DbExpression Where { get; private set; }
+        public DbExpression Condition { get; set; }
+        public DbExpression HavingCondition { get; set; }
 
-        public void UpdateCondition(DbExpression whereExpression)
+        public void AppendCondition(DbExpression condition)
         {
-            if (this.Where == null)
-                this.Where = whereExpression;
+            if (this.Condition == null)
+                this.Condition = condition;
             else
-                this.Where = new DbAndExpression(this.Where, whereExpression);
+                this.Condition = new DbAndExpression(this.Condition, condition);
         }
+        public void AppendHavingCondition(DbExpression condition)
+        {
+            if (this.HavingCondition == null)
+                this.HavingCondition = condition;
+            else
+                this.HavingCondition = new DbAndExpression(this.HavingCondition, condition);
+        }
+
 
         public string GenerateUniqueTableAlias(string prefix = DefaultTableAlias)
         {

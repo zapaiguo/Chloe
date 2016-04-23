@@ -109,13 +109,16 @@
     <Compile Include="DbExpressions\DbParameterExpression.cs" />
     <Compile Include="DbExpressions\DbSubtractExpression.cs" />
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
+    <Compile Include="Query\GroupingQuery.cs" />
     <Compile Include="Query\JoinedQueryInfo.cs" />
     <Compile Include="Query\JoinedQuery`.cs" />
     <Compile Include="Query\OrderedQuery`.cs" />
     <Compile Include="Query\QueryBase.cs" />
     <Compile Include="Query\QueryExpressions\FunctionExpression.cs" />
+    <Compile Include="Query\QueryExpressions\GroupingQueryExpression.cs" />
     <Compile Include="Query\QueryExpressions\JoinQueryExpression.cs" />
     <Compile Include="Query\QueryState\FunctionQueryState.cs" />
+    <Compile Include="Query\QueryState\GroupingQueryState.cs" />
     <Compile Include="Query\Visitors\ExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\ExpressionVisitor`.cs" />
     <Compile Include="Query\IMappingObjectExpression.cs" />

@@ -41,7 +41,7 @@ namespace Chloe.Query.QueryState
         public virtual IQueryState Accept(WhereExpression exp)
         {
             var dbExp = GeneralExpressionVisitor.VisitPredicate(exp.Expression, this.MoeList);
-            this._resultElement.UpdateCondition(dbExp);
+            this._resultElement.AppendCondition(dbExp);
 
             return this;
         }
@@ -64,7 +64,7 @@ namespace Chloe.Query.QueryState
         }
         public virtual IQueryState Accept(SelectExpression exp)
         {
-            ResultElement result = this.CreateNewResult(exp);
+            ResultElement result = this.CreateNewResult(exp.Expression);
             return this.CreateQueryState(result);
         }
         public virtual IQueryState Accept(SkipExpression exp)
@@ -93,21 +93,42 @@ namespace Chloe.Query.QueryState
 
             result.MappingObjectExpression = mfe;
             result.FromTable = this._resultElement.FromTable;
-            result.UpdateCondition(this._resultElement.Where);
+            result.AppendCondition(this._resultElement.Condition);
 
             FunctionQueryState state = new FunctionQueryState(result);
             return state;
         }
+        public virtual IQueryState Accept(GroupingQueryExpression exp)
+        {
+            List<IMappingObjectExpression> moeList = this.MoeList;
+            foreach (var item in exp.GroupPredicates)
+            {
+                var dbExp = GeneralExpressionVisitor.VisitPredicate(item, moeList);
+                this._resultElement.GroupSegments.Add(dbExp);
+            }
 
-        public virtual ResultElement CreateNewResult(SelectExpression exp)
+            foreach (var item in exp.HavingPredicates)
+            {
+                var dbExp = GeneralExpressionVisitor.VisitPredicate(item, moeList);
+                this._resultElement.AppendHavingCondition(dbExp);
+            }
+
+            var newResult = this.CreateNewResult(exp.Selector);
+            return this.CreateQueryState(newResult);
+        }
+
+        public virtual ResultElement CreateNewResult(LambdaExpression selector)
         {
             ResultElement result = new ResultElement();
             result.FromTable = this._resultElement.FromTable;
 
-            IMappingObjectExpression r = SelectExpressionVisitor.VisitSelectExpression(exp.Expression, this.MoeList);
+            IMappingObjectExpression r = SelectExpressionVisitor.VisitSelectExpression(selector, this.MoeList);
             result.MappingObjectExpression = r;
             result.OrderSegments.AddRange(this._resultElement.OrderSegments);
-            result.UpdateCondition(this._resultElement.Where);
+            result.AppendCondition(this._resultElement.Condition);
+
+            result.GroupSegments.AddRange(this._resultElement.GroupSegments);
+            result.AppendHavingCondition(this._resultElement.HavingCondition);
 
             return result;
         }
@@ -184,11 +205,13 @@ namespace Chloe.Query.QueryState
         public virtual DbSqlQueryExpression CreateSqlQuery()
         {
             DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
-            var tablePart = this._resultElement.FromTable;
 
-            sqlQuery.Table = tablePart;
-            sqlQuery.Orders.AddRange(this._resultElement.OrderSegments);
-            sqlQuery.UpdateWhereExpression(this._resultElement.Where);
+            sqlQuery.Table = this._resultElement.FromTable;
+            sqlQuery.OrderSegments.AddRange(this._resultElement.OrderSegments);
+            sqlQuery.Condition = this._resultElement.Condition;
+
+            sqlQuery.GroupSegments.AddRange(this._resultElement.GroupSegments);
+            sqlQuery.HavingCondition = this._resultElement.HavingCondition;
 
             return sqlQuery;
         }
@@ -196,7 +219,6 @@ namespace Chloe.Query.QueryState
         protected static DbOrderSegmentExpression VisistOrderExpression(List<IMappingObjectExpression> moeList, OrderExpression orderExp)
         {
             DbExpression dbExpression = GeneralExpressionVisitor.VisitPredicate(orderExp.Expression, moeList);
-            //DbExpression dbExpression = visitor.Visit(orderExp.Expression);//解析表达式树 orderExp.Expression
             OrderType orderType;
             if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.ThenBy)
             {

@@ -101,6 +101,11 @@ namespace Chloe.Query.Visitors
             JoinQueryResult ret = this.Visit(exp);
             return ret;
         }
+        public override JoinQueryResult Visit(GroupingQueryExpression exp)
+        {
+            JoinQueryResult ret = this.Visit(exp);
+            return ret;
+        }
 
         JoinQueryResult Visit(QueryExpression exp)
         {

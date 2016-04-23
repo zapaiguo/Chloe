@@ -10,7 +10,7 @@ namespace Chloe.Query.QueryState
 
         public override FromQueryResult ToFromQueryResult()
         {
-            if (this.Result.Where == null)
+            if (this.Result.Condition == null)
             {
                 FromQueryResult result = new FromQueryResult();
                 result.FromTable = this.Result.FromTable;

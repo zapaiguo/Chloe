@@ -61,7 +61,7 @@ namespace Chloe.Query.Visitors
         {
             ResultElement resultElement = new ResultElement();
 
-            IQueryState qs = QueryExpressionVisitor.VisitQueryExpression(exp.RootQuery.QueryExpression);
+            IQueryState qs = QueryExpressionVisitor.VisitQueryExpression(exp.PrevExpression);
             FromQueryResult fromQueryResult = qs.ToFromQueryResult();
 
             DbFromTableExpression fromTable = fromQueryResult.FromTable;
@@ -84,6 +84,11 @@ namespace Chloe.Query.Visitors
             GeneralQueryState queryState = new GeneralQueryState(resultElement);
             return queryState;
         }
-
+        public override IQueryState Visit(GroupingQueryExpression exp)
+        {
+            var prevState = exp.PrevExpression.Accept(this);
+            IQueryState state = prevState.Accept(exp);
+            return state;
+        }
     }
 }

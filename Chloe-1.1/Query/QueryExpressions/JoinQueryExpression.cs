@@ -10,19 +10,16 @@ namespace Chloe.Query.QueryExpressions
 {
     class JoinQueryExpression : QueryExpression
     {
-        QueryBase _rootQuery;
         List<JoinedQueryInfo> _joinedQueries;
         LambdaExpression _selector;
-        public JoinQueryExpression(QueryBase rootQuery, List<JoinedQueryInfo> joinedQueries, LambdaExpression selector)
-            : base(QueryExpressionType.JoinQuery, null, null)
+        public JoinQueryExpression(Type elementType, QueryExpression prevExpression, List<JoinedQueryInfo> joinedQueries, LambdaExpression selector)
+            : base(QueryExpressionType.JoinQuery, elementType, prevExpression)
         {
-            this._rootQuery = rootQuery;
             this._joinedQueries = new List<JoinedQueryInfo>(joinedQueries.Count);
             this._joinedQueries.AddRange(joinedQueries);
             this._selector = selector;
         }
 
-        public QueryBase RootQuery { get { return this._rootQuery; } }
         public List<JoinedQueryInfo> JoinedQueries { get { return this._joinedQueries; } }
         public LambdaExpression Selector { get { return this._selector; } }
 

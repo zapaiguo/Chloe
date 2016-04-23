@@ -540,8 +540,33 @@ namespace Chloe.Impls
             SqlState sqlState = new SqlState();
             sqlState.Append("SELECT ", columnsState, " FROM ", fromTableState);
 
-            SqlState whereState = this.BuildWhereState(exp.Where);
-            SqlState orderState = this.BuildOrderState(exp.Orders);
+            SqlState whereState = this.BuildWhereState(exp.Condition);
+
+            var groupSegments = exp.GroupSegments;
+            if (groupSegments.Count > 0)
+            {
+                SqlState groupPartState = new SqlState();
+                groupPartState.Append(" GROUP BY ");
+
+                for (int i = 0; i < groupSegments.Count; i++)
+                {
+                    if (i > 0)
+                        groupPartState.Append(",");
+
+                    groupPartState.Append(groupSegments[i].Accept(this));
+                }
+
+                sqlState.Append(groupPartState);
+
+                if (exp.HavingCondition != null)
+                {
+                    sqlState.Append(" HAVING ");
+                    sqlState.Append(exp.HavingCondition.Accept(this));
+                }
+            }
+
+
+            SqlState orderState = this.BuildOrderState(exp.OrderSegments);
             sqlState.Append(whereState);
             sqlState.Append(orderState);
 
@@ -566,7 +591,7 @@ namespace Chloe.Impls
                 columnStates.Add(columnState);
             }
 
-            List<DbOrderSegmentExpression> orderParts = exp.Orders;
+            List<DbOrderSegmentExpression> orderParts = exp.OrderSegments;
             if (orderParts.Count == 0)
             {
                 DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(_tempDbParameterExpression, OrderType.Asc);
@@ -584,7 +609,7 @@ namespace Chloe.Impls
             SqlState row_numberState = new SqlState();
             row_numberState.Append("SELECT ", columnsState, ",ROW_NUMBER() OVER(ORDER BY ", orderState, ") AS ", row_numberNameState, " FROM ", fromTableState);
 
-            SqlState whereState = this.BuildWhereState(exp.Where);
+            SqlState whereState = this.BuildWhereState(exp.Condition);
             row_numberState.Append(whereState);
 
 
@@ -624,14 +649,14 @@ namespace Chloe.Impls
                 columnsState.Append(column.Accept(this._columnExpressionVisitor));
             }
 
-            List<DbOrderSegmentExpression> orderParts = exp.Orders;
+            List<DbOrderSegmentExpression> orderParts = exp.OrderSegments;
 
             ISqlState fromTableState = exp.Table.Accept(this);
 
             SqlState sqlState = new SqlState();
             sqlState.Append("SELECT TOP (", exp.TakeCount.Value.ToString(), ") ", columnsState, " FROM ", fromTableState);
 
-            SqlState whereState = this.BuildWhereState(exp.Where);
+            SqlState whereState = this.BuildWhereState(exp.Condition);
             SqlState orderState = this.BuildOrderState(orderParts);
             sqlState.Append(whereState);
             sqlState.Append(orderState);
@@ -657,7 +682,7 @@ namespace Chloe.Impls
                 columnStates.Add(columnState);
             }
 
-            List<DbOrderSegmentExpression> orderParts = exp.Orders;
+            List<DbOrderSegmentExpression> orderParts = exp.OrderSegments;
             if (orderParts.Count == 0)
             {
                 DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(_tempDbParameterExpression, OrderType.Asc);
@@ -674,7 +699,7 @@ namespace Chloe.Impls
             SqlState row_numberState = new SqlState();
             row_numberState.Append("SELECT ", columnsState, ",ROW_NUMBER() OVER(ORDER BY ", orderState, ") AS ", row_numberNameState, " FROM ", fromTableState);
 
-            SqlState whereState = this.BuildWhereState(exp.Where);
+            SqlState whereState = this.BuildWhereState(exp.Condition);
             row_numberState.Append(whereState);
 
             string tableAlias = "T";

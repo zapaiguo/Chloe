@@ -35,7 +35,7 @@ namespace Chloe.Query.QueryState
 
         public override IQueryState Accept(SelectExpression exp)
         {
-            ResultElement result = this.CreateNewResult(exp);
+            ResultElement result = this.CreateNewResult(exp.Expression);
             return this.CreateQueryState(result);
         }
         public override IQueryState Accept(SkipExpression exp)
@@ -61,10 +61,8 @@ namespace Chloe.Query.QueryState
 
         public override DbSqlQueryExpression CreateSqlQuery()
         {
-            DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
-            sqlQuery.Table = this.Result.FromTable;
-            sqlQuery.Where = this.Result.Where;
-            sqlQuery.Orders.AddRange(this.Result.OrderSegments);
+            DbSqlQueryExpression sqlQuery = base.CreateSqlQuery();
+
             sqlQuery.TakeCount = null;
             sqlQuery.SkipCount = this.Count;
 

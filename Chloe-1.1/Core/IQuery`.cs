@@ -12,17 +12,13 @@ namespace Chloe.Core
     {
         IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector);
 
-        //IQuery<T> Include<TProperty>(Expression<Func<T, TProperty>> path);
-
         IQuery<T> Where(Expression<Func<T, bool>> predicate);
-
+        IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> predicate);
+        IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate);
         IQuery<T> Skip(int count);
         IQuery<T> Take(int count);
 
-        IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> predicate);
-        IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate);
-
-        //IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate);
+        IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate);
         IJoinedQuery<T, TSource> InnerJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
         IJoinedQuery<T, TSource> LeftJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
         IJoinedQuery<T, TSource> RightJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);

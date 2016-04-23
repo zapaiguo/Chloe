@@ -1,6 +1,7 @@
 ﻿using Chloe.DbExpressions;
 using Chloe.Query.QueryExpressions;
 using System;
+using System.Linq.Expressions;
 
 namespace Chloe.Query.QueryState
 {
@@ -49,7 +50,7 @@ namespace Chloe.Query.QueryState
 
         public override IQueryState Accept(SelectExpression exp)
         {
-            ResultElement result = this.CreateNewResult(exp);
+            ResultElement result = this.CreateNewResult(exp.Expression);
             return this.CreateQueryState(result);
         }
 
@@ -67,10 +68,8 @@ namespace Chloe.Query.QueryState
 
         public override DbSqlQueryExpression CreateSqlQuery()
         {
-            DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
-            sqlQuery.Table = this.Result.FromTable;
-            sqlQuery.Where = this.Result.Where;
-            sqlQuery.Orders.AddRange(this.Result.OrderSegments);
+            DbSqlQueryExpression sqlQuery = base.CreateSqlQuery();
+
             sqlQuery.TakeCount = this.TakeCount;
             sqlQuery.SkipCount = this.SkipCount;
 
