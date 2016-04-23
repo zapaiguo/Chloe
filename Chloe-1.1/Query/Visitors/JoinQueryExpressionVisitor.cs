@@ -120,10 +120,4 @@ namespace Chloe.Query.Visitors
             return tableExp;
         }
     }
-
-    public class JoinQueryResult
-    {
-        public IMappingObjectExpression MappingObjectExpression { get; set; }
-        public DbJoinTableExpression JoinTable { get; set; }
-    }
 }

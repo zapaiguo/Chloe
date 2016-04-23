@@ -64,7 +64,7 @@ namespace Chloe.Query.QueryState
         }
         public virtual IQueryState Accept(SelectExpression exp)
         {
-            ResultElement result = this.CreateNewResult(exp.Expression);
+            ResultElement result = this.CreateNewResult(exp.Selector);
             return this.CreateQueryState(result);
         }
         public virtual IQueryState Accept(SkipExpression exp)
@@ -114,7 +114,7 @@ namespace Chloe.Query.QueryState
             }
 
             var newResult = this.CreateNewResult(exp.Selector);
-            return this.CreateQueryState(newResult);
+            return new GroupingQueryState(newResult);
         }
 
         public virtual ResultElement CreateNewResult(LambdaExpression selector)
@@ -274,12 +274,5 @@ namespace Chloe.Query.QueryState
             result.JoinTable = joinTable;
             return result;
         }
-    }
-
-    public class FromQueryResult
-    {
-        public DbFromTableExpression FromTable { get; set; }
-        public IMappingObjectExpression MappingObjectExpression { get; set; }
-        //public DbTableExpression Table { get; set; }
     }
 }

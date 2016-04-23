@@ -379,7 +379,7 @@ namespace Chloe.Query
                 moe.AddMemberExpression(member, cae);
 
                 if (exp == this.PrimaryKey)
-                    this.PrimaryKey = cae;
+                    moe.PrimaryKey = cae;
 
             }
 

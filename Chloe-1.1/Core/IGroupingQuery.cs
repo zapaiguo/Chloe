@@ -12,7 +12,5 @@ namespace Chloe.Core
         IGroupingQuery<T> ThenBy<K>(Expression<Func<T, K>> predicate);
         IGroupingQuery<T> Having(Expression<Func<T, bool>> predicate);
         IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector);
-        //IOrderedGroupingQuery<T> OrderByAsc<K>(Expression<Func<T, K>> predicate);
-        //IOrderedGroupingQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate);
     }
 }

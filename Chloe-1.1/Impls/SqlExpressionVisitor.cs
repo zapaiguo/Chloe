@@ -541,33 +541,15 @@ namespace Chloe.Impls
             sqlState.Append("SELECT ", columnsState, " FROM ", fromTableState);
 
             SqlState whereState = this.BuildWhereState(exp.Condition);
+            sqlState.Append(whereState);
 
-            var groupSegments = exp.GroupSegments;
-            if (groupSegments.Count > 0)
+            if (exp.GroupSegments.Count > 0)
             {
-                SqlState groupPartState = new SqlState();
-                groupPartState.Append(" GROUP BY ");
-
-                for (int i = 0; i < groupSegments.Count; i++)
-                {
-                    if (i > 0)
-                        groupPartState.Append(",");
-
-                    groupPartState.Append(groupSegments[i].Accept(this));
-                }
-
+                SqlState groupPartState = this.BuildGroupState(exp);
                 sqlState.Append(groupPartState);
-
-                if (exp.HavingCondition != null)
-                {
-                    sqlState.Append(" HAVING ");
-                    sqlState.Append(exp.HavingCondition.Accept(this));
-                }
             }
 
-
             SqlState orderState = this.BuildOrderState(exp.OrderSegments);
-            sqlState.Append(whereState);
             sqlState.Append(orderState);
 
             retState = sqlState;
@@ -612,6 +594,11 @@ namespace Chloe.Impls
             SqlState whereState = this.BuildWhereState(exp.Condition);
             row_numberState.Append(whereState);
 
+            if (exp.GroupSegments.Count > 0)
+            {
+                SqlState groupPartState = this.BuildGroupState(exp);
+                row_numberState.Append(groupPartState);
+            }
 
             string tableAlias = "T";
             SqlState tableState_tableAlias = QuoteName(tableAlias);
@@ -657,8 +644,15 @@ namespace Chloe.Impls
             sqlState.Append("SELECT TOP (", exp.TakeCount.Value.ToString(), ") ", columnsState, " FROM ", fromTableState);
 
             SqlState whereState = this.BuildWhereState(exp.Condition);
-            SqlState orderState = this.BuildOrderState(orderParts);
             sqlState.Append(whereState);
+
+            if (exp.GroupSegments.Count > 0)
+            {
+                SqlState groupPartState = this.BuildGroupState(exp);
+                sqlState.Append(groupPartState);
+            }
+
+            SqlState orderState = this.BuildOrderState(orderParts);
             sqlState.Append(orderState);
 
             retState = sqlState;
@@ -702,6 +696,12 @@ namespace Chloe.Impls
             SqlState whereState = this.BuildWhereState(exp.Condition);
             row_numberState.Append(whereState);
 
+            if (exp.GroupSegments.Count > 0)
+            {
+                SqlState groupPartState = this.BuildGroupState(exp);
+                row_numberState.Append(groupPartState);
+            }
+
             string tableAlias = "T";
             SqlState tableState_tableAlias = QuoteName(tableAlias);
 
@@ -724,12 +724,8 @@ namespace Chloe.Impls
         }
         SqlState BuildWhereState(DbExpression whereExpression)
         {
-            SqlState whereState;
-            if (whereExpression == null)
-            {
-                whereState = new SqlState();
-            }
-            else
+            SqlState whereState = null;
+            if (whereExpression != null)
             {
                 whereState = new SqlState(2);
                 whereState.Append(" WHERE ", whereExpression.Accept(this));
@@ -739,13 +735,9 @@ namespace Chloe.Impls
         }
         SqlState BuildOrderState(List<DbOrderSegmentExpression> orderSegments)
         {
-            SqlState orderState = new SqlState();
+            SqlState orderState = null;
 
-            if (orderSegments.Count == 0)
-            {
-                orderState = new SqlState();
-            }
-            else
+            if (orderSegments.Count > 0)
             {
                 orderState = new SqlState(2);
                 orderState.Append(" ORDER BY ", this.ConcatOrderSegments(orderSegments));
@@ -769,7 +761,29 @@ namespace Chloe.Impls
 
             return state;
         }
+        SqlState BuildGroupState(DbSqlQueryExpression exp)
+        {
+            SqlState groupPartState = null;
+            var groupSegments = exp.GroupSegments;
+            groupPartState = new SqlState(2 + groupSegments.Count + (exp.HavingCondition != null ? 2 : 0));
+            groupPartState.Append(" GROUP BY ");
 
+            for (int i = 0; i < groupSegments.Count; i++)
+            {
+                if (i > 0)
+                    groupPartState.Append(",");
+
+                groupPartState.Append(groupSegments[i].Accept(this));
+            }
+
+            if (exp.HavingCondition != null)
+            {
+                groupPartState.Append(" HAVING ");
+                groupPartState.Append(exp.HavingCondition.Accept(this));
+            }
+
+            return groupPartState;
+        }
 
         ISqlState ConcatOprands(Stack<DbExpression> oprands, string connector)
         {

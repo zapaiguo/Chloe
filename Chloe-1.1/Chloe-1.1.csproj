@@ -109,9 +109,11 @@
     <Compile Include="DbExpressions\DbParameterExpression.cs" />
     <Compile Include="DbExpressions\DbSubtractExpression.cs" />
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
+    <Compile Include="Query\FromQueryResult.cs" />
     <Compile Include="Query\GroupingQuery.cs" />
     <Compile Include="Query\JoinedQueryInfo.cs" />
     <Compile Include="Query\JoinedQuery`.cs" />
+    <Compile Include="Query\JoinQueryResult.cs" />
     <Compile Include="Query\OrderedQuery`.cs" />
     <Compile Include="Query\QueryBase.cs" />
     <Compile Include="Query\QueryExpressions\FunctionExpression.cs" />

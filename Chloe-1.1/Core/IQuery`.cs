@@ -19,6 +19,7 @@ namespace Chloe.Core
         IQuery<T> Take(int count);
 
         IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate);
+
         IJoinedQuery<T, TSource> InnerJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
         IJoinedQuery<T, TSource> LeftJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
         IJoinedQuery<T, TSource> RightJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);

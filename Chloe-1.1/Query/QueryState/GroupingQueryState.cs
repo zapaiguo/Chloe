@@ -1,4 +1,5 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.Query.QueryExpressions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,24 +10,26 @@ namespace Chloe.Query.QueryState
 {
     class GroupingQueryState : QueryStateBase
     {
-        //List<DbExpression> _groupSegments;
-        //DbExpression _havingCondition;
-        public GroupingQueryState(ResultElement resultElement, List<DbExpression> groupSegments, DbExpression havingCondition)
+        public GroupingQueryState(ResultElement resultElement)
             : base(resultElement)
         {
-            //this._groupSegments = groupSegments;
-            //this._havingCondition = havingCondition;
         }
 
-        //public override DbSqlQueryExpression CreateSqlQuery()
-        //{
-        //    DbSqlQueryExpression sqlQuery = base.CreateSqlQuery();
 
-        //    sqlQuery.GroupSegments.AddRange(this._groupSegments);
-        //    sqlQuery.HavingCondition = this._havingCondition;
-
-        //    return sqlQuery;
-        //}
-
+        public override IQueryState Accept(WhereExpression exp)
+        {
+            IQueryState state = this.AsSubQueryState();
+            return state.Accept(exp);
+        }
+        public override IQueryState Accept(FunctionExpression exp)
+        {
+            IQueryState state = this.AsSubQueryState();
+            return state.Accept(exp);
+        }
+        public override IQueryState Accept(GroupingQueryExpression exp)
+        {
+            IQueryState state = this.AsSubQueryState();
+            return state.Accept(exp);
+        }
     }
 }
