@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chloe
+namespace Chloe.Query
 {
     public static class DbFunction
     {
