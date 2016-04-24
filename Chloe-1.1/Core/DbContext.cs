@@ -15,6 +15,9 @@ namespace Chloe
         InternalDbSession _dbSession;
         IDbServiceProvider _dbServiceProvider;
 
+        internal InternalDbSession DbSession { get { return this._dbSession; } }
+        internal IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
+
         protected DbContext(IDbServiceProvider dbServiceProvider)
         {
             Utils.CheckNull(dbServiceProvider, "dbServiceProvider");
@@ -28,7 +31,7 @@ namespace Chloe
 
         public virtual IQuery<T> Query<T>() where T : new()
         {
-            return new Query<T>(this._dbSession, this._dbServiceProvider);
+            return new Query<T>(this);
         }
 
         public virtual T Insert<T>(T entity)

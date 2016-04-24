@@ -16,14 +16,10 @@ namespace Chloe.Query.Internals
     public class InternalQuery<T> : IEnumerable<T>, IEnumerable
     {
         Query<T> _query;
-        InternalDbSession _dbSession;
-        IDbServiceProvider _dbServiceProvider;
 
-        internal InternalQuery(Query<T> query, InternalDbSession dbSession, IDbServiceProvider dbServiceProvider)
+        internal InternalQuery(Query<T> query)
         {
             this._query = query;
-            this._dbSession = dbSession;
-            this._dbServiceProvider = dbServiceProvider;
         }
 
         DbCommandFactor GenerateCommandFactor()
@@ -31,7 +27,7 @@ namespace Chloe.Query.Internals
             IQueryState qs = QueryExpressionVisitor.VisitQueryExpression(this._query.QueryExpression);
             MappingData data = qs.GenerateMappingData();
 
-            DbExpressionVisitorBase visitor = this._dbServiceProvider.CreateDbExpressionVisitor();
+            DbExpressionVisitorBase visitor = this._query.DbContext.DbServiceProvider.CreateDbExpressionVisitor();
             ISqlState sqlState = data.SqlQuery.Accept(visitor);
 
             IObjectActivtor objectActivtor = data.MappingEntity.CreateObjectActivtor();
@@ -50,7 +46,7 @@ namespace Chloe.Query.Internals
             Debug.WriteLine(commandFactor.CommandText);
 #endif
 
-            var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(this._dbSession, commandFactor);
+            var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(this._query.DbContext.DbSession, commandFactor);
             return enumerator;
         }
         IEnumerator IEnumerable.GetEnumerator()

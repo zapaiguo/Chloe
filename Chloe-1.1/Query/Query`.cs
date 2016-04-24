@@ -19,22 +19,19 @@ namespace Chloe.Query
     {
         static readonly List<Expression> EmptyParameterList = new List<Expression>(0);
 
+        DbContext _dbContext;
         QueryExpression _expression;
-        InternalDbSession _dbSession;
-        IDbServiceProvider _dbServiceProvider;
 
-        public InternalDbSession DbSession { get { return this._dbSession; } }
-        public IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
+        public DbContext DbContext { get { return this._dbContext; } }
 
-        public Query(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider)
-            : this(dbSession, dbServiceProvider, new RootQueryExpression(typeof(T)))
+        public Query(DbContext dbContext)
+            : this(dbContext, new RootQueryExpression(typeof(T)))
         {
 
         }
-        public Query(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider, QueryExpression exp)
+        public Query(DbContext dbContext, QueryExpression exp)
         {
-            this._dbSession = dbSession;
-            this._dbServiceProvider = dbServiceProvider;
+            this._dbContext = dbContext;
             this._expression = exp;
         }
 
@@ -42,36 +39,36 @@ namespace Chloe.Query
         {
             Utils.CheckNull(selector);
             SelectExpression e = new SelectExpression(typeof(TResult), _expression, selector);
-            return new Query<TResult>(this._dbSession, this._dbServiceProvider, e);
+            return new Query<TResult>(this._dbContext, e);
         }
 
         public IQuery<T> Where(Expression<Func<T, bool>> predicate)
         {
             Utils.CheckNull(predicate);
             WhereExpression e = new WhereExpression(_expression, typeof(T), predicate);
-            return new Query<T>(this._dbSession, this._dbServiceProvider, e);
+            return new Query<T>(this._dbContext, e);
         }
         public IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> predicate)
         {
             Utils.CheckNull(predicate);
             OrderExpression e = new OrderExpression(QueryExpressionType.OrderBy, typeof(T), this._expression, predicate);
-            return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
+            return new OrderedQuery<T>(this._dbContext, e);
         }
         public IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate)
         {
             Utils.CheckNull(predicate);
             OrderExpression e = new OrderExpression(QueryExpressionType.OrderByDesc, typeof(T), this._expression, predicate);
-            return new OrderedQuery<T>(this._dbSession, this._dbServiceProvider, e);
+            return new OrderedQuery<T>(this._dbContext, e);
         }
         public IQuery<T> Skip(int count)
         {
             SkipExpression e = new SkipExpression(typeof(T), this._expression, count);
-            return new Query<T>(this._dbSession, this._dbServiceProvider, e);
+            return new Query<T>(this._dbContext, e);
         }
         public IQuery<T> Take(int count)
         {
             TakeExpression e = new TakeExpression(typeof(T), this._expression, count);
-            return new Query<T>(this._dbSession, this._dbServiceProvider, e);
+            return new Query<T>(this._dbContext, e);
         }
 
         public IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate)
@@ -84,25 +81,25 @@ namespace Chloe.Query
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoinedQuery<T, TSource>(this._dbSession, this._dbServiceProvider, this, (Query<TSource>)q, JoinType.InnerJoin, on);
+            return new JoinedQuery<T, TSource>(this, (Query<TSource>)q, JoinType.InnerJoin, on);
         }
         public IJoinedQuery<T, TSource> LeftJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoinedQuery<T, TSource>(this._dbSession, this._dbServiceProvider, this, (Query<TSource>)q, JoinType.LeftJoin, on);
+            return new JoinedQuery<T, TSource>(this, (Query<TSource>)q, JoinType.LeftJoin, on);
         }
         public IJoinedQuery<T, TSource> RightJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoinedQuery<T, TSource>(this._dbSession, this._dbServiceProvider, this, (Query<TSource>)q, JoinType.RightJoin, on);
+            return new JoinedQuery<T, TSource>(this, (Query<TSource>)q, JoinType.RightJoin, on);
         }
         public IJoinedQuery<T, TSource> FullJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoinedQuery<T, TSource>(this._dbSession, this._dbServiceProvider, this, (Query<TSource>)q, JoinType.FullJoin, on);
+            return new JoinedQuery<T, TSource>(this, (Query<TSource>)q, JoinType.FullJoin, on);
         }
 
         public T First()
@@ -404,13 +401,13 @@ namespace Chloe.Query
 
         InternalQuery<T> GenenateIterator()
         {
-            InternalQuery<T> internalQuery = new InternalQuery<T>(this, this._dbSession, this._dbServiceProvider);
+            InternalQuery<T> internalQuery = new InternalQuery<T>(this);
             return internalQuery;
         }
         InternalQuery<T1> CreateFunctionQuery<T1>(MethodInfo method, List<Expression> parameters)
         {
             FunctionExpression e = new FunctionExpression(typeof(T1), this._expression, method, parameters);
-            var q = new Query<T1>(this._dbSession, this._dbServiceProvider, e);
+            var q = new Query<T1>(this._dbContext, e);
             InternalQuery<T1> iterator = q.GenenateIterator();
             return iterator;
         }

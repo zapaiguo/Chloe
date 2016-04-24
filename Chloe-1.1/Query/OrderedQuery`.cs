@@ -13,20 +13,20 @@ namespace Chloe.Query
 {
     class OrderedQuery<T> : Query<T>, IOrderedQuery<T>
     {
-        public OrderedQuery(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider, QueryExpression exp)
-            : base(dbSession, dbServiceProvider, exp)
+        public OrderedQuery(DbContext dbContext, QueryExpression exp)
+            : base(dbContext, exp)
         {
 
         }
         public IOrderedQuery<T> ThenBy<K>(Expression<Func<T, K>> predicate)
         {
             OrderExpression e = new OrderExpression(QueryExpressionType.ThenBy, typeof(T), this.QueryExpression, predicate);
-            return new OrderedQuery<T>(this.DbSession, this.DbServiceProvider, e);
+            return new OrderedQuery<T>(this.DbContext, e);
         }
         public IOrderedQuery<T> ThenByDesc<K>(Expression<Func<T, K>> predicate)
         {
             OrderExpression e = new OrderExpression(QueryExpressionType.ThenByDesc, typeof(T), this.QueryExpression, predicate);
-            return new OrderedQuery<T>(this.DbSession, this.DbServiceProvider, e);
+            return new OrderedQuery<T>(this.DbContext, e);
         }
     }
 }

@@ -16,21 +16,18 @@ namespace Chloe.Query
 {
     class JoinedQuery<T1, T2> : IJoinedQuery<T1, T2>
     {
-        InternalDbSession _dbSession;
-        IDbServiceProvider _dbServiceProvider;
+        DbContext _dbContext;
 
         QueryBase _rootQuery;
         List<JoinedQueryInfo> _joinedQueries;
 
-        public InternalDbSession DbSession { get { return this._dbSession; } }
-        public IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
+        public DbContext DbContext { get { return this._dbContext; } }
         public QueryBase RootQuery { get { return this._rootQuery; } }
         public List<JoinedQueryInfo> JoinedQueries { get { return this._joinedQueries; } }
 
-        public JoinedQuery(InternalDbSession dbSession, IDbServiceProvider dbServiceProvider, Query<T1> q1, Query<T2> q2, JoinType joinType, Expression<Func<T1, T2, bool>> on)
+        public JoinedQuery(Query<T1> q1, Query<T2> q2, JoinType joinType, Expression<Func<T1, T2, bool>> on)
         {
-            this._dbSession = dbSession;
-            this._dbServiceProvider = dbServiceProvider;
+            this._dbContext = q1.DbContext;
             this._rootQuery = q1;
             this._joinedQueries = new List<JoinedQueryInfo>(1);
 
@@ -57,27 +54,24 @@ namespace Chloe.Query
         public IQuery<TResult> Select<TResult>(Expression<Func<T1, T2, TResult>> selector)
         {
             JoinQueryExpression e = new JoinQueryExpression(typeof(TResult), this._rootQuery.QueryExpression, this._joinedQueries, selector);
-            return new Query<TResult>(this._dbSession, this._dbServiceProvider, e);
+            return new Query<TResult>(this.DbContext, e);
         }
     }
 
     class JoinedQuery<T1, T2, T3> : IJoinedQuery<T1, T2, T3>
     {
-        InternalDbSession _dbSession;
-        IDbServiceProvider _dbServiceProvider;
+        DbContext _dbContext;
 
         QueryBase _rootQuery;
         List<JoinedQueryInfo> _joinedQueries;
 
-        public InternalDbSession DbSession { get { return this._dbSession; } }
-        public IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
+        public DbContext DbContext { get { return this._dbContext; } }
         public QueryBase RootQuery { get { return this._rootQuery; } }
         public List<JoinedQueryInfo> JoinedQueries { get { return this._joinedQueries; } }
 
         public JoinedQuery(JoinedQuery<T1, T2> joinedQuery, Query<T3> q, JoinType joinType, Expression<Func<T1, T2, T3, bool>> on)
         {
-            this._dbSession = joinedQuery.DbSession;
-            this._dbServiceProvider = joinedQuery.DbServiceProvider;
+            this._dbContext = joinedQuery.DbContext;
             this._rootQuery = joinedQuery.RootQuery;
             this._joinedQueries = new List<JoinedQueryInfo>(joinedQuery.JoinedQueries.Count);
 
@@ -107,27 +101,24 @@ namespace Chloe.Query
         public IQuery<TResult> Select<TResult>(Expression<Func<T1, T2, T3, TResult>> selector)
         {
             JoinQueryExpression e = new JoinQueryExpression(typeof(TResult), this._rootQuery.QueryExpression, this._joinedQueries, selector);
-            return new Query<TResult>(this._dbSession, this._dbServiceProvider, e);
+            return new Query<TResult>(this.DbContext, e);
         }
     }
 
     class JoinedQuery<T1, T2, T3, T4> : IJoinedQuery<T1, T2, T3, T4>
     {
-        InternalDbSession _dbSession;
-        IDbServiceProvider _dbServiceProvider;
+        DbContext _dbContext;
 
         QueryBase _rootQuery;
         List<JoinedQueryInfo> _joinedQueries;
 
-        public InternalDbSession DbSession { get { return this._dbSession; } }
-        public IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
+        public DbContext DbContext { get { return this._dbContext; } }
         public QueryBase RootQuery { get { return this._rootQuery; } }
         public List<JoinedQueryInfo> JoinedQueries { get { return this._joinedQueries; } }
 
         public JoinedQuery(JoinedQuery<T1, T2, T3> joinedQuery, Query<T4> q, JoinType joinType, Expression<Func<T1, T2, T3, T4, bool>> on)
         {
-            this._dbSession = joinedQuery.DbSession;
-            this._dbServiceProvider = joinedQuery.DbServiceProvider;
+            this._dbContext = joinedQuery.DbContext;
             this._rootQuery = joinedQuery.RootQuery;
             this._joinedQueries = new List<JoinedQueryInfo>(joinedQuery.JoinedQueries.Count);
 
@@ -157,27 +148,24 @@ namespace Chloe.Query
         public IQuery<TResult> Select<TResult>(Expression<Func<T1, T2, T3, T4, TResult>> selector)
         {
             JoinQueryExpression e = new JoinQueryExpression(typeof(TResult), this._rootQuery.QueryExpression, this._joinedQueries, selector);
-            return new Query<TResult>(this._dbSession, this._dbServiceProvider, e);
+            return new Query<TResult>(this.DbContext, e);
         }
     }
 
     class JoinedQuery<T1, T2, T3, T4, T5> : IJoinedQuery<T1, T2, T3, T4, T5>
     {
-        InternalDbSession _dbSession;
-        IDbServiceProvider _dbServiceProvider;
+        DbContext _dbContext;
 
         QueryBase _rootQuery;
         List<JoinedQueryInfo> _joinedQueries;
 
-        public InternalDbSession DbSession { get { return this._dbSession; } }
-        public IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
+        public DbContext DbContext { get { return this._dbContext; } }
         public QueryBase RootQuery { get { return this._rootQuery; } }
         public List<JoinedQueryInfo> JoinedQueries { get { return this._joinedQueries; } }
 
         public JoinedQuery(JoinedQuery<T1, T2, T3, T4> joinedQuery, Query<T5> q, JoinType joinType, Expression<Func<T1, T2, T3, T4, T5, bool>> on)
         {
-            this._dbSession = joinedQuery.DbSession;
-            this._dbServiceProvider = joinedQuery.DbServiceProvider;
+            this._dbContext = joinedQuery.DbContext;
             this._rootQuery = joinedQuery.RootQuery;
             this._joinedQueries = new List<JoinedQueryInfo>(joinedQuery.JoinedQueries.Count);
 
@@ -190,7 +178,7 @@ namespace Chloe.Query
         public IQuery<TResult> Select<TResult>(Expression<Func<T1, T2, T3, T4, T5, TResult>> selector)
         {
             JoinQueryExpression e = new JoinQueryExpression(typeof(TResult), this._rootQuery.QueryExpression, this._joinedQueries, selector);
-            return new Query<TResult>(this._dbSession, this._dbServiceProvider, e);
+            return new Query<TResult>(this.DbContext, e);
         }
     }
 
