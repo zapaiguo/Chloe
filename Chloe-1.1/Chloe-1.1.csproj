@@ -60,6 +60,7 @@
     <Compile Include="Core\IOrderedQuery`.cs" />
     <Compile Include="Core\IQuery`.cs" />
     <Compile Include="DbExpressions\DbFunctionExpression.cs" />
+    <Compile Include="DbFunction.cs" />
     <Compile Include="Extensions\DataReaderExtensions.cs" />
     <Compile Include="Extensions\DbExpressionExtensions.cs" />
     <Compile Include="Extensions\DeriveType.cs" />

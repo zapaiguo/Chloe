@@ -73,6 +73,15 @@ namespace Chloe.Impls
             cSharpType_DbType_Mappings.Add(typeof(double), "FLOAT");
             cSharpType_DbType_Mappings.Add(typeof(float), "REAL");
             cSharpType_DbType_Mappings.Add(typeof(bool), "BIT");
+
+            cSharpType_DbType_Mappings.Add(typeof(Int16?), "SMALLINT");
+            cSharpType_DbType_Mappings.Add(typeof(int?), "INT");
+            cSharpType_DbType_Mappings.Add(typeof(long?), "BIGINT");
+            cSharpType_DbType_Mappings.Add(typeof(decimal?), "DECIMAL");
+            cSharpType_DbType_Mappings.Add(typeof(double?), "FLOAT");
+            cSharpType_DbType_Mappings.Add(typeof(float?), "REAL");
+            cSharpType_DbType_Mappings.Add(typeof(bool?), "BIT");
+
             CSharpType_DbType_Mappings = cSharpType_DbType_Mappings;
 
 
@@ -186,10 +195,17 @@ namespace Chloe.Impls
 
         public override ISqlState Visit(DbConvertExpression exp)
         {
-            Type unType = Nullable.GetUnderlyingType(exp.Type);
-            if (unType != null)//可空类型转换，无视
+            if (exp.Type.IsEnum)
             {
                 return EnsureDbExpressionReturnCSharpBoolean(exp.Operand).Accept(this);
+            }
+
+            Type unType = Nullable.GetUnderlyingType(exp.Type);
+
+            if (unType != null)//可空类型转换，无视
+            {
+                if (unType == exp.Operand.Type || unType.IsEnum)
+                    return EnsureDbExpressionReturnCSharpBoolean(exp.Operand).Accept(this);
             }
 
             //非可空类型
@@ -966,7 +982,7 @@ namespace Chloe.Impls
         static void EnsureMethodDeclaringType(DbMethodCallExpression exp, Type ensureType)
         {
             MethodInfo method = exp.Method;
-            if (method.DeclaringType != TypeOfString)
+            if (method.DeclaringType != ensureType)
                 throw new NotSupportedException(exp.Method.Name);
         }
 
@@ -983,6 +999,13 @@ namespace Chloe.Impls
             methodHandlers.Add("EndsWith", Method_EndsWith);
             methodHandlers.Add("Contains", Method_Contains);
             methodHandlers.Add("IsNullOrEmpty", Method_IsNullOrEmpty);
+
+            methodHandlers.Add("Count", Method_Count);
+            methodHandlers.Add("LongCount", Method_LongCount);
+            methodHandlers.Add("Sum", Method_Sum);
+            methodHandlers.Add("Max", Method_Max);
+            methodHandlers.Add("Min", Method_Min);
+            methodHandlers.Add("Average", Method_Average);
 
             var ret = new Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>>(methodHandlers.Count, StringComparer.Ordinal);
             foreach (var item in methodHandlers)
@@ -1149,6 +1172,38 @@ namespace Chloe.Impls
             return state;
         }
 
+        static ISqlState Method_Count(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            return Func_Count();
+        }
+        static ISqlState Method_LongCount(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            return Func_LongCount();
+        }
+        static ISqlState Method_Sum(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            return Func_Sum(exp.Arguments.First(), visitor);
+        }
+        static ISqlState Method_Max(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            return Func_Max(exp.Arguments.First(), visitor);
+        }
+        static ISqlState Method_Min(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            return Func_Min(exp.Arguments.First(), visitor);
+        }
+        static ISqlState Method_Average(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            ISqlState state = Func_Average(exp.Arguments.First(), visitor);
+
+            string dbTypeString;
+            if (CSharpType_DbType_Mappings.TryGetValue(exp.Type, out dbTypeString))
+            {
+                state = BuildCastState(state, dbTypeString);
+            }
+
+            return state;
+        }
 
         #endregion
 
@@ -1174,38 +1229,27 @@ namespace Chloe.Impls
 
         static ISqlState Func_Count(DbFunctionExpression exp, SqlExpressionVisitor visitor)
         {
-            SqlState state = new SqlState(1);
-            state.Append("COUNT(1)");
-            return state;
+            return Func_Count();
         }
         static ISqlState Func_LongCount(DbFunctionExpression exp, SqlExpressionVisitor visitor)
         {
-            SqlState state = new SqlState(1);
-            state.Append("COUNT_BIG(1)");
-            return state;
+            return Func_LongCount();
         }
         static ISqlState Func_Sum(DbFunctionExpression exp, SqlExpressionVisitor visitor)
         {
-            SqlState state = new SqlState(3);
-            state.Append("SUM(", exp.Parameters.First().Accept(visitor), ")");
-            return state;
+            return Func_Sum(exp.Parameters.First(), visitor);
         }
         static ISqlState Func_Max(DbFunctionExpression exp, SqlExpressionVisitor visitor)
         {
-            SqlState state = new SqlState(3);
-            state.Append("MAX(", exp.Parameters.First().Accept(visitor), ")");
-            return state;
+            return Func_Max(exp.Parameters.First(), visitor);
         }
         static ISqlState Func_Min(DbFunctionExpression exp, SqlExpressionVisitor visitor)
         {
-            SqlState state = new SqlState(3);
-            state.Append("MIN(", exp.Parameters.First().Accept(visitor), ")");
-            return state;
+            return Func_Min(exp.Parameters.First(), visitor);
         }
         static ISqlState Func_Average(DbFunctionExpression exp, SqlExpressionVisitor visitor)
         {
-            SqlState state = new SqlState(3);
-            state.Append("AVG(", exp.Parameters.First().Accept(visitor), ")");
+            ISqlState state = Func_Average(exp.Parameters.First(), visitor);
 
             string dbTypeString;
             if (CSharpType_DbType_Mappings.TryGetValue(exp.Type, out dbTypeString))
@@ -1216,6 +1260,45 @@ namespace Chloe.Impls
             return state;
         }
 
+        #endregion
+
+        #region AggregateFunction
+        static ISqlState Func_Count()
+        {
+            SqlState state = new SqlState(1);
+            state.Append("COUNT(1)");
+            return state;
+        }
+        static ISqlState Func_LongCount()
+        {
+            SqlState state = new SqlState(1);
+            state.Append("COUNT_BIG(1)");
+            return state;
+        }
+        static ISqlState Func_Sum(DbExpression exp, SqlExpressionVisitor visitor)
+        {
+            SqlState state = new SqlState(3);
+            state.Append("SUM(", exp.Accept(visitor), ")");
+            return state;
+        }
+        static ISqlState Func_Max(DbExpression exp, SqlExpressionVisitor visitor)
+        {
+            SqlState state = new SqlState(3);
+            state.Append("MAX(", exp.Accept(visitor), ")");
+            return state;
+        }
+        static ISqlState Func_Min(DbExpression exp, SqlExpressionVisitor visitor)
+        {
+            SqlState state = new SqlState(3);
+            state.Append("MIN(", exp.Accept(visitor), ")");
+            return state;
+        }
+        static ISqlState Func_Average(DbExpression exp, SqlExpressionVisitor visitor)
+        {
+            SqlState state = new SqlState(3);
+            state.Append("AVG(", exp.Accept(visitor), ")");
+            return state;
+        }
         #endregion
     }
 
