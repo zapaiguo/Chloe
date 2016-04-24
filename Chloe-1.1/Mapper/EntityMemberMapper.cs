@@ -86,15 +86,21 @@ namespace Chloe.Mapper
             return valueSetter;
         }
 
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, EntityMemberMapper> _instanceCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, EntityMemberMapper>();
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, EntityMemberMapper> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, EntityMemberMapper>();
 
         public static EntityMemberMapper GetInstance(Type type)
         {
             EntityMemberMapper instance;
-            if (!_instanceCache.TryGetValue(type, out instance))
+            if (!InstanceCache.TryGetValue(type, out instance))
             {
-                instance = new EntityMemberMapper(type);
-                instance = _instanceCache.GetOrAdd(type, instance);
+                lock (type)
+                {
+                    if (!InstanceCache.TryGetValue(type, out instance))
+                    {
+                        instance = new EntityMemberMapper(type);
+                        InstanceCache.GetOrAdd(type, instance);
+                    }
+                }
             }
 
             return instance;

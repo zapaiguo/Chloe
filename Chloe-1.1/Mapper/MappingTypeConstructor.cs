@@ -33,8 +33,14 @@ namespace Chloe.Mapper
             MappingTypeConstructor instance;
             if (!InstanceCache.TryGetValue(type, out instance))
             {
-                instance = new MappingTypeConstructor(type);
-                instance = InstanceCache.GetOrAdd(type, instance);
+                lock (type)
+                {
+                    if (!InstanceCache.TryGetValue(type, out instance))
+                    {
+                        instance = new MappingTypeConstructor(type);
+                        InstanceCache.GetOrAdd(type, instance);
+                    }
+                }
             }
 
             return instance;

@@ -288,6 +288,10 @@ namespace Chloe.Query
                 {
                     ordinal = columnList.IndexOf(dbColumnExp);
                 }
+
+                if (exp == this.PrimaryKey)
+                    mappingEntity.CheckNullOrdinal = ordinal;
+
                 mappingEntity.ConstructorParameters.Add(pi, ordinal);
             }
 

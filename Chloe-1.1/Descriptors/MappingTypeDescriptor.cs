@@ -186,18 +186,24 @@ namespace Chloe.Descriptors
             return memberDescriptor;
         }
 
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, MappingTypeDescriptor> _entityDescriptorCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, MappingTypeDescriptor>();
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, MappingTypeDescriptor> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, MappingTypeDescriptor>();
 
         public static MappingTypeDescriptor GetEntityDescriptor(Type type)
         {
-            MappingTypeDescriptor typeDescriptor;
-            if (!_entityDescriptorCache.TryGetValue(type, out typeDescriptor))
+            MappingTypeDescriptor instance;
+            if (!InstanceCache.TryGetValue(type, out instance))
             {
-                typeDescriptor = new MappingTypeDescriptor(type);
-                typeDescriptor = _entityDescriptorCache.GetOrAdd(type, typeDescriptor);
+                lock (type)
+                {
+                    if (!InstanceCache.TryGetValue(type, out instance))
+                    {
+                        instance = new MappingTypeDescriptor(type);
+                        InstanceCache.GetOrAdd(type, instance);
+                    }
+                }
             }
 
-            return typeDescriptor;
+            return instance;
         }
     }
 

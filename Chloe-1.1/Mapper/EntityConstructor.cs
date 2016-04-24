@@ -34,8 +34,14 @@ namespace Chloe.Mapper
             EntityConstructor instance;
             if (!InstanceCache.TryGetValue(constructorInfo, out instance))
             {
-                instance = new EntityConstructor(constructorInfo);
-                instance = InstanceCache.GetOrAdd(constructorInfo, instance);
+                lock (constructorInfo)
+                {
+                    if (!InstanceCache.TryGetValue(constructorInfo, out instance))
+                    {
+                        instance = new EntityConstructor(constructorInfo);
+                        InstanceCache.GetOrAdd(constructorInfo, instance);
+                    }
+                }
             }
 
             return instance;

@@ -64,8 +64,14 @@ namespace Chloe.Descriptors
             EntityConstructorDescriptor instance;
             if (!InstanceCache.TryGetValue(constructorInfo, out instance))
             {
-                instance = new EntityConstructorDescriptor(constructorInfo);
-                instance = InstanceCache.GetOrAdd(constructorInfo, instance);
+                lock (constructorInfo)
+                {
+                    if (!InstanceCache.TryGetValue(constructorInfo, out instance))
+                    {
+                        instance = new EntityConstructorDescriptor(constructorInfo);
+                        InstanceCache.GetOrAdd(constructorInfo, instance);
+                    }
+                }
             }
 
             return instance;
