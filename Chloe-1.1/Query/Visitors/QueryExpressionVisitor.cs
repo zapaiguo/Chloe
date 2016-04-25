@@ -78,7 +78,7 @@ namespace Chloe.Query.Visitors
                 moeList.Add(joinQueryResult.MappingObjectExpression);
             }
 
-            IMappingObjectExpression moe = SelectExpressionVisitor.VisitSelectExpression(exp.Selector, moeList);
+            IMappingObjectExpression moe = SelectorExpressionVisitor.VisitSelectExpression(exp.Selector, moeList);
             resultElement.MappingObjectExpression = moe;
 
             GeneralQueryState queryState = new GeneralQueryState(resultElement);

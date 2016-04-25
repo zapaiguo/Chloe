@@ -177,7 +177,7 @@
     <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />
     <Compile Include="Query\QueryExpressions\QueryExpressionVisitor`.cs" />
-    <Compile Include="Query\Visitors\SelectExpressionVisitor.cs" />
+    <Compile Include="Query\Visitors\SelectorExpressionVisitor.cs" />
     <Compile Include="Mapper\EntityMemberMapper.cs" />
     <Compile Include="Utility\UtilConstants.cs" />
     <Compile Include="Utility\Utils.cs" />

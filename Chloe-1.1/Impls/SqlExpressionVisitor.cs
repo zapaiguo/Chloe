@@ -163,8 +163,6 @@ namespace Chloe.Impls
 
             state.Append(")");
 
-            //state.Append("((", leftState, " = ", rightState, ") OR (", leftState, " IS NULL AND ", rightState, " IS NULL))");
-
             return state;
         }
         public override ISqlState Visit(DbNotEqualExpression exp)

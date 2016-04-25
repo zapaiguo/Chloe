@@ -122,7 +122,7 @@ namespace Chloe.Query.QueryState
             ResultElement result = new ResultElement();
             result.FromTable = this._resultElement.FromTable;
 
-            IMappingObjectExpression r = SelectExpressionVisitor.VisitSelectExpression(selector, this.MoeList);
+            IMappingObjectExpression r = SelectorExpressionVisitor.VisitSelectExpression(selector, this.MoeList);
             result.MappingObjectExpression = r;
             result.OrderSegments.AddRange(this._resultElement.OrderSegments);
             result.AppendCondition(this._resultElement.Condition);

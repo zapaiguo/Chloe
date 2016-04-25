@@ -9,19 +9,19 @@ using System.Collections.Generic;
 
 namespace Chloe.Query
 {
-    class SelectExpressionVisitor : ExpressionVisitor<IMappingObjectExpression>
+    class SelectorExpressionVisitor : ExpressionVisitor<IMappingObjectExpression>
     {
         ExpressionVisitorBase _visitor;
         LambdaExpression _lambda;
         List<IMappingObjectExpression> _moeList;
-        SelectExpressionVisitor(List<IMappingObjectExpression> moeList)
+        SelectorExpressionVisitor(List<IMappingObjectExpression> moeList)
         {
             this._moeList = moeList;
         }
 
         public static IMappingObjectExpression VisitSelectExpression(LambdaExpression exp, List<IMappingObjectExpression> moeList)
         {
-            SelectExpressionVisitor visitor = new SelectExpressionVisitor(moeList);
+            SelectorExpressionVisitor visitor = new SelectorExpressionVisitor(moeList);
             return visitor.Visit(exp);
         }
 
@@ -54,13 +54,33 @@ namespace Chloe.Query
             }
         }
 
+        public override IMappingObjectExpression Visit(Expression exp)
+        {
+            if (exp == null)
+                return default(IMappingObjectExpression);
+            switch (exp.NodeType)
+            {
+                case ExpressionType.Lambda:
+                    return this.VisitLambda((LambdaExpression)exp);
+                case ExpressionType.New:
+                    return this.VisitNew((NewExpression)exp);
+                case ExpressionType.MemberInit:
+                    return this.VisitMemberInit((MemberInitExpression)exp);
+                case ExpressionType.MemberAccess:
+                    return this.VisitMemberAccess((MemberExpression)exp);
+                case ExpressionType.Parameter:
+                    return this.VisitParameter((ParameterExpression)exp);
+                default:
+                    return this.VisistMapTypeSelector(exp);
+            }
+        }
+
         protected override IMappingObjectExpression VisitLambda(LambdaExpression exp)
         {
             this._lambda = exp;
             this._visitor = new GeneralExpressionVisitor(exp, this._moeList);
             return this.Visit(exp.Body);
         }
-
         protected override IMappingObjectExpression VisitNew(NewExpression exp)
         {
             IMappingObjectExpression result = new MappingObjectExpression(exp.Constructor);
@@ -138,26 +158,15 @@ namespace Chloe.Query
             IMappingObjectExpression moe = this._moeList[idx];
             return moe;
         }
-        protected override IMappingObjectExpression VisitConstant(ConstantExpression exp)
-        {
-            if (Utils.IsMapType(exp.Type))
-            {
-                DbExpression dbExp = this.VisistExpression(exp);
-                MappingFieldExpression ret = new MappingFieldExpression(exp.Type, dbExp);
-                return ret;
-            }
 
-            throw new NotSupportedException(exp.ToString());
-        }
-        protected override IMappingObjectExpression VisitMethodCall(MethodCallExpression exp)
+        IMappingObjectExpression VisistMapTypeSelector(Expression exp)
         {
             if (!Utils.IsMapType(exp.Type))
             {
-                return base.VisitMethodCall(exp);
+                throw new NotSupportedException(exp.ToString());
             }
 
             DbExpression dbExp = this.VisistExpression(exp);
-
             MappingFieldExpression ret = new MappingFieldExpression(exp.Type, dbExp);
             return ret;
         }
