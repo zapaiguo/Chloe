@@ -149,5 +149,27 @@ namespace Chloe.Query
 
             throw new NotSupportedException(exp.ToString());
         }
+        protected override IMappingObjectExpression VisitMethodCall(MethodCallExpression exp)
+        {
+            if (!Utils.IsMapType(exp.Type))
+            {
+                return base.VisitMethodCall(exp);
+            }
+
+            DbExpression obj = null;
+            List<DbExpression> argList = new List<DbExpression>(exp.Arguments.Count);
+            DbExpression dbExp = null;
+            if (exp.Object != null)
+                obj = this.VisistExpression(exp.Object);
+            foreach (var item in exp.Arguments)
+            {
+                argList.Add(this.VisistExpression(item));
+            }
+
+            dbExp = DbExpression.MethodCall(obj, exp.Method, argList.AsReadOnly());
+
+            MappingFieldExpression ret = new MappingFieldExpression(exp.Type, dbExp);
+            return ret;
+        }
     }
 }
