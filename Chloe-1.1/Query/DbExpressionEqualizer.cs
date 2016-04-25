@@ -16,12 +16,12 @@ namespace Chloe.Query
 
             switch (exp1.NodeType)
             {
-                case DbExpressionType.ColumnAccess:
-                    return Equals((DbColumnAccessExpression)exp1, (DbColumnAccessExpression)exp2);
+                case DbExpressionType.Column:
+                    return Equals((DbColumnExpression)exp1, (DbColumnExpression)exp2);
+                case DbExpressionType.TableSegment:
+                    return Equals((DbTableSegmentExpression)exp1, (DbTableSegmentExpression)exp2);
                 case DbExpressionType.Table:
                     return Equals((DbTableExpression)exp1, (DbTableExpression)exp2);
-                case DbExpressionType.DerivedTable:
-                    return Equals((DbDerivedTableExpression)exp1, (DbDerivedTableExpression)exp2);
                 case DbExpressionType.Constant:
                     return Equals((DbConstantExpression)exp1, (DbConstantExpression)exp2);
                 case DbExpressionType.Convert:
@@ -50,21 +50,21 @@ namespace Chloe.Query
             }
         }
 
-        public static bool Equals(DbColumnAccessExpression exp1, DbColumnAccessExpression exp2)
+        public static bool Equals(DbColumnExpression exp1, DbColumnExpression exp2)
         {
-            if (exp1.ColumnName != exp2.ColumnName)
+            if (exp1.Name != exp2.Name)
                 return false;
             return Equals(exp1.Table, exp2.Table);
         }
-        public static bool Equals(DbTableExpression exp1, DbTableExpression exp2)
+        public static bool Equals(DbTableSegmentExpression exp1, DbTableSegmentExpression exp2)
         {
             if (exp1.Alias != exp2.Alias)
                 return false;
             return Equals(exp1.Body, exp2.Body);
         }
-        public static bool Equals(DbDerivedTableExpression exp1, DbDerivedTableExpression exp2)
+        public static bool Equals(DbTableExpression exp1, DbTableExpression exp2)
         {
-            return exp1.TableName == exp2.TableName;
+            return exp1.Name == exp2.Name;
         }
         public static bool Equals(DbConstantExpression exp1, DbConstantExpression exp2)
         {

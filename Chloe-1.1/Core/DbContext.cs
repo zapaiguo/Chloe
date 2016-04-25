@@ -43,7 +43,7 @@ namespace Chloe
         {
             throw new NotImplementedException();
         }
-        public virtual int Update<T>(Expression<Func<T, bool>> predicate, object obj)
+        public virtual int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> predicate)
         {
             throw new NotImplementedException();
         }

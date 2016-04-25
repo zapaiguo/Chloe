@@ -99,20 +99,20 @@ namespace Chloe.Impls
             return exp.Accept(this._visitor);
         }
 
+        public override ISqlState Visit(DbTableSegmentExpression exp)
+        {
+            return exp.Accept(this._visitor);
+        }
         public override ISqlState Visit(DbTableExpression exp)
         {
             return exp.Accept(this._visitor);
         }
-        public override ISqlState Visit(DbDerivedTableExpression exp)
-        {
-            return exp.Accept(this._visitor);
-        }
 
-        public override ISqlState Visit(DbColumnAccessExpression exp)
+        public override ISqlState Visit(DbColumnExpression exp)
         {
             return exp.Accept(this._visitor);
         }
-        public override ISqlState Visit(DbColumnExpression exp)
+        public override ISqlState Visit(DbColumnSegmentExpression exp)
         {
             SqlState state = new SqlState(3);
             ISqlState columnState = SqlExpressionVisitor.QuoteName(exp.Alias);

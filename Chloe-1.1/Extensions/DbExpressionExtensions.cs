@@ -22,7 +22,7 @@ namespace Chloe.Extensions
 
             DbExpressionType nodeType = prevExp.NodeType;
 
-            if (nodeType == DbExpressionType.Parameter || nodeType == DbExpressionType.Constant || nodeType == DbExpressionType.ColumnAccess)
+            if (nodeType == DbExpressionType.Parameter || nodeType == DbExpressionType.Constant || nodeType == DbExpressionType.Column)
             {
                 return true;
             }

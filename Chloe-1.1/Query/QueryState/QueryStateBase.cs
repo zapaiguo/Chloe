@@ -158,7 +158,7 @@ namespace Chloe.Query.QueryState
 
             ResultElement result = new ResultElement();
 
-            DbTableExpression tableExp = new DbTableExpression(subQuery, result.GenerateUniqueTableAlias());
+            DbTableSegmentExpression tableExp = new DbTableSegmentExpression(subQuery, result.GenerateUniqueTableAlias());
             DbFromTableExpression tablePart = new DbFromTableExpression(tableExp);
 
             result.FromTable = tablePart;
@@ -178,7 +178,7 @@ namespace Chloe.Query.QueryState
 
                     string alias = null;
 
-                    DbColumnExpression columnExpression = sqlQuery.Columns.Where(a => DbExpressionEqualizer.Equals(orderExp, a.Body)).FirstOrDefault();
+                    DbColumnSegmentExpression columnExpression = sqlQuery.Columns.Where(a => DbExpressionEqualizer.Equals(orderExp, a.Body)).FirstOrDefault();
 
                     // 对于重复的则不需要往 sqlQuery.Columns 重复添加了
                     if (columnExpression != null)
@@ -188,11 +188,11 @@ namespace Chloe.Query.QueryState
                     else
                     {
                         alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
-                        DbColumnExpression columnExp = new DbColumnExpression(orderExp.Type, orderExp, alias);
+                        DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(orderExp.Type, orderExp, alias);
                         sqlQuery.Columns.Add(columnExp);
                     }
 
-                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(orderExp.Type, tableExp, alias);
+                    DbColumnExpression columnAccessExpression = new DbColumnExpression(orderExp.Type, tableExp, alias);
                     result.OrderSegments.Add(new DbOrderSegmentExpression(columnAccessExpression, orderPart.OrderType));
                 }
             }
@@ -241,7 +241,7 @@ namespace Chloe.Query.QueryState
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
-            DbTableExpression tableExp = new DbTableExpression(subQuery, ResultElement.DefaultTableAlias);
+            DbTableSegmentExpression tableExp = new DbTableSegmentExpression(subQuery, ResultElement.DefaultTableAlias);
             DbFromTableExpression tablePart = new DbFromTableExpression(tableExp);
 
             IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, tableExp);
@@ -258,7 +258,7 @@ namespace Chloe.Query.QueryState
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
             string alias = tableAlias;
-            DbTableExpression tableExp = new DbTableExpression(subQuery, alias);
+            DbTableSegmentExpression tableExp = new DbTableSegmentExpression(subQuery, alias);
 
             IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, tableExp);
 

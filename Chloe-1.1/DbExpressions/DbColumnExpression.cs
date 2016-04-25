@@ -3,26 +3,25 @@
 namespace Chloe.DbExpressions
 {
     /// <summary>
-    /// 完整的列  T.Name as Alias
+    /// T.Id 列名访问
     /// </summary>
-    [System.Diagnostics.DebuggerDisplay("Alias = {Alias}")]
+    [System.Diagnostics.DebuggerDisplay("Name = {Name}")]
     public class DbColumnExpression : DbExpression
     {
-        DbExpression _body;
-        string _alias;
+        DbTableSegmentExpression _table;
+        string _name;
 
-        public DbColumnExpression(Type type, DbExpression body, string alias)
+        public DbColumnExpression(Type type, DbTableSegmentExpression table, string name)
             : base(DbExpressionType.Column, type)
         {
-            this._body = body;
-            this._alias = alias;
+            this._table = table;
+            this._name = name;
         }
 
-        /// <summary>
-        /// T.Name 部分
-        /// </summary>
-        public DbExpression Body { get { return this._body; } }
-        public string Alias { get { return this._alias; } }
+        public DbTableSegmentExpression Table { get { return this._table; } }
+
+        public string Name { get { return this._name; } }
+
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {
@@ -30,4 +29,5 @@ namespace Chloe.DbExpressions
         }
 
     }
+
 }

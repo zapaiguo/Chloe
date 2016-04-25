@@ -3,7 +3,13 @@ namespace Chloe.DbExpressions
 {
     public enum DbExpressionType
     {
-        And = 1,
+        SqlQuery = 1,
+        Insert,
+        Update,
+        Delete,
+        SubQuery,
+
+        And,
         Or,
         Equal,
         NotEqual,
@@ -22,12 +28,10 @@ namespace Chloe.DbExpressions
         MemberAccess,
         Call,
         Table,
-        DerivedTable,
+        TableSegment,
         Column,
-        ColumnAccess,
+        ColumnSegment,
         Parameter,
-        SubQuery,
-        SqlQuery,
         FromTable,
         JoinTable,
         OrderSegment,

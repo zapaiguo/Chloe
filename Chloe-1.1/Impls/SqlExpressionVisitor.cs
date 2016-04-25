@@ -58,7 +58,7 @@ namespace Chloe.Impls
 
             List<DbExpressionType> list = new List<DbExpressionType>();
             list.Add(DbExpressionType.MemberAccess);
-            list.Add(DbExpressionType.ColumnAccess);
+            list.Add(DbExpressionType.Column);
             list.Add(DbExpressionType.Constant);
             list.Add(DbExpressionType.Parameter);
             list.Add(DbExpressionType.Call);
@@ -340,26 +340,26 @@ namespace Chloe.Impls
 
             return state;
         }
-        public override ISqlState Visit(DbTableExpression exp)
+        public override ISqlState Visit(DbTableSegmentExpression exp)
         {
             var state = new SqlState(3);
             ISqlState bodyState = exp.Body.Accept(this);
             state.Append(bodyState, " AS ", QuoteName(exp.Alias));
             return state;
         }
-        public override ISqlState Visit(DbDerivedTableExpression exp)
+        public override ISqlState Visit(DbTableExpression exp)
         {
-            ISqlState state = QuoteName(exp.TableName);
+            ISqlState state = QuoteName(exp.Name);
             return state;
         }
 
-        public override ISqlState Visit(DbColumnAccessExpression exp)
+        public override ISqlState Visit(DbColumnExpression exp)
         {
             var state = new SqlState(3);
-            state.Append(QuoteName(exp.Table.Alias), ".", QuoteName(exp.ColumnName));
+            state.Append(QuoteName(exp.Table.Alias), ".", QuoteName(exp.Name));
             return state;
         }
-        public override ISqlState Visit(DbColumnExpression exp)
+        public override ISqlState Visit(DbColumnSegmentExpression exp)
         {
             var state = new SqlState();
             ISqlState bodyState = exp.Body.Accept(this);
@@ -538,11 +538,11 @@ namespace Chloe.Impls
             SqlState retState = null;
 
             SqlState columnsState = new SqlState();
-            List<DbColumnExpression> columns = exp.Columns;
+            List<DbColumnSegmentExpression> columns = exp.Columns;
 
             for (int i = 0; i < columns.Count; i++)
             {
-                DbColumnExpression column = columns[i];
+                DbColumnSegmentExpression column = columns[i];
                 if (i > 0)
                     columnsState.Append(",");
 
@@ -574,11 +574,11 @@ namespace Chloe.Impls
             SqlState retState = null;
 
             SqlState columnsState = new SqlState();
-            List<DbColumnExpression> columns = exp.Columns;
+            List<DbColumnSegmentExpression> columns = exp.Columns;
             List<ISqlState> columnStates = new List<ISqlState>(columns.Count);
             for (int i = 0; i < columns.Count; i++)
             {
-                DbColumnExpression column = columns[i];
+                DbColumnSegmentExpression column = columns[i];
                 if (i > 0)
                     columnsState.Append(",");
 
@@ -639,11 +639,11 @@ namespace Chloe.Impls
             SqlState retState = null;
 
             SqlState columnsState = new SqlState();
-            List<DbColumnExpression> columns = exp.Columns;
+            List<DbColumnSegmentExpression> columns = exp.Columns;
 
             for (int i = 0; i < columns.Count; i++)
             {
-                DbColumnExpression column = columns[i];
+                DbColumnSegmentExpression column = columns[i];
                 if (i > 0)
                     columnsState.Append(",");
 
@@ -677,11 +677,11 @@ namespace Chloe.Impls
             SqlState retState = null;
 
             SqlState columnsState = new SqlState();
-            List<DbColumnExpression> columns = exp.Columns;
+            List<DbColumnSegmentExpression> columns = exp.Columns;
             List<SqlState> columnStates = new List<SqlState>(columns.Count);
             for (int i = 0; i < columns.Count; i++)
             {
-                DbColumnExpression column = columns[i];
+                DbColumnSegmentExpression column = columns[i];
                 if (i > 0)
                     columnsState.Append(",");
 
@@ -856,7 +856,7 @@ namespace Chloe.Impls
             state.Append("CAST(", castObject, " AS ", targetDbTypeString, ")");
             return state;
         }
-        static string CreateRowNumberName(List<DbColumnExpression> columns)
+        static string CreateRowNumberName(List<DbColumnSegmentExpression> columns)
         {
             int ROW_NUMBER_INDEX = 1;
             string row_numberName = "ROW_NUMBER_0";

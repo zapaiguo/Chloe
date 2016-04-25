@@ -4,15 +4,15 @@ namespace Chloe.DbExpressions
 {
     public class DbFromTableExpression : DbExpression
     {
-        DbTableExpression _table;
+        DbTableSegmentExpression _table;
         List<DbJoinTableExpression> _joinTables;
-        public DbFromTableExpression(DbTableExpression table)
+        public DbFromTableExpression(DbTableSegmentExpression table)
             : base(DbExpressionType.FromTable)
         {
             this._table = table;
             this._joinTables = new List<DbJoinTableExpression>();
         }
-        public DbTableExpression Table { get { return this._table; } }
+        public DbTableSegmentExpression Table { get { return this._table; } }
 
         public List<DbJoinTableExpression> JoinTables { get { return this._joinTables; } }
 

@@ -10,13 +10,13 @@ namespace Chloe.DbExpressions
         public DbSqlQueryExpression()
             : base(DbExpressionType.SqlQuery, UtilConstants.TypeOfVoid)
         {
-            this.Columns = new List<DbColumnExpression>();
+            this.Columns = new List<DbColumnSegmentExpression>();
             this.GroupSegments = new List<DbExpression>();
             this.OrderSegments = new List<DbOrderSegmentExpression>();
         }
         public int? TakeCount { get; set; }
         public int? SkipCount { get; set; }
-        public List<DbColumnExpression> Columns { get; private set; }
+        public List<DbColumnSegmentExpression> Columns { get; private set; }
         public DbFromTableExpression Table { get; set; }
         public DbExpression Condition { get; set; }
         public List<DbExpression> GroupSegments { get; private set; }

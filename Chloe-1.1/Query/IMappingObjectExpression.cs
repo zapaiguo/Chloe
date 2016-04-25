@@ -15,7 +15,7 @@ namespace Chloe.Query
     public interface IMappingObjectExpression
     {
         IObjectActivtorCreator GenarateObjectActivtorCreator(DbSqlQueryExpression sqlQuery);
-        IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableExpression tableExp);
+        IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableSegmentExpression tableExp);
         void AddConstructorParameter(ParameterInfo p, DbExpression exp);
         void AddConstructorEntityParameter(ParameterInfo p, IMappingObjectExpression exp);
         void AddMemberExpression(MemberInfo p, DbExpression exp);
@@ -85,9 +85,9 @@ namespace Chloe.Query
 
         public IObjectActivtorCreator GenarateObjectActivtorCreator(DbSqlQueryExpression sqlQuery)
         {
-            List<DbColumnExpression> columnList = sqlQuery.Columns;
+            List<DbColumnSegmentExpression> columnList = sqlQuery.Columns;
             string alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
-            DbColumnExpression columnExp = new DbColumnExpression(this._type, this._exp, alias);
+            DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(this._type, this._exp, alias);
             columnList.Add(columnExp);
             int ordinal = columnList.Count - 1;
             MappingField ac = new MappingField(this._type, ordinal);
@@ -99,16 +99,16 @@ namespace Chloe.Query
             throw new NotSupportedException();
         }
 
-        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableExpression tableExp)
+        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableSegmentExpression tableExp)
         {
-            List<DbColumnExpression> columnList = sqlQuery.Columns;
+            List<DbColumnSegmentExpression> columnList = sqlQuery.Columns;
 
             string alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
-            DbColumnExpression columnExp = new DbColumnExpression(this._type, this._exp, alias);
+            DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(this._type, this._exp, alias);
 
             columnList.Add(columnExp);
 
-            DbColumnAccessExpression cae = new DbColumnAccessExpression(this._type, tableExp, alias);
+            DbColumnExpression cae = new DbColumnExpression(this._type, tableExp, alias);
 
             return new MappingFieldExpression(this._type, cae);
         }
@@ -267,7 +267,7 @@ namespace Chloe.Query
         }
         public IObjectActivtorCreator GenarateObjectActivtorCreator(DbSqlQueryExpression sqlQuery)
         {
-            List<DbColumnExpression> columnList = sqlQuery.Columns;
+            List<DbColumnSegmentExpression> columnList = sqlQuery.Columns;
             MappingEntity mappingEntity = new MappingEntity(this.ConstructorDescriptor);
             MappingObjectExpression mappingMembers = this;
 
@@ -276,11 +276,11 @@ namespace Chloe.Query
                 ParameterInfo pi = kv.Key;
                 DbExpression exp = kv.Value;
                 int ordinal;
-                DbColumnExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.Equals(exp, a.Body)).FirstOrDefault();
+                DbColumnSegmentExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.Equals(exp, a.Body)).FirstOrDefault();
                 if (dbColumnExp == null)
                 {
                     string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, pi.Name);
-                    DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
+                    DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
 
                     columnList.Add(columnExp);
                     ordinal = columnList.Count - 1;
@@ -311,11 +311,11 @@ namespace Chloe.Query
                 DbExpression exp = kv.Value;
 
                 int ordinal;
-                DbColumnExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.Equals(exp, a.Body)).FirstOrDefault();
+                DbColumnSegmentExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.Equals(exp, a.Body)).FirstOrDefault();
                 if (dbColumnExp == null)
                 {
                     string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, member.Name);
-                    DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
+                    DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
 
                     columnList.Add(columnExp);
                     ordinal = columnList.Count - 1;
@@ -343,9 +343,9 @@ namespace Chloe.Query
             return mappingEntity;
         }
 
-        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableExpression tableExp)
+        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableSegmentExpression tableExp)
         {
-            List<DbColumnExpression> columnList = sqlQuery.Columns;
+            List<DbColumnSegmentExpression> columnList = sqlQuery.Columns;
             MappingObjectExpression moe = new MappingObjectExpression(this.ConstructorDescriptor);
             MappingObjectExpression mappingMembers = this;
 
@@ -355,10 +355,10 @@ namespace Chloe.Query
                 DbExpression exp = kv.Value;
 
                 string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, pi.Name);
-                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
+                DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
 
                 columnList.Add(columnExp);
-                DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, tableExp, alias);
+                DbColumnExpression cae = new DbColumnExpression(exp.Type, tableExp, alias);
                 moe.AddConstructorParameter(pi, cae);
             }
 
@@ -377,10 +377,10 @@ namespace Chloe.Query
                 DbExpression exp = kv.Value;
 
                 string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, member.Name);
-                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
+                DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
 
                 columnList.Add(columnExp);
-                DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, tableExp, alias);
+                DbColumnExpression cae = new DbColumnExpression(exp.Type, tableExp, alias);
                 moe.AddMemberExpression(member, cae);
 
                 if (exp == this.PrimaryKey)

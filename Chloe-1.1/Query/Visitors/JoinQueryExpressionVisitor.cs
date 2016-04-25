@@ -39,12 +39,12 @@ namespace Chloe.Query.Visitors
             Type type = exp.ElementType;
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(type);
 
-            DbTableExpression tableExp = CreateTableExpression(typeDescriptor.TableName, this._resultElement.GenerateUniqueTableAlias(typeDescriptor.TableName));
+            DbTableSegmentExpression tableExp = CreateTableExpression(typeDescriptor.TableName, this._resultElement.GenerateUniqueTableAlias(typeDescriptor.TableName));
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(UtilConstants.EmptyTypeArray));
 
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors)
             {
-                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(item.MemberType, tableExp, item.ColumnName);
+                DbColumnExpression columnAccessExpression = new DbColumnExpression(item.MemberType, tableExp, item.ColumnName);
                 moe.AddMemberExpression(item.MemberInfo, columnAccessExpression);
 
                 if (item.IsPrimaryKey)
@@ -113,10 +113,10 @@ namespace Chloe.Query.Visitors
             JoinQueryResult ret = state.ToJoinQueryResult(this._joinType, this._conditionExpression, this._resultElement.FromTable, this._moeList, this._resultElement.GenerateUniqueTableAlias());
             return ret;
         }
-        static DbTableExpression CreateTableExpression(string tableName, string alias)
+        static DbTableSegmentExpression CreateTableExpression(string tableName, string alias)
         {
-            DbDerivedTableExpression rootTable = new DbDerivedTableExpression(tableName);
-            DbTableExpression tableExp = new DbTableExpression(rootTable, alias);
+            DbTableExpression rootTable = new DbTableExpression(tableName);
+            DbTableSegmentExpression tableExp = new DbTableSegmentExpression(rootTable, alias);
             return tableExp;
         }
     }
