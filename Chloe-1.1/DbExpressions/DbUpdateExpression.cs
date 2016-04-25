@@ -48,11 +48,11 @@ namespace Chloe.DbExpressions
 
             this._table = table;
             this._condition = condition;
-            this.UpdateColumns = new Dictionary<string, DbExpression>();
+            this.UpdateColumns = new Dictionary<DbColumnExpression, DbExpression>();
         }
 
         public DbTableExpression Table { get { return this._table; } }
-        public Dictionary<string, DbExpression> UpdateColumns { get; private set; }
+        public Dictionary<DbColumnExpression, DbExpression> UpdateColumns { get; private set; }
         public DbExpression Condition { get { return this._condition; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)

@@ -44,7 +44,7 @@ namespace Chloe.Query.Visitors
 
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors)
             {
-                DbColumnExpression columnAccessExpression = new DbColumnExpression(item.MemberType, tableExp, item.ColumnName);
+                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(item.MemberType, tableExp, item.ColumnName);
                 moe.AddMemberExpression(item.MemberInfo, columnAccessExpression);
 
                 if (item.IsPrimaryKey)

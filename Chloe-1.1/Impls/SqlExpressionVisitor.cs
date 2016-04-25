@@ -340,6 +340,12 @@ namespace Chloe.Impls
 
             return state;
         }
+
+        public override ISqlState Visit(DbTableExpression exp)
+        {
+            ISqlState state = QuoteName(exp.Name);
+            return state;
+        }
         public override ISqlState Visit(DbTableSegmentExpression exp)
         {
             var state = new SqlState(3);
@@ -347,16 +353,17 @@ namespace Chloe.Impls
             state.Append(bodyState, " AS ", QuoteName(exp.Alias));
             return state;
         }
-        public override ISqlState Visit(DbTableExpression exp)
-        {
-            ISqlState state = QuoteName(exp.Name);
-            return state;
-        }
 
         public override ISqlState Visit(DbColumnExpression exp)
         {
+            var state = new SqlState(1);
+            state.Append(QuoteName(exp.Name));
+            return state;
+        }
+        public override ISqlState Visit(DbColumnAccessExpression exp)
+        {
             var state = new SqlState(3);
-            state.Append(QuoteName(exp.Table.Alias), ".", QuoteName(exp.Name));
+            state.Append(QuoteName(exp.Table.Alias), ".", exp.Column.Accept(this));
             return state;
         }
         public override ISqlState Visit(DbColumnSegmentExpression exp)
@@ -366,6 +373,7 @@ namespace Chloe.Impls
             state.Append(bodyState, " AS ", QuoteName(exp.Alias));
             return state;
         }
+
         public override ISqlState Visit(DbMemberExpression exp)
         {
             SqlState state = null;
@@ -398,7 +406,6 @@ namespace Chloe.Impls
 
             throw new NotSupportedException(member.Name);
         }
-
         public override ISqlState Visit(DbParameterExpression exp)
         {
             SqlState state;

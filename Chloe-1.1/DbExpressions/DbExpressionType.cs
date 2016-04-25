@@ -27,10 +27,14 @@ namespace Chloe.DbExpressions
         CaseWhen,
         MemberAccess,
         Call,
+
         Table,
         TableSegment,
+
         Column,
+        ColumnAccess,
         ColumnSegment,
+
         Parameter,
         FromTable,
         JoinTable,

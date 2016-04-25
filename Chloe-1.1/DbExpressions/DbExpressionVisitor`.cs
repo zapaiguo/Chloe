@@ -29,10 +29,14 @@ namespace Chloe.DbExpressions
         public abstract T Visit(DbConvertExpression exp);
         public abstract T Visit(DbCaseWhenExpression exp);
         public abstract T Visit(DbMethodCallExpression exp);
-        public abstract T Visit(DbTableSegmentExpression exp);
+
         public abstract T Visit(DbTableExpression exp);
-        public abstract T Visit(DbColumnSegmentExpression exp);
+        public abstract T Visit(DbTableSegmentExpression exp);
+
         public abstract T Visit(DbColumnExpression exp);
+        public abstract T Visit(DbColumnAccessExpression exp);
+        public abstract T Visit(DbColumnSegmentExpression exp);
+
         public abstract T Visit(DbParameterExpression exp);
         public abstract T Visit(DbSubQueryExpression exp);
         public abstract T Visit(DbSqlQueryExpression exp);

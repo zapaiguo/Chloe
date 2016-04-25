@@ -108,7 +108,7 @@ namespace Chloe.Query
 
             columnList.Add(columnExp);
 
-            DbColumnExpression cae = new DbColumnExpression(this._type, tableExp, alias);
+            DbColumnAccessExpression cae = new DbColumnAccessExpression(this._type, tableExp, alias);
 
             return new MappingFieldExpression(this._type, cae);
         }
@@ -358,7 +358,7 @@ namespace Chloe.Query
                 DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
 
                 columnList.Add(columnExp);
-                DbColumnExpression cae = new DbColumnExpression(exp.Type, tableExp, alias);
+                DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, tableExp, alias);
                 moe.AddConstructorParameter(pi, cae);
             }
 
@@ -380,7 +380,7 @@ namespace Chloe.Query
                 DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
 
                 columnList.Add(columnExp);
-                DbColumnExpression cae = new DbColumnExpression(exp.Type, tableExp, alias);
+                DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, tableExp, alias);
                 moe.AddMemberExpression(member, cae);
 
                 if (exp == this.PrimaryKey)
