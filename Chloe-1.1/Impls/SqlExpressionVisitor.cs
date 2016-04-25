@@ -860,7 +860,7 @@ namespace Chloe.Impls
         {
             int ROW_NUMBER_INDEX = 1;
             string row_numberName = "ROW_NUMBER_0";
-            while (columns.Any(a => a.Alias == row_numberName))
+            while (columns.Any(a => string.Equals(a.Alias, row_numberName, StringComparison.OrdinalIgnoreCase)))
             {
                 row_numberName = "ROW_NUMBER_" + ROW_NUMBER_INDEX.ToString();
                 ROW_NUMBER_INDEX++;

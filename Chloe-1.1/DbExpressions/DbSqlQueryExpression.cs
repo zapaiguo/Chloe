@@ -27,18 +27,5 @@ namespace Chloe.DbExpressions
         {
             return visitor.Visit(this);
         }
-
-        public string GenerateUniqueColumnAlias(string defaultAlias = "C")
-        {
-            string alias = defaultAlias;
-            int i = 0;
-            while (this.Columns.Any(a => a.Alias.Equals(alias, StringComparison.OrdinalIgnoreCase)))
-            {
-                alias = defaultAlias + i.ToString();
-                i++;
-            }
-
-            return alias;
-        }
     }
 }

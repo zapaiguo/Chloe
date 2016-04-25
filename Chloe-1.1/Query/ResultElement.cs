@@ -70,7 +70,7 @@ namespace Chloe.Query
 
         static bool ExistTableAlias(DbFromTableExpression fromTable, string alias)
         {
-            if (fromTable.Table.Alias == alias)
+            if (string.Equals(fromTable.Table.Alias, alias, StringComparison.OrdinalIgnoreCase))
                 return true;
 
             foreach (var item in fromTable.JoinTables)
@@ -83,7 +83,7 @@ namespace Chloe.Query
         }
         static bool ExistTableAlias(DbJoinTableExpression joinTable, string alias)
         {
-            if (joinTable.Table.Alias == alias)
+            if (string.Equals(joinTable.Table.Alias, alias, StringComparison.OrdinalIgnoreCase))
                 return true;
 
             foreach (var item in joinTable.JoinTables)

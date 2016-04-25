@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.DbExpressions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -50,6 +51,18 @@ namespace Chloe.Utility
             return mapTypes.Contains(unType);
         }
 
+        public static string GenerateUniqueColumnAlias(DbSqlQueryExpression sqlQuery, string defaultAlias = "C")
+        {
+            string alias = defaultAlias;
+            int i = 0;
+            while (sqlQuery.Columns.Any(a => string.Equals(a.Alias, alias, StringComparison.OrdinalIgnoreCase)))
+            {
+                alias = defaultAlias + i.ToString();
+                i++;
+            }
+
+            return alias;
+        }
     }
 
 }

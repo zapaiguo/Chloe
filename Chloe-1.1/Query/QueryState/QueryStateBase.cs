@@ -187,7 +187,7 @@ namespace Chloe.Query.QueryState
                     }
                     else
                     {
-                        alias = sqlQuery.GenerateUniqueColumnAlias();
+                        alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
                         DbColumnExpression columnExp = new DbColumnExpression(orderExp.Type, orderExp, alias);
                         sqlQuery.Columns.Add(columnExp);
                     }

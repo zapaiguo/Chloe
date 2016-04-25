@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Chloe.Utility;
 
 
 namespace Chloe.Query
@@ -85,7 +86,7 @@ namespace Chloe.Query
         public IObjectActivtorCreator GenarateObjectActivtorCreator(DbSqlQueryExpression sqlQuery)
         {
             List<DbColumnExpression> columnList = sqlQuery.Columns;
-            string alias = sqlQuery.GenerateUniqueColumnAlias();
+            string alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
             DbColumnExpression columnExp = new DbColumnExpression(this._type, this._exp, alias);
             columnList.Add(columnExp);
             int ordinal = columnList.Count - 1;
@@ -102,7 +103,7 @@ namespace Chloe.Query
         {
             List<DbColumnExpression> columnList = sqlQuery.Columns;
 
-            string alias = sqlQuery.GenerateUniqueColumnAlias();
+            string alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
             DbColumnExpression columnExp = new DbColumnExpression(this._type, this._exp, alias);
 
             columnList.Add(columnExp);
@@ -278,7 +279,7 @@ namespace Chloe.Query
                 DbColumnExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.Equals(exp, a.Body)).FirstOrDefault();
                 if (dbColumnExp == null)
                 {
-                    string alias = sqlQuery.GenerateUniqueColumnAlias(pi.Name);
+                    string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, pi.Name);
                     DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
 
                     columnList.Add(columnExp);
@@ -313,7 +314,7 @@ namespace Chloe.Query
                 DbColumnExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.Equals(exp, a.Body)).FirstOrDefault();
                 if (dbColumnExp == null)
                 {
-                    string alias = sqlQuery.GenerateUniqueColumnAlias(member.Name);
+                    string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, member.Name);
                     DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
 
                     columnList.Add(columnExp);
@@ -353,7 +354,7 @@ namespace Chloe.Query
                 ParameterInfo pi = kv.Key;
                 DbExpression exp = kv.Value;
 
-                string alias = sqlQuery.GenerateUniqueColumnAlias(pi.Name);
+                string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, pi.Name);
                 DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
 
                 columnList.Add(columnExp);
@@ -375,7 +376,7 @@ namespace Chloe.Query
                 MemberInfo member = kv.Key;
                 DbExpression exp = kv.Value;
 
-                string alias = sqlQuery.GenerateUniqueColumnAlias(member.Name);
+                string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, member.Name);
                 DbColumnExpression columnExp = new DbColumnExpression(exp.Type, exp, alias);
 
                 columnList.Add(columnExp);
