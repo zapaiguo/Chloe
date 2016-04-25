@@ -156,17 +156,7 @@ namespace Chloe.Query
                 return base.VisitMethodCall(exp);
             }
 
-            DbExpression obj = null;
-            List<DbExpression> argList = new List<DbExpression>(exp.Arguments.Count);
-            DbExpression dbExp = null;
-            if (exp.Object != null)
-                obj = this.VisistExpression(exp.Object);
-            foreach (var item in exp.Arguments)
-            {
-                argList.Add(this.VisistExpression(item));
-            }
-
-            dbExp = DbExpression.MethodCall(obj, exp.Method, argList.AsReadOnly());
+            DbExpression dbExp = this.VisistExpression(exp);
 
             MappingFieldExpression ret = new MappingFieldExpression(exp.Type, dbExp);
             return ret;
