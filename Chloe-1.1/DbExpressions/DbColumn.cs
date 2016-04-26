@@ -8,21 +8,18 @@ using System.Threading.Tasks;
 namespace Chloe.DbExpressions
 {
     [System.Diagnostics.DebuggerDisplay("Name = {Name}")]
-    public class DbColumnExpression : DbExpression
+    public class DbColumn
     {
         string _name;
-        public DbColumnExpression(Type type, string name)
-            : base(DbExpressionType.Column, type)
+        Type _type;
+        public DbColumn(string name, Type type)
         {
             this._name = name;
+            this._type = type;
         }
 
         public string Name { get { return this._name; } }
-
-        public override T Accept<T>(DbExpressionVisitor<T> visitor)
-        {
-            return visitor.Visit(this);
-        }
+        public Type Type { get { return this._type; } }
     }
 
 }

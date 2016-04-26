@@ -9,13 +9,13 @@ namespace Chloe.DbExpressions
 {
     class DbDeleteExpression : DbExpression
     {
-        DbTableExpression _table;
+        DbTable _table;
         DbExpression _condition;
-        public DbDeleteExpression(DbTableExpression table)
+        public DbDeleteExpression(DbTable table)
             : this(table, null)
         {
         }
-        public DbDeleteExpression(DbTableExpression table, DbExpression condition)
+        public DbDeleteExpression(DbTable table, DbExpression condition)
             : base(DbExpressionType.Delete, UtilConstants.TypeOfVoid)
         {
             Utils.CheckNull(table);
@@ -24,7 +24,7 @@ namespace Chloe.DbExpressions
             this._condition = condition;
         }
 
-        public DbTableExpression Table { get { return this._table; } }
+        public DbTable Table { get { return this._table; } }
         public DbExpression Condition { get { return this._condition; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
@@ -35,24 +35,24 @@ namespace Chloe.DbExpressions
 
     class DbUpdateExpression : DbExpression
     {
-        DbTableExpression _table;
+        DbTable _table;
         DbExpression _condition;
-        public DbUpdateExpression(DbTableExpression table)
+        public DbUpdateExpression(DbTable table)
             : this(table, null)
         {
         }
-        public DbUpdateExpression(DbTableExpression table, DbExpression condition)
+        public DbUpdateExpression(DbTable table, DbExpression condition)
             : base(DbExpressionType.Update, UtilConstants.TypeOfVoid)
         {
             Utils.CheckNull(table);
 
             this._table = table;
             this._condition = condition;
-            this.UpdateColumns = new Dictionary<DbColumnExpression, DbExpression>();
+            this.UpdateColumns = new Dictionary<DbColumn, DbExpression>();
         }
 
-        public DbTableExpression Table { get { return this._table; } }
-        public Dictionary<DbColumnExpression, DbExpression> UpdateColumns { get; private set; }
+        public DbTable Table { get { return this._table; } }
+        public Dictionary<DbColumn, DbExpression> UpdateColumns { get; private set; }
         public DbExpression Condition { get { return this._condition; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)

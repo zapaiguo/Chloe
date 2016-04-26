@@ -33,7 +33,6 @@ namespace Chloe.DbExpressions
         public abstract T Visit(DbTableExpression exp);
         public abstract T Visit(DbTableSegmentExpression exp);
 
-        public abstract T Visit(DbColumnExpression exp);
         public abstract T Visit(DbColumnAccessExpression exp);
         public abstract T Visit(DbColumnSegmentExpression exp);
 

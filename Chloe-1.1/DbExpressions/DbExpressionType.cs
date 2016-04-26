@@ -31,7 +31,6 @@ namespace Chloe.DbExpressions
         Table,
         TableSegment,
 
-        Column,
         ColumnAccess,
         ColumnSegment,
 

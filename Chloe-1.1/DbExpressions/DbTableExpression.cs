@@ -1,18 +1,22 @@
 ﻿using Chloe.Utility;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Chloe.DbExpressions
 {
-    [System.Diagnostics.DebuggerDisplay("Name = {Name}")]
     public class DbTableExpression : DbExpression
     {
-        string _name;
-        public DbTableExpression(string name)
+        DbTable _table;
+        public DbTableExpression(DbTable table)
             : base(DbExpressionType.Table, UtilConstants.TypeOfVoid)
         {
-            this._name = name;
+            this._table = table;
         }
 
-        public string Name { get { return this._name; } }
+        public DbTable Table { get { return this._table; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

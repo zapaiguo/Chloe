@@ -15,7 +15,7 @@ namespace Chloe.Query
     public interface IMappingObjectExpression
     {
         IObjectActivtorCreator GenarateObjectActivtorCreator(DbSqlQueryExpression sqlQuery);
-        IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableSegmentExpression tableExp);
+        IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTable table);
         void AddConstructorParameter(ParameterInfo p, DbExpression exp);
         void AddConstructorEntityParameter(ParameterInfo p, IMappingObjectExpression exp);
         void AddMemberExpression(MemberInfo p, DbExpression exp);
@@ -99,7 +99,7 @@ namespace Chloe.Query
             throw new NotSupportedException();
         }
 
-        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableSegmentExpression tableExp)
+        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTable table)
         {
             List<DbColumnSegmentExpression> columnList = sqlQuery.Columns;
 
@@ -107,8 +107,8 @@ namespace Chloe.Query
             DbColumnSegmentExpression columnSegExp = new DbColumnSegmentExpression(this._type, this._exp, alias);
 
             columnList.Add(columnSegExp);
-            DbColumnExpression columnExp = new DbColumnExpression(this._type, alias);
-            DbColumnAccessExpression cae = new DbColumnAccessExpression(tableExp, columnExp);
+
+            DbColumnAccessExpression cae = new DbColumnAccessExpression(this._type, table, alias);
 
             return new MappingFieldExpression(this._type, cae);
         }
@@ -276,7 +276,7 @@ namespace Chloe.Query
                 ParameterInfo pi = kv.Key;
                 DbExpression exp = kv.Value;
                 int ordinal;
-                DbColumnSegmentExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.Equals(exp, a.Body)).FirstOrDefault();
+                DbColumnSegmentExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.ExpressionEquals(exp, a.Body)).FirstOrDefault();
                 if (dbColumnExp == null)
                 {
                     string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, pi.Name);
@@ -311,7 +311,7 @@ namespace Chloe.Query
                 DbExpression exp = kv.Value;
 
                 int ordinal;
-                DbColumnSegmentExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.Equals(exp, a.Body)).FirstOrDefault();
+                DbColumnSegmentExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.ExpressionEquals(exp, a.Body)).FirstOrDefault();
                 if (dbColumnExp == null)
                 {
                     string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, member.Name);
@@ -343,7 +343,7 @@ namespace Chloe.Query
             return mappingEntity;
         }
 
-        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTableSegmentExpression tableExp)
+        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTable table)
         {
             List<DbColumnSegmentExpression> columnList = sqlQuery.Columns;
             MappingObjectExpression moe = new MappingObjectExpression(this.ConstructorDescriptor);
@@ -359,9 +359,7 @@ namespace Chloe.Query
 
                 columnList.Add(columnSegExp);
 
-                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, alias);
-
-                DbColumnAccessExpression cae = new DbColumnAccessExpression(tableExp, columnExp);
+                DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, table, alias);
                 moe.AddConstructorParameter(pi, cae);
             }
 
@@ -370,7 +368,7 @@ namespace Chloe.Query
                 ParameterInfo pi = kv.Key;
                 IMappingObjectExpression val = kv.Value;
 
-                IMappingObjectExpression navMappingMember = val.ToNewObjectExpression(sqlQuery, tableExp);
+                IMappingObjectExpression navMappingMember = val.ToNewObjectExpression(sqlQuery, table);
                 moe.AddConstructorEntityParameter(pi, navMappingMember);
             }
 
@@ -384,8 +382,7 @@ namespace Chloe.Query
 
                 columnList.Add(columnSegExp);
 
-                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, alias);
-                DbColumnAccessExpression cae = new DbColumnAccessExpression(tableExp, columnExp);
+                DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, table, alias);
                 moe.AddMemberExpression(member, cae);
 
                 if (exp == this.PrimaryKey)
@@ -398,7 +395,7 @@ namespace Chloe.Query
                 MemberInfo member = kv.Key;
                 IMappingObjectExpression val = kv.Value;
 
-                IMappingObjectExpression navMappingMember = val.ToNewObjectExpression(sqlQuery, tableExp);
+                IMappingObjectExpression navMappingMember = val.ToNewObjectExpression(sqlQuery, table);
                 moe.AddNavMemberExpression(member, navMappingMember);
             }
 

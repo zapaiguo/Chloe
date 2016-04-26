@@ -59,8 +59,9 @@
     <Compile Include="Core\IJoinedQuery`.cs" />
     <Compile Include="Core\IOrderedQuery`.cs" />
     <Compile Include="Core\IQuery`.cs" />
-    <Compile Include="DbExpressions\DbColumnExpression.cs" />
+    <Compile Include="DbExpressions\DbColumn.cs" />
     <Compile Include="DbExpressions\DbFunctionExpression.cs" />
+    <Compile Include="DbExpressions\DbTableExpression.cs" />
     <Compile Include="DbExpressions\DbUpdateExpression.cs" />
     <Compile Include="Query\DbFunction.cs" />
     <Compile Include="Extensions\DataReaderExtensions.cs" />
@@ -92,7 +93,7 @@
     <Compile Include="DbExpressions\DbConvertExpression.cs" />
     <Compile Include="DbExpressions\DbSqlQueryExpression.cs" />
     <Compile Include="DbExpressions\DbSubQueryExpression.cs" />
-    <Compile Include="DbExpressions\DbTableExpression.cs" />
+    <Compile Include="DbExpressions\DbTable.cs" />
     <Compile Include="DbExpressions\DbTableSegmentExpression.cs" />
     <Compile Include="DbExpressions\DbConstantExpression.cs" />
     <Compile Include="DbExpressions\DbDivideExpression.cs" />

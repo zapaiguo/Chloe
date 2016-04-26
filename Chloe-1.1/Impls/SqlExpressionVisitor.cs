@@ -58,7 +58,7 @@ namespace Chloe.Impls
 
             List<DbExpressionType> list = new List<DbExpressionType>();
             list.Add(DbExpressionType.MemberAccess);
-            list.Add(DbExpressionType.Column);
+            list.Add(DbExpressionType.ColumnAccess);
             list.Add(DbExpressionType.Constant);
             list.Add(DbExpressionType.Parameter);
             list.Add(DbExpressionType.Call);
@@ -343,7 +343,8 @@ namespace Chloe.Impls
 
         public override ISqlState Visit(DbTableExpression exp)
         {
-            ISqlState state = QuoteName(exp.Name);
+            var state = new SqlState(1);
+            state.Append(QuoteName(exp.Table.Name));
             return state;
         }
         public override ISqlState Visit(DbTableSegmentExpression exp)
@@ -354,16 +355,10 @@ namespace Chloe.Impls
             return state;
         }
 
-        public override ISqlState Visit(DbColumnExpression exp)
-        {
-            var state = new SqlState(1);
-            state.Append(QuoteName(exp.Name));
-            return state;
-        }
         public override ISqlState Visit(DbColumnAccessExpression exp)
         {
             var state = new SqlState(3);
-            state.Append(QuoteName(exp.Table.Alias), ".", exp.Column.Accept(this));
+            state.Append(QuoteName(exp.Table.Name), ".", QuoteName(exp.Column.Name));
             return state;
         }
         public override ISqlState Visit(DbColumnSegmentExpression exp)

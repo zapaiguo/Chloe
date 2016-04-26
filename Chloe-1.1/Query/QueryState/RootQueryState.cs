@@ -38,9 +38,10 @@ namespace Chloe.Query.QueryState
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(UtilConstants.EmptyTypeArray));
 
             DbTableSegmentExpression tableExp = resultElement.FromTable.Table;
+            DbTable table = new DbTable(tableExp.Alias);
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors)
             {
-                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(tableExp, item.Column);
+                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
 
                 moe.AddMemberExpression(item.MemberInfo, columnAccessExpression);
                 if (item.IsPrimaryKey)
@@ -53,9 +54,10 @@ namespace Chloe.Query.QueryState
         }
         static DbFromTableExpression CreateRootTable(string tableName, string alias)
         {
-            DbTableExpression rootTable = new DbTableExpression(tableName);
-            DbTableSegmentExpression tableExp = new DbTableSegmentExpression(rootTable, alias);
-            var table = new DbFromTableExpression(tableExp);
+            DbTable rootTable = new DbTable(tableName);
+            DbTableExpression tableExp = new DbTableExpression(rootTable);
+            DbTableSegmentExpression tableSegExp = new DbTableSegmentExpression(tableExp, alias);
+            var table = new DbFromTableExpression(tableSegExp);
             return table;
         }
     }

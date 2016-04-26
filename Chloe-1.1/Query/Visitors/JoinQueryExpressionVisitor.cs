@@ -42,9 +42,10 @@ namespace Chloe.Query.Visitors
             DbTableSegmentExpression tableExp = CreateTableExpression(typeDescriptor.TableName, this._resultElement.GenerateUniqueTableAlias(typeDescriptor.TableName));
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(UtilConstants.EmptyTypeArray));
 
+            DbTable table = new DbTable(tableExp.Alias);
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors)
             {
-                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(tableExp, item.Column);
+                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
                 moe.AddMemberExpression(item.MemberInfo, columnAccessExpression);
 
                 if (item.IsPrimaryKey)
@@ -115,9 +116,10 @@ namespace Chloe.Query.Visitors
         }
         static DbTableSegmentExpression CreateTableExpression(string tableName, string alias)
         {
-            DbTableExpression rootTable = new DbTableExpression(tableName);
-            DbTableSegmentExpression tableExp = new DbTableSegmentExpression(rootTable, alias);
-            return tableExp;
+            DbTable rootTable = new DbTable(tableName);
+            DbTableExpression tableExp = new DbTableExpression(rootTable);
+            DbTableSegmentExpression tableSegExp = new DbTableSegmentExpression(tableExp, alias);
+            return tableSegExp;
         }
     }
 }
