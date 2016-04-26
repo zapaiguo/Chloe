@@ -1,4 +1,5 @@
-﻿using Chloe.Utility;
+﻿using Chloe.DbExpressions;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,16 +29,20 @@ namespace Chloe.Descriptors
         {
             Type t = this.EntityType;
             var tableFlags = t.GetCustomAttributes(typeof(TableAttribute), true);
+
+            string tableName;
             if (tableFlags.Length > 0)
             {
                 TableAttribute tableFlag = (TableAttribute)tableFlags.First();
                 if (tableFlag.Name != null)
-                    this.TableName = tableFlag.Name;
+                    tableName = tableFlag.Name;
                 else
-                    this.TableName = t.Name;
+                    tableName = t.Name;
             }
             else
-                this.TableName = t.Name;
+                tableName = t.Name;
+
+            this.Table = new DbTable(tableName);
         }
         void InitMemberInfo()
         {
@@ -150,9 +155,8 @@ namespace Chloe.Descriptors
             return memberDescriptor;
         }
 
-
         public Type EntityType { get; private set; }
-        public string TableName { get; private set; }
+        public DbTable Table { get; private set; }
         public ICollection<MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors.Values; } }
         public ICollection<NavigationMemberDescriptor> NavigationMemberDescriptors { get { return this._navigationMemberDescriptors.Values; } }
 
@@ -204,16 +208,6 @@ namespace Chloe.Descriptors
             }
 
             return instance;
-        }
-    }
-
-    internal static class MappingTypeExtensions
-    {
-        public static MappingTypeDescriptor GetEntityDescriptor(this Type type)
-        {
-            Utils.CheckNull(type);
-
-            return MappingTypeDescriptor.GetEntityDescriptor(type);
         }
     }
 }

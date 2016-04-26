@@ -39,10 +39,10 @@ namespace Chloe.Query.Visitors
             Type type = exp.ElementType;
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(type);
 
-            DbTableSegmentExpression tableExp = CreateTableExpression(typeDescriptor.TableName, this._resultElement.GenerateUniqueTableAlias(typeDescriptor.TableName));
+            DbTable table = typeDescriptor.Table;
+            DbTableSegmentExpression tableExp = CreateTableExpression(table, this._resultElement.GenerateUniqueTableAlias(table.Name));
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(UtilConstants.EmptyTypeArray));
 
-            DbTable table = new DbTable(tableExp.Alias);
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
@@ -114,10 +114,9 @@ namespace Chloe.Query.Visitors
             JoinQueryResult ret = state.ToJoinQueryResult(this._joinType, this._conditionExpression, this._resultElement.FromTable, this._moeList, this._resultElement.GenerateUniqueTableAlias());
             return ret;
         }
-        static DbTableSegmentExpression CreateTableExpression(string tableName, string alias)
+        static DbTableSegmentExpression CreateTableExpression(DbTable table, string alias)
         {
-            DbTable rootTable = new DbTable(tableName);
-            DbTableExpression tableExp = new DbTableExpression(rootTable);
+            DbTableExpression tableExp = new DbTableExpression(table);
             DbTableSegmentExpression tableSegExp = new DbTableSegmentExpression(tableExp, alias);
             return tableSegExp;
         }
