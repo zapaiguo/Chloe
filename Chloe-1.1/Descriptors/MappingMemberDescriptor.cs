@@ -1,17 +1,18 @@
-﻿using System;
+﻿using Chloe.DbExpressions;
+using System;
 using System.Reflection;
 
 namespace Chloe.Descriptors
 {
-    public class MappingMemberDescriptor : MemberDescriptor
+    public abstract class MappingMemberDescriptor : MemberDescriptor
     {
-        public MappingMemberDescriptor(MemberInfo memberInfo, Type memberType, MappingTypeDescriptor declaringEntityDescriptor, string columnName)
+        protected MappingMemberDescriptor(MemberInfo memberInfo, Type memberType, MappingTypeDescriptor declaringEntityDescriptor, string columnName)
             : base(memberInfo, memberType, declaringEntityDescriptor)
         {
-            this.ColumnName = columnName;
+            this.Column = new DbColumnExpression(memberType, columnName);
         }
 
-        public string ColumnName { get; private set; }
+        public DbColumnExpression Column { get; private set; }
         public bool IsPrimaryKey { get; set; }
         public bool IsAutoIncrement { get; set; }
     }

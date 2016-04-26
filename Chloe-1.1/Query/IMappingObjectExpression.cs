@@ -104,11 +104,11 @@ namespace Chloe.Query
             List<DbColumnSegmentExpression> columnList = sqlQuery.Columns;
 
             string alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
-            DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(this._type, this._exp, alias);
+            DbColumnSegmentExpression columnSegExp = new DbColumnSegmentExpression(this._type, this._exp, alias);
 
-            columnList.Add(columnExp);
-
-            DbColumnAccessExpression cae = new DbColumnAccessExpression(this._type, tableExp, alias);
+            columnList.Add(columnSegExp);
+            DbColumnExpression columnExp = new DbColumnExpression(this._type, alias);
+            DbColumnAccessExpression cae = new DbColumnAccessExpression(tableExp, columnExp);
 
             return new MappingFieldExpression(this._type, cae);
         }
@@ -355,10 +355,13 @@ namespace Chloe.Query
                 DbExpression exp = kv.Value;
 
                 string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, pi.Name);
-                DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
+                DbColumnSegmentExpression columnSegExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
 
-                columnList.Add(columnExp);
-                DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, tableExp, alias);
+                columnList.Add(columnSegExp);
+
+                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, alias);
+
+                DbColumnAccessExpression cae = new DbColumnAccessExpression(tableExp, columnExp);
                 moe.AddConstructorParameter(pi, cae);
             }
 
@@ -377,10 +380,12 @@ namespace Chloe.Query
                 DbExpression exp = kv.Value;
 
                 string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, member.Name);
-                DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
+                DbColumnSegmentExpression columnSegExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
 
-                columnList.Add(columnExp);
-                DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, tableExp, alias);
+                columnList.Add(columnSegExp);
+
+                DbColumnExpression columnExp = new DbColumnExpression(exp.Type, alias);
+                DbColumnAccessExpression cae = new DbColumnAccessExpression(tableExp, columnExp);
                 moe.AddMemberExpression(member, cae);
 
                 if (exp == this.PrimaryKey)

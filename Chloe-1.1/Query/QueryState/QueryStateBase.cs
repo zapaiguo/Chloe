@@ -188,11 +188,12 @@ namespace Chloe.Query.QueryState
                     else
                     {
                         alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
-                        DbColumnSegmentExpression columnExp = new DbColumnSegmentExpression(orderExp.Type, orderExp, alias);
-                        sqlQuery.Columns.Add(columnExp);
+                        DbColumnSegmentExpression columnSegExp = new DbColumnSegmentExpression(orderExp.Type, orderExp, alias);
+                        sqlQuery.Columns.Add(columnSegExp);
                     }
 
-                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(orderExp.Type, tableExp, alias);
+                    DbColumnExpression columnExp = new DbColumnExpression(orderExp.Type, alias);
+                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(tableExp, columnExp);
                     result.OrderSegments.Add(new DbOrderSegmentExpression(columnAccessExpression, orderPart.OrderType));
                 }
             }

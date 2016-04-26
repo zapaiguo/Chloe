@@ -40,7 +40,7 @@ namespace Chloe.Query.QueryState
             DbTableSegmentExpression tableExp = resultElement.FromTable.Table;
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors)
             {
-                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(item.MemberType, tableExp, item.ColumnName);
+                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(tableExp, item.Column);
 
                 moe.AddMemberExpression(item.MemberInfo, columnAccessExpression);
                 if (item.IsPrimaryKey)
