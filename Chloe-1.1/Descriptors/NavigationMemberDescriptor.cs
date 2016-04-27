@@ -5,6 +5,8 @@ namespace Chloe.Descriptors
 {
     public class NavigationMemberDescriptor : MemberDescriptor
     {
+        MemberInfo _memberInfo;
+
         /// <summary>
         /// 假设实体 Order 内有个导航属性 User， Order.UserId=User.Id，则 ThisKey 为 Order.UserId，AssociatingKey 为 User.Id
         /// </summary>
@@ -14,12 +16,17 @@ namespace Chloe.Descriptors
         /// <param name="thisKey">定义导航属性实体相关的属性或字段名称</param>
         /// <param name="associatingKey">关联导航属性实体类型的属性或字段名称</param>
         public NavigationMemberDescriptor(MemberInfo memberInfo, Type memberType, MappingTypeDescriptor declaringEntityDescriptor, string thisKey, string associatingKey)
-            : base(memberInfo, memberType, declaringEntityDescriptor)
+            : base(declaringEntityDescriptor)
         {
+            this._memberInfo = memberInfo;
             this.ThisKey = thisKey;
             this.AssociatingKey = associatingKey;
         }
 
+        public override MemberInfo MemberInfo
+        {
+            get { return this._memberInfo; }
+        }
         /// <summary>
         /// 假设实体 Order 内有个导航属性 User， Order.UserId=User.Id，则 ThisKey 为 Order.UserId，AssociatingKey 为 User.Id
         /// </summary>

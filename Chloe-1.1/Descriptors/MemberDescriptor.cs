@@ -3,22 +3,17 @@ using System.Reflection;
 
 namespace Chloe.Descriptors
 {
-    public class MemberDescriptor
+    public abstract class MemberDescriptor
     {
-        public MemberDescriptor(MemberInfo memberInfo, Type memberType, MappingTypeDescriptor declaringEntityDescriptor)
+        protected MemberDescriptor(MappingTypeDescriptor declaringEntityDescriptor)
         {
-            this.MemberInfo = memberInfo;
-            this.MemberType = memberType;
+            //this.MemberInfo = memberInfo;
+            //this.MemberType = memberType;
             this.DeclaringEntityDescriptor = declaringEntityDescriptor;
-            this.Init();
         }
 
-        void Init()
-        {
-
-        }
-        public MemberInfo MemberInfo { get; set; }
-        public Type MemberType { get; set; }
+        public abstract MemberInfo MemberInfo { get; }
+        //public abstract Type MemberType { get; }
         public MappingTypeDescriptor DeclaringEntityDescriptor { get; set; }
     }
 }

@@ -11,11 +11,14 @@ using Chloe.Descriptors;
 using Chloe.Query.Visitors;
 using Chloe.DbExpressions;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 
 namespace Chloe
 {
     public abstract class DbContext : IDbContext, IDisposable
     {
+        bool _disposed = false;
         InternalDbSession _dbSession;
         IDbServiceProvider _dbServiceProvider;
 
@@ -30,9 +33,6 @@ namespace Chloe
             this._dbSession = new InternalDbSession(dbServiceProvider.CreateConnection());
         }
 
-        //public virtual string ConnectionString { get { return this.DatabaseContext.DbConnection.ConnectionString; } }
-        //public virtual bool IsInTransaction { get { return this.DatabaseContext.IsInTransaction; } }
-
         public virtual IQuery<T> Query<T>() where T : new()
         {
             return new Query<T>(this);
@@ -45,7 +45,54 @@ namespace Chloe
 
         public virtual int Update<T>(T entity)
         {
-            throw new NotImplementedException();
+            Utils.CheckNull(entity);
+
+            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+
+            var keyMember = typeDescriptor.PrimaryKeys.FirstOrDefault();
+
+            if (keyMember == null)
+                throw new Exception("实体未定义主键");
+
+            object keyVal = null;
+            MappingMemberDescriptor keyMemberDescriptor = null;
+
+            Dictionary<DbColumn, DbExpression> updateColumns = new Dictionary<DbColumn, DbExpression>();
+            foreach (var kv in typeDescriptor.MappingMemberDescriptors)
+            {
+                var member = kv.Key;
+                var memberDescriptor = kv.Value;
+
+                var val = memberDescriptor.GetValue(entity);
+                if (member == keyMember)
+                {
+                    keyVal = val;
+                    keyMemberDescriptor = memberDescriptor;
+                    continue;
+                }
+
+                DbExpression valExp = new DbParameterExpression(val);
+                updateColumns.Add(memberDescriptor.Column, valExp);
+            }
+
+            if (keyVal == null)
+                throw new Exception(string.Format("实体主键 {0} 值为 null", keyMember.Name));
+
+            if (updateColumns.Count == 0)
+                throw new Exception();
+
+            DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
+            DbExpression right = new DbParameterExpression(keyVal);
+            DbExpression conditionExp = new DbEqualExpression(left, right);
+
+            DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
+
+            foreach (var item in updateColumns)
+            {
+                e.UpdateColumns.Add(item.Key, item.Value);
+            }
+
+            return this.ExecuteSqlCommand(e);
         }
         public virtual int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> condition)
         {
@@ -65,22 +112,32 @@ namespace Chloe
                 e.UpdateColumns.Add(item.Key, item.Value);
             }
 
-            DbExpressionVisitorBase dbExpVisitor = this._dbServiceProvider.CreateDbExpressionVisitor();
-            var sqlState = e.Accept(dbExpVisitor);
-
-            string sql = sqlState.ToSql();
-
-#if DEBUG
-            Debug.WriteLine(sql);
-#endif
-
-            int r = this._dbSession.ExecuteNonQuery(sql, dbExpVisitor.ParameterStorage);
-            return r;
+            return this.ExecuteSqlCommand(e);
         }
 
         public virtual int Delete<T>(T entity)
         {
-            throw new NotImplementedException();
+            Utils.CheckNull(entity);
+
+            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+
+            var keyMember = typeDescriptor.PrimaryKeys.FirstOrDefault();
+
+            if (keyMember == null)
+                throw new Exception("实体未定义主键");
+
+            MappingMemberDescriptor memberDescriptor = typeDescriptor.MappingMemberDescriptors[keyMember];
+            var val = memberDescriptor.GetValue(entity);
+
+            if (val == null)
+                throw new Exception(string.Format("实体主键 {0} 值为 null", keyMember.Name));
+
+            DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, memberDescriptor.Column);
+            DbExpression right = new DbParameterExpression(val);
+            DbExpression conditionExp = new DbEqualExpression(left, right);
+
+            DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
+            return this.ExecuteSqlCommand(e);
         }
         public virtual int Delete<T>(Expression<Func<T, bool>> condition)
         {
@@ -92,6 +149,17 @@ namespace Chloe
 
             DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
 
+            return this.ExecuteSqlCommand(e);
+        }
+
+        public void Dispose()
+        {
+            this._dbSession.Dispose();
+            this._disposed = true;
+        }
+
+        int ExecuteSqlCommand(DbExpression e)
+        {
             DbExpressionVisitorBase dbExpVisitor = this._dbServiceProvider.CreateDbExpressionVisitor();
             var sqlState = e.Accept(dbExpVisitor);
 
@@ -103,51 +171,6 @@ namespace Chloe
 
             int r = this._dbSession.ExecuteNonQuery(sql, dbExpVisitor.ParameterStorage);
             return r;
-        }
-
-        public virtual int ExecuteNonQuery(string sql, IDictionary<string, object> parameters)
-        {
-            throw new NotImplementedException();
-        }
-        public virtual object ExecuteScalar(string sql, IDictionary<string, object> parameters)
-        {
-            throw new NotImplementedException();
-        }
-        public virtual IDataReader ExecuteReader(string sql, IDictionary<string, object> parameters)
-        {
-            throw new NotImplementedException();
-        }
-        public virtual DataTable ExecuteDataTable(string sql, IDictionary<string, object> parameters)
-        {
-            throw new NotImplementedException();
-        }
-
-        //public virtual void BeginTran()
-        //{
-        //    this.DatabaseContext.BeginTransaction();
-        //}
-        //public virtual void BeginTran(IsolationLevel il)
-        //{
-        //    this.DatabaseContext.BeginTransaction(il);
-        //}
-        //public virtual void CommitTran()
-        //{
-        //    this.DatabaseContext.CommitTransaction();
-        //}
-        //public virtual void RollbackTran()
-        //{
-        //    this.DatabaseContext.RollbackTransaction();
-        //}
-
-        //public virtual void Dispose()
-        //{
-        //    if (this._databaseContext != null)
-        //        this._databaseContext.Dispose();
-        //}
-
-        public void Dispose()
-        {
-
         }
     }
 }

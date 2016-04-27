@@ -75,7 +75,7 @@ namespace Chloe.Extensions
             if (tempExp.NodeType == DbExpressionType.MemberAccess)
             {
                 DbParameterExpression val;
-                if (TryParseToParameterExpression((DbMemberExpression)tempExp, out val))
+                if (DbExpressionExtensions.TryParseToParameterExpression((DbMemberExpression)tempExp, out val))
                 {
                     if (cList != null)
                     {

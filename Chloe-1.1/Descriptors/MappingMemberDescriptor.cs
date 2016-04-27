@@ -6,14 +6,17 @@ namespace Chloe.Descriptors
 {
     public abstract class MappingMemberDescriptor : MemberDescriptor
     {
-        protected MappingMemberDescriptor(MemberInfo memberInfo, Type memberType, MappingTypeDescriptor declaringEntityDescriptor, string columnName)
-            : base(memberInfo, memberType, declaringEntityDescriptor)
+        protected MappingMemberDescriptor(MappingTypeDescriptor declaringEntityDescriptor)
+            : base(declaringEntityDescriptor)
         {
-            this.Column = new DbColumn(columnName, memberType);
+
         }
 
-        public DbColumn Column { get; private set; }
         public bool IsPrimaryKey { get; set; }
         public bool IsAutoIncrement { get; set; }
+
+        public abstract MemberTypes MemberType { get; }
+        public abstract DbColumn Column { get; }
+        public abstract object GetValue(object instance);
     }
 }

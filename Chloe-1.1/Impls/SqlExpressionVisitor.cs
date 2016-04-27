@@ -366,7 +366,7 @@ namespace Chloe.Impls
             }
 
             DbParameterExpression newExp;
-            if (exp.TryParseToParameterExpression(out newExp))
+            if (DbExpressionExtensions.TryParseToParameterExpression(exp, out newExp))
             {
                 return newExp.Accept(this);
             }
@@ -490,7 +490,7 @@ namespace Chloe.Impls
             else if (exp.OrderType == OrderType.Desc)
                 state.Append(exp.DbExpression.Accept(this), " DESC");
             else
-                throw new NotImplementedException("OrderType: " + exp.OrderType);
+                throw new NotSupportedException("OrderType: " + exp.OrderType);
 
             return state;
         }

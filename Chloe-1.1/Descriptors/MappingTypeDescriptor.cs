@@ -14,6 +14,8 @@ namespace Chloe.Descriptors
 
         Dictionary<MemberInfo, DbColumnAccessExpression> _memberColumnMap;
 
+        List<MemberInfo> _primaryKeys = new List<MemberInfo>();
+
         MappingTypeDescriptor(Type t)
         {
             this.EntityType = t;
@@ -22,7 +24,6 @@ namespace Chloe.Descriptors
 
         void Init()
         {
-            //_typeMemberValueSetters = TypeMemberValueSetters.GetInstance(this.EntityType);
             this.InitTableInfo();
             this.InitMemberInfo();
             this.InitMemberColumnMap();
@@ -144,6 +145,7 @@ namespace Chloe.Descriptors
                 if (columnFlag.IsPrimaryKey)
                 {
                     isPrimaryKey = true;
+                    this._primaryKeys.Add(member);
                 }
             }
             else
@@ -169,8 +171,8 @@ namespace Chloe.Descriptors
 
         public Type EntityType { get; private set; }
         public DbTable Table { get; private set; }
-        //public ICollection<MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors.Values; } }
-        //public ICollection<NavigationMemberDescriptor> NavigationMemberDescriptors { get { return this._navigationMemberDescriptors.Values; } }
+
+        public List<MemberInfo> PrimaryKeys { get { return this._primaryKeys; } }
 
         public Dictionary<MemberInfo, MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors; } }
         public Dictionary<MemberInfo, DbColumnAccessExpression> MemberColumnMap { get { return this._memberColumnMap; } }
