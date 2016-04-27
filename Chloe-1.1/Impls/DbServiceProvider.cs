@@ -22,9 +22,9 @@ namespace Chloe.Impls
             SqlConnection conn = new SqlConnection(this._connString);
             return conn;
         }
-        public DbExpressionVisitorBase CreateDbExpressionVisitor()
+        public AbstractDbExpressionVisitor CreateDbExpressionVisitor()
         {
-            DbExpressionVisitorBase visitor = SqlExpressionVisitor.CreateInstance();
+            AbstractDbExpressionVisitor visitor = SqlExpressionVisitor.CreateInstance();
             return visitor;
         }
     }

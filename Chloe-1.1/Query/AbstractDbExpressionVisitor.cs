@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query
 {
-    public abstract class DbExpressionVisitorBase : DbExpressionVisitor<ISqlState>
+    public abstract class AbstractDbExpressionVisitor : DbExpressionVisitor<ISqlState>
     {
         public abstract Dictionary<string, object> ParameterStorage { get; }
     }

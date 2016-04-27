@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.Visitors
 {
-    class GeneralExpressionVisitor1 : ExpressionVisitorBase
+    public class GeneralExpressionVisitor1 : ExpressionVisitorBase
     {
         MappingTypeDescriptor _typeDescriptor;
 

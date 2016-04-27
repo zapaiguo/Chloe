@@ -19,14 +19,14 @@ namespace Chloe.Database
         }
 
         #region IDataReader
-        public int Depth { get { return _reader.Depth; } }
-        public bool IsClosed { get { return _reader.IsClosed; } }
-        public int RecordsAffected { get { return _reader.RecordsAffected; } }
+        public int Depth { get { return this._reader.Depth; } }
+        public bool IsClosed { get { return this._reader.IsClosed; } }
+        public int RecordsAffected { get { return this._reader.RecordsAffected; } }
 
         public void Close()
         {
-            if (_reader != null && !_reader.IsClosed)
-                _reader.Close();
+            if (this._reader != null && !this._reader.IsClosed)
+                this._reader.Close();
             this._dbSession.Complete();
         }
         public DataTable GetSchemaTable()

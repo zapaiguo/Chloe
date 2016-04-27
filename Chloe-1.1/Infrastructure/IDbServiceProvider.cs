@@ -12,6 +12,6 @@ namespace Chloe.Infrastructure
     public interface IDbServiceProvider
     {
         IDbConnection CreateConnection();
-        DbExpressionVisitorBase CreateDbExpressionVisitor();
+        AbstractDbExpressionVisitor CreateDbExpressionVisitor();
     }
 }

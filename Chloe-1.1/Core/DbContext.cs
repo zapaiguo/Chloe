@@ -22,6 +22,8 @@ namespace Chloe
         InternalDbSession _dbSession;
         IDbServiceProvider _dbServiceProvider;
 
+        DbSession _currentSession;
+
         internal InternalDbSession DbSession { get { return this._dbSession; } }
         internal IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
 
@@ -31,6 +33,15 @@ namespace Chloe
 
             this._dbServiceProvider = dbServiceProvider;
             this._dbSession = new InternalDbSession(dbServiceProvider.CreateConnection());
+            this._currentSession = new DbSession(this._dbSession);
+        }
+
+        public DbSession CurrentSession
+        {
+            get
+            {
+                return this._currentSession;
+            }
         }
 
         public virtual IQuery<T> Query<T>() where T : new()
@@ -40,6 +51,15 @@ namespace Chloe
 
         public virtual T Insert<T>(T entity)
         {
+            Utils.CheckNull(entity);
+
+            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+            DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
+
+
+
+
+            this.ExecuteSqlCommand(e);
             throw new NotImplementedException();
         }
 
@@ -101,9 +121,8 @@ namespace Chloe
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
 
-            GeneralExpressionVisitor1 vistor = new GeneralExpressionVisitor1(typeDescriptor);
-            Dictionary<DbColumn, DbExpression> updateColumns = UpdateColumnExpressionVisitor.VisitExpression(body, typeDescriptor, vistor);
-            var conditionExp = vistor.Visit(condition);
+            Dictionary<DbColumn, DbExpression> updateColumns = typeDescriptor.UpdateColumnExpressionVisitor.Visit(body);
+            var conditionExp = typeDescriptor.Visitor.Visit(condition);
 
             DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
 
@@ -144,8 +163,7 @@ namespace Chloe
             Utils.CheckNull(condition);
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
-            GeneralExpressionVisitor1 vistor = new GeneralExpressionVisitor1(typeDescriptor);
-            var conditionExp = vistor.Visit(condition);
+            var conditionExp = typeDescriptor.Visitor.Visit(condition);
 
             DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
 
@@ -165,7 +183,7 @@ namespace Chloe
 
         int ExecuteSqlCommand(DbExpression e)
         {
-            DbExpressionVisitorBase dbExpVisitor = this._dbServiceProvider.CreateDbExpressionVisitor();
+            AbstractDbExpressionVisitor dbExpVisitor = this._dbServiceProvider.CreateDbExpressionVisitor();
             var sqlState = e.Accept(dbExpVisitor);
 
             string sql = sqlState.ToSql();

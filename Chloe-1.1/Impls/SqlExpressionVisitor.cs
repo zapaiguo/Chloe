@@ -13,7 +13,7 @@ using System.Collections.ObjectModel;
 
 namespace Chloe.Impls
 {
-    public class SqlExpressionVisitor : DbExpressionVisitorBase
+    public class SqlExpressionVisitor : AbstractDbExpressionVisitor
     {
         public const string ParameterPrefix = "@P_";
 
@@ -504,6 +504,36 @@ namespace Chloe.Impls
             }
             return funcHandler(exp, this);
         }
+
+        public override ISqlState Visit(DbInsertExpression exp)
+        {
+            SqlState state = new SqlState();
+            state.Append("INSERT INTO ", QuoteName(exp.Table.Name));
+            state.Append("(");
+
+            SqlState valuesState = new SqlState();
+            valuesState.Append(" VALUES(");
+
+            bool first = true;
+            foreach (var item in exp.InsertColumns)
+            {
+                if (first)
+                    first = false;
+                else
+                {
+                    state.Append(",");
+                    valuesState.Append(",");
+                }
+
+                state.Append(QuoteName(item.Key.Name));
+                valuesState.Append(item.Value.Accept(this._columnExpressionVisitor));
+            }
+            state.Append(")");
+            valuesState.Append(")");
+
+            state.Append(valuesState);
+            return state;
+        }
         public override ISqlState Visit(DbUpdateExpression exp)
         {
             SqlState state = new SqlState();
@@ -517,7 +547,7 @@ namespace Chloe.Impls
                 else
                     state.Append(",");
 
-                state.Append(QuoteName(item.Key.Name), " = ", item.Value.Accept(this));
+                state.Append(QuoteName(item.Key.Name), "=", item.Value.Accept(this._columnExpressionVisitor));
             }
 
             state.Append(BuildWhereState(exp.Condition));

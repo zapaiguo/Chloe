@@ -182,68 +182,7 @@ namespace Chloe.Database
             }
         }
 
-        public DataTable ExecuteDataTable(string cmdText, IDictionary<string, object> parameters)
-        {
-            return this.ExecuteDataTable(cmdText, parameters, CommandType.Text);
-        }
-        public DataTable ExecuteDataTable(string cmdText, IDictionary<string, object> parameters, CommandType cmdType)
-        {
-            IDataReader reader = null;
-            try
-            {
-                reader = this.ExecuteReader(cmdText, parameters, cmdType);
-                return FillDataTable(reader);
-            }
-            finally
-            {
-                if (reader != null)
-                {
-                    if (reader.IsClosed == false)
-                        reader.Close();
-                    reader.Dispose();
-                }
-
-                this.Complete();
-            }
-        }
-        public DataSet ExecuteDataSet(string cmdText, IDictionary<string, object> parameters)
-        {
-            return this.ExecuteDataSet(cmdText, parameters, CommandType.Text);
-        }
-        public DataSet ExecuteDataSet(string cmdText, IDictionary<string, object> parameters, CommandType cmdType)
-        {
-            DataSet ds = null;
-            IDataReader reader = null;
-            try
-            {
-                reader = this.ExecuteReader(cmdText, parameters, cmdType);
-
-                ds = new DataSet();
-                var dt = FillDataTable(reader);
-                ds.Tables.Add(dt);
-
-                while (reader.NextResult())
-                {
-                    dt = FillDataTable(reader);
-                    ds.Tables.Add(dt);
-                }
-
-                return ds;
-            }
-            finally
-            {
-                if (reader != null)
-                {
-                    if (reader.IsClosed == false)
-                        reader.Close();
-                    reader.Dispose();
-                }
-
-                this.Complete();
-            }
-        }
-
-        internal IDataReader ExecuteInternalReader(CommandType cmdType, string cmdText, IDictionary<string, object> parameters)
+        internal InternalDataReader ExecuteInternalReader(CommandType cmdType, string cmdText, IDictionary<string, object> parameters)
         {
             IDbCommand cmd = this.DbCommand;
 
@@ -293,7 +232,6 @@ namespace Chloe.Database
             this._disposed = true;
         }
 
-
         void PrepareCommand(IDbCommand cmd, string cmdText, IDictionary<string, object> parameters, CommandType cmdType)
         {
             cmd.CommandText = cmdText;
@@ -312,26 +250,6 @@ namespace Chloe.Database
                     cmd.Parameters.Add(parameter);
                 }
             }
-        }
-        static DataTable FillDataTable(IDataReader reader)
-        {
-            DataTable dt = new DataTable();
-            int fieldCount = reader.FieldCount;
-            for (int i = 0; i < fieldCount; i++)
-            {
-                DataColumn dc = new DataColumn(reader.GetName(i), reader.GetFieldType(i));
-                dt.Columns.Add(dc);
-            }
-            while (reader.Read())
-            {
-                DataRow dr = dt.NewRow();
-                for (int i = 0; i < fieldCount; i++)
-                {
-                    dr[i] = reader[i];
-                }
-                dt.Rows.Add(dr);
-            }
-            return dt;
         }
 
         void CheckDisposed()

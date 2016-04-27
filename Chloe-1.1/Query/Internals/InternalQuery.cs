@@ -27,7 +27,7 @@ namespace Chloe.Query.Internals
             IQueryState qs = QueryExpressionVisitor.VisitQueryExpression(this._query.QueryExpression);
             MappingData data = qs.GenerateMappingData();
 
-            DbExpressionVisitorBase visitor = this._query.DbContext.DbServiceProvider.CreateDbExpressionVisitor();
+            AbstractDbExpressionVisitor visitor = this._query.DbContext.DbServiceProvider.CreateDbExpressionVisitor();
             ISqlState sqlState = data.SqlQuery.Accept(visitor);
 
             IObjectActivtor objectActivtor = data.MappingEntity.CreateObjectActivtor();

@@ -12,23 +12,23 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.Visitors
 {
-    class UpdateColumnExpressionVisitor : ExpressionVisitor<Dictionary<DbColumn, DbExpression>>
+    public class UpdateColumnExpressionVisitor : ExpressionVisitor<Dictionary<DbColumn, DbExpression>>
     {
         MappingTypeDescriptor _typeDescriptor;
         ExpressionVisitorBase _visitor;
 
-        UpdateColumnExpressionVisitor(MappingTypeDescriptor typeDescriptor)
+        public UpdateColumnExpressionVisitor(MappingTypeDescriptor typeDescriptor)
         {
             this._typeDescriptor = typeDescriptor;
-            this._visitor = new GeneralExpressionVisitor1(typeDescriptor);
+            this._visitor = typeDescriptor.Visitor;
         }
 
-        public static Dictionary<DbColumn, DbExpression> VisitExpression(LambdaExpression exp, MappingTypeDescriptor typeDescriptor, ExpressionVisitorBase visitor)
-        {
-            var visitor1 = new UpdateColumnExpressionVisitor(typeDescriptor);
-            visitor1._visitor = visitor;
-            return visitor1.Visit(exp);
-        }
+        //public static Dictionary<DbColumn, DbExpression> VisitExpression(LambdaExpression exp, MappingTypeDescriptor typeDescriptor, ExpressionVisitorBase visitor)
+        //{
+        //    var visitor1 = new UpdateColumnExpressionVisitor(typeDescriptor);
+        //    visitor1._visitor = visitor;
+        //    return visitor1.Visit(exp);
+        //}
 
         public override Dictionary<DbColumn, DbExpression> Visit(Expression exp)
         {

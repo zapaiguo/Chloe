@@ -41,6 +41,7 @@
     <Compile Include="Core\Database\InternalDbSession.cs" />
     <Compile Include="Core\Database\InternalDataReader.cs" />
     <Compile Include="Core\DbContext.cs" />
+    <Compile Include="Core\DbSession.cs" />
     <Compile Include="Core\DelegateGenerator.cs" />
     <Compile Include="Core\Entity\AssociationAttribute.cs">
       <SubType>Code</SubType>
@@ -62,6 +63,7 @@
     <Compile Include="DbExpressions\DbColumn.cs" />
     <Compile Include="DbExpressions\DbDeleteExpression.cs" />
     <Compile Include="DbExpressions\DbFunctionExpression.cs" />
+    <Compile Include="DbExpressions\DbInsertExpression.cs" />
     <Compile Include="DbExpressions\DbTableExpression.cs" />
     <Compile Include="DbExpressions\DbUpdateExpression.cs" />
     <Compile Include="Impls\Helper.cs" />
@@ -83,7 +85,7 @@
     <Compile Include="DbExpressions\DbFromTableExpression.cs" />
     <Compile Include="DbExpressions\DbJoinTableExpression.cs" />
     <Compile Include="DbExpressions\DbOrderSegmentExpression.cs" />
-    <Compile Include="Query\DbExpressionVisitorBase.cs" />
+    <Compile Include="Query\AbstractDbExpressionVisitor.cs" />
     <Compile Include="DbExpressions\DbAddExpression.cs" />
     <Compile Include="DbExpressions\DbAndExpression.cs" />
     <Compile Include="DbExpressions\DbBinaryExpression.cs" />

@@ -1,4 +1,5 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.Query.Visitors;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,11 @@ namespace Chloe.Descriptors
     {
         Dictionary<MemberInfo, MappingMemberDescriptor> _mappingMemberDescriptors = new Dictionary<MemberInfo, MappingMemberDescriptor>();
         Dictionary<MemberInfo, NavigationMemberDescriptor> _navigationMemberDescriptors = new Dictionary<MemberInfo, NavigationMemberDescriptor>();
-
         Dictionary<MemberInfo, DbColumnAccessExpression> _memberColumnMap;
-
         List<MemberInfo> _primaryKeys = new List<MemberInfo>();
+
+        GeneralExpressionVisitor1 _visitor = null;
+        UpdateColumnExpressionVisitor _updateColumnExpressionVisitor = null;
 
         MappingTypeDescriptor(Type t)
         {
@@ -175,6 +177,27 @@ namespace Chloe.Descriptors
         public DbTable Table { get; private set; }
 
         public List<MemberInfo> PrimaryKeys { get { return this._primaryKeys; } }
+        public GeneralExpressionVisitor1 Visitor
+        {
+            get
+            {
+                if (this._visitor == null)
+                    this._visitor = new GeneralExpressionVisitor1(this);
+
+                return this._visitor;
+            }
+        }
+        public UpdateColumnExpressionVisitor UpdateColumnExpressionVisitor
+        {
+            get
+            {
+                if (this._updateColumnExpressionVisitor == null)
+                    this._updateColumnExpressionVisitor = new UpdateColumnExpressionVisitor(this);
+
+                return this._updateColumnExpressionVisitor;
+            }
+        }
+
 
         public Dictionary<MemberInfo, MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors; } }
         public Dictionary<MemberInfo, DbColumnAccessExpression> MemberColumnMap { get { return this._memberColumnMap; } }
