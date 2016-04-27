@@ -24,31 +24,26 @@ namespace Chloe.Impls
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
-            DbMemberExpression leftMemberExpression = left as DbMemberExpression;
-            //判断是否可求值
-            if (leftMemberExpression != null && leftMemberExpression.CanEvaluate())
+            left = DbExpressionExtensions.ParseDbExpression(left);
+            right = DbExpressionExtensions.ParseDbExpression(right);
+
+            //明确 left right 其中一边一定为 null
+            if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(right))
             {
-                left = leftMemberExpression.Evaluate();
+                state = new SqlState(2);
+                state.Append(left.Accept(this), " IS NULL");
+                return state;
             }
 
-            DbMemberExpression rightMemberExpression = right as DbMemberExpression;
-            //判断是否可求值
-            if (rightMemberExpression != null && rightMemberExpression.CanEvaluate())
+            if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(left))
             {
-                right = rightMemberExpression.Evaluate();
+                state = new SqlState(2);
+                state.Append(right.Accept(this), " IS NULL");
+                return state;
             }
 
             ISqlState leftState = left.Accept(this);
             ISqlState rightState = right.Accept(this);
-
-            // left right 其中一边为常量 null
-            if (right.IsNullDbConstantExpression() || left.IsNullDbConstantExpression())
-            {
-                string concatString = " IS ";
-                state = new SqlState(3);
-                state.Append(leftState, concatString, rightState);
-                return state;
-            }
 
             state = new SqlState(3);
             state.Append(leftState, " = ", rightState);

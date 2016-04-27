@@ -7,32 +7,26 @@ namespace Chloe.DbExpressions
     public class DbParameterExpression : DbExpression
     {
         object _value;
-        Type _type;
+
+        /// <summary>
+        /// value 不可为空。
+        /// </summary>
+        /// <param name="value"></param>
         public DbParameterExpression(object value)
             : base(DbExpressionType.Parameter)
         {
-            Utils.CheckNull(value, "value");
+            if (value == null)
+                throw new ArgumentNullException("value 为空。请用 DBNull 表示");
 
             this._value = value;
-            this._type = value.GetType();
-        }
-        public DbParameterExpression(object value, Type type)
-            : base(DbExpressionType.Parameter)
-        {
-            Utils.CheckNull(value, "value");
-            Utils.CheckNull(type, "type");
-
-            this._value = value;
-            this._type = type;
         }
 
-        public override Type Type { get { return this._type; } }
+        public override Type Type { get { return this._value.GetType(); } }
         public object Value { get { return this._value; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {
             return visitor.Visit(this);
         }
-
     }
 }

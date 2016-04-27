@@ -239,8 +239,8 @@ namespace Chloe.Core
 
             MethodInfo result;
             bool isNullable = false;
-            Type underlyingType = Nullable.GetUnderlyingType(type);
-            if (underlyingType != null)
+            Type underlyingType;
+            if (Utils.IsNullable(type, out underlyingType))
             {
                 isNullable = true;
                 type = underlyingType;

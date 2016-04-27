@@ -38,11 +38,21 @@ namespace Chloe.Utility
             if (obj == null)
                 throw new ArgumentNullException(paramName);
         }
+        public static bool IsNullable(Type type)
+        {
+            Type unType;
+            return IsNullable(type, out unType);
+        }
+        public static bool IsNullable(Type type, out Type unType)
+        {
+            unType = Nullable.GetUnderlyingType(type);
+            return unType != null;
+        }
 
         public static bool IsMapType(Type type)
         {
-            var unType = Nullable.GetUnderlyingType(type);
-            if (unType == null)
+            Type unType;
+            if (!Utils.IsNullable(type, out unType))
                 unType = type;
 
             if (unType.IsEnum)

@@ -52,9 +52,9 @@ namespace Chloe.DbExpressions
         {
             return new DbNotExpression(exp);
         }
-        public static DbConvertExpression Convert(Type type, DbExpression operand, MethodInfo method)
+        public static DbConvertExpression Convert(Type type, DbExpression operand)
         {
-            return new DbConvertExpression(type, operand, method);
+            return new DbConvertExpression(type, operand);
         }
 
         public static DbCaseWhenExpression CaseWhen(IReadOnlyList<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps, DbExpression elseExp, Type type)
@@ -113,10 +113,6 @@ namespace Chloe.DbExpressions
         public static DbParameterExpression Parameter(object value)
         {
             return new DbParameterExpression(value);
-        }
-        public static DbParameterExpression Parameter(object value, Type type)
-        {
-            return new DbParameterExpression(value, type);
         }
 
         public static DbSubtractExpression Subtract(DbExpression left, DbExpression right, Type returnType)

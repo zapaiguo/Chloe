@@ -7,6 +7,10 @@ using Chloe.Query;
 using Chloe.Core;
 using Chloe.Utility;
 using Chloe.Infrastructure;
+using Chloe.Descriptors;
+using Chloe.Query.Visitors;
+using Chloe.DbExpressions;
+using System.Diagnostics;
 
 namespace Chloe
 {
@@ -43,18 +47,62 @@ namespace Chloe
         {
             throw new NotImplementedException();
         }
-        public virtual int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> predicate)
+        public virtual int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> condition)
         {
-            throw new NotImplementedException();
+            Utils.CheckNull(body);
+            Utils.CheckNull(condition);
+
+            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+
+            GeneralExpressionVisitor1 vistor = new GeneralExpressionVisitor1(typeDescriptor);
+            Dictionary<DbColumn, DbExpression> updateColumns = UpdateColumnExpressionVisitor.VisitExpression(body, typeDescriptor, vistor);
+            var conditionExp = vistor.Visit(condition);
+
+            DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
+
+            foreach (var item in updateColumns)
+            {
+                e.UpdateColumns.Add(item.Key, item.Value);
+            }
+
+            DbExpressionVisitorBase dbExpVisitor = this._dbServiceProvider.CreateDbExpressionVisitor();
+            var sqlState = e.Accept(dbExpVisitor);
+
+            string sql = sqlState.ToSql();
+
+#if DEBUG
+            Debug.WriteLine(sql);
+#endif
+
+            int r = this._dbSession.ExecuteNonQuery(sql, dbExpVisitor.ParameterStorage);
+            return r;
         }
 
         public virtual int Delete<T>(T entity)
         {
             throw new NotImplementedException();
         }
-        public virtual int Delete<T>(Expression<Func<T, bool>> predicate)
+        public virtual int Delete<T>(Expression<Func<T, bool>> condition)
         {
-            throw new NotImplementedException();
+            Utils.CheckNull(condition);
+
+            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+            GeneralExpressionVisitor1 vistor = new GeneralExpressionVisitor1(typeDescriptor);
+            var conditionExp = vistor.Visit(condition);
+
+            DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
+
+            DbExpressionVisitorBase dbExpVisitor = this._dbServiceProvider.CreateDbExpressionVisitor();
+            var sqlState = e.Accept(dbExpVisitor);
+
+            string sql = sqlState.ToSql();
+
+#if DEBUG
+            Debug.WriteLine(sql);
+#endif
+
+            int r = this._dbSession.ExecuteNonQuery(sql, dbExpVisitor.ParameterStorage);
+            return r;
         }
 
         public virtual int ExecuteNonQuery(string sql, IDictionary<string, object> parameters)

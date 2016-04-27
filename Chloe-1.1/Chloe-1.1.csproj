@@ -60,9 +60,11 @@
     <Compile Include="Core\IOrderedQuery`.cs" />
     <Compile Include="Core\IQuery`.cs" />
     <Compile Include="DbExpressions\DbColumn.cs" />
+    <Compile Include="DbExpressions\DbDeleteExpression.cs" />
     <Compile Include="DbExpressions\DbFunctionExpression.cs" />
     <Compile Include="DbExpressions\DbTableExpression.cs" />
     <Compile Include="DbExpressions\DbUpdateExpression.cs" />
+    <Compile Include="Impls\Helper.cs" />
     <Compile Include="Query\DbFunction.cs" />
     <Compile Include="Extensions\DataReaderExtensions.cs" />
     <Compile Include="Extensions\DbExpressionExtensions.cs" />
@@ -177,11 +179,13 @@
     <Compile Include="Query\ResultElement.cs" />
     <Compile Include="DbExpressions\DbExpressionVisitor`.cs" />
     <Compile Include="Query\Visitors\GeneralExpressionVisitor.cs" />
+    <Compile Include="Query\Visitors\GeneralExpressionVisitor1.cs" />
     <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />
     <Compile Include="Query\QueryExpressions\QueryExpressionVisitor`.cs" />
     <Compile Include="Query\Visitors\SelectorExpressionVisitor.cs" />
     <Compile Include="Mapper\EntityMemberMapper.cs" />
+    <Compile Include="Query\Visitors\UpdateExpressionVisitor.cs" />
     <Compile Include="Utility\UtilConstants.cs" />
     <Compile Include="Utility\Utils.cs" />
   </ItemGroup>

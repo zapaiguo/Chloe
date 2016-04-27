@@ -9,9 +9,10 @@ namespace Chloe.Descriptors
 {
     public class MappingTypeDescriptor
     {
-        //TypeMemberValueSetters _typeMemberValueSetters;
         Dictionary<MemberInfo, MappingMemberDescriptor> _mappingMemberDescriptors = new Dictionary<MemberInfo, MappingMemberDescriptor>();
         Dictionary<MemberInfo, NavigationMemberDescriptor> _navigationMemberDescriptors = new Dictionary<MemberInfo, NavigationMemberDescriptor>();
+
+        Dictionary<MemberInfo, DbColumnAccessExpression> _memberColumnMap;
 
         MappingTypeDescriptor(Type t)
         {
@@ -24,6 +25,7 @@ namespace Chloe.Descriptors
             //_typeMemberValueSetters = TypeMemberValueSetters.GetInstance(this.EntityType);
             this.InitTableInfo();
             this.InitMemberInfo();
+            this.InitMemberColumnMap();
         }
         void InitTableInfo()
         {
@@ -111,6 +113,16 @@ namespace Chloe.Descriptors
             //    throw new Exception("实体存在多个自增字段");
             //}
         }
+        void InitMemberColumnMap()
+        {
+            Dictionary<MemberInfo, DbColumnAccessExpression> memberColumnMap = new Dictionary<MemberInfo, DbColumnAccessExpression>(_mappingMemberDescriptors.Count);
+            foreach (var kv in _mappingMemberDescriptors)
+            {
+                memberColumnMap.Add(kv.Key, new DbColumnAccessExpression(this.Table, kv.Value.Column));
+            }
+
+            this._memberColumnMap = memberColumnMap;
+        }
 
         MappingMemberDescriptor ConstructDbFieldDescriptor(MemberInfo member)
         {
@@ -157,8 +169,11 @@ namespace Chloe.Descriptors
 
         public Type EntityType { get; private set; }
         public DbTable Table { get; private set; }
-        public ICollection<MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors.Values; } }
-        public ICollection<NavigationMemberDescriptor> NavigationMemberDescriptors { get { return this._navigationMemberDescriptors.Values; } }
+        //public ICollection<MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors.Values; } }
+        //public ICollection<NavigationMemberDescriptor> NavigationMemberDescriptors { get { return this._navigationMemberDescriptors.Values; } }
+
+        public Dictionary<MemberInfo, MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors; } }
+        public Dictionary<MemberInfo, DbColumnAccessExpression> MemberColumnMap { get { return this._memberColumnMap; } }
 
         public MappingMemberDescriptor GetMappingMemberDescriptor(string name)
         {

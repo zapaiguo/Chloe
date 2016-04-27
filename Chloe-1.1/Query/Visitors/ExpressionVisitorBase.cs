@@ -184,7 +184,7 @@ namespace Chloe.Query.Visitors
 
         protected override DbExpression VisitUnary_Convert(UnaryExpression u)
         {
-            return DbExpression.Convert(u.Type, this.Visit(u.Operand), u.Method);
+            return DbExpression.Convert(u.Type, this.Visit(u.Operand));
         }
 
         protected override DbExpression VisitMemberAccess(MemberExpression exp)

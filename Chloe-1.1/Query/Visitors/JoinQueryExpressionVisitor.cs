@@ -43,7 +43,7 @@ namespace Chloe.Query.Visitors
             DbTableSegmentExpression tableExp = CreateTableExpression(table, this._resultElement.GenerateUniqueTableAlias(table.Name));
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(UtilConstants.EmptyTypeArray));
 
-            foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors)
+            foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors.Values)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
                 moe.AddMemberExpression(item.MemberInfo, columnAccessExpression);

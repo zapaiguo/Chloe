@@ -71,7 +71,7 @@ namespace Chloe.Query
         }
         public static bool ExpressionEquals(DbConvertExpression exp1, DbConvertExpression exp2)
         {
-            if (exp1.Method != exp2.Method)
+            if (exp1.Type != exp2.Type)
                 return false;
             return ExpressionEquals(exp1.Operand, exp2.Operand);
         }

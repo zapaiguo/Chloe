@@ -114,39 +114,32 @@ namespace Chloe.Impls
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
-            DbMemberExpression leftMemberExpression = left as DbMemberExpression;
-            //判断是否可求值
-            if (leftMemberExpression != null && leftMemberExpression.CanEvaluate())
+            left = DbExpressionExtensions.ParseDbExpression(left);
+            right = DbExpressionExtensions.ParseDbExpression(right);
+
+            //明确 left right 其中一边一定为 null
+            if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(right))
             {
-                left = leftMemberExpression.Evaluate();
+                state = new SqlState(2);
+                state.Append(left.Accept(this), " IS NULL");
+                return state;
             }
 
-            DbMemberExpression rightMemberExpression = right as DbMemberExpression;
-            //判断是否可求值
-            if (rightMemberExpression != null && rightMemberExpression.CanEvaluate())
+            if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(left))
             {
-                right = rightMemberExpression.Evaluate();
+                state = new SqlState(2);
+                state.Append(right.Accept(this), " IS NULL");
+                return state;
             }
 
             ISqlState leftState = left.Accept(this);
             ISqlState rightState = right.Accept(this);
 
-            // left right 其中一边为常量 null
-            if (right.IsNullDbConstantExpression() || left.IsNullDbConstantExpression())
+            //明确 left right 其中至少一边一定不为 null
+            if (DbExpressionExtensions.AffirmExpressionRetValueIsNotNull(right) || DbExpressionExtensions.AffirmExpressionRetValueIsNotNull(left))
             {
-                string concatString = " IS ";
                 state = new SqlState(3);
-                state.Append(leftState, concatString, rightState);
-                return state;
-            }
-
-            // left right 其中一边为常量但不为 null
-            if (right.NodeType == DbExpressionType.Constant || left.NodeType == DbExpressionType.Constant || IsConstantConvertToNullableExpression(right) || IsConstantConvertToNullableExpression(left))
-            {
-                string concatString = " = ";
-
-                state = new SqlState(3);
-                state.Append(leftState, concatString, rightState);
+                state.Append(leftState, " = ", rightState);
                 return state;
             }
 
@@ -193,25 +186,16 @@ namespace Chloe.Impls
 
         public override ISqlState Visit(DbConvertExpression exp)
         {
-            if (exp.Type.IsEnum)
+            DbExpression stripedExp = Helper.StripInvalidConvert(exp);
+
+            if (stripedExp.NodeType != DbExpressionType.Convert)
             {
-                return EnsureDbExpressionReturnCSharpBoolean(exp.Operand).Accept(this);
+                return stripedExp.Accept(this);
             }
 
-            Type unType = Nullable.GetUnderlyingType(exp.Type);
+            exp = (DbConvertExpression)stripedExp;
 
-            if (unType != null)//可空类型转换，无视
-            {
-                if (unType == exp.Operand.Type || unType.IsEnum)
-                    return EnsureDbExpressionReturnCSharpBoolean(exp.Operand).Accept(this);
-            }
-
-            //非可空类型
             string dbTypeString;
-            if (exp.Type == typeof(object))
-            {
-                return EnsureDbExpressionReturnCSharpBoolean(exp.Operand).Accept(this);
-            }
             if (!CSharpType_DbType_Mappings.TryGetValue(exp.Type, out dbTypeString))
             {
                 throw new NotSupportedException(string.Format("{0} 向 {1} 类型转换", exp.Operand.Type.Name, exp.Type.Name));
@@ -381,8 +365,8 @@ namespace Chloe.Impls
                 return state;
             }
 
-            DbExpression newExp;
-            if (exp.TryEvaluate(out newExp))
+            DbParameterExpression newExp;
+            if (exp.TryParseToParameterExpression(out newExp))
             {
                 return newExp.Accept(this);
             }
@@ -487,10 +471,6 @@ namespace Chloe.Impls
             {
                 joinString = " FULL JOIN ";
             }
-            //else if (joinTablePart.JoinType == JoinType.CrossJoin)
-            //{
-            //    joinString = " CROSS JOIN ";
-            //}
             else
                 throw new NotSupportedException("JoinType: " + joinTablePart.JoinType);
 
@@ -524,6 +504,33 @@ namespace Chloe.Impls
             }
             return funcHandler(exp, this);
         }
+        public override ISqlState Visit(DbUpdateExpression exp)
+        {
+            SqlState state = new SqlState();
+            state.Append("UPDATE ", QuoteName(exp.Table.Name), " SET ");
+
+            bool first = true;
+            foreach (var item in exp.UpdateColumns)
+            {
+                if (first)
+                    first = false;
+                else
+                    state.Append(",");
+
+                state.Append(QuoteName(item.Key.Name), " = ", item.Value.Accept(this));
+            }
+
+            state.Append(BuildWhereState(exp.Condition));
+
+            return state;
+        }
+        public override ISqlState Visit(DbDeleteExpression exp)
+        {
+            SqlState state = new SqlState(3);
+            state.Append("DELETE ", QuoteName(exp.Table.Name), BuildWhereState(exp.Condition));
+            return state;
+        }
+
 
         ISqlState VisitDbJoinTableExpressions(List<DbJoinTableExpression> tables)
         {
@@ -821,21 +828,6 @@ namespace Chloe.Impls
             return state;
         }
 
-        public static bool IsConstantConvertToNullableExpression(DbExpression exp)
-        {
-            if (exp.NodeType != DbExpressionType.Convert)
-                return false;
-
-            DbConvertExpression convertExpression = (DbConvertExpression)exp;
-            if (convertExpression.Operand.NodeType != DbExpressionType.Constant)
-                return false;
-
-            Type unType = Nullable.GetUnderlyingType(exp.Type);
-            if (unType == null)
-                return false;
-
-            return true;
-        }
         public static SqlState QuoteName(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -899,7 +891,7 @@ namespace Chloe.Impls
                 if (opBody.Type != TypeOfString)
                 {
                     // 需要 cast type
-                    opBody = DbExpression.Convert(TypeOfString, opBody, null);
+                    opBody = DbExpression.Convert(TypeOfString, opBody);
                 }
 
                 DbExpression equalNullExp = DbExpression.Equal(opBody, StringNullConstantExpression);

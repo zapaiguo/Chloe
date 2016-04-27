@@ -7,26 +7,24 @@ using System.Threading.Tasks;
 
 namespace Chloe.DbExpressions
 {
-    public class DbUpdateExpression : DbExpression
+    public class DbDeleteExpression : DbExpression
     {
         DbTable _table;
         DbExpression _condition;
-        public DbUpdateExpression(DbTable table)
+        public DbDeleteExpression(DbTable table)
             : this(table, null)
         {
         }
-        public DbUpdateExpression(DbTable table, DbExpression condition)
-            : base(DbExpressionType.Update, UtilConstants.TypeOfVoid)
+        public DbDeleteExpression(DbTable table, DbExpression condition)
+            : base(DbExpressionType.Delete, UtilConstants.TypeOfVoid)
         {
             Utils.CheckNull(table);
 
             this._table = table;
             this._condition = condition;
-            this.UpdateColumns = new Dictionary<DbColumn, DbExpression>();
         }
 
         public DbTable Table { get { return this._table; } }
-        public Dictionary<DbColumn, DbExpression> UpdateColumns { get; private set; }
         public DbExpression Condition { get { return this._condition; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)

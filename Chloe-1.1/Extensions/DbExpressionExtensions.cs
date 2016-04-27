@@ -1,4 +1,5 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.Impls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,25 +31,72 @@ namespace Chloe.Extensions
                 return false;
         }
 
-        public static bool TryEvaluate(this DbMemberExpression exp, out DbExpression val)
+        /// <summary>
+        /// 尝试将 exp 转换成 DbParameterExpression。
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static bool TryParseToParameterExpression(this DbMemberExpression exp, out DbParameterExpression val)
         {
             val = null;
             if (!exp.CanEvaluate())
                 return false;
 
             //求值
-            val = exp.Evaluate();
+            val = exp.ParseToParameterExpression();
             return true;
         }
-        public static bool TryEvaluate(this DbMemberExpression exp, out object val)
+        /// <summary>
+        /// 尝试将 exp 转换成 DbParameterExpression。
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static DbExpression ParseDbExpression(this DbExpression exp)
         {
-            val = null;
-            if (!exp.CanEvaluate())
-                return false;
+            DbExpression stripedExp = Helper.StripInvalidConvert(exp);
 
-            //求值
-            val = exp.Evaluate();
-            return true;
+            DbExpression tempExp = stripedExp;
+
+            List<DbConvertExpression> cList = null;
+            while (tempExp.NodeType == DbExpressionType.Convert)
+            {
+                if (cList == null)
+                    cList = new List<DbConvertExpression>();
+
+                DbConvertExpression c = (DbConvertExpression)tempExp;
+                cList.Add(c);
+                tempExp = c.Operand;
+            }
+
+            if (tempExp.NodeType == DbExpressionType.Constant || tempExp.NodeType == DbExpressionType.Parameter)
+                return stripedExp;
+
+            if (tempExp.NodeType == DbExpressionType.MemberAccess)
+            {
+                DbParameterExpression val;
+                if (TryParseToParameterExpression((DbMemberExpression)tempExp, out val))
+                {
+                    if (cList != null)
+                    {
+                        if (val.Value == DBNull.Value)//如果是 null，则不需要 Convert 了，在数据库里没意义
+                            return val;
+
+                        DbConvertExpression c = null;
+                        for (int i = cList.Count - 1; i > -1; i--)
+                        {
+                            DbConvertExpression item = cList[i];
+                            c = new DbConvertExpression(item.Type, val);
+                        }
+
+                        return c;
+                    }
+
+                    return val;
+                }
+            }
+
+            return stripedExp;
         }
 
         public static bool CanEvaluate(this DbMemberExpression memberExpression)
@@ -77,23 +125,58 @@ namespace Chloe.Extensions
         /// 对 memberExpression 进行求值，如果计算结果为 null 则返回 Value 为 null 的 DbConstantExpression 一个对象，否则返回 DbParameterExpression
         /// </summary>
         /// <param name="exp"></param>
-        /// <returns></returns>
-        public static DbExpression Evaluate(this DbMemberExpression memberExpression)
+        /// <returns>如果计算结果为 null 则返回 Value 为 null 的 DbConstantExpression 一个对象，否则返回 DbParameterExpression</returns>
+        public static DbParameterExpression ParseToParameterExpression(this DbMemberExpression memberExpression)
         {
-            DbExpression ret = null;
+            DbParameterExpression ret = null;
             //求值
             object val = memberExpression.GetMemberValue();
 
             if (val == null)
-                ret = new DbConstantExpression(null, memberExpression.Type);
+                ret = new DbParameterExpression(DBNull.Value);
+            //ret = new DbConstantExpression(null, memberExpression.Type);
             else
-                ret = new DbParameterExpression(val, memberExpression.Type);
+                ret = new DbParameterExpression(val);
             return ret;
         }
 
         public static bool IsNullDbConstantExpression(this DbExpression exp)
         {
             return exp.NodeType == DbExpressionType.Constant && ((DbConstantExpression)exp).Value == null;
+        }
+        /// <summary>
+        /// 判定 exp 返回值肯定是 null
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static bool AffirmExpressionRetValueIsNull(this DbExpression exp)
+        {
+            exp = Helper.StripConvert(exp);
+
+            if (exp.NodeType == DbExpressionType.Constant && ((DbConstantExpression)exp).Value == null)
+                return true;
+
+            if (exp.NodeType == DbExpressionType.Parameter && ((DbParameterExpression)exp).Value == DBNull.Value)
+                return true;
+
+            return false;
+        }
+        /// <summary>
+        /// 判定 exp 返回值肯定不是 null
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static bool AffirmExpressionRetValueIsNotNull(this DbExpression exp)
+        {
+            exp = Helper.StripConvert(exp);
+
+            if (exp.NodeType == DbExpressionType.Constant && ((DbConstantExpression)exp).Value != null)
+                return true;
+
+            if (exp.NodeType == DbExpressionType.Parameter && ((DbParameterExpression)exp).Value != DBNull.Value)
+                return true;
+
+            return false;
         }
 
         public static object GetMemberValue(this DbMemberExpression exp)
@@ -164,15 +247,6 @@ namespace Chloe.Extensions
             }
         }
 
-        public static DbExpression StripConvert(DbExpression exp)
-        {
-            DbExpression operand = exp;
-            while (operand.NodeType == DbExpressionType.Convert)
-            {
-                operand = ((DbConvertExpression)operand).Operand;
-            }
-            return operand;
-        }
 
     }
 }

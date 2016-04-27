@@ -18,7 +18,7 @@ namespace Chloe.Core
         //int Update<T>(Expression<Func<T, bool>> predicate, object obj);
 
         int Delete<T>(T entity);
-        int Delete<T>(Expression<Func<T, bool>> predicate);
+        int Delete<T>(Expression<Func<T, bool>> condition);
 
         //int ExecuteNonQuery(string sql, IDictionary<string, object> parameters);
         //object ExecuteScalar(string sql, IDictionary<string, object> parameters);
