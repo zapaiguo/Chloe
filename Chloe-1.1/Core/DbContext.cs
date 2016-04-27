@@ -52,7 +52,7 @@ namespace Chloe
             var keyMember = typeDescriptor.PrimaryKeys.FirstOrDefault();
 
             if (keyMember == null)
-                throw new Exception("实体未定义主键");
+                throw new Exception(string.Format("实体类型 {0} 未定义主键", typeDescriptor.EntityType.FullName));
 
             object keyVal = null;
             MappingMemberDescriptor keyMemberDescriptor = null;
@@ -124,7 +124,7 @@ namespace Chloe
             var keyMember = typeDescriptor.PrimaryKeys.FirstOrDefault();
 
             if (keyMember == null)
-                throw new Exception("实体未定义主键");
+                throw new Exception(string.Format("实体类型 {0} 未定义主键", typeDescriptor.EntityType.FullName));
 
             MappingMemberDescriptor memberDescriptor = typeDescriptor.MappingMemberDescriptors[keyMember];
             var val = memberDescriptor.GetValue(entity);
