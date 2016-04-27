@@ -27,6 +27,8 @@ namespace Chloe.Descriptors
             this.InitTableInfo();
             this.InitMemberInfo();
             this.InitMemberColumnMap();
+
+            this._primaryKeys.TrimExcess();
         }
         void InitTableInfo()
         {
@@ -105,9 +107,9 @@ namespace Chloe.Descriptors
                 }
             }
 
-            if (this._mappingMemberDescriptors.Values.Where(a => a.IsPrimaryKey).Count() > 1)
+            if (this._primaryKeys.Count > 1)
             {
-                throw new Exception(string.Format("实体类型 {0} 存在多个主键", this.EntityType.FullName));
+                throw new NotSupportedException(string.Format("实体类型 {0} 定义多个主键", this.EntityType.FullName));
             }
             //if (this._mappingMemberDescriptors.Values.Where(a => a.IsAutoIncrement).Count() > 1)
             //{

@@ -155,7 +155,12 @@ namespace Chloe
         public void Dispose()
         {
             this._dbSession.Dispose();
+            this.Dispose(true);
             this._disposed = true;
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+
         }
 
         int ExecuteSqlCommand(DbExpression e)
