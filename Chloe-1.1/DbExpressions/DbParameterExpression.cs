@@ -16,7 +16,7 @@ namespace Chloe.DbExpressions
             : base(DbExpressionType.Parameter)
         {
             if (value == null)
-                throw new ArgumentNullException("value 为空。请用 DBNull 表示");
+                throw new ArgumentNullException("value 为 null。请用 DBNull 表示");
 
             this._value = value;
         }
