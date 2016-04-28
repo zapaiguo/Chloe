@@ -15,7 +15,6 @@ namespace Chloe
             this.Name = name;
         }
         public string Name { get; set; }
-        public bool IsAutoIncrement { get; set; }
         public bool IsPrimaryKey { get; set; }
     }
 }

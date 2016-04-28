@@ -1,5 +1,7 @@
 ﻿using Chloe.DbExpressions;
+using System;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace Chloe.Descriptors
 {
@@ -14,13 +16,17 @@ namespace Chloe.Descriptors
             this._column = new DbColumn(columnName, propertyInfo.PropertyType);
         }
 
-        public override MemberTypes MemberType
-        {
-            get { return MemberTypes.Property; }
-        }
         public override MemberInfo MemberInfo
         {
             get { return this._propertyInfo; }
+        }
+        public override Type MemberInfoType
+        {
+            get { return this._propertyInfo.PropertyType; }
+        }
+        public override MemberTypes MemberType
+        {
+            get { return MemberTypes.Property; }
         }
         public override DbColumn Column
         {
@@ -29,6 +35,10 @@ namespace Chloe.Descriptors
         public override object GetValue(object instance)
         {
             return this._propertyInfo.GetValue(instance);
+        }
+        public override void SetValue(object instance, object value)
+        {
+            this._propertyInfo.SetValue(instance, value);
         }
     }
 

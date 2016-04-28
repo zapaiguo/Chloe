@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query
 {
-    class JoinedQueryInfo
+    class JoiningQueryInfo
     {
-        public JoinedQueryInfo(QueryBase query, JoinType joinType, LambdaExpression condition)
+        public JoiningQueryInfo(QueryBase query, JoinType joinType, LambdaExpression condition)
         {
             this.Query = query;
             this.JoinType = joinType;

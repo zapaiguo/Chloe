@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.Visitors
 {
-    public class UpdateColumnExpressionVisitor : ExpressionVisitor<Dictionary<DbColumn, DbExpression>>
+    public class UpdateColumnExpressionVisitor : ExpressionVisitor<Dictionary<MappingMemberDescriptor, DbExpression>>
     {
         MappingTypeDescriptor _typeDescriptor;
         ExpressionVisitorBase _visitor;
@@ -30,7 +30,7 @@ namespace Chloe.Query.Visitors
         //    return visitor1.Visit(exp);
         //}
 
-        public override Dictionary<DbColumn, DbExpression> Visit(Expression exp)
+        public override Dictionary<MappingMemberDescriptor, DbExpression> Visit(Expression exp)
         {
             if (exp == null)
                 return null;
@@ -45,16 +45,16 @@ namespace Chloe.Query.Visitors
                     throw new Exception(string.Format("Unhandled expression type: '{0}'", exp.NodeType));
             }
         }
-        protected override Dictionary<DbColumn, DbExpression> VisitLambda(LambdaExpression exp)
+        protected override Dictionary<MappingMemberDescriptor, DbExpression> VisitLambda(LambdaExpression exp)
         {
             return this.Visit(exp.Body);
         }
-        protected override Dictionary<DbColumn, DbExpression> VisitMemberInit(MemberInitExpression exp)
+        protected override Dictionary<MappingMemberDescriptor, DbExpression> VisitMemberInit(MemberInitExpression exp)
         {
             if (exp.NewExpression.Arguments.Count > 0)
                 throw new NotSupportedException("不支持带参数构造函数");
 
-            Dictionary<DbColumn, DbExpression> ret = new Dictionary<DbColumn, DbExpression>();
+            Dictionary<MappingMemberDescriptor, DbExpression> ret = new Dictionary<MappingMemberDescriptor, DbExpression>();
 
             Dictionary<MemberInfo, MappingMemberDescriptor> mappingMemberDescriptors = this._typeDescriptor.MappingMemberDescriptors;
             Dictionary<MemberInfo, DbColumnAccessExpression> memberColumnMap = this._typeDescriptor.MemberColumnMap;
@@ -77,16 +77,16 @@ namespace Chloe.Query.Visitors
                 }
 
                 MappingMemberDescriptor memberDescriptor = mappingMemberDescriptors[member];
-                if (memberDescriptor.IsPrimaryKey || memberDescriptor.IsAutoIncrement)
-                {
-                    throw new Exception(string.Format("成员 {0} 属于主键或自增列，无法对其进行更新操作", member.Name));
-                }
+                //if (memberDescriptor.IsPrimaryKey || memberDescriptor.IsAutoIncrement)
+                //{
+                //    throw new Exception(string.Format("成员 {0} 属于主键或自增列，无法对其进行更新操作", member.Name));
+                //}
 
                 DbColumn column = dbColumnAccessExpression.Column;
 
                 var valueExp = this._visitor.Visit(memberAssignment.Expression);
 
-                ret.Add(column, valueExp);
+                ret.Add(memberDescriptor, valueExp);
             }
 
             return ret;

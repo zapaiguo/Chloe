@@ -13,7 +13,7 @@ namespace Chloe.Descriptors
         Dictionary<MemberInfo, MappingMemberDescriptor> _mappingMemberDescriptors = new Dictionary<MemberInfo, MappingMemberDescriptor>();
         Dictionary<MemberInfo, NavigationMemberDescriptor> _navigationMemberDescriptors = new Dictionary<MemberInfo, NavigationMemberDescriptor>();
         Dictionary<MemberInfo, DbColumnAccessExpression> _memberColumnMap;
-        List<MemberInfo> _primaryKeys = new List<MemberInfo>();
+        MemberInfo _primaryKey = null;
 
         GeneralExpressionVisitor1 _visitor = null;
         UpdateColumnExpressionVisitor _updateColumnExpressionVisitor = null;
@@ -29,13 +29,11 @@ namespace Chloe.Descriptors
             this.InitTableInfo();
             this.InitMemberInfo();
             this.InitMemberColumnMap();
-
-            this._primaryKeys.TrimExcess();
         }
         void InitTableInfo()
         {
             Type t = this.EntityType;
-            var tableFlags = t.GetCustomAttributes(typeof(TableAttribute), true);
+            var tableFlags = t.GetCustomAttributes(typeof(TableAttribute), false);
 
             string tableName;
             if (tableFlags.Length > 0)
@@ -108,15 +106,6 @@ namespace Chloe.Descriptors
                     continue;
                 }
             }
-
-            if (this._primaryKeys.Count > 1)
-            {
-                throw new NotSupportedException(string.Format("实体类型 {0} 定义多个主键", this.EntityType.FullName));
-            }
-            //if (this._mappingMemberDescriptors.Values.Where(a => a.IsAutoIncrement).Count() > 1)
-            //{
-            //    throw new Exception("实体存在多个自增字段");
-            //}
         }
         void InitMemberColumnMap()
         {
@@ -133,7 +122,7 @@ namespace Chloe.Descriptors
         {
             string columnName = null;
             bool isPrimaryKey = false;
-            bool isAutoIncrement = false;
+
             var columnFlags = member.GetCustomAttributes(typeof(ColumnAttribute), true);
             if (columnFlags.Length > 0)
             {
@@ -142,14 +131,16 @@ namespace Chloe.Descriptors
                     columnName = columnFlag.Name;
                 else
                     columnName = member.Name;
-                if (columnFlag.IsAutoIncrement)
-                {
-                    isAutoIncrement = true;
-                }
+
                 if (columnFlag.IsPrimaryKey)
                 {
+                    if (this._primaryKey != null)
+                    {
+                        throw new NotSupportedException(string.Format("实体类型 {0} 定义多个主键", this.EntityType.FullName));
+                    }
+
                     isPrimaryKey = true;
-                    this._primaryKeys.Add(member);
+                    this._primaryKey = member;
                 }
             }
             else
@@ -167,7 +158,6 @@ namespace Chloe.Descriptors
                 memberDescriptor = new MappingFieldDescriptor((FieldInfo)member, this, columnName);
             }
 
-            memberDescriptor.IsAutoIncrement = isAutoIncrement;
             memberDescriptor.IsPrimaryKey = isPrimaryKey;
 
             return memberDescriptor;
@@ -176,7 +166,7 @@ namespace Chloe.Descriptors
         public Type EntityType { get; private set; }
         public DbTable Table { get; private set; }
 
-        public List<MemberInfo> PrimaryKeys { get { return this._primaryKeys; } }
+        public MemberInfo PrimaryKey { get { return this._primaryKey; } }
         public GeneralExpressionVisitor1 Visitor
         {
             get

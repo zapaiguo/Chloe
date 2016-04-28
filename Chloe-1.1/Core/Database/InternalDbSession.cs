@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Core;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -182,17 +183,9 @@ namespace Chloe.Database
             }
         }
 
-        internal InternalDataReader ExecuteInternalReader(CommandType cmdType, string cmdText, IDictionary<string, object> parameters)
+        internal InternalDataReader ExecuteInternalReader(string cmdText, IDictionary<string, object> parameters, CommandType cmdType)
         {
-            IDbCommand cmd = this.DbCommand;
-
-            this.PrepareCommand(cmd, cmdText, parameters, cmdType);
-
-            this.Activate();
-
-            IDataReader reader = cmd.ExecuteReader();
-            cmd.Parameters.Clear();
-
+            IDataReader reader = this.ExecuteReader(cmdText, parameters, cmdType);
             return new InternalDataReader(this, reader);
         }
         public void Dispose()

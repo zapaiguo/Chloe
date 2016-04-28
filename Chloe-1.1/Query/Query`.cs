@@ -77,29 +77,29 @@ namespace Chloe.Query
             return new GroupingQuery<T>(this, predicate);
         }
 
-        public IJoinedQuery<T, TSource> InnerJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
+        public IJoiningQuery<T, TSource> InnerJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoinedQuery<T, TSource>(this, (Query<TSource>)q, JoinType.InnerJoin, on);
+            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, JoinType.InnerJoin, on);
         }
-        public IJoinedQuery<T, TSource> LeftJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
+        public IJoiningQuery<T, TSource> LeftJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoinedQuery<T, TSource>(this, (Query<TSource>)q, JoinType.LeftJoin, on);
+            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, JoinType.LeftJoin, on);
         }
-        public IJoinedQuery<T, TSource> RightJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
+        public IJoiningQuery<T, TSource> RightJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoinedQuery<T, TSource>(this, (Query<TSource>)q, JoinType.RightJoin, on);
+            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, JoinType.RightJoin, on);
         }
-        public IJoinedQuery<T, TSource> FullJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
+        public IJoiningQuery<T, TSource> FullJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoinedQuery<T, TSource>(this, (Query<TSource>)q, JoinType.FullJoin, on);
+            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, JoinType.FullJoin, on);
         }
 
         public T First()

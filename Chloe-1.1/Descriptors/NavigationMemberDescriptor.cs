@@ -27,6 +27,15 @@ namespace Chloe.Descriptors
         {
             get { return this._memberInfo; }
         }
+        public override Type MemberInfoType
+        {
+            get { throw new NotImplementedException(); }
+        }
+        public override MemberTypes MemberType
+        {
+            get { throw new NotImplementedException(); }
+        }
+
         /// <summary>
         /// 假设实体 Order 内有个导航属性 User， Order.UserId=User.Id，则 ThisKey 为 Order.UserId，AssociatingKey 为 User.Id
         /// </summary>

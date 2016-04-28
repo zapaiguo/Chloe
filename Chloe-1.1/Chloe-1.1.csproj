@@ -56,8 +56,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Core\IDbContext.cs" />
+    <Compile Include="Core\IDbSession.cs" />
     <Compile Include="Core\IGroupingQuery.cs" />
-    <Compile Include="Core\IJoinedQuery`.cs" />
+    <Compile Include="Core\IJoiningQuery`.cs" />
     <Compile Include="Core\IOrderedQuery`.cs" />
     <Compile Include="Core\IQuery`.cs" />
     <Compile Include="DbExpressions\DbColumn.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="DbExpressions\DbInsertExpression.cs" />
     <Compile Include="DbExpressions\DbTableExpression.cs" />
     <Compile Include="DbExpressions\DbUpdateExpression.cs" />
+    <Compile Include="Impls\AutoIncrementAttribute.cs" />
     <Compile Include="Impls\Helper.cs" />
     <Compile Include="Query\DbFunction.cs" />
     <Compile Include="Extensions\DataReaderExtensions.cs" />
@@ -119,8 +121,8 @@
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
     <Compile Include="Query\FromQueryResult.cs" />
     <Compile Include="Query\GroupingQuery.cs" />
-    <Compile Include="Query\JoinedQueryInfo.cs" />
-    <Compile Include="Query\JoinedQuery`.cs" />
+    <Compile Include="Query\JoiningQueryInfo.cs" />
+    <Compile Include="Query\JoiningQuery`.cs" />
     <Compile Include="Query\JoinQueryResult.cs" />
     <Compile Include="Query\OrderedQuery`.cs" />
     <Compile Include="Query\QueryBase.cs" />

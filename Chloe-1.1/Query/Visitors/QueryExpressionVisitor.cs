@@ -70,9 +70,9 @@ namespace Chloe.Query.Visitors
             List<IMappingObjectExpression> moeList = new List<IMappingObjectExpression>();
             moeList.Add(fromQueryResult.MappingObjectExpression);
 
-            foreach (JoinedQueryInfo joinedQueryInfo in exp.JoinedQueries)
+            foreach (JoiningQueryInfo joiningQueryInfo in exp.JoinedQueries)
             {
-                JoinQueryResult joinQueryResult = JoinQueryExpressionVisitor.VisitQueryExpression(joinedQueryInfo.Query.QueryExpression, resultElement, joinedQueryInfo.JoinType, joinedQueryInfo.Condition, moeList);
+                JoinQueryResult joinQueryResult = JoinQueryExpressionVisitor.VisitQueryExpression(joiningQueryInfo.Query.QueryExpression, resultElement, joiningQueryInfo.JoinType, joiningQueryInfo.Condition, moeList);
 
                 fromTable.JoinTables.Add(joinQueryResult.JoinTable);
                 moeList.Add(joinQueryResult.MappingObjectExpression);

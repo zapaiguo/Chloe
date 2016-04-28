@@ -13,6 +13,7 @@ using Chloe.DbExpressions;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Chloe.Impls;
 
 namespace Chloe
 {
@@ -33,10 +34,10 @@ namespace Chloe
 
             this._dbServiceProvider = dbServiceProvider;
             this._dbSession = new InternalDbSession(dbServiceProvider.CreateConnection());
-            this._currentSession = new DbSession(this._dbSession);
+            this._currentSession = new DbSession(this);
         }
 
-        public DbSession CurrentSession
+        public IDbSession CurrentSession
         {
             get
             {
@@ -54,13 +55,102 @@ namespace Chloe
             Utils.CheckNull(entity);
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+
+            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey == null ? null : typeDescriptor.MappingMemberDescriptors[typeDescriptor.PrimaryKey];
+            object keyValue = null;
+
+            MappingMemberDescriptor autoIncrementMemberDescriptor = null;
+
+            Dictionary<MappingMemberDescriptor, DbExpression> insertColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
+            foreach (var kv in typeDescriptor.MappingMemberDescriptors)
+            {
+                var member = kv.Key;
+                var memberDescriptor = kv.Value;
+
+                AutoIncrementAttribute attr = (AutoIncrementAttribute)memberDescriptor.GetCustomAttribute(typeof(AutoIncrementAttribute));
+                if (attr != null)
+                {
+                    if (autoIncrementMemberDescriptor == null)
+                    {
+                        autoIncrementMemberDescriptor = memberDescriptor;
+                        continue;
+                    }
+                    else
+                        throw new Exception(string.Format("实体类型 {0} 定义多个自增成员", typeDescriptor.EntityType.FullName));
+                }
+
+                var val = memberDescriptor.GetValue(entity);
+
+                if (memberDescriptor == keyMemberDescriptor)
+                {
+                    keyValue = val;
+                }
+
+                DbExpression valExp = new DbParameterExpression(val ?? DBNull.Value);
+                insertColumns.Add(memberDescriptor, valExp);
+            }
+
+            if (keyMemberDescriptor != null && keyMemberDescriptor != autoIncrementMemberDescriptor)
+            {
+                if (keyValue == null)
+                    throw new Exception(string.Format("主键 {0} 值为 null", keyMemberDescriptor.MemberInfo.Name));
+            }
+
             DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
 
+            foreach (var kv in insertColumns)
+            {
+                e.InsertColumns.Add(kv.Key.Column, kv.Value);
+            }
+
+            if (autoIncrementMemberDescriptor == null)
+            {
+                this.ExecuteSqlCommand(e);
+                return entity;
+            }
+
+            AbstractDbExpressionVisitor dbExpVisitor = this._dbServiceProvider.CreateDbExpressionVisitor();
+            var sqlState = e.Accept(dbExpVisitor);
+
+            string sql = sqlState.ToSql();
+            sql += ";SELECT @@IDENTITY";
+
+#if DEBUG
+            Debug.WriteLine(sql);
+#endif
 
 
+            object retIdentity = this._dbSession.ExecuteScalar(sql, dbExpVisitor.ParameterStorage);
 
-            this.ExecuteSqlCommand(e);
-            throw new NotImplementedException();
+            if (retIdentity != null && retIdentity != DBNull.Value)
+            {
+                //SELECT @@IDENTITY 返回的是 decimal 类型
+                decimal identity = (decimal)retIdentity;
+                if (autoIncrementMemberDescriptor.MemberInfoType == typeof(int))
+                {
+                    autoIncrementMemberDescriptor.SetValue(entity, (int)identity);
+                }
+                else if (autoIncrementMemberDescriptor.MemberInfoType == typeof(long))
+                {
+                    autoIncrementMemberDescriptor.SetValue(entity, (long)identity);
+                }
+                else if (autoIncrementMemberDescriptor.MemberInfoType == typeof(int?))
+                {
+                    autoIncrementMemberDescriptor.SetValue(entity, (int?)identity);
+                }
+                else if (autoIncrementMemberDescriptor.MemberInfoType == typeof(long?))
+                {
+                    autoIncrementMemberDescriptor.SetValue(entity, (long?)identity);
+                }
+                else if (autoIncrementMemberDescriptor.MemberInfoType == typeof(decimal?))
+                {
+                    autoIncrementMemberDescriptor.SetValue(entity, (decimal?)identity);
+                }
+                else
+                    autoIncrementMemberDescriptor.SetValue(entity, retIdentity);
+            }
+
+            return entity;
         }
 
         public virtual int Update<T>(T entity)
@@ -69,7 +159,7 @@ namespace Chloe
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
 
-            var keyMember = typeDescriptor.PrimaryKeys.FirstOrDefault();
+            var keyMember = typeDescriptor.PrimaryKey;
 
             if (keyMember == null)
                 throw new Exception(string.Format("实体类型 {0} 未定义主键", typeDescriptor.EntityType.FullName));
@@ -77,22 +167,26 @@ namespace Chloe
             object keyVal = null;
             MappingMemberDescriptor keyMemberDescriptor = null;
 
-            Dictionary<DbColumn, DbExpression> updateColumns = new Dictionary<DbColumn, DbExpression>();
+            Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
             foreach (var kv in typeDescriptor.MappingMemberDescriptors)
             {
                 var member = kv.Key;
                 var memberDescriptor = kv.Value;
 
-                var val = memberDescriptor.GetValue(entity);
                 if (member == keyMember)
                 {
-                    keyVal = val;
+                    keyVal = memberDescriptor.GetValue(entity);
                     keyMemberDescriptor = memberDescriptor;
                     continue;
                 }
 
-                DbExpression valExp = new DbParameterExpression(val);
-                updateColumns.Add(memberDescriptor.Column, valExp);
+                AutoIncrementAttribute attr = (AutoIncrementAttribute)memberDescriptor.GetCustomAttribute(typeof(AutoIncrementAttribute));
+                if (attr != null)
+                    continue;
+
+                var val = memberDescriptor.GetValue(entity);
+                DbExpression valExp = new DbParameterExpression(val ?? DBNull.Value);
+                updateColumns.Add(memberDescriptor, valExp);
             }
 
             if (keyVal == null)
@@ -102,14 +196,14 @@ namespace Chloe
                 throw new Exception();
 
             DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
-            DbExpression right = new DbParameterExpression(keyVal);
+            DbExpression right = new DbParameterExpression(keyVal ?? DBNull.Value);
             DbExpression conditionExp = new DbEqualExpression(left, right);
 
             DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
 
             foreach (var item in updateColumns)
             {
-                e.UpdateColumns.Add(item.Key, item.Value);
+                e.UpdateColumns.Add(item.Key.Column, item.Value);
             }
 
             return this.ExecuteSqlCommand(e);
@@ -121,14 +215,22 @@ namespace Chloe
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
 
-            Dictionary<DbColumn, DbExpression> updateColumns = typeDescriptor.UpdateColumnExpressionVisitor.Visit(body);
+            Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = typeDescriptor.UpdateColumnExpressionVisitor.Visit(body);
             var conditionExp = typeDescriptor.Visitor.Visit(condition);
 
             DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
 
             foreach (var item in updateColumns)
             {
-                e.UpdateColumns.Add(item.Key, item.Value);
+                MappingMemberDescriptor key = item.Key;
+                if (key.IsPrimaryKey)
+                    throw new Exception(string.Format("成员 {0} 属于主键，无法对其进行更新操作", key.MemberInfo.Name));
+
+                e.UpdateColumns.Add(item.Key.Column, item.Value);
+
+                AutoIncrementAttribute attr = (AutoIncrementAttribute)key.GetCustomAttribute(typeof(AutoIncrementAttribute));
+                if (attr != null)
+                    throw new Exception(string.Format("成员 {0} 属于自增成员，无法对其进行更新操作", key.MemberInfo.Name));
             }
 
             return this.ExecuteSqlCommand(e);
@@ -140,7 +242,7 @@ namespace Chloe
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
 
-            var keyMember = typeDescriptor.PrimaryKeys.FirstOrDefault();
+            var keyMember = typeDescriptor.PrimaryKey;
 
             if (keyMember == null)
                 throw new Exception(string.Format("实体类型 {0} 未定义主键", typeDescriptor.EntityType.FullName));
