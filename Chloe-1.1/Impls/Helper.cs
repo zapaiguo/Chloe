@@ -72,10 +72,9 @@ namespace Chloe.Impls
                 return StripInvalidConvert(convertExpression.Operand);
             }
 
-            if (exp.Type == typeof(object))
-            {
+            //如果是子类向父类转换
+            if (exp.Type.IsAssignableFrom(convertExpression.Operand.Type))
                 return StripInvalidConvert(convertExpression.Operand);
-            }
 
             return convertExpression;
         }
