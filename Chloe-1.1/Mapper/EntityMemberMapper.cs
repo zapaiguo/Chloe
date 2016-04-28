@@ -53,14 +53,14 @@ namespace Chloe.Mapper
                 }
                 else
                 {
-                    if (member.MemberType == MemberTypes.Property)
+                    if (prop != null)
                     {
-                        Action<object, object> valueSetter = null;
+                        Action<object, object> valueSetter = DelegateGenerator.CreateValueSetter(prop.DeclaringType, prop);
                         this._navigationMemberSetters.Add(member, valueSetter);
                     }
-                    else if (member.MemberType == MemberTypes.Field)
+                    else if (field != null)
                     {
-                        Action<object, object> valueSetter = null;
+                        Action<object, object> valueSetter = DelegateGenerator.CreateValueSetter(field.DeclaringType, field);
                         this._navigationMemberSetters.Add(member, valueSetter);
                     }
                     else

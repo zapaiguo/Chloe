@@ -16,7 +16,6 @@ namespace Chloe.Core
 {
     public static class DelegateGenerator
     {
-        #region
         public static Action<object, IDataReader, int> CreateSetValueFromReaderDelegate(MemberInfo member)
         {
             Action<object, IDataReader, int> del = null;
@@ -121,6 +120,52 @@ namespace Chloe.Core
             return ret;
         }
 
+        public static Action<object, object> CreateValueSetter(Type instanceType, MemberInfo propertyOrField)
+        {
+            PropertyInfo propertyInfo = propertyOrField as PropertyInfo;
+            if (propertyInfo != null)
+                return CreateValueSetter(instanceType, propertyInfo);
+
+            FieldInfo fieldInfo = propertyOrField as FieldInfo;
+            if (fieldInfo != null)
+                return CreateValueSetter(instanceType, fieldInfo);
+
+            throw new ArgumentException();
+        }
+        public static Action<object, object> CreateValueSetter(Type instanceType, PropertyInfo propertyInfo)
+        {
+            var p = Expression.Parameter(typeof(object), "instance");
+            var pValue = Expression.Parameter(typeof(object), "value");
+            var instance = Expression.Convert(p, instanceType);
+            var value = Expression.Convert(pValue, propertyInfo.PropertyType);
+
+            var pro = Expression.Property(instance, propertyInfo);
+            var setValue = Expression.Assign(pro, value);
+
+            Expression body = setValue;
+
+            var lambda = Expression.Lambda<Action<object, object>>(body, p, pValue);
+            Action<object, object> ret = lambda.Compile();
+
+            return ret;
+        }
+        public static Action<object, object> CreateValueSetter(Type instanceType, FieldInfo fieldInfo)
+        {
+            var p = Expression.Parameter(typeof(object), "instance");
+            var pValue = Expression.Parameter(typeof(object), "value");
+            var instance = Expression.Convert(p, instanceType);
+            var value = Expression.Convert(pValue, fieldInfo.FieldType);
+
+            var field = Expression.Field(instance, fieldInfo);
+            var setValue = Expression.Assign(field, value);
+
+            Expression body = setValue;
+
+            var lambda = Expression.Lambda<Action<object, object>>(body, p, pValue);
+            Action<object, object> ret = lambda.Compile();
+
+            return ret;
+        }
         public static Func<object, object> CreateValueGetter(Type instanceType, MemberInfo member)
         {
             var p = Expression.Parameter(typeof(object), "a");
@@ -140,7 +185,6 @@ namespace Chloe.Core
 
             return ret;
         }
-        #endregion
 
 
         #region

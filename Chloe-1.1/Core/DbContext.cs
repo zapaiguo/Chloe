@@ -49,6 +49,13 @@ namespace Chloe
         {
             return new Query<T>(this);
         }
+        public virtual List<T> SqlQuery<T>() where T : new()
+        {
+
+
+            return null;
+        }
+
 
         public virtual T Insert<T>(T entity)
         {

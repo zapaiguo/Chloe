@@ -32,10 +32,5 @@ namespace Chloe.Descriptors
         {
             get { return this._column; }
         }
-
-        public override void SetValue(object instance, object value)
-        {
-            this._fieldInfo.SetValue(instance, value);
-        }
     }
 }
