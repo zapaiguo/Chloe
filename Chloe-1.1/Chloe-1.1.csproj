@@ -49,7 +49,7 @@
     <Compile Include="Core\Entity\ColumnAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Core\Entity\IgnoreAttribute.cs">
+    <Compile Include="Core\Entity\NotMappedAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Core\Entity\TableAttribute.cs">

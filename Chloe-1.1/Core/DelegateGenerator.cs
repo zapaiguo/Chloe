@@ -16,8 +16,6 @@ namespace Chloe.Core
 {
     public static class DelegateGenerator
     {
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Func<object, List<KeyValuePair<string, object>>>> getValuesDelegateCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Func<object, List<KeyValuePair<string, object>>>>();
-
         #region
         public static Action<object, IDataReader, int> CreateSetValueFromReaderDelegate(MemberInfo member)
         {
@@ -69,114 +67,6 @@ namespace Chloe.Core
             il.Emit(OpCodes.Stfld, field);//给字段赋值
         }
 
-        static Func<object, List<KeyValuePair<string, object>>> CreateGetValuesDelegate(Type t)
-        {
-            Type retType = typeof(List<KeyValuePair<string, object>>);
-            Type kvType = typeof(KeyValuePair<string, object>);
-            ConstructorInfo kvConstructorInfo = kvType.GetConstructor(new Type[] { UtilConstants.TypeOfString, UtilConstants.TypeOfObject });
-
-            IEnumerable<MemberInfo> members = t.GetMembers(BindingFlags.Public | BindingFlags.Instance).Where(a => a is PropertyInfo || a is FieldInfo);
-
-            Func<object, List<KeyValuePair<string, object>>> del;
-            DynamicMethod dm = new DynamicMethod("GetValues_" + Guid.NewGuid().ToString(), retType, new Type[] { UtilConstants.TypeOfObject }, true);
-            ILGenerator il = dm.GetILGenerator();
-
-            var obj = il.DeclareLocal(retType);   //生成对象变量
-            var arg_0 = il.DeclareLocal(t);
-
-            OpCode opLdc;
-            OpCode opCall;
-
-            ConstructorInfo ctor = retType.GetConstructor(new Type[] { UtilConstants.TypeOfInt32 });
-            il.Emit(OpCodes.Ldc_I4, members.Count());
-            il.Emit(OpCodes.Newobj, ctor);
-            il.Emit(OpCodes.Stloc, obj);
-            il.Emit(OpCodes.Ldloc, obj);   //加载 后面用Dup方式  这样就没必要定义一堆的变量记录GetValue得到的值了
-
-            il.Emit(OpCodes.Ldarg_0);
-            if (t.IsValueType)
-            {
-                opLdc = OpCodes.Ldloca_S;
-                opCall = OpCodes.Call;
-                il.Emit(OpCodes.Unbox_Any, t);
-            }
-            else
-            {
-                opLdc = OpCodes.Ldloc;
-                opCall = OpCodes.Callvirt;
-                il.Emit(OpCodes.Castclass, t);
-            }
-            il.Emit(OpCodes.Stloc, arg_0);
-
-            var listAddMethod = retType.GetMethod("Add", new Type[] { kvType });
-
-            foreach (var member in members)
-            {
-                PropertyInfo prop = null;
-                FieldInfo field = null;
-                if ((prop = member as PropertyInfo) != null)
-                {
-                    var getter = prop.GetGetMethod();
-                    if (getter == null)
-                        continue;       //对非公共的 getter 无视
-
-                    il.Emit(OpCodes.Dup);
-                    il.Emit(OpCodes.Ldstr, prop.Name);
-
-                    //访问属性，得到属性值
-                    il.Emit(opLdc, arg_0);
-                    il.EmitCall(opCall, getter, null);
-
-                    if (prop.PropertyType.IsValueType)
-                    {
-                        il.Emit(OpCodes.Box, prop.PropertyType);
-                    }
-
-                    // new KeyValuePair<string, object>(key,value);
-                    il.Emit(OpCodes.Newobj, kvConstructorInfo);
-
-
-                    il.EmitCall(OpCodes.Callvirt, listAddMethod, null);
-                }
-                else if ((field = member as FieldInfo) != null)
-                {
-                    il.Emit(OpCodes.Dup);
-                    il.Emit(OpCodes.Ldstr, field.Name);
-
-                    //访问字段，得到字段值
-                    il.Emit(OpCodes.Ldloc, arg_0);
-                    il.Emit(OpCodes.Ldfld, field);
-
-                    if (field.FieldType.IsValueType)
-                    {
-                        il.Emit(OpCodes.Box, field.FieldType);
-                    }
-
-                    // new KeyValuePair<string, object>(key,value);
-                    il.Emit(OpCodes.Newobj, kvConstructorInfo);
-
-                    il.EmitCall(OpCodes.Callvirt, listAddMethod, null);
-                }
-                else
-                    continue;// 只获取公共属性和字段
-            }
-
-            il.Emit(OpCodes.Ret);
-
-            del = (Func<object, List<KeyValuePair<string, object>>>)dm.CreateDelegate(typeof(Func<object, List<KeyValuePair<string, object>>>));
-            return del;
-        }
-        public static Func<object, List<KeyValuePair<string, object>>> GetGetValuesDelegate(Type t)
-        {
-            Func<object, List<KeyValuePair<string, object>>> del;
-            if (!getValuesDelegateCache.TryGetValue(t, out del))
-            {
-                del = CreateGetValuesDelegate(t);
-                del = getValuesDelegateCache.GetOrAdd(t, del);
-            }
-
-            return del;
-        }
         public static Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> CreateObjectGenerator(ConstructorInfo constructor)
         {
             Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> ret = null;
@@ -227,6 +117,26 @@ namespace Chloe.Core
             var body = Expression.Convert(getValue, typeof(object));
 
             Func<IDataReader, int, object> ret = Expression.Lambda<Func<IDataReader, int, object>>(body, pExp_reader, pExp_readerOrdinal).Compile();
+
+            return ret;
+        }
+
+        public static Func<object, object> CreateValueGetter(Type instanceType, MemberInfo member)
+        {
+            var p = Expression.Parameter(typeof(object), "a");
+            var instance = Expression.Convert(p, instanceType);
+            var memberAccess = Expression.MakeMemberAccess(instance, member);
+
+            Type type = ReflectionExtensions.GetMemberInfoType(member);
+
+            Expression body = memberAccess;
+            if (type.IsValueType)
+            {
+                body = Expression.Convert(memberAccess, typeof(object));
+            }
+
+            var lambda = Expression.Lambda<Func<object, object>>(body, p);
+            Func<object, object> ret = lambda.Compile();
 
             return ret;
         }

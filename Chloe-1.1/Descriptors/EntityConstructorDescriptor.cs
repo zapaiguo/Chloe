@@ -37,7 +37,7 @@ namespace Chloe.Descriptors
         public Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> GetInstanceCreator()
         {
             EntityConstructor entityConstructor = null;
-            if (this._entityConstructor == null)
+            if (null == this._entityConstructor)
             {
                 this._entityConstructor = EntityConstructor.GetInstance(this.ConstructorInfo);
             }
@@ -48,7 +48,7 @@ namespace Chloe.Descriptors
         public EntityMemberMapper GetEntityMemberMapper()
         {
             EntityMemberMapper mapper = null;
-            if (this._mapper == null)
+            if (null == this._mapper)
             {
                 this._mapper = EntityMemberMapper.GetInstance(this.ConstructorInfo.DeclaringType);
             }

@@ -56,7 +56,7 @@ namespace Chloe.Descriptors
 
             foreach (var member in members)
             {
-                var ignoreFlags = member.GetCustomAttributes(typeof(IgnoreAttribute), true);
+                var ignoreFlags = member.GetCustomAttributes(typeof(NotMappedAttribute), false);
                 if (ignoreFlags.Length > 0)
                     continue;
 

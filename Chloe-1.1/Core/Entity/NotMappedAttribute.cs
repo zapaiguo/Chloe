@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Chloe
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class IgnoreAttribute : Attribute
+    public class NotMappedAttribute : Attribute
     {
     }
 }
