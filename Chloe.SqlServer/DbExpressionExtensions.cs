@@ -1,5 +1,4 @@
 ﻿using Chloe.DbExpressions;
-using Chloe.Impls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,30 +6,10 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chloe.Extensions
+namespace Chloe.SqlServer
 {
-    internal static class DbExpressionExtensions
+    static class DbExpressionExtensions
     {
-        public static bool IsReturnCSharpBoolean(this DbMemberExpression exp)
-        {
-            DbExpression prevExp = exp.Expression;
-            DbMemberExpression memberExp = prevExp as DbMemberExpression;
-            while (memberExp != null)
-            {
-                prevExp = memberExp.Expression;
-                memberExp = prevExp as DbMemberExpression;
-            }
-
-            DbExpressionType nodeType = prevExp.NodeType;
-
-            if (nodeType == DbExpressionType.Parameter || nodeType == DbExpressionType.Constant || nodeType == DbExpressionType.ColumnAccess)
-            {
-                return true;
-            }
-            else
-                return false;
-        }
-
         /// <summary>
         /// 尝试将 exp 转换成 DbParameterExpression。
         /// </summary>
@@ -54,7 +33,7 @@ namespace Chloe.Extensions
         /// <returns></returns>
         public static DbExpression ParseDbExpression(this DbExpression exp)
         {
-            DbExpression stripedExp = Helper.StripInvalidConvert(exp);
+            DbExpression stripedExp = DbExpressionHelper.StripInvalidConvert(exp);
 
             DbExpression tempExp = stripedExp;
 
@@ -134,16 +113,11 @@ namespace Chloe.Extensions
 
             if (val == null)
                 ret = new DbParameterExpression(DBNull.Value);
-            //ret = new DbConstantExpression(null, memberExpression.Type);
             else
                 ret = new DbParameterExpression(val);
             return ret;
         }
 
-        public static bool IsNullDbConstantExpression(this DbExpression exp)
-        {
-            return exp.NodeType == DbExpressionType.Constant && ((DbConstantExpression)exp).Value == null;
-        }
         /// <summary>
         /// 判定 exp 返回值肯定是 null
         /// </summary>
@@ -151,7 +125,7 @@ namespace Chloe.Extensions
         /// <returns></returns>
         public static bool AffirmExpressionRetValueIsNull(this DbExpression exp)
         {
-            exp = Helper.StripConvert(exp);
+            exp = DbExpressionHelper.StripConvert(exp);
 
             if (exp.NodeType == DbExpressionType.Constant && ((DbConstantExpression)exp).Value == null)
                 return true;
@@ -168,7 +142,7 @@ namespace Chloe.Extensions
         /// <returns></returns>
         public static bool AffirmExpressionRetValueIsNotNull(this DbExpression exp)
         {
-            exp = Helper.StripConvert(exp);
+            exp = DbExpressionHelper.StripConvert(exp);
 
             if (exp.NodeType == DbExpressionType.Constant && ((DbConstantExpression)exp).Value != null)
                 return true;
@@ -246,7 +220,5 @@ namespace Chloe.Extensions
                 throw ex.InnerException;
             }
         }
-
-
     }
 }

@@ -9,7 +9,6 @@ using Chloe.Utility;
 
 namespace Chloe.Extensions
 {
-    //33
     public static class DataReaderExtensions
     {
         public static short Reader_GetInt16(this IDataReader reader, int ordinal)

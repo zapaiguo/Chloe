@@ -5,11 +5,11 @@ namespace Chloe.DbExpressions
 {
     public class DbEqualExpression : DbBinaryExpression
     {
-        internal DbEqualExpression(DbExpression left, DbExpression right)
+        public DbEqualExpression(DbExpression left, DbExpression right)
             : this(left, right, null)
         {
         }
-        internal DbEqualExpression(DbExpression left, DbExpression right, MethodInfo method)
+        public DbEqualExpression(DbExpression left, DbExpression right, MethodInfo method)
             : base(DbExpressionType.Equal, UtilConstants.TypeOfBoolean, left, right, method)
         {
         }

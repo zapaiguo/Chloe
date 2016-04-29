@@ -10,27 +10,6 @@ namespace Chloe.Extensions
 {
     internal static class ExpressionExtensions
     {
-        public static DeriveType GetMemberExpressionDeriveType(this MemberExpression exp)
-        {
-            Expression prevExp = exp.Expression;
-            MemberExpression memberExp = prevExp as MemberExpression;
-            while (memberExp != null)
-            {
-                prevExp = memberExp.Expression;
-                memberExp = prevExp as MemberExpression;
-            }
-
-            if (prevExp is ParameterExpression)
-            {
-                return DeriveType.Parameter;
-            }
-            else if (prevExp is ConstantExpression)
-            {
-                return DeriveType.Constant;
-            }
-            else
-                return DeriveType.Unknown;
-        }
         public static bool IsDerivedFromParameter(this MemberExpression exp, out ParameterExpression p)
         {
             Expression prevExp = exp.Expression;
@@ -47,12 +26,6 @@ namespace Chloe.Extensions
                 return true;
             else
                 return false;
-        }
-
-
-        public static bool IsNullConstant(this Expression exp)
-        {
-            return ((exp is ConstantExpression) && ((ConstantExpression)exp).Value == null);
         }
 
         public static Expression StripQuotes(this Expression exp)
