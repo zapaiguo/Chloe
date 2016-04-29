@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // 有关程序集的常规信息通过以下
 // 特性集控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("Chloe-1.1")]
+[assembly: AssemblyTitle("Chloe-1.1Test")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Chloe-1.1")]
+[assembly: AssemblyProduct("Chloe-1.1Test")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 如果此项目向 COM 公开，则下列 GUID 用于类型库的 ID
-[assembly: Guid("096a4943-ffa2-45c6-85d3-3ee52095bcd0")]
+[assembly: Guid("1f4df9ed-1e6c-43c5-898c-7b502c920e2c")]
 
 // 程序集的版本信息由下面四个值组成: 
 //
