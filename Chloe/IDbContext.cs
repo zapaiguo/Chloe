@@ -8,6 +8,7 @@ namespace Chloe
     public interface IDbContext : IDisposable
     {
         IDbSession CurrentSession { get; }
+
         IQuery<T> Query<T>() where T : new();
         IEnumerable<T> SqlQuery<T>(string sql, IDictionary<string, object> parameters) where T : new();
 
