@@ -91,18 +91,28 @@ namespace Chloe.SqlServer
             BinaryWithMethodHandlers.Add(concatMethod_Object_Object, StringConcat);
         }
 
-        SqlExpressionVisitor()
-        {
-            this._columnExpressionVisitor = new DbColumnExpressionVisitor(this);
-            this._joinConditionExpressionVisitor = new JoinConditionExpressionVisitor(this);
-        }
-        protected SqlExpressionVisitor(int m)
-        {
-            this._columnExpressionVisitor = new DbColumnExpressionVisitor(this);
-        }
-
-
         public override Dictionary<string, object> ParameterStorage { get { return this._parameterStorage; } }
+
+        DbColumnExpressionVisitor ColumnExpressionVisitor
+        {
+            get
+            {
+                if (this._columnExpressionVisitor == null)
+                    this._columnExpressionVisitor = new DbColumnExpressionVisitor(this);
+
+                return this._columnExpressionVisitor;
+            }
+        }
+        JoinConditionExpressionVisitor JoinConditionExpressionVisitor
+        {
+            get
+            {
+                if (this._joinConditionExpressionVisitor == null)
+                    this._joinConditionExpressionVisitor = new JoinConditionExpressionVisitor(this);
+
+                return this._joinConditionExpressionVisitor;
+            }
+        }
 
         public static SqlExpressionVisitor CreateInstance()
         {
@@ -476,7 +486,7 @@ namespace Chloe.SqlServer
                 throw new NotSupportedException("JoinType: " + joinTablePart.JoinType);
 
             SqlState state = new SqlState(5);
-            state.Append(joinString, joinTablePart.Table.Accept(this), " ON ", joinTablePart.Condition.Accept(this._joinConditionExpressionVisitor));
+            state.Append(joinString, joinTablePart.Table.Accept(this), " ON ", joinTablePart.Condition.Accept(this.JoinConditionExpressionVisitor));
             state.Append(this.VisitDbJoinTableExpressions(joinTablePart.JoinTables));
 
             return state;
@@ -527,7 +537,7 @@ namespace Chloe.SqlServer
                 }
 
                 state.Append(QuoteName(item.Key.Name));
-                valuesState.Append(item.Value.Accept(this._columnExpressionVisitor));
+                valuesState.Append(item.Value.Accept(this.ColumnExpressionVisitor));
             }
             state.Append(")");
             valuesState.Append(")");
@@ -548,7 +558,7 @@ namespace Chloe.SqlServer
                 else
                     state.Append(",");
 
-                state.Append(QuoteName(item.Key.Name), "=", item.Value.Accept(this._columnExpressionVisitor));
+                state.Append(QuoteName(item.Key.Name), "=", item.Value.Accept(this.ColumnExpressionVisitor));
             }
 
             state.Append(BuildWhereState(exp.Condition));
@@ -586,7 +596,7 @@ namespace Chloe.SqlServer
                 if (i > 0)
                     columnsState.Append(",");
 
-                columnsState.Append(column.Accept(this._columnExpressionVisitor));
+                columnsState.Append(column.Accept(this.ColumnExpressionVisitor));
             }
 
             ISqlState fromTableState = exp.Table.Accept(this);
@@ -623,7 +633,7 @@ namespace Chloe.SqlServer
                     columnsState.Append(",");
 
                 ISqlState columnState = QuoteName(column.Alias);
-                columnsState.Append(column.Body.Accept(this._columnExpressionVisitor), " AS ", columnState);
+                columnsState.Append(column.Body.Accept(this.ColumnExpressionVisitor), " AS ", columnState);
                 columnStates.Add(columnState);
             }
 
@@ -687,7 +697,7 @@ namespace Chloe.SqlServer
                 if (i > 0)
                     columnsState.Append(",");
 
-                columnsState.Append(column.Accept(this._columnExpressionVisitor));
+                columnsState.Append(column.Accept(this.ColumnExpressionVisitor));
             }
 
             List<DbOrderSegmentExpression> orderParts = exp.OrderSegments;
@@ -726,7 +736,7 @@ namespace Chloe.SqlServer
                     columnsState.Append(",");
 
                 SqlState columnState = QuoteName(column.Alias);
-                columnsState.Append(column.Body.Accept(this._columnExpressionVisitor), " AS ", columnState);
+                columnsState.Append(column.Body.Accept(this.ColumnExpressionVisitor), " AS ", columnState);
                 columnStates.Add(columnState);
             }
 

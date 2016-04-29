@@ -10,7 +10,6 @@ namespace Chloe.SqlServer
         SqlExpressionVisitor _visitor = null;
 
         public JoinConditionExpressionVisitor(SqlExpressionVisitor visitor)
-            : base(1)
         {
             if (visitor == null)
                 throw new ArgumentNullException("visitor");
