@@ -1,4 +1,5 @@
-﻿using Chloe.DbExpressions;
+﻿using Chloe.Core.Visitors;
+using Chloe.DbExpressions;
 using Chloe.Descriptors;
 using Chloe.Extensions;
 using System;
@@ -9,13 +10,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chloe.Query.Visitors
+namespace Chloe.Core.Visitors
 {
-    public class GeneralExpressionVisitor1 : ExpressionVisitorBase
+    public class DefaultExpressionVisitor : ExpressionVisitorBase
     {
         MappingTypeDescriptor _typeDescriptor;
 
-        public GeneralExpressionVisitor1(MappingTypeDescriptor typeDescriptor)
+        public DefaultExpressionVisitor(MappingTypeDescriptor typeDescriptor)
         {
             this._typeDescriptor = typeDescriptor;
         }
@@ -68,6 +69,5 @@ namespace Chloe.Query.Visitors
         {
             throw new NotSupportedException(exp.ToString());
         }
-
     }
 }

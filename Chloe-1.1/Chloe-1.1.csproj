@@ -61,6 +61,9 @@
     <Compile Include="Core\IJoiningQuery`.cs" />
     <Compile Include="Core\IOrderedQuery`.cs" />
     <Compile Include="Core\IQuery`.cs" />
+    <Compile Include="Core\Visitors\ExpressionEvaluator.cs" />
+    <Compile Include="Core\Visitors\ExpressionVisitor`.cs" />
+    <Compile Include="Core\Visitors\InsertBodyExpressionVisitor.cs" />
     <Compile Include="DbExpressions\DbColumn.cs" />
     <Compile Include="DbExpressions\DbDeleteExpression.cs" />
     <Compile Include="DbExpressions\DbFunctionExpression.cs" />
@@ -131,8 +134,7 @@
     <Compile Include="Query\QueryExpressions\JoinQueryExpression.cs" />
     <Compile Include="Query\QueryState\FunctionQueryState.cs" />
     <Compile Include="Query\QueryState\GroupingQueryState.cs" />
-    <Compile Include="Query\Visitors\ExpressionVisitor.cs" />
-    <Compile Include="Query\Visitors\ExpressionVisitor`.cs" />
+    <Compile Include="Core\Visitors\ExpressionVisitor.cs" />
     <Compile Include="Query\IMappingObjectExpression.cs" />
     <Compile Include="Impls\DbColumnExpressionVisitor.cs" />
     <Compile Include="Impls\JoinConditionExpressionVisitor.cs" />
@@ -150,7 +152,7 @@
     <Compile Include="Query\QueryState\SubQueryState.cs" />
     <Compile Include="Query\Query`.cs" />
     <Compile Include="Query\SqlState.cs" />
-    <Compile Include="Query\Visitors\ExpressionVisitorBase.cs" />
+    <Compile Include="Core\Visitors\ExpressionVisitorBase.cs" />
     <Compile Include="DbExpressions\JoinType.cs" />
     <Compile Include="DbExpressions\OrderType.cs" />
     <Compile Include="Query\QueryExpressions\OrderExpression.cs" />
@@ -183,13 +185,13 @@
     <Compile Include="Query\ResultElement.cs" />
     <Compile Include="DbExpressions\DbExpressionVisitor`.cs" />
     <Compile Include="Query\Visitors\GeneralExpressionVisitor.cs" />
-    <Compile Include="Query\Visitors\GeneralExpressionVisitor1.cs" />
+    <Compile Include="Core\Visitors\DefaultExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />
     <Compile Include="Query\QueryExpressions\QueryExpressionVisitor`.cs" />
     <Compile Include="Query\Visitors\SelectorExpressionVisitor.cs" />
     <Compile Include="Mapper\EntityMemberMapper.cs" />
-    <Compile Include="Query\Visitors\UpdateExpressionVisitor.cs" />
+    <Compile Include="Core\Visitors\UpdateBodyExpressionVisitor.cs" />
     <Compile Include="Utility\UtilConstants.cs" />
     <Compile Include="Utility\Utils.cs" />
   </ItemGroup>

@@ -1,4 +1,5 @@
-﻿using Chloe.DbExpressions;
+﻿using Chloe.Core.Visitors;
+using Chloe.DbExpressions;
 using Chloe.Descriptors;
 using Chloe.Extensions;
 using Chloe.Utility;
@@ -10,26 +11,18 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chloe.Query.Visitors
+namespace Chloe.Core.Visitors
 {
-    public class UpdateColumnExpressionVisitor : ExpressionVisitor<Dictionary<MappingMemberDescriptor, DbExpression>>
+    public class UpdateBodyExpressionVisitor : ExpressionVisitor<Dictionary<MappingMemberDescriptor, DbExpression>>
     {
         MappingTypeDescriptor _typeDescriptor;
         ExpressionVisitorBase _visitor;
 
-        public UpdateColumnExpressionVisitor(MappingTypeDescriptor typeDescriptor)
+        public UpdateBodyExpressionVisitor(MappingTypeDescriptor typeDescriptor)
         {
             this._typeDescriptor = typeDescriptor;
             this._visitor = typeDescriptor.Visitor;
         }
-
-        //public static Dictionary<DbColumn, DbExpression> VisitExpression(LambdaExpression exp, MappingTypeDescriptor typeDescriptor, ExpressionVisitorBase visitor)
-        //{
-        //    var visitor1 = new UpdateColumnExpressionVisitor(typeDescriptor);
-        //    visitor1._visitor = visitor;
-        //    return visitor1.Visit(exp);
-        //}
-
         public override Dictionary<MappingMemberDescriptor, DbExpression> Visit(Expression exp)
         {
             if (exp == null)
@@ -77,10 +70,6 @@ namespace Chloe.Query.Visitors
                 }
 
                 MappingMemberDescriptor memberDescriptor = mappingMemberDescriptors[member];
-                //if (memberDescriptor.IsPrimaryKey || memberDescriptor.IsAutoIncrement)
-                //{
-                //    throw new Exception(string.Format("成员 {0} 属于主键或自增列，无法对其进行更新操作", member.Name));
-                //}
 
                 DbColumn column = dbColumnAccessExpression.Column;
 

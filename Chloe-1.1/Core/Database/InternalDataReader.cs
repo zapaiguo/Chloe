@@ -44,8 +44,12 @@ namespace Chloe.Database
 
         public void Dispose()
         {
-            if (this._reader != null && !this._reader.IsClosed)
+            if (this._reader != null)
+            {
+                if (!this._reader.IsClosed)
+                    this._reader.Close();
                 this._reader.Dispose();
+            }
             this._dbSession.Complete();
         }
         #endregion

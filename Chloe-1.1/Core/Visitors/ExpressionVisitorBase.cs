@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using Chloe.DbExpressions;
 using Chloe.Utility;
 
-namespace Chloe.Query.Visitors
+namespace Chloe.Core.Visitors
 {
     public class ExpressionVisitorBase : ExpressionVisitor<DbExpression>
     {

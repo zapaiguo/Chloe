@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 
-namespace Chloe
+namespace Chloe.Core.Visitors
 {
     internal abstract class ExpressionVisitor
     {

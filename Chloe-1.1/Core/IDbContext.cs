@@ -9,8 +9,10 @@ namespace Chloe.Core
     {
         IDbSession CurrentSession { get; }
         IQuery<T> Query<T>() where T : new();
+        List<T> SqlQuery<T>(string sql, IDictionary<string, object> parameters) where T : new();
 
         T Insert<T>(T entity);
+        object Insert<T>(Expression<Func<T>> body);
 
         int Update<T>(T entity);
         int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> condition);

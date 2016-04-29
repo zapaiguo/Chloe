@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Chloe.Query.Visitors
+namespace Chloe.Core.Visitors
 {
     public abstract class ExpressionVisitor<T>
     {
@@ -202,4 +202,5 @@ namespace Chloe.Query.Visitors
             throw new NotImplementedException(exp.ToString());
         }
     }
+
 }

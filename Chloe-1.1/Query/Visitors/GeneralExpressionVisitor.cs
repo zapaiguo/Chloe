@@ -1,4 +1,5 @@
-﻿using Chloe.DbExpressions;
+﻿using Chloe.Core.Visitors;
+using Chloe.DbExpressions;
 using Chloe.Extensions;
 using Chloe.Utility;
 using System;

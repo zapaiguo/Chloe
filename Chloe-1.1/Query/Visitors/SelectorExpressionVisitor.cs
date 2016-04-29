@@ -6,6 +6,7 @@ using Chloe.Utility;
 using Chloe.DbExpressions;
 using Chloe.Query.Visitors;
 using System.Collections.Generic;
+using Chloe.Core.Visitors;
 
 namespace Chloe.Query
 {

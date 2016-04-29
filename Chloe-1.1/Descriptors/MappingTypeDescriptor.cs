@@ -1,4 +1,5 @@
-﻿using Chloe.DbExpressions;
+﻿using Chloe.Core.Visitors;
+using Chloe.DbExpressions;
 using Chloe.Query.Visitors;
 using Chloe.Utility;
 using System;
@@ -13,10 +14,11 @@ namespace Chloe.Descriptors
         Dictionary<MemberInfo, MappingMemberDescriptor> _mappingMemberDescriptors = new Dictionary<MemberInfo, MappingMemberDescriptor>();
         Dictionary<MemberInfo, NavigationMemberDescriptor> _navigationMemberDescriptors = new Dictionary<MemberInfo, NavigationMemberDescriptor>();
         Dictionary<MemberInfo, DbColumnAccessExpression> _memberColumnMap;
-        MemberInfo _primaryKey = null;
+        MappingMemberDescriptor _primaryKey = null;
 
-        GeneralExpressionVisitor1 _visitor = null;
-        UpdateColumnExpressionVisitor _updateColumnExpressionVisitor = null;
+        DefaultExpressionVisitor _visitor = null;
+        UpdateBodyExpressionVisitor _updateBodyExpressionVisitor = null;
+        InsertBodyExpressionVisitor _insertBodyExpressionVisitor = null;
 
         MappingTypeDescriptor(Type t)
         {
@@ -134,13 +136,7 @@ namespace Chloe.Descriptors
 
                 if (columnFlag.IsPrimaryKey)
                 {
-                    if (this._primaryKey != null)
-                    {
-                        throw new NotSupportedException(string.Format("实体类型 {0} 定义多个主键", this.EntityType.FullName));
-                    }
-
                     isPrimaryKey = true;
-                    this._primaryKey = member;
                 }
             }
             else
@@ -160,31 +156,51 @@ namespace Chloe.Descriptors
 
             memberDescriptor.IsPrimaryKey = isPrimaryKey;
 
+            if (memberDescriptor.IsPrimaryKey)
+            {
+                if (this._primaryKey != null)
+                {
+                    throw new NotSupportedException(string.Format("实体类型 {0} 定义多个主键", this.EntityType.FullName));
+                }
+
+                this._primaryKey = memberDescriptor;
+            }
+
             return memberDescriptor;
         }
 
         public Type EntityType { get; private set; }
         public DbTable Table { get; private set; }
 
-        public MemberInfo PrimaryKey { get { return this._primaryKey; } }
-        public GeneralExpressionVisitor1 Visitor
+        public MappingMemberDescriptor PrimaryKey { get { return this._primaryKey; } }
+        public DefaultExpressionVisitor Visitor
         {
             get
             {
                 if (this._visitor == null)
-                    this._visitor = new GeneralExpressionVisitor1(this);
+                    this._visitor = new DefaultExpressionVisitor(this);
 
                 return this._visitor;
             }
         }
-        public UpdateColumnExpressionVisitor UpdateColumnExpressionVisitor
+        public InsertBodyExpressionVisitor InsertBodyExpressionVisitor
         {
             get
             {
-                if (this._updateColumnExpressionVisitor == null)
-                    this._updateColumnExpressionVisitor = new UpdateColumnExpressionVisitor(this);
+                if (this._insertBodyExpressionVisitor == null)
+                    this._insertBodyExpressionVisitor = new InsertBodyExpressionVisitor(this);
 
-                return this._updateColumnExpressionVisitor;
+                return this._insertBodyExpressionVisitor;
+            }
+        }
+        public UpdateBodyExpressionVisitor UpdateBodyExpressionVisitor
+        {
+            get
+            {
+                if (this._updateBodyExpressionVisitor == null)
+                    this._updateBodyExpressionVisitor = new UpdateBodyExpressionVisitor(this);
+
+                return this._updateBodyExpressionVisitor;
             }
         }
 
