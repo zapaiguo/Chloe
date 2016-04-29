@@ -124,6 +124,7 @@
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
     <Compile Include="Query\FromQueryResult.cs" />
     <Compile Include="Query\GroupingQuery.cs" />
+    <Compile Include="Query\Internals\InternalSqlQuery.cs" />
     <Compile Include="Query\JoiningQueryInfo.cs" />
     <Compile Include="Query\JoiningQuery`.cs" />
     <Compile Include="Query\JoinQueryResult.cs" />

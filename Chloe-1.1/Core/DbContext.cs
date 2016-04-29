@@ -15,6 +15,7 @@ using System.Linq;
 using System.Reflection;
 using Chloe.Impls;
 using Chloe.Mapper;
+using Chloe.Query.Internals;
 
 namespace Chloe
 {
@@ -27,7 +28,7 @@ namespace Chloe
         DbSession _currentSession;
 
         internal InternalDbSession DbSession { get { return this._dbSession; } }
-        internal IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
+        public IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
 
         protected DbContext(IDbServiceProvider dbServiceProvider)
         {
@@ -50,33 +51,11 @@ namespace Chloe
         {
             return new Query<T>(this);
         }
-        public virtual List<T> SqlQuery<T>(string sql, IDictionary<string, object> parameters) where T : new()
+        public virtual IEnumerable<T> SqlQuery<T>(string sql, IDictionary<string, object> parameters) where T : new()
         {
             Utils.CheckNull(sql, "sql");
 
-            Type type = typeof(T);
-
-            EntityConstructorDescriptor constructorDescriptor = EntityConstructorDescriptor.GetInstance(type.GetConstructor(UtilConstants.EmptyTypeArray));
-            EntityMemberMapper mapper = constructorDescriptor.GetEntityMemberMapper();
-            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> instanceCreator = constructorDescriptor.GetInstanceCreator();
-
-            IDataReader reader = this._dbSession.ExecuteInternalReader(sql, parameters, CommandType.Text);
-            List<T> retList = null;
-            using (reader)
-            {
-                List<IValueSetter> memberSetters = PrepareValueSetters(type, reader, mapper);
-                IObjectActivtor oa = new ObjectActivtor(instanceCreator, null, null, memberSetters, null);
-
-                retList = new List<T>();
-                while (reader.Read())
-                {
-                    T t = (T)oa.CreateInstance(reader);
-                    retList.Add(t);
-                }
-
-                reader.Close();
-            }
-            return retList;
+            return new InternalSqlQuery<T>(this._dbSession, sql, parameters);
         }
 
         public virtual T Insert<T>(T entity)
@@ -84,7 +63,7 @@ namespace Chloe
             Utils.CheckNull(entity);
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(entity.GetType());
-            EnsureHasPrimaryKey(typeDescriptor);
+            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             var keyMember = typeDescriptor.PrimaryKey.MemberInfo;
@@ -169,7 +148,7 @@ namespace Chloe
             Utils.CheckNull(body);
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
-            EnsureHasPrimaryKey(typeDescriptor);
+            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MappingMemberDescriptor autoIncrementMemberDescriptor = GetAutoIncrementMemberDescriptor(typeDescriptor);
@@ -247,7 +226,7 @@ namespace Chloe
             Utils.CheckNull(entity);
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(entity.GetType());
-            EnsureHasPrimaryKey(typeDescriptor);
+            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             object keyVal = null;
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
@@ -327,7 +306,7 @@ namespace Chloe
             Utils.CheckNull(entity);
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(entity.GetType());
-            EnsureHasPrimaryKey(typeDescriptor);
+            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             var keyMember = typeDescriptor.PrimaryKey.MemberInfo;
@@ -382,35 +361,7 @@ namespace Chloe
             return r;
         }
 
-        static List<IValueSetter> PrepareValueSetters(Type type, IDataReader reader, EntityMemberMapper mapper)
-        {
-            List<IValueSetter> memberSetters = new List<IValueSetter>(reader.FieldCount);
-
-            MemberInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.SetProperty);
-            MemberInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.SetField);
-            var members = properties.Concat(fields).ToList();
-            for (int i = 0; i < reader.FieldCount; i++)
-            {
-                string name = reader.GetName(i);
-                var member = members.Where(a => a.Name == name).FirstOrDefault();
-                if (member == null)
-                {
-                    member = members.Where(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-                    if (member == null)
-                        continue;
-                }
-
-                Action<object, IDataReader, int> setter = mapper.GetMemberSetter(member);
-                if (setter == null)
-                    continue;
-
-                MappingMemberBinder memberBinder = new MappingMemberBinder(setter, i);
-                memberSetters.Add(memberBinder);
-            }
-
-            return memberSetters;
-        }
-        static void EnsureHasPrimaryKey(MappingTypeDescriptor typeDescriptor)
+        static void EnsureMappingTypeHasPrimaryKey(MappingTypeDescriptor typeDescriptor)
         {
             if (typeDescriptor.PrimaryKey == null)
                 throw new Exception(string.Format("实体类型 {0} 未定义主键", typeDescriptor.EntityType.FullName));

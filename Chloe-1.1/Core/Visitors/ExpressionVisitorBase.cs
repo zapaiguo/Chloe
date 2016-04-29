@@ -167,13 +167,7 @@ namespace Chloe.Core.Visitors
 
         protected override DbExpression VisitConstant(ConstantExpression exp)
         {
-            //对 bool 类型的常量做个处理，因为在数据库中使用 1 或 0 ，select 出来会认为是 int 类型，而非 bool 类型
-            DbExpression dbExp;
-            //if (exp.Value == null)
-            //    dbExp = DbExpression.Null(exp.Type);
-            //else
-            dbExp = DbExpression.Constant(exp.Value, exp.Type);
-            return dbExp;
+            return DbExpression.Constant(exp.Value, exp.Type);
         }
 
         protected override DbExpression VisitUnary_Not(UnaryExpression exp)
@@ -206,15 +200,8 @@ namespace Chloe.Core.Visitors
 
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(new DbCaseWhenExpression.WhenThenExpressionPair(DbExpression.Equal(whenExp, DbExpression.Constant(null, exp.Type)), thenExp));
-            //whenThenExps.Add(new KeyValuePair<DbExpression, DbExpression>(DbExpression.Equal(whenExp, DbExpression.Constant(null, exp.Type)), SureCaseWhenReturnDbExpression(thenExp)));
 
             DbExpression dbExp = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), elseExp, exp.Type);
-
-            // case when left is null then rigth else left end = 1 交给 DbExpressionVisitor 去做
-            //if (exp.Left.Type == Utils.TypeOfBoolean_Nullable)
-            //{
-            //    dbExp = DbExpression.Equal(dbExp, trueDbConstantExp);
-            //}
 
             return dbExp;
         }
@@ -246,18 +233,10 @@ namespace Chloe.Core.Visitors
             whenThenExps.Add(new DbCaseWhenExpression.WhenThenExpressionPair(this.Visit(whenTrueTest), this.Visit(thenIfTrue)));
             whenThenExps.Add(new DbCaseWhenExpression.WhenThenExpressionPair(this.Visit(whenFalseTest), this.Visit(thenfFalse)));
 
-            //对于 then 部分是否需要转成 case when 交给 DbExpressionVisitor 去做
-            //whenThenExps.Add(new KeyValuePair<DbExpression, DbExpression>(this.Visit(whenTrueTest), SureCaseWhenReturnDbExpression(this.Visit(thenIfTrue))));
-            //whenThenExps.Add(new KeyValuePair<DbExpression, DbExpression>(this.Visit(whenFalseTest), SureCaseWhenReturnDbExpression(this.Visit(thenfFalse))));
-
             DbExpression elseExp = DbExpression.Constant(null, exp.Type);
             DbExpression dbExp = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), elseExp, exp.Type);
 
             //如果是 返回 bool 类型，则变成 (true?a:b)==true ，为了方便 select 字段返回 bool 类型的情况，交给 DbExpressionVisitor 去做
-            //if (ifTrue.Type == Utils.TypeOfBoolean || ifTrue.Type == Utils.TypeOfBoolean_Nullable)
-            //{
-            //    dbExp = DbExpression.Equal(dbExp, trueDbConstantExp);
-            //}
             return dbExp;
         }
 
