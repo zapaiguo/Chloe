@@ -9,10 +9,10 @@ namespace Chloe.Utility
 {
     internal static class Utils
     {
-        static List<Type> mapTypes;
+        static List<Type> MapTypes;
         static Utils()
         {
-            mapTypes = new List<Type>(17);
+            var mapTypes = new List<Type>();
             mapTypes.Add(UtilConstants.TypeOfInt16);
             mapTypes.Add(UtilConstants.TypeOfInt32);
             mapTypes.Add(UtilConstants.TypeOfInt64);
@@ -30,7 +30,10 @@ namespace Chloe.Utility
             mapTypes.Add(UtilConstants.TypeOfObject);
             mapTypes.Add(UtilConstants.TypeOfByteArray);
             mapTypes.Add(UtilConstants.TypeOfCharArray);
+
             mapTypes.TrimExcess();
+
+            MapTypes = mapTypes;
         }
 
         public static void CheckNull(object obj, string paramName = null)
@@ -58,7 +61,7 @@ namespace Chloe.Utility
             if (unType.IsEnum)
                 return true;
 
-            return mapTypes.Contains(unType);
+            return MapTypes.Contains(unType);
         }
 
         public static string GenerateUniqueColumnAlias(DbSqlQueryExpression sqlQuery, string defaultAlias = "C")

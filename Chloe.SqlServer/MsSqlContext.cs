@@ -271,40 +271,6 @@ namespace Chloe.SqlServer
             return this.ExecuteSqlCommand(e);
         }
 
-        public override int Delete<T>(T entity)
-        {
-            Utils.CheckNull(entity);
-
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(entity.GetType());
-            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
-
-            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
-            var keyMember = typeDescriptor.PrimaryKey.MemberInfo;
-
-            var val = keyMemberDescriptor.GetValue(entity);
-
-            if (val == null)
-                throw new Exception(string.Format("实体主键 {0} 值为 null", keyMember.Name));
-
-            DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
-            DbExpression right = new DbParameterExpression(val);
-            DbExpression conditionExp = new DbEqualExpression(left, right);
-
-            DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
-            return this.ExecuteSqlCommand(e);
-        }
-        public override int Delete<T>(Expression<Func<T, bool>> condition)
-        {
-            Utils.CheckNull(condition);
-
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
-            var conditionExp = typeDescriptor.Visitor.Visit(condition);
-
-            DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
-
-            return this.ExecuteSqlCommand(e);
-        }
-
         int ExecuteSqlCommand(DbExpression e)
         {
             AbstractDbExpressionVisitor dbExpVisitor = this.DbServiceProvider.CreateDbExpressionVisitor();

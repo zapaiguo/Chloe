@@ -59,20 +59,160 @@ namespace Chloe
 
         public virtual T Insert<T>(T entity)
         {
-            throw new NotImplementedException();
+            Utils.CheckNull(entity);
+
+            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(entity.GetType());
+            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
+
+            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
+            var keyMember = typeDescriptor.PrimaryKey.MemberInfo;
+
+            object keyValue = null;
+
+            Dictionary<MappingMemberDescriptor, DbExpression> insertColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
+            foreach (var kv in typeDescriptor.MappingMemberDescriptors)
+            {
+                var member = kv.Key;
+                var memberDescriptor = kv.Value;
+
+                var val = memberDescriptor.GetValue(entity);
+
+                if (memberDescriptor == keyMemberDescriptor)
+                {
+                    keyValue = val;
+                }
+
+                DbExpression valExp = new DbParameterExpression(val ?? DBNull.Value);
+                insertColumns.Add(memberDescriptor, valExp);
+            }
+
+            //主键为空并且主键又不是自增列
+            if (keyValue == null)
+            {
+                throw new Exception(string.Format("主键 {0} 值为 null", keyMemberDescriptor.MemberInfo.Name));
+            }
+
+            DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
+
+            foreach (var kv in insertColumns)
+            {
+                e.InsertColumns.Add(kv.Key.Column, kv.Value);
+            }
+
+            this.ExecuteSqlCommand(e);
+            return entity;
         }
         public virtual object Insert<T>(Expression<Func<T>> body)
         {
-            throw new NotImplementedException();
+            Utils.CheckNull(body);
+
+            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
+
+            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
+
+            Dictionary<MappingMemberDescriptor, object> insertColumns = typeDescriptor.InsertBodyExpressionVisitor.Visit(body);
+
+            DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
+
+            object keyValue = null;
+
+            foreach (var kv in insertColumns)
+            {
+                var key = kv.Key;
+                var val = kv.Value;
+
+                if (key.IsPrimaryKey && val == null)
+                {
+                    throw new Exception(string.Format("主键 {0} 值为 null", keyMemberDescriptor.MemberInfo.Name));
+                }
+                else
+                    keyValue = val;
+
+                DbParameterExpression p = new DbParameterExpression(val ?? DBNull.Value);
+                e.InsertColumns.Add(kv.Key.Column, p);
+            }
+
+            //主键为空
+            if (keyValue == null)
+            {
+                throw new Exception(string.Format("主键 {0} 值为 null", keyMemberDescriptor.MemberInfo.Name));
+            }
+
+            this.ExecuteSqlCommand(e);
+            return keyValue;
         }
 
         public virtual int Update<T>(T entity)
         {
-            throw new NotImplementedException();
+            Utils.CheckNull(entity);
+
+            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(entity.GetType());
+            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
+
+            object keyVal = null;
+            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
+            MemberInfo keyMember = keyMemberDescriptor.MemberInfo;
+
+            Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
+            foreach (var kv in typeDescriptor.MappingMemberDescriptors)
+            {
+                var member = kv.Key;
+                var memberDescriptor = kv.Value;
+
+                if (member == keyMember)
+                {
+                    keyVal = memberDescriptor.GetValue(entity);
+                    keyMemberDescriptor = memberDescriptor;
+                    continue;
+                }
+
+                var val = memberDescriptor.GetValue(entity);
+                DbExpression valExp = new DbParameterExpression(val ?? DBNull.Value);
+                updateColumns.Add(memberDescriptor, valExp);
+            }
+
+            if (keyVal == null)
+                throw new Exception(string.Format("实体主键 {0} 值为 null", keyMember.Name));
+
+            if (updateColumns.Count == 0)
+                throw new Exception();
+
+            DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
+            DbExpression right = new DbParameterExpression(keyVal ?? DBNull.Value);
+            DbExpression conditionExp = new DbEqualExpression(left, right);
+
+            DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
+
+            foreach (var item in updateColumns)
+            {
+                e.UpdateColumns.Add(item.Key.Column, item.Value);
+            }
+
+            return this.ExecuteSqlCommand(e);
         }
         public virtual int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> condition)
         {
-            throw new NotImplementedException();
+            Utils.CheckNull(body);
+            Utils.CheckNull(condition);
+
+            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+
+            Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = typeDescriptor.UpdateBodyExpressionVisitor.Visit(body);
+            var conditionExp = typeDescriptor.Visitor.Visit(condition);
+
+            DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
+
+            foreach (var item in updateColumns)
+            {
+                MappingMemberDescriptor key = item.Key;
+                if (key.IsPrimaryKey)
+                    throw new Exception(string.Format("成员 {0} 属于主键，无法对其进行更新操作", key.MemberInfo.Name));
+
+                e.UpdateColumns.Add(item.Key.Column, item.Value);
+            }
+
+            return this.ExecuteSqlCommand(e);
         }
 
         public virtual int Delete<T>(T entity)
@@ -111,6 +251,9 @@ namespace Chloe
 
         public void Dispose()
         {
+            if (this._disposed)
+                return;
+
             this._dbSession.Dispose();
             this.Dispose(true);
             this._disposed = true;
