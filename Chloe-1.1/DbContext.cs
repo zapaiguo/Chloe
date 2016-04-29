@@ -15,6 +15,7 @@ using System.Reflection;
 using Chloe.Impls;
 using Chloe.Mapper;
 using Chloe.Query.Internals;
+using Chloe.Core.Visitors;
 
 namespace Chloe
 {

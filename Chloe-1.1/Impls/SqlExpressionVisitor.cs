@@ -10,6 +10,7 @@ using Chloe.Extensions;
 using System.Collections;
 using Chloe.Utility;
 using System.Collections.ObjectModel;
+using Chloe.Core.Visitors;
 
 namespace Chloe.Impls
 {

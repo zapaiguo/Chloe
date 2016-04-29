@@ -1,4 +1,5 @@
-﻿using Chloe.Query;
+﻿using Chloe.Core.Visitors;
+using Chloe.Query;
 using System;
 using System.Collections.Generic;
 using System.Data;

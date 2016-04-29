@@ -88,7 +88,7 @@
     <Compile Include="DbExpressions\DbFromTableExpression.cs" />
     <Compile Include="DbExpressions\DbJoinTableExpression.cs" />
     <Compile Include="DbExpressions\DbOrderSegmentExpression.cs" />
-    <Compile Include="Query\AbstractDbExpressionVisitor.cs" />
+    <Compile Include="Core\Visitors\AbstractDbExpressionVisitor.cs" />
     <Compile Include="DbExpressions\DbAddExpression.cs" />
     <Compile Include="DbExpressions\DbAndExpression.cs" />
     <Compile Include="DbExpressions\DbBinaryExpression.cs" />

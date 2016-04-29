@@ -1,4 +1,5 @@
 ﻿using Chloe.Core;
+using Chloe.Core.Visitors;
 using Chloe.Infrastructure;
 using Chloe.Mapper;
 using Chloe.Query.Mapping;

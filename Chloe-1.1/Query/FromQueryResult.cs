@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query
 {
-    public class FromQueryResult
+    class FromQueryResult
     {
         public DbFromTableExpression FromTable { get; set; }
         public IMappingObjectExpression MappingObjectExpression { get; set; }
