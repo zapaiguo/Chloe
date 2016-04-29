@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chloe.Database
+namespace Chloe.Core
 {
     class InternalDbSession : IDisposable
     {

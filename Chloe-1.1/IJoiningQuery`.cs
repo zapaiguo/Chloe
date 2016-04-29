@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chloe.Core
+namespace Chloe
 {
     public interface IJoiningQuery<T1, T2>
     {

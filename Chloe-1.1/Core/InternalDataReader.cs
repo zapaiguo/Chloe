@@ -2,7 +2,7 @@
 using System;
 using System.Data;
 
-namespace Chloe.Database
+namespace Chloe.Core
 {
     class InternalDataReader : IDataReader, IDisposable, IDataRecord
     {

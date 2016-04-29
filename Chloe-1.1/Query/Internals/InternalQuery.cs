@@ -1,6 +1,4 @@
 ﻿using Chloe.Core;
-using Chloe.Core.Database;
-using Chloe.Database;
 using Chloe.Infrastructure;
 using Chloe.Mapper;
 using Chloe.Query.Mapping;

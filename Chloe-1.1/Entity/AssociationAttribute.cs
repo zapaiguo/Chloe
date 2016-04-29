@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chloe
+namespace Chloe.Entity
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class AssociationAttribute : Attribute
+    class AssociationAttribute : Attribute
     {
         /// <summary>
         /// 假设实体 Order 内有个导航属性 User， Order.UserId=User.Id，则 ThisKey 为 Order.UserId，AssociatingKey 为 User.Id

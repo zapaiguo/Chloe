@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chloe.Core.Database
+namespace Chloe.Core
 {
     class DbCommandFactor
     {

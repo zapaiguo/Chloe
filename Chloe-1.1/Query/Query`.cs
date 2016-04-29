@@ -7,7 +7,6 @@ using Chloe.Core;
 using Chloe.Query.QueryExpressions;
 using Chloe.Infrastructure;
 using Chloe.Query.Internals;
-using Chloe.Database;
 using System.Diagnostics;
 using Chloe.Utility;
 using System.Reflection;

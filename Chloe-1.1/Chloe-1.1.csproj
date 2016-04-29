@@ -37,30 +37,28 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Database\DbCommandFactor.cs" />
-    <Compile Include="Core\Database\InternalDbSession.cs" />
-    <Compile Include="Core\Database\InternalDataReader.cs" />
-    <Compile Include="Core\DbContext.cs" />
+    <Compile Include="Core\DbCommandFactor.cs" />
+    <Compile Include="Core\InternalDbSession.cs" />
+    <Compile Include="Core\InternalDataReader.cs" />
+    <Compile Include="Entity\AssociationAttribute.cs" />
+    <Compile Include="DbContext.cs" />
     <Compile Include="Core\DbSession.cs" />
     <Compile Include="Core\DelegateGenerator.cs" />
-    <Compile Include="Core\Entity\AssociationAttribute.cs">
+    <Compile Include="Entity\ColumnAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Core\Entity\ColumnAttribute.cs">
+    <Compile Include="Entity\NotMappedAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Core\Entity\NotMappedAttribute.cs">
+    <Compile Include="Entity\TableAttribute.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Core\Entity\TableAttribute.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Core\IDbContext.cs" />
-    <Compile Include="Core\IDbSession.cs" />
-    <Compile Include="Core\IGroupingQuery.cs" />
-    <Compile Include="Core\IJoiningQuery`.cs" />
-    <Compile Include="Core\IOrderedQuery`.cs" />
-    <Compile Include="Core\IQuery`.cs" />
+    <Compile Include="IDbContext.cs" />
+    <Compile Include="IDbSession.cs" />
+    <Compile Include="IGroupingQuery.cs" />
+    <Compile Include="IJoiningQuery`.cs" />
+    <Compile Include="IOrderedQuery`.cs" />
+    <Compile Include="IQuery`.cs" />
     <Compile Include="Core\Visitors\ExpressionEvaluator.cs" />
     <Compile Include="Core\Visitors\ExpressionVisitor`.cs" />
     <Compile Include="Core\Visitors\InsertBodyExpressionVisitor.cs" />

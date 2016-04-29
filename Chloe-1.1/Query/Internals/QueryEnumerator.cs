@@ -1,5 +1,4 @@
-﻿using Chloe.Core.Database;
-using Chloe.Database;
+﻿using Chloe.Core;
 using Chloe.Mapper;
 using System;
 using System.Collections;
