@@ -9,14 +9,14 @@ namespace Chloe.DbExpressions
         object _value;
 
         /// <summary>
-        /// value 不可为空。
+        /// value 不可为 null。如果为 null，则用 DBNull.Value 表示
         /// </summary>
         /// <param name="value"></param>
         public DbParameterExpression(object value)
             : base(DbExpressionType.Parameter)
         {
             if (value == null)
-                throw new ArgumentNullException("value 为 null。请用 DBNull 表示");
+                throw new ArgumentNullException("value 不可为 null。请用 DBNull.Value 表示");
 
             this._value = value;
         }
