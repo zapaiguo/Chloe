@@ -10,6 +10,12 @@ namespace Chloe.Extensions
 {
     internal static class ExpressionExtensions
     {
+        public static bool IsDerivedFromParameter(this MemberExpression exp)
+        {
+            ParameterExpression p;
+            return IsDerivedFromParameter(exp, out p);
+        }
+
         public static bool IsDerivedFromParameter(this MemberExpression exp, out ParameterExpression p)
         {
             Expression prevExp = exp.Expression;

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +19,23 @@ namespace Chloe.Core.Visitors
         }
         protected override object VisitMemberAccess(MemberExpression exp)
         {
-            return ExpressionExtensions.GetMemberValue(exp);
+            var val = this.Visit(exp.Expression);
+
+            if (val == null)
+                ThrowHelper.ThrowNullReferenceException();
+
+            if (exp.Member.MemberType == MemberTypes.Property)
+            {
+                var pro = (PropertyInfo)exp.Member;
+                return pro.GetValue(val);
+            }
+            else if (exp.Member.MemberType == MemberTypes.Field)
+            {
+                var field = (FieldInfo)exp.Member;
+                return field.GetValue(val);
+            }
+
+            throw new NotSupportedException();
         }
         protected override object VisitUnary_Not(UnaryExpression exp)
         {
@@ -33,35 +50,60 @@ namespace Chloe.Core.Visitors
         {
             var operandValue = this.Visit(exp.Operand);
 
-            Type operandType = exp.Operand.Type;
+            //(int)null
+            if (operandValue == null)
+            {
+                //(int)null
+                if (exp.Type.IsValueType && !Utils.IsNullable(exp.Type))
+                    ThrowHelper.ThrowNullReferenceException();
 
-            if (exp.Type == operandType || exp.Type.IsAssignableFrom(operandType) || operandType.IsAssignableFrom(exp.Type))
+                return null;
+            }
+
+            Type operandValueType = operandValue.GetType();
+
+            if (exp.Type == operandValueType || exp.Type.IsAssignableFrom(operandValueType))
+            {
                 return operandValue;
+            }
 
-            //(int?)int
             Type unType;
+
             if (Utils.IsNullable(exp.Type, out unType))
             {
-                if (unType == operandType)
+                //(int?)int
+                if (unType == operandValueType)
                 {
-                    //Nullable<int>
-                    var constructor = exp.Type.GetConstructor(new Type[] { operandType });
+                    var constructor = exp.Type.GetConstructor(new Type[] { operandValueType });
                     var val = constructor.Invoke(new object[] { operandValue });
                     return val;
+                }
+                else
+                {
+                    //如果不等，则诸如：(long?)int / (long?)int? 
+                    //则转成：(long?)((long)int) / (long?)((long)int?)
+                    var c = Expression.MakeUnary(ExpressionType.Convert, Expression.Constant(operandValue), unType);
+                    var cc = Expression.MakeUnary(ExpressionType.Convert, c, exp.Type);
+                    return this.Visit(cc);
                 }
             }
 
             //(int)int?
-            if (Utils.IsNullable(operandType, out unType))
+            if (Utils.IsNullable(operandValueType, out unType))
             {
                 if (unType == exp.Type)
                 {
-                    if (operandValue == null)
-                        throw new InvalidCastException("可为空的对象必须具有一个值。");
-
-                    var pro = operandType.GetProperty("Value");
+                    var pro = operandValueType.GetProperty("Value");
                     var val = pro.GetValue(operandValue);
                     return val;
+                }
+                else
+                {
+                    //如果不等，则诸如：(long)int? 
+                    //则转成：(long)((long)int) 处理
+                    var c = Expression.MakeUnary(ExpressionType.Convert, Expression.Constant(operandValue), unType);
+                    var cc = Expression.MakeUnary(ExpressionType.Convert, c, exp.Type);
+                    return this.Visit(cc);
                 }
             }
 
@@ -71,12 +113,13 @@ namespace Chloe.Core.Visitors
                 return Convert.ChangeType(operandValue, exp.Type);
             }
 
-            throw new NotSupportedException(string.Format("将类型 {0} 转换成 {1}", operandType.FullName, exp.Type.FullName));
+            ThrowHelper.ThrowNotSupportedException(string.Format("不支持将类型 {0} 转换成 {1}", operandValueType.FullName, exp.Type.FullName));
+
+            return null;
         }
         protected override object VisitConstant(ConstantExpression exp)
         {
             return exp.Value;
         }
-
     }
 }

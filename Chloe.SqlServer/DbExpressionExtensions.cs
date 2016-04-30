@@ -101,10 +101,10 @@ namespace Chloe.SqlServer
         }
 
         /// <summary>
-        /// 对 memberExpression 进行求值，如果计算结果为 null 则返回 Value 为 null 的 DbConstantExpression 一个对象，否则返回 DbParameterExpression
+        /// 对 memberExpression 进行求值
         /// </summary>
         /// <param name="exp"></param>
-        /// <returns>如果计算结果为 null 则返回 Value 为 null 的 DbConstantExpression 一个对象，否则返回 DbParameterExpression</returns>
+        /// <returns>返回 DbParameterExpression</returns>
         public static DbParameterExpression ParseToParameterExpression(this DbMemberExpression memberExpression)
         {
             DbParameterExpression ret = null;

@@ -23,8 +23,7 @@ namespace Chloe.Core.Visitors
 
         protected override DbExpression VisitMemberAccess(MemberExpression exp)
         {
-            ParameterExpression p;
-            if (ExpressionExtensions.IsDerivedFromParameter(exp, out p))
+            if (ExpressionExtensions.IsDerivedFromParameter(exp))
             {
                 Stack<MemberExpression> reversedExps = ExpressionExtensions.Reverse(exp);
 
