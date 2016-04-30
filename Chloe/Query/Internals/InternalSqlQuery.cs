@@ -36,7 +36,7 @@ namespace Chloe.Query.Internals
         }
 
 
-        internal struct QueryEnumerator : IEnumerator<T>
+        struct QueryEnumerator : IEnumerator<T>
         {
             InternalSqlQuery<T> _internalSqlQuery;
 
