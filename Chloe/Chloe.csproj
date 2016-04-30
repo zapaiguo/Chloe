@@ -128,14 +128,14 @@
     <Compile Include="Mapper\ObjectActivtor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\DbExpressionEqualizer.cs" />
-    <Compile Include="Query\DbFunction.cs" />
+    <Compile Include="Core\DbFunction.cs" />
     <Compile Include="Query\FromQueryResult.cs" />
     <Compile Include="Query\GroupingQuery.cs" />
     <Compile Include="Query\IMappingObjectExpression.cs" />
     <Compile Include="Query\Internals\InternalQuery.cs" />
     <Compile Include="Query\Internals\InternalSqlQuery.cs" />
     <Compile Include="Query\Internals\QueryEnumerator.cs" />
-    <Compile Include="Query\ISqlState.cs" />
+    <Compile Include="Core\ISqlState.cs" />
     <Compile Include="Query\JoiningQueryInfo.cs" />
     <Compile Include="Query\JoiningQuery`.cs" />
     <Compile Include="Query\JoinQueryResult.cs" />
@@ -169,7 +169,7 @@
     <Compile Include="Query\QueryState\TakeQueryState.cs" />
     <Compile Include="Query\Query`.cs" />
     <Compile Include="Query\ResultElement.cs" />
-    <Compile Include="Query\SqlState.cs" />
+    <Compile Include="Core\SqlState.cs" />
     <Compile Include="Query\Visitors\GeneralExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />

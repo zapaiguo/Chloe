@@ -1,5 +1,5 @@
 ﻿
-namespace Chloe.Query
+namespace Chloe.Core
 {
     public interface ISqlState
     {

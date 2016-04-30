@@ -11,6 +11,7 @@ using System.Collections;
 using Chloe.Utility;
 using System.Collections.ObjectModel;
 using Chloe.Core.Visitors;
+using Chloe.Core;
 
 namespace Chloe.SqlServer
 {

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Chloe.Query;
+using Chloe.Core;
 
 namespace Chloe.SqlServer
 {

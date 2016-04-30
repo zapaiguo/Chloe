@@ -2,6 +2,7 @@
 using Chloe.DbExpressions;
 using System;
 using Chloe.Query;
+using Chloe.Core;
 
 namespace Chloe.SqlServer
 {
