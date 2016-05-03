@@ -187,13 +187,13 @@ namespace Chloe.SqlServer
 
         public override ISqlState Visit(DbAndExpression exp)
         {
-            Stack<DbExpression> oprands = GatherBinaryExpressionOprand(exp);
-            return this.ConcatOprands(oprands, " AND ");
+            Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
+            return this.ConcatOperands(operands, " AND ");
         }
         public override ISqlState Visit(DbOrExpression exp)
         {
-            Stack<DbExpression> oprands = GatherBinaryExpressionOprand(exp);
-            return this.ConcatOprands(oprands, " OR ");
+            Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
+            return this.ConcatOperands(operands, " OR ");
         }
 
         public override ISqlState Visit(DbConvertExpression exp)
@@ -232,26 +232,26 @@ namespace Chloe.SqlServer
                 throw new NotSupportedException(string.Format("{0}.{1}", method.DeclaringType.FullName, exp.Method.Name));
             }
 
-            Stack<DbExpression> oprands = GatherBinaryExpressionOprand(exp);
-            return this.ConcatOprands(oprands, " + ");
+            Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
+            return this.ConcatOperands(operands, " + ");
         }
         // -
         public override ISqlState Visit(DbSubtractExpression exp)
         {
-            Stack<DbExpression> oprands = GatherBinaryExpressionOprand(exp);
-            return this.ConcatOprands(oprands, " - ");
+            Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
+            return this.ConcatOperands(operands, " - ");
         }
         // *
         public override ISqlState Visit(DbMultiplyExpression exp)
         {
-            Stack<DbExpression> oprands = GatherBinaryExpressionOprand(exp);
-            return this.ConcatOprands(oprands, " * ");
+            Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
+            return this.ConcatOperands(operands, " * ");
         }
         // /
         public override ISqlState Visit(DbDivideExpression exp)
         {
-            Stack<DbExpression> oprands = GatherBinaryExpressionOprand(exp);
-            return this.ConcatOprands(oprands, " / ");
+            Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
+            return this.ConcatOperands(operands, " / ");
         }
         // <
         public override ISqlState Visit(DbLessThanExpression exp)
@@ -360,7 +360,7 @@ namespace Chloe.SqlServer
         public override ISqlState Visit(DbColumnSegmentExpression exp)
         {
             var state = new SqlState();
-            ISqlState bodyState = exp.Body.Accept(this);
+            ISqlState bodyState = exp.Body.Accept(this.ColumnExpressionVisitor);
             state.Append(bodyState, " AS ", QuoteName(exp.Alias));
             return state;
         }
@@ -597,7 +597,7 @@ namespace Chloe.SqlServer
                 if (i > 0)
                     columnsState.Append(",");
 
-                columnsState.Append(column.Accept(this.ColumnExpressionVisitor));
+                columnsState.Append(column.Accept(this));
             }
 
             ISqlState fromTableState = exp.Table.Accept(this);
@@ -698,7 +698,7 @@ namespace Chloe.SqlServer
                 if (i > 0)
                     columnsState.Append(",");
 
-                columnsState.Append(column.Accept(this.ColumnExpressionVisitor));
+                columnsState.Append(column.Accept(this));
             }
 
             List<DbOrderSegmentExpression> orderParts = exp.OrderSegments;
@@ -850,20 +850,20 @@ namespace Chloe.SqlServer
             return groupPartState;
         }
 
-        ISqlState ConcatOprands(Stack<DbExpression> oprands, string connector)
+        ISqlState ConcatOperands(Stack<DbExpression> operands, string connector)
         {
-            SqlState state = new SqlState(2 + oprands.Count + oprands.Count - 1);
+            SqlState state = new SqlState(2 + operands.Count + operands.Count - 1);
             state.Append("(");
 
             bool first = true;
-            foreach (DbExpression oprand in oprands)
+            foreach (DbExpression operand in operands)
             {
                 if (first)
                     first = false;
                 else
                     state.Append(connector);
 
-                state.Append(oprand.Accept(this));
+                state.Append(operand.Accept(this));
             }
 
             state.Append(")");
@@ -908,28 +908,28 @@ namespace Chloe.SqlServer
         {
             MethodInfo method = exp.Method;
 
-            List<DbExpression> oprands = new List<DbExpression>();
-            oprands.Add(exp.Right);
+            List<DbExpression> operands = new List<DbExpression>();
+            operands.Add(exp.Right);
 
             DbExpression left = exp.Left;
             DbAddExpression e = null;
             while ((e = (left as DbAddExpression)) != null && (e.Method == StringConcatMethod_String_String || e.Method == StringConcatMethod_Object_Object))
             {
-                oprands.Add(e.Right);
+                operands.Add(e.Right);
                 left = e.Left;
             }
 
-            oprands.Add(left);
+            operands.Add(left);
 
-            SqlState state = new SqlState(3 + oprands.Count);
+            SqlState state = new SqlState(3 + operands.Count);
 
             DbExpression whenExp = null;
 
             state.Append("(");
-            for (int i = oprands.Count - 1; i >= 0; i--)
+            for (int i = operands.Count - 1; i >= 0; i--)
             {
-                DbExpression oprand = oprands[i];
-                DbExpression opBody = oprand;
+                DbExpression operand = operands[i];
+                DbExpression opBody = operand;
                 if (opBody.Type != TypeOfString)
                 {
                     // 需要 cast type
@@ -953,7 +953,7 @@ namespace Chloe.SqlServer
 
                 DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), elseExp, TypeOfString);
 
-                if (i < oprands.Count - 1)
+                if (i < operands.Count - 1)
                     state.Append(" + ");
                 state.Append(caseWhenExpression.Accept(visitor));
             }
@@ -990,7 +990,7 @@ namespace Chloe.SqlServer
 
             return caseWhenExpression;
         }
-        static Stack<DbExpression> GatherBinaryExpressionOprand(DbBinaryExpression exp)
+        static Stack<DbExpression> GatherBinaryExpressionOperand(DbBinaryExpression exp)
         {
             DbExpressionType nodeType = exp.NodeType;
 
