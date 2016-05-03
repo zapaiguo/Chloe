@@ -49,11 +49,6 @@ namespace Chloe.Extensions
 
         public static int Reader_GetInt32(this IDataReader reader, int ordinal)
         {
-            //if (reader.IsDBNull(ordinal))
-            //{
-            //    string name = reader.GetName(ordinal);
-            //    throw new Exception(name + " 不可为空");
-            //}
             try
             {
                 return reader.GetInt32(ordinal);
@@ -90,11 +85,6 @@ namespace Chloe.Extensions
 
         public static long Reader_GetInt64(this IDataReader reader, int ordinal)
         {
-            //if (reader.IsDBNull(ordinal))
-            //{
-            //    string name = reader.GetName(ordinal);
-            //    throw new Exception(name + " 不可为空");
-            //}
             try
             {
                 return reader.GetInt64(ordinal);
@@ -131,11 +121,6 @@ namespace Chloe.Extensions
 
         public static decimal Reader_GetDecimal(this IDataReader reader, int ordinal)
         {
-            //if (reader.IsDBNull(ordinal))
-            //{
-            //    string name = reader.GetName(ordinal);
-            //    throw new Exception(name + " 不可为空");
-            //}
             try
             {
                 return reader.GetDecimal(ordinal);
@@ -172,11 +157,6 @@ namespace Chloe.Extensions
 
         public static double Reader_GetDouble(this IDataReader reader, int ordinal)
         {
-            //if (reader.IsDBNull(ordinal))
-            //{
-            //    string name = reader.GetName(ordinal);
-            //    throw new Exception(name + " 不可为空");
-            //}
             try
             {
                 return reader.GetDouble(ordinal);
@@ -213,12 +193,6 @@ namespace Chloe.Extensions
 
         public static float Reader_GetFloat(this IDataReader reader, int ordinal)
         {
-            //if (reader.IsDBNull(ordinal))
-            //{
-            //    string name = reader.GetName(ordinal);
-            //    throw new Exception(name + " 不可为空");
-            //}
-
             try
             {
                 return reader.GetFloat(ordinal);
@@ -255,19 +229,9 @@ namespace Chloe.Extensions
 
         public static bool Reader_GetBoolean(this IDataReader reader, int ordinal)
         {
-            //if (reader.IsDBNull(ordinal))
-            //{
-            //    string name = reader.GetName(ordinal);
-            //    throw new Exception(name + " 不可为空");
-            //}
-
             try
             {
-                if (reader.GetFieldType(ordinal) != UtilConstants.TypeOfBoolean)
-                {
-                    return Convert.ToBoolean(reader.GetValue(ordinal));
-                }
-                return reader.GetBoolean(ordinal);
+                return Convert.ToBoolean(reader.GetValue(ordinal));
             }
             catch (SqlNullValueException e)
             {
@@ -290,10 +254,6 @@ namespace Chloe.Extensions
 
             try
             {
-                if (reader.GetFieldType(ordinal) != UtilConstants.TypeOfBoolean)
-                {
-                    return Convert.ToBoolean(reader.GetValue(ordinal));
-                }
                 return reader.GetBoolean(ordinal);
             }
             catch (InvalidCastException e)
@@ -305,12 +265,6 @@ namespace Chloe.Extensions
 
         public static DateTime Reader_GetDateTime(this IDataReader reader, int ordinal)
         {
-            //if (reader.IsDBNull(ordinal))
-            //{
-            //    string name = reader.GetName(ordinal);
-            //    throw new Exception(name + " 不可为空");
-            //}
-
             try
             {
                 return reader.GetDateTime(ordinal);
@@ -347,12 +301,6 @@ namespace Chloe.Extensions
 
         public static Guid Reader_GetGuid(this IDataReader reader, int ordinal)
         {
-            //if (reader.IsDBNull(ordinal))
-            //{
-            //    string name = reader.GetName(ordinal);
-            //    throw new Exception(name + " 不可为空");
-            //}
-
             try
             {
                 return reader.GetGuid(ordinal);
@@ -389,12 +337,6 @@ namespace Chloe.Extensions
 
         public static byte Reader_GetByte(this IDataReader reader, int ordinal)
         {
-            //if (reader.IsDBNull(ordinal))
-            //{
-            //    string name = reader.GetName(ordinal);
-            //    throw new Exception(name + " 不可为空");
-            //}
-
             try
             {
                 return reader.GetByte(ordinal);
@@ -431,11 +373,6 @@ namespace Chloe.Extensions
 
         public static char Reader_GetChar(this IDataReader reader, int ordinal)
         {
-            //if (reader.IsDBNull(ordinal))
-            //{
-            //    string name = reader.GetName(ordinal);
-            //    throw new Exception(name + " 不可为空");
-            //}
             try
             {
                 return reader.GetChar(ordinal);
