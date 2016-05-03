@@ -28,11 +28,6 @@ namespace Chloe.Query.Mapping
 
         public IObjectActivator CreateObjectActivator()
         {
-            /*
-            * 根据 EntityType 生成 IObjectActivator
-            * 如果 EntityType 是匿名类型的话
-           */
-
             EntityMemberMapper mapper = this.ConstructorDescriptor.GetEntityMemberMapper();
             List<IValueSetter> memberSetters = new List<IValueSetter>(this.Members.Count + this.EntityMembers.Count);
             foreach (var kv in this.Members)
