@@ -8,28 +8,28 @@ using System.Reflection;
 
 namespace Chloe.Query.Mapping
 {
-    public class MappingEntity : IObjectActivtorCreator
+    public class MappingEntity : IObjectActivatorCreator
     {
         public MappingEntity(EntityConstructorDescriptor constructorDescriptor)
         {
             this.ConstructorDescriptor = constructorDescriptor;
             this.ConstructorParameters = new Dictionary<ParameterInfo, int>();
-            this.ConstructorEntityParameters = new Dictionary<ParameterInfo, IObjectActivtorCreator>();
+            this.ConstructorEntityParameters = new Dictionary<ParameterInfo, IObjectActivatorCreator>();
             this.Members = new Dictionary<MemberInfo, int>();
-            this.EntityMembers = new Dictionary<MemberInfo, IObjectActivtorCreator>();
+            this.EntityMembers = new Dictionary<MemberInfo, IObjectActivatorCreator>();
         }
         public int? CheckNullOrdinal { get; set; }
         public EntityConstructorDescriptor ConstructorDescriptor { get; private set; }
         public Dictionary<ParameterInfo, int> ConstructorParameters { get; private set; }
-        public Dictionary<ParameterInfo, IObjectActivtorCreator> ConstructorEntityParameters { get; private set; }
+        public Dictionary<ParameterInfo, IObjectActivatorCreator> ConstructorEntityParameters { get; private set; }
 
         public Dictionary<MemberInfo, int> Members { get; private set; }
-        public Dictionary<MemberInfo, IObjectActivtorCreator> EntityMembers { get; private set; }
+        public Dictionary<MemberInfo, IObjectActivatorCreator> EntityMembers { get; private set; }
 
-        public IObjectActivtor CreateObjectActivtor()
+        public IObjectActivator CreateObjectActivator()
         {
             /*
-            * 根据 EntityType 生成 IObjectActivtor
+            * 根据 EntityType 生成 IObjectActivator
             * 如果 EntityType 是匿名类型的话
            */
 
@@ -45,17 +45,17 @@ namespace Chloe.Query.Mapping
             foreach (var kv in this.EntityMembers)
             {
                 Action<object, object> del = mapper.GetNavigationMemberSetter(kv.Key);
-                IObjectActivtor memberActivtor = kv.Value.CreateObjectActivtor();
+                IObjectActivator memberActivtor = kv.Value.CreateObjectActivator();
                 NavigationMemberBinder binder = new NavigationMemberBinder(del, memberActivtor);
                 memberSetters.Add(binder);
             }
 
-            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> instanceCreator = this.ConstructorDescriptor.GetInstanceCreator();
+            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator = this.ConstructorDescriptor.GetInstanceCreator();
 
             List<int> readerOrdinals = this.ConstructorParameters.Select(a => a.Value).ToList();
-            List<IObjectActivtor> objectActivtors = this.ConstructorEntityParameters.Select(a => a.Value.CreateObjectActivtor()).ToList();
+            List<IObjectActivator> objectActivators = this.ConstructorEntityParameters.Select(a => a.Value.CreateObjectActivator()).ToList();
 
-            ObjectActivtor ret = new ObjectActivtor(instanceCreator, readerOrdinals, objectActivtors, memberSetters, this.CheckNullOrdinal);
+            ObjectActivator ret = new ObjectActivator(instanceCreator, readerOrdinals, objectActivators, memberSetters, this.CheckNullOrdinal);
 
             return ret;
         }

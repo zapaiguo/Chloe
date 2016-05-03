@@ -9,13 +9,13 @@ namespace Chloe.Core
 {
     class DbCommandFactor
     {
-        public DbCommandFactor(IObjectActivtor objectActivtor, string commandText, IDictionary<string, object> parameters)
+        public DbCommandFactor(IObjectActivator objectActivator, string commandText, IDictionary<string, object> parameters)
         {
-            this.ObjectActivtor = objectActivtor;
+            this.ObjectActivator = objectActivator;
             this.CommandText = commandText;
             this.Parameters = parameters;
         }
-        public IObjectActivtor ObjectActivtor { get; set; }
+        public IObjectActivator ObjectActivator { get; set; }
         public string CommandText { get; set; }
         public IDictionary<string, object> Parameters { get; set; }
     }

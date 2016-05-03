@@ -41,7 +41,7 @@ namespace Chloe.Query.Internals
             InternalSqlQuery<T> _internalSqlQuery;
 
             IDataReader _reader;
-            IObjectActivtor _objectActivtor;
+            IObjectActivator _objectActivator;
 
             T _current;
             bool _hasFinished;
@@ -50,7 +50,7 @@ namespace Chloe.Query.Internals
             {
                 this._internalSqlQuery = internalSqlQuery;
                 this._reader = null;
-                this._objectActivtor = null;
+                this._objectActivator = null;
 
                 this._current = default(T);
                 this._hasFinished = false;
@@ -73,7 +73,7 @@ namespace Chloe.Query.Internals
 
                 if (this._reader.Read())
                 {
-                    this._current = (T)this._objectActivtor.CreateInstance(this._reader);
+                    this._current = (T)this._objectActivator.CreateInstance(this._reader);
                     return true;
                 }
                 else
@@ -120,7 +120,7 @@ namespace Chloe.Query.Internals
 
                 EntityConstructorDescriptor constructorDescriptor = EntityConstructorDescriptor.GetInstance(type.GetConstructor(UtilConstants.EmptyTypeArray));
                 EntityMemberMapper mapper = constructorDescriptor.GetEntityMemberMapper();
-                Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> instanceCreator = constructorDescriptor.GetInstanceCreator();
+                Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator = constructorDescriptor.GetInstanceCreator();
 
                 this._reader = this._internalSqlQuery._dbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, CommandType.Text);
 
@@ -129,7 +129,7 @@ namespace Chloe.Query.Internals
 #endif
 
                 List<IValueSetter> memberSetters = PrepareValueSetters(type, _reader, mapper);
-                this._objectActivtor = new ObjectActivtor(instanceCreator, null, null, memberSetters, null);
+                this._objectActivator = new ObjectActivator(instanceCreator, null, null, memberSetters, null);
             }
 
             static List<IValueSetter> PrepareValueSetters(Type type, IDataReader reader, EntityMemberMapper mapper)

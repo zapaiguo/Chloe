@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 
 namespace Chloe.Mapper
 {
-    public class ObjectActivtor : IObjectActivtor
+    public class ObjectActivator : IObjectActivator
     {
         int? _checkNullOrdinal;
-        Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> _instanceCreator;
+        Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> _instanceCreator;
         List<int> _readerOrdinals;
-        List<IObjectActivtor> _objectActivtors;
+        List<IObjectActivator> _objectActivators;
         List<IValueSetter> _memberSetters;
-        public ObjectActivtor(Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> instanceCreator, List<int> readerOrdinals, List<IObjectActivtor> objectActivtors, List<IValueSetter> memberSetters, int? checkNullOrdinal)
+        public ObjectActivator(Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator, List<int> readerOrdinals, List<IObjectActivator> objectActivators, List<IValueSetter> memberSetters, int? checkNullOrdinal)
         {
             this._instanceCreator = instanceCreator;
             this._readerOrdinals = readerOrdinals;
-            this._objectActivtors = objectActivtors;
+            this._objectActivators = objectActivators;
             this._memberSetters = memberSetters;
             this._checkNullOrdinal = checkNullOrdinal;
         }
@@ -33,9 +33,9 @@ namespace Chloe.Mapper
             }
 
             ReaderOrdinalEnumerator readerOrdinalEnumerator = new ReaderOrdinalEnumerator(this._readerOrdinals);
-            ObjectActivtorEnumerator objectActivtorEnumerator = new ObjectActivtorEnumerator(this._objectActivtors);
+            ObjectActivatorEnumerator objectActivatorEnumerator = new ObjectActivatorEnumerator(this._objectActivators);
 
-            object obj = this._instanceCreator(reader, readerOrdinalEnumerator, objectActivtorEnumerator);
+            object obj = this._instanceCreator(reader, readerOrdinalEnumerator, objectActivatorEnumerator);
 
             foreach (IValueSetter memberSetter in this._memberSetters)
             {

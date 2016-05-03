@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Chloe.Mapper
 {
-    public class MappingFieldActivtor : IObjectActivtor
+    public class MappingFieldActivator : IObjectActivator
     {
         Func<IDataReader, int, object> _fn = null;
         int _readerOrdinal;
-        public MappingFieldActivtor(Func<IDataReader, int, object> fn, int readerOrdinal)
+        public MappingFieldActivator(Func<IDataReader, int, object> fn, int readerOrdinal)
         {
             this._fn = fn;
             this._readerOrdinal = readerOrdinal;

@@ -66,13 +66,13 @@ namespace Chloe.Core
             il.Emit(OpCodes.Stfld, field);//给字段赋值
         }
 
-        public static Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> CreateObjectGenerator(ConstructorInfo constructor)
+        public static Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> CreateObjectGenerator(ConstructorInfo constructor)
         {
-            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> ret = null;
+            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> ret = null;
 
             var pExp_reader = Expression.Parameter(typeof(IDataReader), "reader");
             var pExp_readerOrdinalEnumerator = Expression.Parameter(typeof(ReaderOrdinalEnumerator), "readerOrdinalEnumerator");
-            var pExp_objectActivtorEnumerator = Expression.Parameter(typeof(ObjectActivtorEnumerator), "objectActivtorEnumerator");
+            var pExp_objectActivatorEnumerator = Expression.Parameter(typeof(ObjectActivatorEnumerator), "objectActivatorEnumerator");
 
             ParameterInfo[] parameters = constructor.GetParameters();
             List<Expression> arguments = new List<Expression>(parameters.Length);
@@ -90,10 +90,10 @@ namespace Chloe.Core
                 }
                 else
                 {
-                    //IObjectActivtor oa = objectActivtorEnumerator.Next();
-                    var oa = Expression.Call(pExp_objectActivtorEnumerator, ObjectActivtorEnumerator.NextMethodInfo);
+                    //IObjectActivator oa = objectActivatorEnumerator.Next();
+                    var oa = Expression.Call(pExp_objectActivatorEnumerator, ObjectActivatorEnumerator.NextMethodInfo);
                     //object obj = oa.CreateInstance(IDataReader reader);
-                    var entity = Expression.Call(oa, typeof(IObjectActivtor).GetMethod("CreateInstance"), pExp_reader);
+                    var entity = Expression.Call(oa, typeof(IObjectActivator).GetMethod("CreateInstance"), pExp_reader);
                     //(T)entity;
                     var val = Expression.Convert(entity, parameter.ParameterType);
                     arguments.Add(val);
@@ -102,7 +102,7 @@ namespace Chloe.Core
 
             var body = Expression.New(constructor, arguments);
 
-            ret = Expression.Lambda<Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object>>(body, pExp_reader, pExp_readerOrdinalEnumerator, pExp_objectActivtorEnumerator).Compile();
+            ret = Expression.Lambda<Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object>>(body, pExp_reader, pExp_readerOrdinalEnumerator, pExp_objectActivatorEnumerator).Compile();
 
             return ret;
         }

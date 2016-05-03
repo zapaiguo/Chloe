@@ -3,7 +3,7 @@
 namespace Chloe.DbExpressions
 {
     /// <summary>
-    /// T.Id 列名访问
+    /// T.Id
     /// </summary>
     public class DbColumnAccessExpression : DbExpression
     {

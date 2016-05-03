@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.Mapping
 {
-    public class MappingField : IObjectActivtorCreator
+    public class MappingField : IObjectActivatorCreator
     {
         Type _type;
         public MappingField(Type type, int readerOrdinal)
@@ -21,10 +21,10 @@ namespace Chloe.Query.Mapping
         }
         public int ReaderOrdinal { get; private set; }
 
-        public IObjectActivtor CreateObjectActivtor()
+        public IObjectActivator CreateObjectActivator()
         {
             Func<IDataReader, int, object> fn = MappingTypeConstructor.GetInstance(this._type).InstanceCreator;
-            MappingFieldActivtor act = new MappingFieldActivtor(fn, this.ReaderOrdinal);
+            MappingFieldActivator act = new MappingFieldActivator(fn, this.ReaderOrdinal);
             return act;
         }
     }

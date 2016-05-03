@@ -143,7 +143,7 @@ namespace Chloe.Query.QueryState
 
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
 
-            var moe = this._resultElement.MappingObjectExpression.GenarateObjectActivtorCreator(sqlQuery);
+            var moe = this._resultElement.MappingObjectExpression.GenarateObjectActivatorCreator(sqlQuery);
 
             data.SqlQuery = sqlQuery;
             data.MappingEntity = moe;

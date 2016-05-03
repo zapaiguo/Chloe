@@ -119,13 +119,13 @@
     <Compile Include="IQuery`.cs" />
     <Compile Include="Mapper\EntityConstructor.cs" />
     <Compile Include="Mapper\EntityMemberMapper.cs" />
-    <Compile Include="Mapper\IObjectActivtor.cs" />
+    <Compile Include="Mapper\IObjectActivator.cs" />
     <Compile Include="Mapper\IValueSetter.cs" />
-    <Compile Include="Mapper\MappingFieldActivtor.cs" />
+    <Compile Include="Mapper\MappingFieldActivator.cs" />
     <Compile Include="Mapper\MappingMemberBinder.cs" />
     <Compile Include="Mapper\MappingTypeConstructor.cs" />
     <Compile Include="Mapper\NavigationMemberBinder.cs" />
-    <Compile Include="Mapper\ObjectActivtor.cs" />
+    <Compile Include="Mapper\ObjectActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\DbExpressionEqualizer.cs" />
     <Compile Include="Core\DbFunction.cs" />
@@ -139,7 +139,7 @@
     <Compile Include="Query\JoiningQueryInfo.cs" />
     <Compile Include="Query\JoiningQuery`.cs" />
     <Compile Include="Query\JoinQueryResult.cs" />
-    <Compile Include="Query\Mapping\IObjectActivtorCreator.cs" />
+    <Compile Include="Query\Mapping\IObjectActivatorCreator.cs" />
     <Compile Include="Query\Mapping\MappingData.cs" />
     <Compile Include="Query\Mapping\MappingEntity.cs" />
     <Compile Include="Query\Mapping\MappingField.cs" />

@@ -3,7 +3,7 @@
 namespace Chloe.DbExpressions
 {
     /// <summary>
-    /// 完整的列  T.Name as Alias
+    /// T.Name as Alias
     /// </summary>
     [System.Diagnostics.DebuggerDisplay("Alias = {Alias}")]
     public class DbColumnSegmentExpression : DbExpression

@@ -20,7 +20,7 @@ namespace Chloe.Query.Internals
         {
             InternalDbSession _dbSession;
             DbCommandFactor _commandFactor;
-            IObjectActivtor _objectActivtor;
+            IObjectActivator _objectActivator;
 
             IDataReader _reader;
 
@@ -31,7 +31,7 @@ namespace Chloe.Query.Internals
             {
                 this._dbSession = dbSession;
                 this._commandFactor = commandFactor;
-                this._objectActivtor = commandFactor.ObjectActivtor;
+                this._objectActivator = commandFactor.ObjectActivator;
 
                 this._reader = null;
 
@@ -57,7 +57,7 @@ namespace Chloe.Query.Internals
 
                 if (this._reader.Read())
                 {
-                    this._current = (T)this._objectActivtor.CreateInstance(this._reader);
+                    this._current = (T)this._objectActivator.CreateInstance(this._reader);
                     return true;
                 }
                 else

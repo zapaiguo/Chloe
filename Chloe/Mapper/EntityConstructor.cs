@@ -20,12 +20,12 @@ namespace Chloe.Mapper
         void Init()
         {
             ConstructorInfo constructor = this.ConstructorInfo;
-            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> fn = DelegateGenerator.CreateObjectGenerator(constructor);
+            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> fn = DelegateGenerator.CreateObjectGenerator(constructor);
             this.InstanceCreator = fn;
         }
 
         public ConstructorInfo ConstructorInfo { get; private set; }
-        public Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> InstanceCreator { get; private set; }
+        public Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> InstanceCreator { get; private set; }
 
         static readonly System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, EntityConstructor> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, EntityConstructor>();
 
@@ -74,29 +74,29 @@ namespace Chloe.Mapper
             return ret;
         }
     }
-    public struct ObjectActivtorEnumerator
+    public struct ObjectActivatorEnumerator
     {
-        List<IObjectActivtor> _objectActivtors;
+        List<IObjectActivator> _objectActivators;
         int _next;
 
         public static readonly MethodInfo NextMethodInfo;
-        static ObjectActivtorEnumerator()
+        static ObjectActivatorEnumerator()
         {
-            MethodInfo method = typeof(ObjectActivtorEnumerator).GetMethod("Next");
+            MethodInfo method = typeof(ObjectActivatorEnumerator).GetMethod("Next");
             NextMethodInfo = method;
         }
 
-        public ObjectActivtorEnumerator(List<IObjectActivtor> objectActivtors)
+        public ObjectActivatorEnumerator(List<IObjectActivator> objectActivators)
         {
-            this._objectActivtors = objectActivtors;
+            this._objectActivators = objectActivators;
             this._next = 0;
         }
-        public IObjectActivtor Next()
+        public IObjectActivator Next()
         {
-            if (this._next > this._objectActivtors.Count - 1)
+            if (this._next > this._objectActivators.Count - 1)
                 throw new Exception();
 
-            IObjectActivtor ret = this._objectActivtors[this._next];
+            IObjectActivator ret = this._objectActivators[this._next];
             this._next++;
             return ret;
         }

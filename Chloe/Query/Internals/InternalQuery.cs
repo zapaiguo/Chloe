@@ -29,11 +29,11 @@ namespace Chloe.Query.Internals
             AbstractDbExpressionVisitor visitor = this._query.DbContext.DbServiceProvider.CreateDbExpressionVisitor();
             ISqlState sqlState = data.SqlQuery.Accept(visitor);
 
-            IObjectActivtor objectActivtor = data.MappingEntity.CreateObjectActivtor();
+            IObjectActivator objectActivator = data.MappingEntity.CreateObjectActivator();
             string cmdText = sqlState.ToSql();
             IDictionary<string, object> parameters = visitor.ParameterStorage;
 
-            DbCommandFactor commandFactor = new DbCommandFactor(objectActivtor, cmdText, parameters);
+            DbCommandFactor commandFactor = new DbCommandFactor(objectActivator, cmdText, parameters);
             return commandFactor;
         }
 

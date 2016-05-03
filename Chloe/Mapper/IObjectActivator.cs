@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Mapper
 {
-    public interface IObjectActivtor
+    public interface IObjectActivator
     {
         object CreateInstance(IDataReader reader);
     }

@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query.Mapping
 {
-    public interface IObjectActivtorCreator
+    public interface IObjectActivatorCreator
     {
-        IObjectActivtor CreateObjectActivtor();
+        IObjectActivator CreateObjectActivator();
     }
- }
+}

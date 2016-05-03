@@ -34,7 +34,7 @@ namespace Chloe.Descriptors
 
         public ConstructorInfo ConstructorInfo { get; private set; }
         public Dictionary<MemberInfo, ParameterInfo> MemberParameterMap { get; private set; }
-        public Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivtorEnumerator, object> GetInstanceCreator()
+        public Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> GetInstanceCreator()
         {
             EntityConstructor entityConstructor = null;
             if (null == this._entityConstructor)

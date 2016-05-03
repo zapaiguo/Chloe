@@ -10,8 +10,8 @@ namespace Chloe.Mapper
     public class NavigationMemberBinder : IValueSetter
     {
         Action<object, object> _setter;
-        IObjectActivtor _activtor;
-        public NavigationMemberBinder(Action<object, object> setter, IObjectActivtor activtor)
+        IObjectActivator _activtor;
+        public NavigationMemberBinder(Action<object, object> setter, IObjectActivator activtor)
         {
             this._setter = setter;
             this._activtor = activtor;
