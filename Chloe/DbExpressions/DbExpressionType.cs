@@ -34,7 +34,7 @@ namespace Chloe.DbExpressions
         OrderSegment,
         Function,
 
-        SqlQuery = 1,
+        SqlQuery,
         SubQuery,
         Insert,
         Update,
