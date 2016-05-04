@@ -38,23 +38,19 @@ namespace Chloe.SqlServer
         protected Dictionary<string, object> _parameterStorage = new Dictionary<string, object>();
         protected Dictionary<object, SqlState> _innerParameterStorage = new Dictionary<object, SqlState>();
 
-
         public static ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes = null;
 
-        public static readonly Type TypeOfBoolean = typeof(bool);
-        public static readonly Type TypeOfBoolean_Nullable = typeof(bool?);
-        public static readonly Type TypeOfDateTime = typeof(DateTime);
-        public static readonly Type TypeOfString = typeof(string);
-
-        public static DbConstantExpression StringNullConstantExpression = DbExpression.Constant(null, TypeOfString);
+        static DbConstantExpression TrueDbConstantExp = DbExpression.Constant(true);
+        static DbConstantExpression FalseDbConstantExp = DbExpression.Constant(false);
+        static DbConstantExpression StringNullDbConstantExp = DbExpression.Constant(null, UtilConstants.TypeOfString);
 
         static SqlExpressionVisitor()
         {
-            MemberInfo_DateTime_Now = TypeOfDateTime.GetProperty("Now");
+            MemberInfo_DateTime_Now = UtilConstants.TypeOfDateTime.GetProperty("Now");
 
             Type typeOfObject = typeof(object);
-            MethodInfo concatMethod_String_String = TypeOfString.GetMethod("Concat", new Type[] { TypeOfString, TypeOfString });
-            MethodInfo concatMethod_Object_Object = TypeOfString.GetMethod("Concat", new Type[] { typeOfObject, typeOfObject });
+            MethodInfo concatMethod_String_String = UtilConstants.TypeOfString.GetMethod("Concat", new Type[] { UtilConstants.TypeOfString, UtilConstants.TypeOfString });
+            MethodInfo concatMethod_Object_Object = UtilConstants.TypeOfString.GetMethod("Concat", new Type[] { typeOfObject, typeOfObject });
             StringConcatMethod_String_String = concatMethod_String_String;
             StringConcatMethod_Object_Object = concatMethod_Object_Object;
 
@@ -290,7 +286,7 @@ namespace Chloe.SqlServer
         {
             SqlState state = null;
 
-            if (exp.Value == null)
+            if (exp.Value == null || exp.Value == DBNull.Value)
             {
                 state = new SqlState(1);
                 state.Append("NULL");
@@ -298,12 +294,12 @@ namespace Chloe.SqlServer
             }
 
             var objType = exp.Value.GetType();
-            if (objType == typeof(bool))
+            if (objType == UtilConstants.TypeOfBoolean)
             {
                 state = new SqlState(1);
                 state.Append(((bool)exp.Value) ? "CAST(1 AS BIT)" : "CAST(0 AS BIT)");
             }
-            else if (objType == typeof(string))
+            else if (objType == UtilConstants.TypeOfString)
             {
                 state = new SqlState(3);
                 state.Append("N'", exp.Value, "'");
@@ -401,14 +397,18 @@ namespace Chloe.SqlServer
         {
             SqlState state;
 
-            if (!this._innerParameterStorage.TryGetValue(exp.Value, out state))
+            object val = exp.Value;
+            if (val == null)
+                val = DBNull.Value;
+
+            if (!this._innerParameterStorage.TryGetValue(val, out state))
             {
                 state = new SqlState(1);
                 string paramName = ParameterPrefix + this._innerParameterStorage.Count.ToString();
                 state.Append(paramName);
 
-                this._innerParameterStorage.Add(exp.Value, state);
-                this._parameterStorage.Add(paramName, exp.Value);
+                this._innerParameterStorage.Add(val, state);
+                this._parameterStorage.Add(paramName, val);
             }
 
             return state;
@@ -930,20 +930,20 @@ namespace Chloe.SqlServer
             {
                 DbExpression operand = operands[i];
                 DbExpression opBody = operand;
-                if (opBody.Type != TypeOfString)
+                if (opBody.Type != UtilConstants.TypeOfString)
                 {
                     // 需要 cast type
-                    opBody = DbExpression.Convert(TypeOfString, opBody);
+                    opBody = DbExpression.Convert(UtilConstants.TypeOfString, opBody);
                 }
 
-                DbExpression equalNullExp = DbExpression.Equal(opBody, StringNullConstantExpression);
+                DbExpression equalNullExp = DbExpression.Equal(opBody, StringNullDbConstantExp);
 
                 if (whenExp == null)
                     whenExp = equalNullExp;
                 else
                     whenExp = DbExpression.And(whenExp, equalNullExp);
 
-                DbExpression thenExp = DbExpression.Constant("", TypeOfString);
+                DbExpression thenExp = DbExpression.Constant("");
                 DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(equalNullExp, thenExp);
 
                 List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
@@ -951,7 +951,7 @@ namespace Chloe.SqlServer
 
                 DbExpression elseExp = opBody;
 
-                DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), elseExp, TypeOfString);
+                DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), elseExp, UtilConstants.TypeOfString);
 
                 if (i < operands.Count - 1)
                     state.Append(" + ");
@@ -960,17 +960,15 @@ namespace Chloe.SqlServer
             state.Append(")");
 
             SqlState retState = new SqlState(8);
-            retState.Append("CASE", " WHEN ", whenExp.Accept(visitor), " THEN ", StringNullConstantExpression.Accept(visitor));
+            retState.Append("CASE", " WHEN ", whenExp.Accept(visitor), " THEN ", StringNullDbConstantExp.Accept(visitor));
             retState.Append(" ELSE ", state, " END");
 
             return retState;
         }
         static DbExpression EnsureDbExpressionReturnCSharpBoolean(DbExpression exp)
         {
-            if (exp.Type != TypeOfBoolean && exp.Type != TypeOfBoolean_Nullable)
+            if (exp.Type != UtilConstants.TypeOfBoolean && exp.Type != UtilConstants.TypeOfBoolean_Nullable)
                 return exp;
-
-            //DbExpression stripedExp = DbExpressionExtensions.StripConvert(exp);
 
             if (SafeDbExpressionTypes.Contains(exp.NodeType))
             {
@@ -983,10 +981,10 @@ namespace Chloe.SqlServer
         }
         public static DbCaseWhenExpression ConstructReturnCSharpBooleanCaseWhenExpression(DbExpression exp)
         {
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(exp, DbExpression.Constant(true, UtilConstants.TypeOfBoolean));
+            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(exp, TrueDbConstantExp);
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), DbExpression.Constant(false, UtilConstants.TypeOfBoolean), UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), FalseDbConstantExp, UtilConstants.TypeOfBoolean);
 
             return caseWhenExpression;
         }
@@ -1052,7 +1050,7 @@ namespace Chloe.SqlServer
 
         static ISqlState Method_Trim(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, TypeOfString);
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
 
             MethodInfo method = exp.Method;
             if (method.GetParameters().Length > 0)
@@ -1064,7 +1062,7 @@ namespace Chloe.SqlServer
         }
         static ISqlState Method_TrimStart(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, TypeOfString);
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
 
             var state = new SqlState(3);
             state.Append("LTRIM(", exp.Object.Accept(visitor), ")");
@@ -1072,7 +1070,7 @@ namespace Chloe.SqlServer
         }
         static ISqlState Method_TrimEnd(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, TypeOfString);
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
 
             SqlState state = new SqlState(3);
             state.Append("RTRIM(", exp.Object.Accept(visitor), ")");
@@ -1080,7 +1078,7 @@ namespace Chloe.SqlServer
         }
         static ISqlState Method_StartsWith(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, TypeOfString);
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
 
             if (exp.Arguments.Count > 0)
                 throw new NotSupportedException("一个或多个参数方法: " + exp.Method.Name);
@@ -1091,7 +1089,7 @@ namespace Chloe.SqlServer
         }
         static ISqlState Method_EndsWith(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, TypeOfString);
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
 
             if (exp.Arguments.Count > 0)
                 throw new NotSupportedException("一个或多个参数方法: " + exp.Method.Name);
@@ -1102,7 +1100,7 @@ namespace Chloe.SqlServer
         }
         static ISqlState Method_StringContains(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, TypeOfString);
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
 
             SqlState state = new SqlState(4);
             state.Append(exp.Object.Accept(visitor), " LIKE '%' + ", exp.Arguments.First().Accept(visitor), " + '%'");
@@ -1110,20 +1108,20 @@ namespace Chloe.SqlServer
         }
         static ISqlState Method_IsNullOrEmpty(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, TypeOfString);
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
 
             DbExpression e = exp.Arguments.First();
-            DbEqualExpression equalNullExpression = DbExpression.Equal(e, DbExpression.Constant(null, e.Type));
-            DbEqualExpression equalEmptyExpression = DbExpression.Equal(e, DbExpression.Constant(string.Empty, e.Type));
+            DbEqualExpression equalNullExpression = DbExpression.Equal(e, DbExpression.Constant(null, UtilConstants.TypeOfString));
+            DbEqualExpression equalEmptyExpression = DbExpression.Equal(e, DbExpression.Constant(string.Empty));
 
             DbOrExpression orExpression = DbExpression.Or(equalNullExpression, equalEmptyExpression);
 
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orExpression, DbExpression.Constant(true, TypeOfBoolean));
+            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orExpression, TrueDbConstantExp);
 
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
 
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), DbExpression.Constant(false, TypeOfBoolean), TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), FalseDbConstantExp, UtilConstants.TypeOfBoolean);
 
             return caseWhenExpression.Accept(visitor);
         }
@@ -1131,7 +1129,7 @@ namespace Chloe.SqlServer
         {
             MethodInfo method = exp.Method;
 
-            if (method.DeclaringType == TypeOfString)
+            if (method.DeclaringType == UtilConstants.TypeOfString)
                 return Method_StringContains(exp, visitor);
 
             List<DbExpression> exps = null;
@@ -1169,7 +1167,7 @@ namespace Chloe.SqlServer
             foreach (object value in values)
             {
                 if (value == null)
-                    exps.Add(DbExpression.Constant(null, typeof(DBNull)));
+                    exps.Add(DbExpression.Constant(null, arg.Type));
                 else
                     exps.Add(DbExpression.Parameter(value));
             }

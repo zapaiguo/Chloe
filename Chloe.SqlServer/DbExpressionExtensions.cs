@@ -111,10 +111,8 @@ namespace Chloe.SqlServer
             //求值
             object val = memberExpression.GetMemberValue();
 
-            if (val == null)
-                ret = new DbParameterExpression(DBNull.Value);
-            else
-                ret = new DbParameterExpression(val);
+            ret = DbExpression.Parameter(val, memberExpression.Type);
+
             return ret;
         }
 
@@ -127,11 +125,18 @@ namespace Chloe.SqlServer
         {
             exp = DbExpressionHelper.StripConvert(exp);
 
-            if (exp.NodeType == DbExpressionType.Constant && ((DbConstantExpression)exp).Value == null)
-                return true;
+            if (exp.NodeType == DbExpressionType.Constant)
+            {
+                var c = (DbConstantExpression)exp;
+                return c.Value == null || c.Value == DBNull.Value;
+            }
 
-            if (exp.NodeType == DbExpressionType.Parameter && ((DbParameterExpression)exp).Value == DBNull.Value)
-                return true;
+
+            if (exp.NodeType == DbExpressionType.Parameter)
+            {
+                var p = (DbParameterExpression)exp;
+                return p.Value == null || p.Value == DBNull.Value;
+            }
 
             return false;
         }
@@ -144,11 +149,17 @@ namespace Chloe.SqlServer
         {
             exp = DbExpressionHelper.StripConvert(exp);
 
-            if (exp.NodeType == DbExpressionType.Constant && ((DbConstantExpression)exp).Value != null)
-                return true;
+            if (exp.NodeType == DbExpressionType.Constant)
+            {
+                var c = (DbConstantExpression)exp;
+                return c.Value != null && c.Value != DBNull.Value;
+            }
 
-            if (exp.NodeType == DbExpressionType.Parameter && ((DbParameterExpression)exp).Value != DBNull.Value)
-                return true;
+            if (exp.NodeType == DbExpressionType.Parameter)
+            {
+                var p = (DbParameterExpression)exp;
+                return p.Value != null && p.Value != DBNull.Value;
+            }
 
             return false;
         }

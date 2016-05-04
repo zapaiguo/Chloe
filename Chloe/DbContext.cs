@@ -82,7 +82,7 @@ namespace Chloe
                     keyValue = val;
                 }
 
-                DbExpression valExp = new DbParameterExpression(val ?? DBNull.Value);
+                DbExpression valExp = DbExpression.Parameter(val, memberDescriptor.MemberInfoType);
                 insertColumns.Add(memberDescriptor, valExp);
             }
 
@@ -129,7 +129,7 @@ namespace Chloe
                 else
                     keyValue = val;
 
-                DbParameterExpression p = new DbParameterExpression(val ?? DBNull.Value);
+                DbParameterExpression p = DbExpression.Parameter(val, key.MemberInfoType);
                 e.InsertColumns.Add(kv.Key.Column, p);
             }
 
@@ -168,7 +168,7 @@ namespace Chloe
                 }
 
                 var val = memberDescriptor.GetValue(entity);
-                DbExpression valExp = new DbParameterExpression(val ?? DBNull.Value);
+                DbExpression valExp = DbExpression.Parameter(val, memberDescriptor.MemberInfoType);
                 updateColumns.Add(memberDescriptor, valExp);
             }
 
@@ -179,7 +179,7 @@ namespace Chloe
                 throw new Exception();
 
             DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
-            DbExpression right = new DbParameterExpression(keyVal ?? DBNull.Value);
+            DbExpression right = DbExpression.Parameter(keyVal, keyMemberDescriptor.MemberInfoType);
             DbExpression conditionExp = new DbEqualExpression(left, right);
 
             DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);

@@ -417,7 +417,7 @@ namespace Chloe.Core.Visitors
                 if (exp.NodeType == ExpressionType.MemberAccess || exp.NodeType == ExpressionType.Constant)
                 {
                     var nExp = this.Visit(exp);
-                    return DbExpression.Equal(nExp, DbExpression.Constant(trueOrFalse, UtilConstants.TypeOfBoolean));
+                    return DbExpression.Equal(nExp, DbExpression.Constant(trueOrFalse));
                 }
 
 
@@ -503,8 +503,8 @@ namespace Chloe.Core.Visitors
         static Expression falseConstantExp = Expression.Constant(false, UtilConstants.TypeOfBoolean);
         static Expression falseConvertExp = Expression.Convert(Expression.Constant(false, UtilConstants.TypeOfBoolean), UtilConstants.TypeOfBoolean_Nullable);
 
-        static DbConstantExpression trueDbConstantExp = DbExpression.Constant(true, UtilConstants.TypeOfBoolean);
-        static DbConstantExpression falseDbConstantExp = DbExpression.Constant(false, UtilConstants.TypeOfBoolean);
+        static DbConstantExpression trueDbConstantExp = DbExpression.Constant(true);
+        static DbConstantExpression falseDbConstantExp = DbExpression.Constant(false);
         static DbEqualExpression trueEqualFalseExp = DbExpression.Equal(trueDbConstantExp, falseDbConstantExp);
     }
 }

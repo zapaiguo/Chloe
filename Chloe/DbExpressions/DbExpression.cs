@@ -62,6 +62,11 @@ namespace Chloe.DbExpressions
             return new DbCaseWhenExpression(type, whenThenExps, elseExp);
         }
 
+        public static DbConstantExpression Constant(object value)
+        {
+            return new DbConstantExpression(value);
+        }
+
         public static DbConstantExpression Constant(object value, Type type)
         {
             return new DbConstantExpression(value, type);
@@ -113,6 +118,11 @@ namespace Chloe.DbExpressions
         public static DbParameterExpression Parameter(object value)
         {
             return new DbParameterExpression(value);
+        }
+
+        public static DbParameterExpression Parameter(object value, Type type)
+        {
+            return new DbParameterExpression(value, type);
         }
 
         public static DbSubtractExpression Subtract(DbExpression left, DbExpression right, Type returnType)
