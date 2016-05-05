@@ -20,12 +20,12 @@ namespace Chloe.Extensions
             catch (SqlNullValueException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空", e);
+                throw new Exception("字段不可为空: " + name, e);
             }
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -43,7 +43,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -56,7 +56,7 @@ namespace Chloe.Extensions
             catch (SqlNullValueException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空", e);
+                throw new Exception("字段不可为空: " + name, e);
             }
             catch (InvalidCastException e)
             {
@@ -79,7 +79,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -92,12 +92,12 @@ namespace Chloe.Extensions
             catch (SqlNullValueException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空", e);
+                throw new Exception("字段不可为空: " + name, e);
             }
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -115,7 +115,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -128,12 +128,12 @@ namespace Chloe.Extensions
             catch (SqlNullValueException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空", e);
+                throw new Exception("字段不可为空: " + name, e);
             }
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -151,7 +151,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -164,12 +164,12 @@ namespace Chloe.Extensions
             catch (SqlNullValueException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空", e);
+                throw new Exception("字段不可为空: " + name, e);
             }
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -187,7 +187,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -200,12 +200,12 @@ namespace Chloe.Extensions
             catch (SqlNullValueException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空", e);
+                throw new Exception("字段不可为空: " + name, e);
             }
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -223,7 +223,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -231,17 +231,17 @@ namespace Chloe.Extensions
         {
             try
             {
-                return Convert.ToBoolean(reader.GetValue(ordinal));
+                return reader.GetBoolean(ordinal);
             }
             catch (SqlNullValueException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空", e);
+                throw new Exception("字段不可为空: " + name, e);
             }
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -259,7 +259,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -272,12 +272,12 @@ namespace Chloe.Extensions
             catch (SqlNullValueException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空", e);
+                throw new Exception("字段不可为空: " + name, e);
             }
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -295,7 +295,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -308,12 +308,12 @@ namespace Chloe.Extensions
             catch (SqlNullValueException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空", e);
+                throw new Exception("字段不可为空: " + name, e);
             }
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -331,7 +331,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -344,12 +344,12 @@ namespace Chloe.Extensions
             catch (SqlNullValueException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空", e);
+                throw new Exception("字段不可为空: " + name, e);
             }
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -367,7 +367,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -380,12 +380,12 @@ namespace Chloe.Extensions
             catch (SqlNullValueException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空", e);
+                throw new Exception("字段不可为空: " + name, e);
             }
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -403,7 +403,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -423,7 +423,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -442,7 +442,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -462,7 +462,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -481,7 +481,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -499,7 +499,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -529,7 +529,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -548,7 +548,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
@@ -575,7 +575,7 @@ namespace Chloe.Extensions
             catch (InvalidCastException e)
             {
                 string name = reader.GetName(ordinal);
-                throw new Exception(name + " 类型映射错误", e);
+                throw new Exception("类型映射错误: " + name, e);
             }
         }
 
