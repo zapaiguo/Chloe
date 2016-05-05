@@ -446,45 +446,6 @@ namespace Chloe.Extensions
             }
         }
 
-        public static DateTimeOffset Reader_GetDateTimeOffset(this IDataReader reader, int ordinal)
-        {
-            object o = reader.GetValue(ordinal);
-            if (o == DBNull.Value)
-            {
-                string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空");
-            }
-
-            try
-            {
-                return (DateTimeOffset)o;
-            }
-            catch (InvalidCastException e)
-            {
-                string name = reader.GetName(ordinal);
-                throw new Exception("类型映射错误: " + name, e);
-            }
-        }
-
-        public static DateTimeOffset? Reader_GetDateTimeOffset_Nullable(this IDataReader reader, int ordinal)
-        {
-            object o = reader.GetValue(ordinal);
-            if (o == DBNull.Value)
-            {
-                return null;
-            }
-
-            try
-            {
-                return (DateTimeOffset)o;
-            }
-            catch (InvalidCastException e)
-            {
-                string name = reader.GetName(ordinal);
-                throw new Exception("类型映射错误: " + name, e);
-            }
-        }
-
         public static string Reader_GetString(this IDataReader reader, int ordinal)
         {
             if (reader.IsDBNull(ordinal))

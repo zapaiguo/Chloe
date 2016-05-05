@@ -25,7 +25,6 @@ namespace Chloe.Utility
             mapTypes.Add(UtilConstants.TypeOfByte);
             mapTypes.Add(UtilConstants.TypeOfChar);
             mapTypes.Add(UtilConstants.TypeOfTimeSpan);
-            mapTypes.Add(UtilConstants.TypeOfDateTimeOffset);
             mapTypes.Add(UtilConstants.TypeOfString);
             mapTypes.Add(UtilConstants.TypeOfObject);
             mapTypes.Add(UtilConstants.TypeOfByteArray);

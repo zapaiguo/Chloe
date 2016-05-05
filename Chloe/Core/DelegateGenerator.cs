@@ -241,11 +241,9 @@ namespace Chloe.Core
                     result = isNullable ? Reader_GetChar_Nullable : Reader_GetChar;
                     break;
                 case TypeCode.String:
-                    isNullable = true;
                     result = Reader_GetString;
                     break;
                 case TypeCode.Object:
-                    isNullable = true;
                     result = Reader_GetValue;
                     break;
                 default:
@@ -257,28 +255,16 @@ namespace Chloe.Core
                     {
                         result = isNullable ? Reader_GetTimeSpan_Nullable : Reader_GetTimeSpan;
                     }
-                    else if (type == typeof(DateTimeOffset))
-                    {
-                        result = isNullable ? Reader_GetDateTimeOffset_Nullable : Reader_GetDateTimeOffset;
-                    }
-                    else if (type == UtilConstants.TypeOfObject)
-                    {
-                        isNullable = true;
-                        result = Reader_GetValue;
-                    }
                     else if (type == typeof(Byte[]))
                     {
-                        isNullable = true;
                         result = Reader_GetBytes;
                     }
                     else if (type == typeof(Char[]))
                     {
-                        isNullable = true;
                         result = Reader_GetChars;
                     }
                     else
                     {
-                        isNullable = true;
                         result = Reader_GetValue;
                     }
                     break;
@@ -311,8 +297,6 @@ namespace Chloe.Core
         internal static readonly MethodInfo Reader_GetChar_Nullable = typeof(DataReaderExtensions).GetMethod("Reader_GetChar_Nullable");
         internal static readonly MethodInfo Reader_GetTimeSpan = typeof(DataReaderExtensions).GetMethod("Reader_GetTimeSpan");
         internal static readonly MethodInfo Reader_GetTimeSpan_Nullable = typeof(DataReaderExtensions).GetMethod("Reader_GetTimeSpan_Nullable");
-        internal static readonly MethodInfo Reader_GetDateTimeOffset = typeof(DataReaderExtensions).GetMethod("Reader_GetDateTimeOffset");
-        internal static readonly MethodInfo Reader_GetDateTimeOffset_Nullable = typeof(DataReaderExtensions).GetMethod("Reader_GetDateTimeOffset_Nullable");
         internal static readonly MethodInfo Reader_GetString = typeof(DataReaderExtensions).GetMethod("Reader_GetString");
         internal static readonly MethodInfo Reader_GetValue = typeof(DataReaderExtensions).GetMethod("Reader_GetValue");
         internal static readonly MethodInfo Reader_GetBytes = typeof(DataReaderExtensions).GetMethod("Reader_GetBytes");
