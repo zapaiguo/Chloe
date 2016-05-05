@@ -397,6 +397,10 @@ namespace Chloe.Query
             get { return _expression; }
         }
 
+        public IEnumerable<T> AsEnumerable()
+        {
+            return this.GenenateIterator();
+        }
 
         InternalQuery<T> GenenateIterator()
         {

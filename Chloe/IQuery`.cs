@@ -10,6 +10,7 @@ namespace Chloe
 {
     public interface IQuery<T> //:   IEnumerable<T>, IEnumerable
     {
+        IEnumerable<T> AsEnumerable();
         IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector);
 
         IQuery<T> Where(Expression<Func<T, bool>> predicate);
