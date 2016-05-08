@@ -121,5 +121,19 @@ namespace Chloe.Core.Visitors
         {
             return exp.Value;
         }
+        protected override object VisitMethodCall(MethodCallExpression exp)
+        {
+            var instance = this.Visit(exp.Object);
+
+            var arguments = exp.Arguments.Select(a => this.Visit(a)).ToArray();
+
+            return exp.Method.Invoke(instance, arguments);
+        }
+        protected override object VisitNew(NewExpression exp)
+        {
+            var arguments = exp.Arguments.Select(a => this.Visit(a)).ToArray();
+
+            return exp.Constructor.Invoke(arguments);
+        }
     }
 }
