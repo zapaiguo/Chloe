@@ -115,10 +115,8 @@ namespace Chloe.SqlServer
         }
         public override ISqlState Visit(DbColumnSegmentExpression exp)
         {
-            SqlState state = new SqlState(3);
             ISqlState columnState = SqlExpressionVisitor.QuoteName(exp.Alias);
-            state.Append(exp.Body.Accept(this), " AS ", columnState);
-            return state;
+            return SqlState.Create(exp.Body.Accept(this), " AS ", columnState);
         }
 
         public override ISqlState Visit(DbMemberExpression exp)

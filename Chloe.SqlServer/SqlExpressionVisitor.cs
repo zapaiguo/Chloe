@@ -142,16 +142,12 @@ namespace Chloe.SqlServer
             //明确 left right 其中一边一定为 null
             if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(right))
             {
-                state = new SqlState(2);
-                state.Append(left.Accept(this), " IS NULL");
-                return state;
+                return SqlState.Create(left.Accept(this), " IS NULL");
             }
 
             if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(left))
             {
-                state = new SqlState(2);
-                state.Append(right.Accept(this), " IS NULL");
-                return state;
+                return SqlState.Create(right.Accept(this), " IS NULL");
             }
 
             ISqlState leftState = left.Accept(this);
@@ -160,9 +156,7 @@ namespace Chloe.SqlServer
             //明确 left right 其中至少一边一定不为 null
             if (DbExpressionExtensions.AffirmExpressionRetValueIsNotNull(right) || DbExpressionExtensions.AffirmExpressionRetValueIsNotNull(left))
             {
-                state = new SqlState(3);
-                state.Append(leftState, " = ", rightState);
-                return state;
+                return SqlState.Create(leftState, " = ", rightState);
             }
 
             state = new SqlState(15);
@@ -182,17 +176,12 @@ namespace Chloe.SqlServer
         }
         public override ISqlState Visit(DbNotEqualExpression exp)
         {
-            var state = new SqlState(3);
-            state.Append(exp.Left.Accept(this), " <> ", exp.Right.Accept(this));
-
-            return state;
+            return SqlState.Create(exp.Left.Accept(this), " <> ", exp.Right.Accept(this));
         }
 
         public override ISqlState Visit(DbNotExpression exp)
         {
-            var state = new SqlState(4);
-            state.Append("NOT ", "(", exp.Operand.Accept(this), ")");
-            return state;
+            return SqlState.Create("NOT ", "(", exp.Operand.Accept(this), ")");
         }
 
         public override ISqlState Visit(DbAndExpression exp)
@@ -266,70 +255,46 @@ namespace Chloe.SqlServer
         // <
         public override ISqlState Visit(DbLessThanExpression exp)
         {
-            var state = new SqlState(3);
-            state.Append(exp.Left.Accept(this), " < ", exp.Right.Accept(this));
-
-            return state;
+            return SqlState.Create(exp.Left.Accept(this), " < ", exp.Right.Accept(this));
         }
         // <=
         public override ISqlState Visit(DbLessThanOrEqualExpression exp)
         {
-            var state = new SqlState(3);
-            state.Append(exp.Left.Accept(this), " <= ", exp.Right.Accept(this));
-
-            return state;
+            return SqlState.Create(exp.Left.Accept(this), " <= ", exp.Right.Accept(this));
         }
         // >
         public override ISqlState Visit(DbGreaterThanExpression exp)
         {
-            var state = new SqlState(3);
-            state.Append(exp.Left.Accept(this), " > ", exp.Right.Accept(this));
-
-            return state;
+            return SqlState.Create(exp.Left.Accept(this), " > ", exp.Right.Accept(this));
         }
         // >=
         public override ISqlState Visit(DbGreaterThanOrEqualExpression exp)
         {
-            var state = new SqlState(3);
-            state.Append(exp.Left.Accept(this), " >= ", exp.Right.Accept(this));
-
-            return state;
+            return SqlState.Create(exp.Left.Accept(this), " >= ", exp.Right.Accept(this));
         }
 
         public override ISqlState Visit(DbConstantExpression exp)
         {
-            SqlState state = null;
-
             if (exp.Value == null || exp.Value == DBNull.Value)
             {
-                state = new SqlState(1);
-                state.Append("NULL");
-                return state;
+                return SqlState.Create("NULL");
             }
 
             var objType = exp.Value.GetType();
             if (objType == UtilConstants.TypeOfBoolean)
             {
-                state = new SqlState(1);
-                state.Append(((bool)exp.Value) ? "CAST(1 AS BIT)" : "CAST(0 AS BIT)");
+                return SqlState.Create(((bool)exp.Value) ? "CAST(1 AS BIT)" : "CAST(0 AS BIT)");
             }
             else if (objType == UtilConstants.TypeOfString)
             {
-                state = new SqlState(3);
-                state.Append("N'", exp.Value, "'");
+                return SqlState.Create("N'", exp.Value, "'");
             }
             else if (objType.IsEnum)
             {
-                state = new SqlState(1);
-                state.Append(((int)exp.Value).ToString());
-            }
-            else
-            {
-                state = new SqlState(1);
-                state.Append(exp.Value);
+                return SqlState.Create(((int)exp.Value).ToString());
             }
 
-            return state;
+            return SqlState.Create(exp.Value);
         }
 
         // then 部分必须返回 C# type，所以得判断是否是诸如 a>1,a=b,in,like 等等的情况，如果是则将其构建成一个 case when 
@@ -349,80 +314,45 @@ namespace Chloe.SqlServer
 
         public override ISqlState Visit(DbTableExpression exp)
         {
-            var state = new SqlState(1);
-            state.Append(QuoteName(exp.Table.Name));
-            return state;
+            return QuoteName(exp.Table.Name);
         }
         public override ISqlState Visit(DbTableSegmentExpression exp)
         {
-            var state = new SqlState(3);
             ISqlState bodyState = exp.Body.Accept(this);
-            state.Append(bodyState, " AS ", QuoteName(exp.Alias));
-            return state;
+            return SqlState.Create(bodyState, " AS ", QuoteName(exp.Alias));
         }
 
         public override ISqlState Visit(DbColumnAccessExpression exp)
         {
-            var state = new SqlState(3);
-            state.Append(QuoteName(exp.Table.Name), ".", QuoteName(exp.Column.Name));
-            return state;
+            return SqlState.Create(QuoteName(exp.Table.Name), ".", QuoteName(exp.Column.Name));
         }
         public override ISqlState Visit(DbColumnSegmentExpression exp)
         {
-            var state = new SqlState();
             ISqlState bodyState = exp.Body.Accept(this.ColumnExpressionVisitor);
-            state.Append(bodyState, " AS ", QuoteName(exp.Alias));
-            return state;
+            return SqlState.Create(bodyState, " AS ", QuoteName(exp.Alias));
         }
 
         public override ISqlState Visit(DbMemberExpression exp)
         {
-            SqlState state = null;
-
-            if (IsDateTimeNowAccess(exp))
-            {
-                // DateTime.Now
-                state = new SqlState(1);
-                state.Append("GETDATE()");
-                return state;
-            }
-
-            if (IsDateTimeUtcNowAccess(exp))
-            {
-                // DateTime.UtcNow
-                state = new SqlState(1);
-                state.Append("GETUTCDATE()");
-                return state;
-            }
-
             MemberInfo member = exp.Member;
-
-            if (member == MemberInfo_DateTime_DayOfWeek)
-            {
-                state = new SqlState(3);
-                state.Append("(", DbFunction_DATEPART("WEEKDAY", exp.Expression.Accept(this)), " - 1)");
-                return state;
-            }
-
-            DbParameterExpression newExp;
-            if (DbExpressionExtensions.TryParseToParameterExpression(exp, out newExp))
-            {
-                return newExp.Accept(this);
-            }
-
-            if (member.Name == "Length" && member.DeclaringType == typeof(string))
-            {
-                state = new SqlState(3);
-                state.Append("LEN(", exp.Expression.Accept(this), ")");
-                return state;
-            }
-            else if (member.Name == "Value" && Utils.IsNullable(exp.Expression.Type))
-            {
-                return exp.Expression.Accept(this);
-            }
 
             if (member.DeclaringType == typeof(DateTime))
             {
+                if (member == MemberInfo_DateTime_Now)
+                {
+                    return SqlState.Create("GETDATE()");
+                }
+
+                if (member == MemberInfo_DateTime_UtcNow)
+                {
+                    return SqlState.Create("GETUTCDATE()");
+                }
+
+                if (member == MemberInfo_DateTime_Date)
+                {
+                    return BuildCastState(exp.Expression.Accept(this), "DATE");
+                }
+
                 if (member == MemberInfo_DateTime_Year)
                 {
                     return DbFunction_DATEPART("YEAR", exp.Expression.Accept(this));
@@ -457,6 +387,27 @@ namespace Chloe.SqlServer
                 {
                     return DbFunction_DATEPART("MILLISECOND", exp.Expression.Accept(this));
                 }
+
+                if (member == MemberInfo_DateTime_DayOfWeek)
+                {
+                    return SqlState.Create("(", DbFunction_DATEPART("WEEKDAY", exp.Expression.Accept(this)), " - 1)");
+                }
+            }
+
+
+            DbParameterExpression newExp;
+            if (DbExpressionExtensions.TryParseToParameterExpression(exp, out newExp))
+            {
+                return newExp.Accept(this);
+            }
+
+            if (member.Name == "Length" && member.DeclaringType == typeof(string))
+            {
+                return SqlState.Create("LEN(", exp.Expression.Accept(this), ")");
+            }
+            else if (member.Name == "Value" && Utils.IsNullable(exp.Expression.Type))
+            {
+                return exp.Expression.Accept(this);
             }
 
             throw new NotSupportedException(member.Name);
@@ -471,9 +422,8 @@ namespace Chloe.SqlServer
 
             if (!this._innerParameterStorage.TryGetValue(val, out state))
             {
-                state = new SqlState(1);
                 string paramName = ParameterPrefix + this._innerParameterStorage.Count.ToString();
-                state.Append(paramName);
+                state = SqlState.Create(paramName);
 
                 this._innerParameterStorage.Add(val, state);
                 this._parameterStorage.Add(paramName, val);
@@ -525,10 +475,7 @@ namespace Chloe.SqlServer
 
         public override ISqlState Visit(DbFromTableExpression exp)
         {
-            SqlState state = new SqlState(2);
-            state.Append(exp.Table.Accept(this));
-            state.Append(this.VisitDbJoinTableExpressions(exp.JoinTables));
-            return state;
+            return SqlState.Create(exp.Table.Accept(this), this.VisitDbJoinTableExpressions(exp.JoinTables));
         }
 
         public override ISqlState Visit(DbJoinTableExpression exp)
@@ -554,25 +501,17 @@ namespace Chloe.SqlServer
             else
                 throw new NotSupportedException("JoinType: " + joinTablePart.JoinType);
 
-            SqlState state = new SqlState(5);
-            state.Append(joinString, joinTablePart.Table.Accept(this), " ON ", joinTablePart.Condition.Accept(this.JoinConditionExpressionVisitor));
-            state.Append(this.VisitDbJoinTableExpressions(joinTablePart.JoinTables));
-
-            return state;
+            return SqlState.Create(joinString, joinTablePart.Table.Accept(this), " ON ", joinTablePart.Condition.Accept(this.JoinConditionExpressionVisitor), this.VisitDbJoinTableExpressions(joinTablePart.JoinTables));
         }
 
         public override ISqlState Visit(DbOrderSegmentExpression exp)
         {
-            SqlState state = new SqlState(2);
-
             if (exp.OrderType == OrderType.Asc)
-                state.Append(exp.DbExpression.Accept(this), " ASC");
+                return SqlState.Create(exp.DbExpression.Accept(this), " ASC");
             else if (exp.OrderType == OrderType.Desc)
-                state.Append(exp.DbExpression.Accept(this), " DESC");
-            else
-                throw new NotSupportedException("OrderType: " + exp.OrderType);
+                return SqlState.Create(exp.DbExpression.Accept(this), " DESC");
 
-            return state;
+            throw new NotSupportedException("OrderType: " + exp.OrderType);
         }
 
         public override ISqlState Visit(DbFunctionExpression exp)
@@ -636,9 +575,7 @@ namespace Chloe.SqlServer
         }
         public override ISqlState Visit(DbDeleteExpression exp)
         {
-            SqlState state = new SqlState(3);
-            state.Append("DELETE ", QuoteName(exp.Table.Name), BuildWhereState(exp.Condition));
-            return state;
+            return SqlState.Create("DELETE ", QuoteName(exp.Table.Name), BuildWhereState(exp.Condition));
         }
 
 
@@ -654,8 +591,6 @@ namespace Chloe.SqlServer
         }
         ISqlState BuildGeneralSqlState(DbSqlQueryExpression exp)
         {
-            SqlState retState = null;
-
             SqlState columnsState = new SqlState();
             List<DbColumnSegmentExpression> columns = exp.Columns;
 
@@ -685,13 +620,10 @@ namespace Chloe.SqlServer
             SqlState orderState = this.BuildOrderState(exp.OrderSegments);
             sqlState.Append(orderState);
 
-            retState = sqlState;
-            return retState;
+            return sqlState;
         }
         ISqlState BuildLimitSqlState(DbSqlQueryExpression exp)
         {
-            SqlState retState = null;
-
             SqlState columnsState = new SqlState();
             List<DbColumnSegmentExpression> columns = exp.Columns;
             List<ISqlState> columnStates = new List<ISqlState>(columns.Count);
@@ -747,16 +679,12 @@ namespace Chloe.SqlServer
                 selectedColumnState_TakeSql.Append(tableState_tableAlias, ".", columnState, " AS ", columnState);
             }
 
-            SqlState sqlState = new SqlState();
-            sqlState.Append("SELECT TOP (", exp.TakeCount.ToString(), ") ", selectedColumnState_TakeSql, " FROM ", BracketState(row_numberState), " AS ", tableState_tableAlias, " WHERE ", tableState_tableAlias, ".", row_numberNameState, " > ", exp.SkipCount.ToString());
+            SqlState sqlState = SqlState.Create("SELECT TOP (", exp.TakeCount.ToString(), ") ", selectedColumnState_TakeSql, " FROM ", BracketState(row_numberState), " AS ", tableState_tableAlias, " WHERE ", tableState_tableAlias, ".", row_numberNameState, " > ", exp.SkipCount.ToString());
 
-            retState = sqlState;
-            return retState;
+            return sqlState;
         }
         ISqlState BuildTakeSqlState(DbSqlQueryExpression exp)
         {
-            SqlState retState = null;
-
             SqlState columnsState = new SqlState();
             List<DbColumnSegmentExpression> columns = exp.Columns;
 
@@ -788,13 +716,10 @@ namespace Chloe.SqlServer
             SqlState orderState = this.BuildOrderState(orderParts);
             sqlState.Append(orderState);
 
-            retState = sqlState;
-            return retState;
+            return sqlState;
         }
         ISqlState BuildSkipSqlState(DbSqlQueryExpression exp)
         {
-            SqlState retState = null;
-
             SqlState columnsState = new SqlState();
             List<DbColumnSegmentExpression> columns = exp.Columns;
             List<SqlState> columnStates = new List<SqlState>(columns.Count);
@@ -849,11 +774,9 @@ namespace Chloe.SqlServer
                 selectedColumnState_TakeSql.Append(tableState_tableAlias, ".", columnState, " AS ", columnState);
             }
 
-            SqlState sqlState = new SqlState();
-            sqlState.Append("SELECT ", selectedColumnState_TakeSql, " FROM ", BracketState(row_numberState), " AS ", tableState_tableAlias, " WHERE ", tableState_tableAlias, ".", row_numberNameState, " > ", exp.SkipCount.ToString());
+            SqlState sqlState = SqlState.Create("SELECT ", selectedColumnState_TakeSql, " FROM ", BracketState(row_numberState), " AS ", tableState_tableAlias, " WHERE ", tableState_tableAlias, ".", row_numberNameState, " > ", exp.SkipCount.ToString());
 
-            retState = sqlState;
-            return retState;
+            return sqlState;
         }
         SqlState BuildWhereState(DbExpression whereExpression)
         {
@@ -868,15 +791,12 @@ namespace Chloe.SqlServer
         }
         SqlState BuildOrderState(List<DbOrderSegmentExpression> orderSegments)
         {
-            SqlState orderState = null;
-
             if (orderSegments.Count > 0)
             {
-                orderState = new SqlState(2);
-                orderState.Append(" ORDER BY ", this.ConcatOrderSegments(orderSegments));
+                return SqlState.Create(" ORDER BY ", this.ConcatOrderSegments(orderSegments));
             }
 
-            return orderState;
+            return null;
         }
         SqlState ConcatOrderSegments(List<DbOrderSegmentExpression> orderSegments)
         {
@@ -943,22 +863,16 @@ namespace Chloe.SqlServer
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentException("name");
 
-            SqlState state = new SqlState(3);
-            state.Append("[", name, "]");
-            return state;
+            return SqlState.Create("[", name, "]");
         }
         public static SqlState BracketState(ISqlState state)
         {
-            var retState = new SqlState(3);
-            retState.Append("(", state, ")");
-            return retState;
+            return SqlState.Create("(", state, ")");
         }
 
         static SqlState BuildCastState(object castObject, string targetDbTypeString)
         {
-            SqlState state = new SqlState(5);
-            state.Append("CAST(", castObject, " AS ", targetDbTypeString, ")");
-            return state;
+            return SqlState.Create("CAST(", castObject, " AS ", targetDbTypeString, ")");
         }
         static string CreateRowNumberName(List<DbColumnSegmentExpression> columns)
         {
@@ -1074,16 +988,6 @@ namespace Chloe.SqlServer
             items.Push(left);
             return items;
         }
-        static bool IsDateTimeNowAccess(DbMemberExpression exp)
-        {
-            MemberInfo member = exp.Member;
-            return exp.Expression == null && member == MemberInfo_DateTime_Now;
-        }
-        static bool IsDateTimeUtcNowAccess(DbMemberExpression exp)
-        {
-            MemberInfo member = exp.Member;
-            return exp.Expression == null && member == MemberInfo_DateTime_UtcNow;
-        }
         static void EnsureMethodDeclaringType(DbMethodCallExpression exp, Type ensureType)
         {
             MethodInfo method = exp.Method;
@@ -1140,25 +1044,21 @@ namespace Chloe.SqlServer
             if (exp.Arguments.Count != 0)
                 throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
 
-            var state = new SqlState(3);
-            state.Append("RTRIM(LTRIM(", exp.Object.Accept(visitor), "))");
-            return state;
+            return SqlState.Create("RTRIM(LTRIM(", exp.Object.Accept(visitor), "))");
         }
         static ISqlState Method_TrimStart(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
+            EnsureTrimCharIsSpaces(exp);
 
-            var state = new SqlState(3);
-            state.Append("LTRIM(", exp.Object.Accept(visitor), ")");
-            return state;
+            return SqlState.Create("LTRIM(", exp.Object.Accept(visitor), ")");
         }
         static ISqlState Method_TrimEnd(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
+            EnsureTrimCharIsSpaces(exp);
 
-            SqlState state = new SqlState(3);
-            state.Append("RTRIM(", exp.Object.Accept(visitor), ")");
-            return state;
+            return SqlState.Create("RTRIM(", exp.Object.Accept(visitor), ")");
         }
         static ISqlState Method_StartsWith(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
@@ -1167,9 +1067,7 @@ namespace Chloe.SqlServer
             if (exp.Arguments.Count != 1)
                 throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
 
-            SqlState state = new SqlState(4);
-            state.Append(exp.Object.Accept(visitor), " LIKE ", exp.Arguments.First().Accept(visitor), " + '%'");
-            return state;
+            return SqlState.Create(exp.Object.Accept(visitor), " LIKE ", exp.Arguments.First().Accept(visitor), " + '%'");
         }
         static ISqlState Method_EndsWith(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
@@ -1178,17 +1076,13 @@ namespace Chloe.SqlServer
             if (exp.Arguments.Count != 1)
                 throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
 
-            SqlState state = new SqlState(3);
-            state.Append(exp.Object.Accept(visitor), " LIKE '%' + ", exp.Arguments.First().Accept(visitor));
-            return state;
+            return SqlState.Create(exp.Object.Accept(visitor), " LIKE '%' + ", exp.Arguments.First().Accept(visitor));
         }
         static ISqlState Method_StringContains(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
 
-            SqlState state = new SqlState(4);
-            state.Append(exp.Object.Accept(visitor), " LIKE '%' + ", exp.Arguments.First().Accept(visitor), " + '%'");
-            return state;
+            return SqlState.Create(exp.Object.Accept(visitor), " LIKE '%' + ", exp.Arguments.First().Accept(visitor), " + '%'");
         }
         static ISqlState Method_IsNullOrEmpty(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
@@ -1209,7 +1103,6 @@ namespace Chloe.SqlServer
 
             var eqExp = DbExpression.Equal(caseWhenExpression, DbConstant_1);
             return eqExp.Accept(visitor);
-            //return caseWhenExpression.Accept(visitor);
         }
         static ISqlState Method_Contains(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
@@ -1267,9 +1160,7 @@ namespace Chloe.SqlServer
             if (exp.Arguments.Count != 0)
                 throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
 
-            var state = new SqlState(3);
-            state.Append("UPPER(", exp.Object.Accept(visitor), ")");
-            return state;
+            return SqlState.Create("UPPER(", exp.Object.Accept(visitor), ")");
         }
         static ISqlState Method_ToLower(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
@@ -1279,9 +1170,7 @@ namespace Chloe.SqlServer
             if (exp.Arguments.Count != 0)
                 throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
 
-            var state = new SqlState(3);
-            state.Append("LOWER(", exp.Object.Accept(visitor), ")");
-            return state;
+            return SqlState.Create("LOWER(", exp.Object.Accept(visitor), ")");
         }
         static ISqlState Method_Substring(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
@@ -1303,10 +1192,7 @@ namespace Chloe.SqlServer
             else
                 throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: ", exp.Arguments.Count, exp.Method.Name));
 
-            var state = new SqlState(8);
-            state.Append("SUBSTRING(", exp.Object.Accept(visitor), ",", exp.Arguments[0].Accept(visitor), " + 1", ",", length, ")");
-
-            return state;
+            return SqlState.Create("SUBSTRING(", exp.Object.Accept(visitor), ",", exp.Arguments[0].Accept(visitor), " + 1", ",", length, ")");
         }
 
 
@@ -1316,8 +1202,7 @@ namespace Chloe.SqlServer
 
             if (elementExps.Count == 0)
             {
-                state = new SqlState(1);
-                return state.Append("1=0");
+                return SqlState.Create("1=0");
             }
 
             state = new SqlState((elementExps.Count == 1 ? 3 : 4) + elementExps.Count);
@@ -1470,55 +1355,64 @@ namespace Chloe.SqlServer
         #region AggregateFunction
         static ISqlState Func_Count()
         {
-            SqlState state = new SqlState(1);
-            state.Append("COUNT(1)");
-            return state;
+            return SqlState.Create("COUNT(1)");
         }
         static ISqlState Func_LongCount()
         {
-            SqlState state = new SqlState(1);
-            state.Append("COUNT_BIG(1)");
-            return state;
+            return SqlState.Create("COUNT_BIG(1)");
         }
         static ISqlState Func_Sum(DbExpression exp, SqlExpressionVisitor visitor)
         {
-            SqlState state = new SqlState(3);
-            state.Append("SUM(", exp.Accept(visitor), ")");
-            return state;
+            return SqlState.Create("SUM(", exp.Accept(visitor), ")");
         }
         static ISqlState Func_Max(DbExpression exp, SqlExpressionVisitor visitor)
         {
-            SqlState state = new SqlState(3);
-            state.Append("MAX(", exp.Accept(visitor), ")");
-            return state;
+            return SqlState.Create("MAX(", exp.Accept(visitor), ")");
         }
         static ISqlState Func_Min(DbExpression exp, SqlExpressionVisitor visitor)
         {
-            SqlState state = new SqlState(3);
-            state.Append("MIN(", exp.Accept(visitor), ")");
-            return state;
+            return SqlState.Create("MIN(", exp.Accept(visitor), ")");
         }
         static ISqlState Func_Average(DbExpression exp, SqlExpressionVisitor visitor)
         {
-            SqlState state = new SqlState(3);
-            state.Append("AVG(", exp.Accept(visitor), ")");
-            return state;
+            return SqlState.Create("AVG(", exp.Accept(visitor), ")");
         }
         #endregion
 
 
-
         static ISqlState DbFunction_DATEADD(string interval, ISqlState incrementSqlState, ISqlState dateTimeSqlState)
         {
-            SqlState state = new SqlState(7);
-            state.Append("DATEADD(", interval, ",", incrementSqlState, ",", dateTimeSqlState, ")");
-            return state;
+            return SqlState.Create("DATEADD(", interval, ",", incrementSqlState, ",", dateTimeSqlState, ")");
         }
         static ISqlState DbFunction_DATEPART(string interval, ISqlState sqlState)
         {
-            SqlState state = new SqlState(3);
-            state.Append("DATEPART(", interval, ",", sqlState, ")");
-            return state;
+            return SqlState.Create("DATEPART(", interval, ",", sqlState, ")");
+        }
+        static void EnsureTrimCharIsSpaces(DbMethodCallExpression exp)
+        {
+            if (exp.Arguments.Count != 1)
+                throw new NotSupportedException();
+
+            var m = exp.Arguments[0] as DbMemberExpression;
+            if (m == null)
+                throw new NotSupportedException();
+
+            DbParameterExpression p;
+            if (!DbExpressionExtensions.TryParseToParameterExpression(m, out p))
+            {
+                throw new NotSupportedException();
+            }
+
+            var arg = p.Value;
+
+            if (arg == null)
+                throw new NotSupportedException();
+
+            var chars = arg as char[];
+            if (chars.Length != 1 || chars[0] != ' ')
+            {
+                throw new NotSupportedException();
+            }
         }
     }
 

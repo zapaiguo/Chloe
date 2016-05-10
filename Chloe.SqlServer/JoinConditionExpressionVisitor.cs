@@ -20,7 +20,6 @@ namespace Chloe.SqlServer
 
         public override ISqlState Visit(DbEqualExpression exp)
         {
-            SqlState state = null;
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
@@ -30,25 +29,18 @@ namespace Chloe.SqlServer
             //明确 left right 其中一边一定为 null
             if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(right))
             {
-                state = new SqlState(2);
-                state.Append(left.Accept(this), " IS NULL");
-                return state;
+                return SqlState.Create(left.Accept(this), " IS NULL");
             }
 
             if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(left))
             {
-                state = new SqlState(2);
-                state.Append(right.Accept(this), " IS NULL");
-                return state;
+                return SqlState.Create(right.Accept(this), " IS NULL");
             }
 
             ISqlState leftState = left.Accept(this);
             ISqlState rightState = right.Accept(this);
 
-            state = new SqlState(3);
-            state.Append(leftState, " = ", rightState);
-
-            return state;
+            return SqlState.Create(leftState, " = ", rightState);
         }
 
         public override ISqlState Visit(DbParameterExpression exp)

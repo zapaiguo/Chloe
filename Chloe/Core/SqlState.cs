@@ -22,6 +22,43 @@ namespace Chloe.Core
             this._sqlStorage = new List<object>(i);
         }
 
+        public static SqlState Create(object obj)
+        {
+            SqlState state = new SqlState(1);
+            state.Append(obj);
+            return state;
+        }
+        public static SqlState Create(object obj1, object obj2)
+        {
+            SqlState state = new SqlState(2);
+            state.Append(obj1).Append(obj2);
+            return state;
+        }
+        public static SqlState Create(object obj1, object obj2, object obj3)
+        {
+            SqlState state = new SqlState(3);
+            state.Append(obj1).Append(obj2).Append(obj3);
+            return state;
+        }
+        public static SqlState Create(object obj1, object obj2, object obj3, object obj4)
+        {
+            SqlState state = new SqlState(4);
+            state.Append(obj1).Append(obj2).Append(obj3).Append(obj4);
+            return state;
+        }
+        public static SqlState Create(object obj1, object obj2, object obj3, object obj4, object obj5)
+        {
+            SqlState state = new SqlState(5);
+            state.Append(obj1).Append(obj2).Append(obj3).Append(obj4).Append(obj5);
+            return state;
+        }
+        public static SqlState Create(params object[] objs)
+        {
+            SqlState state = new SqlState(objs.Length);
+            return state.Append(objs);
+        }
+
+
         public SqlState Append(object obj)
         {
             this._sqlStorage.Add(obj);
