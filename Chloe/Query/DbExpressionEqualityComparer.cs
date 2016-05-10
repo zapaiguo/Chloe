@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Chloe.Query
 {
-    internal static class DbExpressionEqualizer
+    static class DbExpressionEqualityComparer
     {
         public static bool ExpressionEquals(DbExpression exp1, DbExpression exp2)
         {

@@ -276,7 +276,7 @@ namespace Chloe.Query
                 ParameterInfo pi = kv.Key;
                 DbExpression exp = kv.Value;
                 int ordinal;
-                DbColumnSegmentExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.ExpressionEquals(exp, a.Body)).FirstOrDefault();
+                DbColumnSegmentExpression dbColumnExp = columnList.Where(a => DbExpressionEqualityComparer.ExpressionEquals(exp, a.Body)).FirstOrDefault();
                 if (dbColumnExp == null)
                 {
                     string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, pi.Name);
@@ -311,7 +311,7 @@ namespace Chloe.Query
                 DbExpression exp = kv.Value;
 
                 int ordinal;
-                DbColumnSegmentExpression dbColumnExp = columnList.Where(a => DbExpressionEqualizer.ExpressionEquals(exp, a.Body)).FirstOrDefault();
+                DbColumnSegmentExpression dbColumnExp = columnList.Where(a => DbExpressionEqualityComparer.ExpressionEquals(exp, a.Body)).FirstOrDefault();
                 if (dbColumnExp == null)
                 {
                     string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, member.Name);
