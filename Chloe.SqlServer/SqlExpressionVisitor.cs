@@ -30,6 +30,8 @@ namespace Chloe.SqlServer
         static MethodInfo StringConcatMethod_String_String = null;
         static MethodInfo StringConcatMethod_Object_Object = null;
 
+        static PropertyInfo PropertyInfo_String_Length = UtilConstants.TypeOfString.GetProperty("Length");
+
         static MemberInfo MemberInfo_DateTime_Now = UtilConstants.TypeOfDateTime.GetProperty("Now");
         static MemberInfo MemberInfo_DateTime_UtcNow = UtilConstants.TypeOfDateTime.GetProperty("UtcNow");
         static MemberInfo MemberInfo_DateTime_Date = UtilConstants.TypeOfDateTime.GetProperty("Date");
@@ -52,9 +54,11 @@ namespace Chloe.SqlServer
 
         public static ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes = null;
 
-        static DbConstantExpression TrueDbConstantExp = DbExpression.Constant(true);
-        static DbConstantExpression FalseDbConstantExp = DbExpression.Constant(false);
-        static DbConstantExpression StringNullDbConstantExp = DbExpression.Constant(null, UtilConstants.TypeOfString);
+        static readonly DbConstantExpression DbConstant_1 = DbExpression.Constant(1);
+        static readonly DbConstantExpression DbConstant_0 = DbExpression.Constant(0);
+        static readonly DbConstantExpression DbConstant_True = DbExpression.Constant(true);
+        static readonly DbConstantExpression DbConstant_False = DbExpression.Constant(false);
+        static readonly DbConstantExpression DbConstant_Null_String = DbExpression.Constant(null, UtilConstants.TypeOfString);
 
         static SqlExpressionVisitor()
         {
@@ -1000,7 +1004,7 @@ namespace Chloe.SqlServer
                     opBody = DbExpression.Convert(UtilConstants.TypeOfString, opBody);
                 }
 
-                DbExpression equalNullExp = DbExpression.Equal(opBody, StringNullDbConstantExp);
+                DbExpression equalNullExp = DbExpression.Equal(opBody, DbConstant_Null_String);
 
                 if (whenExp == null)
                     whenExp = equalNullExp;
@@ -1024,7 +1028,7 @@ namespace Chloe.SqlServer
             state.Append(")");
 
             SqlState retState = new SqlState(8);
-            retState.Append("CASE", " WHEN ", whenExp.Accept(visitor), " THEN ", StringNullDbConstantExp.Accept(visitor));
+            retState.Append("CASE", " WHEN ", whenExp.Accept(visitor), " THEN ", DbConstant_Null_String.Accept(visitor));
             retState.Append(" ELSE ", state, " END");
 
             return retState;
@@ -1045,10 +1049,10 @@ namespace Chloe.SqlServer
         }
         public static DbCaseWhenExpression ConstructReturnCSharpBooleanCaseWhenExpression(DbExpression exp)
         {
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(exp, TrueDbConstantExp);
+            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(exp, DbConstant_True);
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), FalseDbConstantExp, UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), DbConstant_False, UtilConstants.TypeOfBoolean);
 
             return caseWhenExpression;
         }
@@ -1100,6 +1104,9 @@ namespace Chloe.SqlServer
             methodHandlers.Add("EndsWith", Method_EndsWith);
             methodHandlers.Add("Contains", Method_Contains);
             methodHandlers.Add("IsNullOrEmpty", Method_IsNullOrEmpty);
+            methodHandlers.Add("ToUpper", Method_ToUpper);
+            methodHandlers.Add("ToLower", Method_ToLower);
+            methodHandlers.Add("Substring", Method_Substring);
 
             methodHandlers.Add("Count", Method_Count);
             methodHandlers.Add("LongCount", Method_LongCount);
@@ -1130,8 +1137,8 @@ namespace Chloe.SqlServer
             EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
 
             MethodInfo method = exp.Method;
-            if (method.GetParameters().Length > 0)
-                throw new NotSupportedException("一个或多个参数方法: " + exp.Method.Name);
+            if (exp.Arguments.Count != 0)
+                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
 
             var state = new SqlState(3);
             state.Append("RTRIM(LTRIM(", exp.Object.Accept(visitor), "))");
@@ -1157,8 +1164,8 @@ namespace Chloe.SqlServer
         {
             EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
 
-            if (exp.Arguments.Count > 0)
-                throw new NotSupportedException("一个或多个参数方法: " + exp.Method.Name);
+            if (exp.Arguments.Count != 1)
+                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
 
             SqlState state = new SqlState(4);
             state.Append(exp.Object.Accept(visitor), " LIKE ", exp.Arguments.First().Accept(visitor), " + '%'");
@@ -1168,8 +1175,8 @@ namespace Chloe.SqlServer
         {
             EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
 
-            if (exp.Arguments.Count > 0)
-                throw new NotSupportedException("一个或多个参数方法: " + exp.Method.Name);
+            if (exp.Arguments.Count != 1)
+                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
 
             SqlState state = new SqlState(3);
             state.Append(exp.Object.Accept(visitor), " LIKE '%' + ", exp.Arguments.First().Accept(visitor));
@@ -1193,14 +1200,16 @@ namespace Chloe.SqlServer
 
             DbOrExpression orExpression = DbExpression.Or(equalNullExpression, equalEmptyExpression);
 
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orExpression, TrueDbConstantExp);
+            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orExpression, DbConstant_1);
 
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
 
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), FalseDbConstantExp, UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), DbConstant_0, UtilConstants.TypeOfBoolean);
 
-            return caseWhenExpression.Accept(visitor);
+            var eqExp = DbExpression.Equal(caseWhenExpression, DbConstant_1);
+            return eqExp.Accept(visitor);
+            //return caseWhenExpression.Accept(visitor);
         }
         static ISqlState Method_Contains(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
@@ -1250,6 +1259,56 @@ namespace Chloe.SqlServer
             }
             return In(visitor, exps, arg);
         }
+        static ISqlState Method_ToUpper(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
+
+            MethodInfo method = exp.Method;
+            if (exp.Arguments.Count != 0)
+                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
+
+            var state = new SqlState(3);
+            state.Append("UPPER(", exp.Object.Accept(visitor), ")");
+            return state;
+        }
+        static ISqlState Method_ToLower(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
+
+            MethodInfo method = exp.Method;
+            if (exp.Arguments.Count != 0)
+                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
+
+            var state = new SqlState(3);
+            state.Append("LOWER(", exp.Object.Accept(visitor), ")");
+            return state;
+        }
+        static ISqlState Method_Substring(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
+
+            MethodInfo method = exp.Method;
+
+            ISqlState length = null;
+
+            if (exp.Arguments.Count == 1)
+            {
+                var string_LengthExp = DbExpression.MemberAccess(PropertyInfo_String_Length, exp.Object);
+                length = string_LengthExp.Accept(visitor);
+            }
+            else if (exp.Arguments.Count == 2)
+            {
+                length = exp.Arguments[1].Accept(visitor);
+            }
+            else
+                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: ", exp.Arguments.Count, exp.Method.Name));
+
+            var state = new SqlState(8);
+            state.Append("SUBSTRING(", exp.Object.Accept(visitor), ",", exp.Arguments[0].Accept(visitor), " + 1", ",", length, ")");
+
+            return state;
+        }
+
 
         static ISqlState In(DbExpressionVisitor<ISqlState> visitor, List<DbExpression> elementExps, DbExpression arg)
         {
