@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
+using Chloe.Core.Visitors;
 
 namespace Chloe.Query.QueryState
 {
@@ -40,7 +41,8 @@ namespace Chloe.Query.QueryState
 
         public virtual IQueryState Accept(WhereExpression exp)
         {
-            var dbExp = GeneralExpressionVisitor.VisitPredicate(exp.Expression, this.MoeList);
+            var lambda = Expression.Lambda(Expression.Equal(exp.Expression.Body, ExpressionVisitorBase.TrueConstantExp), exp.Expression.Parameters.ToArray());
+            var dbExp = GeneralExpressionVisitor.VisitPredicate(lambda, this.MoeList);
             this._resultElement.AppendCondition(dbExp);
 
             return this;

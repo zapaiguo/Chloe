@@ -30,7 +30,19 @@ namespace Chloe.SqlServer
         static MethodInfo StringConcatMethod_String_String = null;
         static MethodInfo StringConcatMethod_Object_Object = null;
 
-        static MemberInfo MemberInfo_DateTime_Now = null;
+        static MemberInfo MemberInfo_DateTime_Now = UtilConstants.TypeOfDateTime.GetProperty("Now");
+        static MemberInfo MemberInfo_DateTime_UtcNow = UtilConstants.TypeOfDateTime.GetProperty("UtcNow");
+        static MemberInfo MemberInfo_DateTime_Date = UtilConstants.TypeOfDateTime.GetProperty("Date");
+        static MemberInfo MemberInfo_DateTime_Year = UtilConstants.TypeOfDateTime.GetProperty("Year");
+        static MemberInfo MemberInfo_DateTime_Month = UtilConstants.TypeOfDateTime.GetProperty("Month");
+        static MemberInfo MemberInfo_DateTime_Day = UtilConstants.TypeOfDateTime.GetProperty("Day");
+        static MemberInfo MemberInfo_DateTime_Hour = UtilConstants.TypeOfDateTime.GetProperty("Hour");
+        static MemberInfo MemberInfo_DateTime_Minute = UtilConstants.TypeOfDateTime.GetProperty("Minute");
+        static MemberInfo MemberInfo_DateTime_Second = UtilConstants.TypeOfDateTime.GetProperty("Second");
+        static MemberInfo MemberInfo_DateTime_Millisecond = UtilConstants.TypeOfDateTime.GetProperty("Millisecond");
+        static MemberInfo MemberInfo_DateTime_DayOfWeek = UtilConstants.TypeOfDateTime.GetProperty("DayOfWeek");
+
+
 
         static readonly DbParameterExpression _tempDbParameterExpression = DbExpression.Parameter(1);
         static Dictionary<Type, string> CSharpType_DbType_Mappings = null;
@@ -46,8 +58,6 @@ namespace Chloe.SqlServer
 
         static SqlExpressionVisitor()
         {
-            MemberInfo_DateTime_Now = UtilConstants.TypeOfDateTime.GetProperty("Now");
-
             Type typeOfObject = typeof(object);
             MethodInfo concatMethod_String_String = UtilConstants.TypeOfString.GetMethod("Concat", new Type[] { UtilConstants.TypeOfString, UtilConstants.TypeOfString });
             MethodInfo concatMethod_Object_Object = UtilConstants.TypeOfString.GetMethod("Concat", new Type[] { typeOfObject, typeOfObject });
@@ -373,22 +383,76 @@ namespace Chloe.SqlServer
                 return state;
             }
 
+            if (IsDateTimeUtcNowAccess(exp))
+            {
+                // DateTime.UtcNow
+                state = new SqlState(1);
+                state.Append("GETUTCDATE()");
+                return state;
+            }
+
+            MemberInfo member = exp.Member;
+
+            if (member == MemberInfo_DateTime_DayOfWeek)
+            {
+                state = new SqlState(3);
+                state.Append("(", DbFunction_DATEPART("WEEKDAY", exp.Expression.Accept(this)), " - 1)");
+                return state;
+            }
+
             DbParameterExpression newExp;
             if (DbExpressionExtensions.TryParseToParameterExpression(exp, out newExp))
             {
                 return newExp.Accept(this);
             }
 
-            MemberInfo member = exp.Member;
             if (member.Name == "Length" && member.DeclaringType == typeof(string))
             {
                 state = new SqlState(3);
                 state.Append("LEN(", exp.Expression.Accept(this), ")");
                 return state;
             }
-            else if (member.Name == "Value" && Nullable.GetUnderlyingType(exp.Expression.Type) != null)
+            else if (member.Name == "Value" && Utils.IsNullable(exp.Expression.Type))
             {
                 return exp.Expression.Accept(this);
+            }
+
+            if (member.DeclaringType == typeof(DateTime))
+            {
+                if (member == MemberInfo_DateTime_Year)
+                {
+                    return DbFunction_DATEPART("YEAR", exp.Expression.Accept(this));
+                }
+
+                if (member == MemberInfo_DateTime_Month)
+                {
+                    return DbFunction_DATEPART("MONTH", exp.Expression.Accept(this));
+                }
+
+                if (member == MemberInfo_DateTime_Day)
+                {
+                    return DbFunction_DATEPART("DAY", exp.Expression.Accept(this));
+                }
+
+                if (member == MemberInfo_DateTime_Hour)
+                {
+                    return DbFunction_DATEPART("HOUR", exp.Expression.Accept(this));
+                }
+
+                if (member == MemberInfo_DateTime_Minute)
+                {
+                    return DbFunction_DATEPART("MINUTE", exp.Expression.Accept(this));
+                }
+
+                if (member == MemberInfo_DateTime_Second)
+                {
+                    return DbFunction_DATEPART("SECOND", exp.Expression.Accept(this));
+                }
+
+                if (member == MemberInfo_DateTime_Millisecond)
+                {
+                    return DbFunction_DATEPART("MILLISECOND", exp.Expression.Accept(this));
+                }
             }
 
             throw new NotSupportedException(member.Name);
@@ -1011,6 +1075,11 @@ namespace Chloe.SqlServer
             MemberInfo member = exp.Member;
             return exp.Expression == null && member == MemberInfo_DateTime_Now;
         }
+        static bool IsDateTimeUtcNowAccess(DbMemberExpression exp)
+        {
+            MemberInfo member = exp.Member;
+            return exp.Expression == null && member == MemberInfo_DateTime_UtcNow;
+        }
         static void EnsureMethodDeclaringType(DbMethodCallExpression exp, Type ensureType)
         {
             MethodInfo method = exp.Method;
@@ -1038,6 +1107,14 @@ namespace Chloe.SqlServer
             methodHandlers.Add("Max", Method_Max);
             methodHandlers.Add("Min", Method_Min);
             methodHandlers.Add("Average", Method_Average);
+
+            methodHandlers.Add("AddYears", Method_DateTime_AddYears);
+            methodHandlers.Add("AddMonths", Method_DateTime_AddMonths);
+            methodHandlers.Add("AddDays", Method_DateTime_AddDays);
+            methodHandlers.Add("AddHours", Method_DateTime_AddHours);
+            methodHandlers.Add("AddMinutes", Method_DateTime_AddMinutes);
+            methodHandlers.Add("AddSeconds", Method_DateTime_AddSeconds);
+            methodHandlers.Add("AddMilliseconds", Method_DateTime_AddMilliseconds);
 
             var ret = new Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>>(methodHandlers.Count, StringComparer.Ordinal);
             foreach (var item in methodHandlers)
@@ -1237,6 +1314,43 @@ namespace Chloe.SqlServer
             return state;
         }
 
+
+        static ISqlState Method_DateTime_AddYears(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
+            return DbFunction_DATEADD("YEAR", exp.Arguments[0].Accept(visitor), exp.Object.Accept(visitor));
+        }
+        static ISqlState Method_DateTime_AddMonths(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
+            return DbFunction_DATEADD("MONTH", exp.Arguments[0].Accept(visitor), exp.Object.Accept(visitor));
+        }
+        static ISqlState Method_DateTime_AddDays(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
+            return DbFunction_DATEADD("DAY", exp.Arguments[0].Accept(visitor), exp.Object.Accept(visitor));
+        }
+        static ISqlState Method_DateTime_AddHours(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
+            return DbFunction_DATEADD("HOUR", exp.Arguments[0].Accept(visitor), exp.Object.Accept(visitor));
+        }
+        static ISqlState Method_DateTime_AddMinutes(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
+            return DbFunction_DATEADD("MINUTE", exp.Arguments[0].Accept(visitor), exp.Object.Accept(visitor));
+        }
+        static ISqlState Method_DateTime_AddSeconds(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
+            return DbFunction_DATEADD("SECOND", exp.Arguments[0].Accept(visitor), exp.Object.Accept(visitor));
+        }
+        static ISqlState Method_DateTime_AddMilliseconds(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
+            return DbFunction_DATEADD("MILLISECOND", exp.Arguments[0].Accept(visitor), exp.Object.Accept(visitor));
+        }
+
         #endregion
 
         #region
@@ -1332,6 +1446,21 @@ namespace Chloe.SqlServer
             return state;
         }
         #endregion
+
+
+
+        static ISqlState DbFunction_DATEADD(string interval, ISqlState incrementSqlState, ISqlState dateTimeSqlState)
+        {
+            SqlState state = new SqlState(7);
+            state.Append("DATEADD(", interval, ",", incrementSqlState, ",", dateTimeSqlState, ")");
+            return state;
+        }
+        static ISqlState DbFunction_DATEPART(string interval, ISqlState sqlState)
+        {
+            SqlState state = new SqlState(3);
+            state.Append("DATEPART(", interval, ",", sqlState, ")");
+            return state;
+        }
     }
 
 }

@@ -14,6 +14,11 @@ namespace Chloe.SqlServer
             if (obj == null)
                 throw new ArgumentNullException(paramName);
         }
+        public static bool IsNullable(Type type)
+        {
+            Type unType;
+            return IsNullable(type, out unType);
+        }
         public static bool IsNullable(Type type, out Type unType)
         {
             unType = Nullable.GetUnderlyingType(type);
