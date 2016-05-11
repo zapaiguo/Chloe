@@ -11,10 +11,12 @@ namespace Chloe.DbExpressions
         public DbConstantExpression(object value)
             : base(DbExpressionType.Constant)
         {
-            Utils.CheckNull(value);
-
             this._value = value;
-            this._type = value.GetType();
+
+            if (value != null)
+                this._type = value.GetType();
+            else
+                this._type = UtilConstants.TypeOfObject;
         }
 
         public DbConstantExpression(object value, Type type)

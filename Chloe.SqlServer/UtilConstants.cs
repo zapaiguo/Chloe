@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Chloe.DbExpressions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -55,5 +57,40 @@ namespace Chloe.SqlServer
         public static readonly Type TypeOfObject = typeof(Object);
         public static readonly Type TypeOfByteArray = typeof(Byte[]);
         public static readonly Type TypeOfCharArray = typeof(Char[]);
+
+
+
+
+        #region DbExpression constants
+
+        public static readonly DbParameterExpression DbParameter_1 = DbExpression.Parameter(1);
+        public static readonly DbConstantExpression DbConstant_1 = DbExpression.Constant(1);
+        public static readonly DbConstantExpression DbConstant_0 = DbExpression.Constant(0);
+        public static readonly DbConstantExpression DbConstant_True = DbExpression.Constant(true);
+        public static readonly DbConstantExpression DbConstant_False = DbExpression.Constant(false);
+        public static readonly DbConstantExpression DbConstant_Null_String = DbExpression.Constant(null, typeof(string));
+
+        #endregion
+
+        #region MemberInfo constants
+
+        public static readonly PropertyInfo PropertyInfo_String_Length = typeof(string).GetProperty("Length");
+        public static readonly PropertyInfo PropertyInfo_DateTime_Now = typeof(DateTime).GetProperty("Now");
+        public static readonly PropertyInfo PropertyInfo_DateTime_UtcNow = typeof(DateTime).GetProperty("UtcNow");
+        public static readonly PropertyInfo PropertyInfo_DateTime_Date = typeof(DateTime).GetProperty("Date");
+        public static readonly PropertyInfo PropertyInfo_DateTime_Year = typeof(DateTime).GetProperty("Year");
+        public static readonly PropertyInfo PropertyInfo_DateTime_Month = typeof(DateTime).GetProperty("Month");
+        public static readonly PropertyInfo PropertyInfo_DateTime_Day = typeof(DateTime).GetProperty("Day");
+        public static readonly PropertyInfo PropertyInfo_DateTime_Hour = typeof(DateTime).GetProperty("Hour");
+        public static readonly PropertyInfo PropertyInfo_DateTime_Minute = typeof(DateTime).GetProperty("Minute");
+        public static readonly PropertyInfo PropertyInfo_DateTime_Second = typeof(DateTime).GetProperty("Second");
+        public static readonly PropertyInfo PropertyInfo_DateTime_Millisecond = typeof(DateTime).GetProperty("Millisecond");
+        public static readonly PropertyInfo PropertyInfo_DateTime_DayOfWeek = typeof(DateTime).GetProperty("DayOfWeek");
+
+        public static readonly MethodInfo MethodInfo_String_Concat_String_String = typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) });
+        public static readonly MethodInfo MethodInfo_String_Concat_Object_Object = typeof(string).GetMethod("Concat", new Type[] { typeof(object), typeof(object) });
+
+        #endregion
+
     }
 }

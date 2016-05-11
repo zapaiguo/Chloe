@@ -72,13 +72,13 @@ namespace Chloe.Core.Visitors
                 {
                     // (a.ID==1)==true
                     //dbExp = new DbEqualExpression(this.Visit(exp.Left), new DbConstantExpression(true));
-                    dbExp = DbExpression.Equal(this.Visit(exp.Left), TrueDbConstantExp);
+                    dbExp = DbExpression.Equal(this.Visit(exp.Left), UtilConstants.DbConstant_True);
                     return dbExp;
                 }
                 else
                 {
                     //dbExp = new DbEqualExpression(new DbConstantExpression(1), new DbConstantExpression(0));
-                    dbExp = TrueEqualFalseExp;
+                    dbExp = UtilConstants.DbEqual_TrueEqualFalse;
                     return dbExp;
                 }
             }
@@ -90,13 +90,13 @@ namespace Chloe.Core.Visitors
                 if ((bool)c.Value == true)
                 {
                     // (a.ID==1)==true
-                    dbExp = DbExpression.Equal(this.Visit(exp.Right), TrueDbConstantExp);
+                    dbExp = DbExpression.Equal(this.Visit(exp.Right), UtilConstants.DbConstant_True);
                     return dbExp;
                 }
                 else
                 {
                     // 直接 (1=0)
-                    dbExp = TrueEqualFalseExp;
+                    dbExp = UtilConstants.DbEqual_TrueEqualFalse;
                     return dbExp;
                 }
             }
@@ -104,9 +104,9 @@ namespace Chloe.Core.Visitors
             /* 考虑 a.B && XX 的情况，统一将 a.B && XX 和 a.X>1 && XX ==> a.B==true && XX 和 (a.X>1)==true && XX */
 
             // left==true
-            var newLeft = Expression.Equal(left, TrueConstantExp);
+            var newLeft = Expression.Equal(left, UtilConstants.Constant_True);
             // right==true
-            var newRight = Expression.Equal(right, TrueConstantExp);
+            var newRight = Expression.Equal(right, UtilConstants.Constant_True);
 
             //dbExp = new DbAndExpression(this.Visit(newLeft), this.Visit(newRight));
             dbExp = DbExpression.And(this.Visit(newLeft), this.Visit(newRight));
@@ -126,12 +126,12 @@ namespace Chloe.Core.Visitors
                 if ((bool)c.Value == false)
                 {
                     // (a.ID==1)==true
-                    dbExp = DbExpression.Equal(this.Visit(exp.Left), TrueDbConstantExp);
+                    dbExp = DbExpression.Equal(this.Visit(exp.Left), UtilConstants.DbConstant_True);
                     return dbExp;
                 }
                 else
                 {
-                    dbExp = TrueEqualFalseExp;
+                    dbExp = UtilConstants.DbEqual_TrueEqualFalse;
                     return dbExp;
                 }
             }
@@ -143,13 +143,13 @@ namespace Chloe.Core.Visitors
                 if ((bool)c.Value == false)
                 {
                     // (a.ID==1)==true
-                    dbExp = DbExpression.Equal(this.Visit(exp.Right), TrueDbConstantExp);
+                    dbExp = DbExpression.Equal(this.Visit(exp.Right), UtilConstants.DbConstant_True);
                     return dbExp;
                 }
                 else
                 {
                     // 直接 (1=0)
-                    dbExp = TrueEqualFalseExp;
+                    dbExp = UtilConstants.DbEqual_TrueEqualFalse;
                     return dbExp;
                 }
             }
@@ -157,9 +157,9 @@ namespace Chloe.Core.Visitors
             /* 考虑 a.B || XX 的情况，统一将 a.B || XX 和 a.X>1 || XX 转成 a.B==true || XX 和 (a.X>1)==true || XX */
 
             // left==true
-            var newLeft = Expression.Equal(left, TrueConstantExp);
+            var newLeft = Expression.Equal(left, UtilConstants.Constant_True);
             // right==true
-            var newRight = Expression.Equal(right, TrueConstantExp);
+            var newRight = Expression.Equal(right, UtilConstants.Constant_True);
 
             dbExp = DbExpression.Or(this.Visit(newLeft), this.Visit(newRight));
             return dbExp;
@@ -219,8 +219,8 @@ namespace Chloe.Core.Visitors
             Expression whenTrueTest = null, whenFalseTest = null, thenIfTrue = null, thenfFalse = null;
 
             // test==true
-            whenTrueTest = Expression.Equal(test, TrueConstantExp);
-            whenFalseTest = Expression.Equal(test, FalseConstantExp);
+            whenTrueTest = Expression.Equal(test, UtilConstants.Constant_True);
+            whenFalseTest = Expression.Equal(test, UtilConstants.Constant_False);
 
             // ifTrue==true
             thenIfTrue = ifTrue;
@@ -383,19 +383,19 @@ namespace Chloe.Core.Visitors
                 {
                     if (operand.Type == UtilConstants.TypeOfBoolean)
                     {
-                        c = TrueConstantExp;
+                        c = UtilConstants.Constant_True;
                     }
                     else
-                        c = TrueConstantExp;
+                        c = UtilConstants.Constant_True;
                 }
                 else
                 {
                     if (operand.Type == UtilConstants.TypeOfBoolean)
                     {
-                        c = FalseConstantExp;
+                        c = UtilConstants.Constant_False;
                     }
                     else
-                        c = FalseConvertExp;
+                        c = UtilConstants.Convert_FalseToNullable;
                 }
 
                 // a==true
@@ -443,13 +443,13 @@ namespace Chloe.Core.Visitors
             Expression rightTrueExp = null, rightFalseExp = null;
             if (isNullable)
             {
-                rightTrueExp = TrueConstantExp;
-                rightFalseExp = FalseConvertExp;
+                rightTrueExp = UtilConstants.Constant_True;
+                rightFalseExp = UtilConstants.Convert_FalseToNullable;
             }
             else
             {
-                rightTrueExp = TrueConstantExp;
-                rightFalseExp = FalseConstantExp;
+                rightTrueExp = UtilConstants.Constant_True;
+                rightFalseExp = UtilConstants.Constant_False;
             }
 
 
@@ -496,14 +496,5 @@ namespace Chloe.Core.Visitors
             }
             return operand;
         }
-
-        public static ConstantExpression TrueConstantExp = Expression.Constant(true);
-        public static UnaryExpression TrueConvertExp = Expression.Convert(Expression.Constant(true), UtilConstants.TypeOfBoolean_Nullable);
-        public static ConstantExpression FalseConstantExp = Expression.Constant(false);
-        public static UnaryExpression FalseConvertExp = Expression.Convert(Expression.Constant(false), UtilConstants.TypeOfBoolean_Nullable);
-
-        public static DbConstantExpression TrueDbConstantExp = DbExpression.Constant(true);
-        public static DbConstantExpression FalseDbConstantExp = DbExpression.Constant(false);
-        public static DbEqualExpression TrueEqualFalseExp = DbExpression.Equal(TrueDbConstantExp, FalseDbConstantExp);
     }
 }

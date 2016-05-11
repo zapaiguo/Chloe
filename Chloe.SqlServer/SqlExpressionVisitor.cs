@@ -22,51 +22,19 @@ namespace Chloe.SqlServer
         DbColumnExpressionVisitor _columnExpressionVisitor = null;
         JoinConditionExpressionVisitor _joinConditionExpressionVisitor = null;
 
-        delegate ISqlState BinaryWithMethodHandler(DbBinaryExpression exp, DbExpressionVisitor<ISqlState> visitor);
-        static Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>> MethodHandlers = InitMethodHandlers();
-        static Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>> FuncHandlers = InitFuncHandlers();
-        static Dictionary<MethodInfo, BinaryWithMethodHandler> BinaryWithMethodHandlers = null;
-
-        static MethodInfo StringConcatMethod_String_String = null;
-        static MethodInfo StringConcatMethod_Object_Object = null;
-
-        static PropertyInfo PropertyInfo_String_Length = UtilConstants.TypeOfString.GetProperty("Length");
-
-        static MemberInfo MemberInfo_DateTime_Now = UtilConstants.TypeOfDateTime.GetProperty("Now");
-        static MemberInfo MemberInfo_DateTime_UtcNow = UtilConstants.TypeOfDateTime.GetProperty("UtcNow");
-        static MemberInfo MemberInfo_DateTime_Date = UtilConstants.TypeOfDateTime.GetProperty("Date");
-        static MemberInfo MemberInfo_DateTime_Year = UtilConstants.TypeOfDateTime.GetProperty("Year");
-        static MemberInfo MemberInfo_DateTime_Month = UtilConstants.TypeOfDateTime.GetProperty("Month");
-        static MemberInfo MemberInfo_DateTime_Day = UtilConstants.TypeOfDateTime.GetProperty("Day");
-        static MemberInfo MemberInfo_DateTime_Hour = UtilConstants.TypeOfDateTime.GetProperty("Hour");
-        static MemberInfo MemberInfo_DateTime_Minute = UtilConstants.TypeOfDateTime.GetProperty("Minute");
-        static MemberInfo MemberInfo_DateTime_Second = UtilConstants.TypeOfDateTime.GetProperty("Second");
-        static MemberInfo MemberInfo_DateTime_Millisecond = UtilConstants.TypeOfDateTime.GetProperty("Millisecond");
-        static MemberInfo MemberInfo_DateTime_DayOfWeek = UtilConstants.TypeOfDateTime.GetProperty("DayOfWeek");
-
-
-
-        static readonly DbParameterExpression _tempDbParameterExpression = DbExpression.Parameter(1);
-        static Dictionary<Type, string> CSharpType_DbType_Mappings = null;
-
         protected Dictionary<string, object> _parameterStorage = new Dictionary<string, object>();
         protected Dictionary<object, SqlState> _innerParameterStorage = new Dictionary<object, SqlState>();
 
-        public static ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes = null;
+        static Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>> MethodHandlers = InitMethodHandlers();
+        static Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>> FuncHandlers = InitFuncHandlers();
+        static Dictionary<MethodInfo, Func<DbBinaryExpression, SqlExpressionVisitor, ISqlState>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
+        static Dictionary<Type, string> CSharpType_DbType_Mappings = null;
 
-        static readonly DbConstantExpression DbConstant_1 = DbExpression.Constant(1);
-        static readonly DbConstantExpression DbConstant_0 = DbExpression.Constant(0);
-        static readonly DbConstantExpression DbConstant_True = DbExpression.Constant(true);
-        static readonly DbConstantExpression DbConstant_False = DbExpression.Constant(false);
-        static readonly DbConstantExpression DbConstant_Null_String = DbExpression.Constant(null, UtilConstants.TypeOfString);
+        public static ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes = null;
 
         static SqlExpressionVisitor()
         {
             Type typeOfObject = typeof(object);
-            MethodInfo concatMethod_String_String = UtilConstants.TypeOfString.GetMethod("Concat", new Type[] { UtilConstants.TypeOfString, UtilConstants.TypeOfString });
-            MethodInfo concatMethod_Object_Object = UtilConstants.TypeOfString.GetMethod("Concat", new Type[] { typeOfObject, typeOfObject });
-            StringConcatMethod_String_String = concatMethod_String_String;
-            StringConcatMethod_Object_Object = concatMethod_Object_Object;
 
             List<DbExpressionType> list = new List<DbExpressionType>();
             list.Add(DbExpressionType.MemberAccess);
@@ -95,11 +63,6 @@ namespace Chloe.SqlServer
             cSharpType_DbType_Mappings.Add(typeof(bool?), "BIT");
 
             CSharpType_DbType_Mappings = cSharpType_DbType_Mappings;
-
-
-            BinaryWithMethodHandlers = new Dictionary<MethodInfo, BinaryWithMethodHandler>(2);
-            BinaryWithMethodHandlers.Add(concatMethod_String_String, StringConcat);
-            BinaryWithMethodHandlers.Add(concatMethod_Object_Object, StringConcat);
         }
 
         public override Dictionary<string, object> ParameterStorage { get { return this._parameterStorage; } }
@@ -222,7 +185,7 @@ namespace Chloe.SqlServer
             MethodInfo method = exp.Method;
             if (method != null)
             {
-                BinaryWithMethodHandler handler;
+                Func<DbBinaryExpression, SqlExpressionVisitor, ISqlState> handler;
                 if (BinaryWithMethodHandlers.TryGetValue(method, out handler))
                 {
                     return handler(exp, this);
@@ -338,57 +301,57 @@ namespace Chloe.SqlServer
 
             if (member.DeclaringType == typeof(DateTime))
             {
-                if (member == MemberInfo_DateTime_Now)
+                if (member == UtilConstants.PropertyInfo_DateTime_Now)
                 {
                     return SqlState.Create("GETDATE()");
                 }
 
-                if (member == MemberInfo_DateTime_UtcNow)
+                if (member == UtilConstants.PropertyInfo_DateTime_UtcNow)
                 {
                     return SqlState.Create("GETUTCDATE()");
                 }
 
-                if (member == MemberInfo_DateTime_Date)
+                if (member == UtilConstants.PropertyInfo_DateTime_Date)
                 {
                     return BuildCastState(exp.Expression.Accept(this), "DATE");
                 }
 
-                if (member == MemberInfo_DateTime_Year)
+                if (member == UtilConstants.PropertyInfo_DateTime_Year)
                 {
                     return DbFunction_DATEPART("YEAR", exp.Expression.Accept(this));
                 }
 
-                if (member == MemberInfo_DateTime_Month)
+                if (member == UtilConstants.PropertyInfo_DateTime_Month)
                 {
                     return DbFunction_DATEPART("MONTH", exp.Expression.Accept(this));
                 }
 
-                if (member == MemberInfo_DateTime_Day)
+                if (member == UtilConstants.PropertyInfo_DateTime_Day)
                 {
                     return DbFunction_DATEPART("DAY", exp.Expression.Accept(this));
                 }
 
-                if (member == MemberInfo_DateTime_Hour)
+                if (member == UtilConstants.PropertyInfo_DateTime_Hour)
                 {
                     return DbFunction_DATEPART("HOUR", exp.Expression.Accept(this));
                 }
 
-                if (member == MemberInfo_DateTime_Minute)
+                if (member == UtilConstants.PropertyInfo_DateTime_Minute)
                 {
                     return DbFunction_DATEPART("MINUTE", exp.Expression.Accept(this));
                 }
 
-                if (member == MemberInfo_DateTime_Second)
+                if (member == UtilConstants.PropertyInfo_DateTime_Second)
                 {
                     return DbFunction_DATEPART("SECOND", exp.Expression.Accept(this));
                 }
 
-                if (member == MemberInfo_DateTime_Millisecond)
+                if (member == UtilConstants.PropertyInfo_DateTime_Millisecond)
                 {
                     return DbFunction_DATEPART("MILLISECOND", exp.Expression.Accept(this));
                 }
 
-                if (member == MemberInfo_DateTime_DayOfWeek)
+                if (member == UtilConstants.PropertyInfo_DateTime_DayOfWeek)
                 {
                     return SqlState.Create("(", DbFunction_DATEPART("WEEKDAY", exp.Expression.Accept(this)), " - 1)");
                 }
@@ -641,7 +604,7 @@ namespace Chloe.SqlServer
             List<DbOrderSegmentExpression> orderParts = exp.OrderSegments;
             if (orderParts.Count == 0)
             {
-                DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(_tempDbParameterExpression, OrderType.Asc);
+                DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(UtilConstants.DbParameter_1, OrderType.Asc);
                 orderParts = new List<DbOrderSegmentExpression>();
                 orderParts.Add(orderPart);
             }
@@ -737,7 +700,7 @@ namespace Chloe.SqlServer
             List<DbOrderSegmentExpression> orderParts = exp.OrderSegments;
             if (orderParts.Count == 0)
             {
-                DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(_tempDbParameterExpression, OrderType.Asc);
+                DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(UtilConstants.DbParameter_1, OrderType.Asc);
                 orderParts = new List<DbOrderSegmentExpression>();
                 orderParts.Add(orderPart);
             }
@@ -886,67 +849,7 @@ namespace Chloe.SqlServer
 
             return row_numberName;
         }
-        static ISqlState StringConcat(DbBinaryExpression exp, DbExpressionVisitor<ISqlState> visitor)
-        {
-            MethodInfo method = exp.Method;
 
-            List<DbExpression> operands = new List<DbExpression>();
-            operands.Add(exp.Right);
-
-            DbExpression left = exp.Left;
-            DbAddExpression e = null;
-            while ((e = (left as DbAddExpression)) != null && (e.Method == StringConcatMethod_String_String || e.Method == StringConcatMethod_Object_Object))
-            {
-                operands.Add(e.Right);
-                left = e.Left;
-            }
-
-            operands.Add(left);
-
-            SqlState state = new SqlState(3 + operands.Count);
-
-            DbExpression whenExp = null;
-
-            state.Append("(");
-            for (int i = operands.Count - 1; i >= 0; i--)
-            {
-                DbExpression operand = operands[i];
-                DbExpression opBody = operand;
-                if (opBody.Type != UtilConstants.TypeOfString)
-                {
-                    // 需要 cast type
-                    opBody = DbExpression.Convert(UtilConstants.TypeOfString, opBody);
-                }
-
-                DbExpression equalNullExp = DbExpression.Equal(opBody, DbConstant_Null_String);
-
-                if (whenExp == null)
-                    whenExp = equalNullExp;
-                else
-                    whenExp = DbExpression.And(whenExp, equalNullExp);
-
-                DbExpression thenExp = DbExpression.Constant("");
-                DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(equalNullExp, thenExp);
-
-                List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
-                whenThenExps.Add(whenThenPair);
-
-                DbExpression elseExp = opBody;
-
-                DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), elseExp, UtilConstants.TypeOfString);
-
-                if (i < operands.Count - 1)
-                    state.Append(" + ");
-                state.Append(caseWhenExpression.Accept(visitor));
-            }
-            state.Append(")");
-
-            SqlState retState = new SqlState(8);
-            retState.Append("CASE", " WHEN ", whenExp.Accept(visitor), " THEN ", DbConstant_Null_String.Accept(visitor));
-            retState.Append(" ELSE ", state, " END");
-
-            return retState;
-        }
         static DbExpression EnsureDbExpressionReturnCSharpBoolean(DbExpression exp)
         {
             if (exp.Type != UtilConstants.TypeOfBoolean && exp.Type != UtilConstants.TypeOfBoolean_Nullable)
@@ -963,10 +866,10 @@ namespace Chloe.SqlServer
         }
         public static DbCaseWhenExpression ConstructReturnCSharpBooleanCaseWhenExpression(DbExpression exp)
         {
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(exp, DbConstant_True);
+            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(exp, UtilConstants.DbConstant_True);
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), DbConstant_False, UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), UtilConstants.DbConstant_False, UtilConstants.TypeOfBoolean);
 
             return caseWhenExpression;
         }
@@ -995,8 +898,88 @@ namespace Chloe.SqlServer
                 throw new NotSupportedException(exp.Method.Name);
         }
 
+        #region BinaryWithMethodHandlers
 
-        #region
+        static Dictionary<MethodInfo, Func<DbBinaryExpression, SqlExpressionVisitor, ISqlState>> InitBinaryWithMethodHandlers()
+        {
+            var binaryWithMethodHandlers = new Dictionary<MethodInfo, Func<DbBinaryExpression, SqlExpressionVisitor, ISqlState>>();
+            binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_String_String, StringConcat);
+            binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_Object_Object, StringConcat);
+
+            var ret = new Dictionary<MethodInfo, Func<DbBinaryExpression, SqlExpressionVisitor, ISqlState>>(binaryWithMethodHandlers.Count);
+            foreach (var item in binaryWithMethodHandlers)
+            {
+                ret.Add(item.Key, item.Value);
+            }
+
+            return ret;
+        }
+
+        static ISqlState StringConcat(DbBinaryExpression exp, SqlExpressionVisitor visitor)
+        {
+            MethodInfo method = exp.Method;
+
+            List<DbExpression> operands = new List<DbExpression>();
+            operands.Add(exp.Right);
+
+            DbExpression left = exp.Left;
+            DbAddExpression e = null;
+            while ((e = (left as DbAddExpression)) != null && (e.Method == UtilConstants.MethodInfo_String_Concat_String_String || e.Method == UtilConstants.MethodInfo_String_Concat_Object_Object))
+            {
+                operands.Add(e.Right);
+                left = e.Left;
+            }
+
+            operands.Add(left);
+
+            SqlState state = new SqlState(3 + operands.Count);
+
+            DbExpression whenExp = null;
+
+            state.Append("(");
+            for (int i = operands.Count - 1; i >= 0; i--)
+            {
+                DbExpression operand = operands[i];
+                DbExpression opBody = operand;
+                if (opBody.Type != UtilConstants.TypeOfString)
+                {
+                    // 需要 cast type
+                    opBody = DbExpression.Convert(UtilConstants.TypeOfString, opBody);
+                }
+
+                DbExpression equalNullExp = DbExpression.Equal(opBody, UtilConstants.DbConstant_Null_String);
+
+                if (whenExp == null)
+                    whenExp = equalNullExp;
+                else
+                    whenExp = DbExpression.And(whenExp, equalNullExp);
+
+                DbExpression thenExp = DbExpression.Constant("");
+                DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(equalNullExp, thenExp);
+
+                List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
+                whenThenExps.Add(whenThenPair);
+
+                DbExpression elseExp = opBody;
+
+                DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), elseExp, UtilConstants.TypeOfString);
+
+                if (i < operands.Count - 1)
+                    state.Append(" + ");
+                state.Append(caseWhenExpression.Accept(visitor));
+            }
+            state.Append(")");
+
+            SqlState retState = new SqlState(8);
+            retState.Append("CASE", " WHEN ", whenExp.Accept(visitor), " THEN ", UtilConstants.DbConstant_Null_String.Accept(visitor));
+            retState.Append(" ELSE ", state, " END");
+
+            return retState;
+        }
+
+        #endregion
+
+        #region MethodHandlers
 
         static Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>> InitMethodHandlers()
         {
@@ -1094,14 +1077,14 @@ namespace Chloe.SqlServer
 
             DbOrExpression orExpression = DbExpression.Or(equalNullExpression, equalEmptyExpression);
 
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orExpression, DbConstant_1);
+            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orExpression, UtilConstants.DbConstant_1);
 
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
 
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), DbConstant_0, UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), UtilConstants.DbConstant_0, UtilConstants.TypeOfBoolean);
 
-            var eqExp = DbExpression.Equal(caseWhenExpression, DbConstant_1);
+            var eqExp = DbExpression.Equal(caseWhenExpression, UtilConstants.DbConstant_1);
             return eqExp.Accept(visitor);
         }
         static ISqlState Method_Contains(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
@@ -1182,7 +1165,7 @@ namespace Chloe.SqlServer
 
             if (exp.Arguments.Count == 1)
             {
-                var string_LengthExp = DbExpression.MemberAccess(PropertyInfo_String_Length, exp.Object);
+                var string_LengthExp = DbExpression.MemberAccess(UtilConstants.PropertyInfo_String_Length, exp.Object);
                 length = string_LengthExp.Accept(visitor);
             }
             else if (exp.Arguments.Count == 2)
@@ -1297,7 +1280,7 @@ namespace Chloe.SqlServer
 
         #endregion
 
-        #region
+        #region FuncHandlers
         static Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>> InitFuncHandlers()
         {
             var funcHandlers = new Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>>();

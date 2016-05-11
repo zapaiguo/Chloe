@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Chloe.DbExpressions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -52,5 +54,16 @@ namespace Chloe.Utility
         public static readonly Type TypeOfObject = typeof(Object);
         public static readonly Type TypeOfByteArray = typeof(Byte[]);
         public static readonly Type TypeOfCharArray = typeof(Char[]);
+
+
+
+        public static ConstantExpression Constant_True = Expression.Constant(true);
+        //public static UnaryExpression Convert_TrueToNullable = Expression.Convert(Expression.Constant(true), typeof(Boolean?));
+        public static ConstantExpression Constant_False = Expression.Constant(false);
+        public static UnaryExpression Convert_FalseToNullable = Expression.Convert(Expression.Constant(false), typeof(Boolean?));
+
+        public static DbConstantExpression DbConstant_True = DbExpression.Constant(true);
+        //public static DbConstantExpression DbConstant_False = DbExpression.Constant(false);
+        public static DbEqualExpression DbEqual_TrueEqualFalse = DbExpression.Equal(DbExpression.Constant(true), DbExpression.Constant(false));
     }
 }

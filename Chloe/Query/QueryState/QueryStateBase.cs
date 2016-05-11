@@ -41,7 +41,7 @@ namespace Chloe.Query.QueryState
 
         public virtual IQueryState Accept(WhereExpression exp)
         {
-            var lambda = Expression.Lambda(Expression.Equal(exp.Expression.Body, ExpressionVisitorBase.TrueConstantExp), exp.Expression.Parameters.ToArray());
+            var lambda = Expression.Lambda(Expression.Equal(exp.Expression.Body, UtilConstants.Constant_True), exp.Expression.Parameters.ToArray());
             var dbExp = GeneralExpressionVisitor.VisitPredicate(lambda, this.MoeList);
             this._resultElement.AppendCondition(dbExp);
 

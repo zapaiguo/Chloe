@@ -12,10 +12,12 @@ namespace Chloe.DbExpressions
         public DbParameterExpression(object value)
             : base(DbExpressionType.Parameter)
         {
-            Utils.CheckNull(value);
-
             this._value = value;
-            this._type = value.GetType();
+
+            if (value != null)
+                this._type = value.GetType();
+            else
+                this._type = UtilConstants.TypeOfObject;
         }
 
         public DbParameterExpression(object value, Type type)
