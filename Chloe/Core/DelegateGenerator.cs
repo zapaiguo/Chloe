@@ -119,23 +119,23 @@ namespace Chloe.Core
             return ret;
         }
 
-        public static Action<object, object> CreateValueSetter(Type instanceType, MemberInfo propertyOrField)
+        public static Action<object, object> CreateValueSetter(MemberInfo propertyOrField)
         {
             PropertyInfo propertyInfo = propertyOrField as PropertyInfo;
             if (propertyInfo != null)
-                return CreateValueSetter(instanceType, propertyInfo);
+                return CreateValueSetter(propertyInfo);
 
             FieldInfo fieldInfo = propertyOrField as FieldInfo;
             if (fieldInfo != null)
-                return CreateValueSetter(instanceType, fieldInfo);
+                return CreateValueSetter(fieldInfo);
 
             throw new ArgumentException();
         }
-        public static Action<object, object> CreateValueSetter(Type instanceType, PropertyInfo propertyInfo)
+        public static Action<object, object> CreateValueSetter(PropertyInfo propertyInfo)
         {
             var p = Expression.Parameter(typeof(object), "instance");
             var pValue = Expression.Parameter(typeof(object), "value");
-            var instance = Expression.Convert(p, instanceType);
+            var instance = Expression.Convert(p, propertyInfo.DeclaringType);
             var value = Expression.Convert(pValue, propertyInfo.PropertyType);
 
             var pro = Expression.Property(instance, propertyInfo);
@@ -148,11 +148,11 @@ namespace Chloe.Core
 
             return ret;
         }
-        public static Action<object, object> CreateValueSetter(Type instanceType, FieldInfo fieldInfo)
+        public static Action<object, object> CreateValueSetter(FieldInfo fieldInfo)
         {
             var p = Expression.Parameter(typeof(object), "instance");
             var pValue = Expression.Parameter(typeof(object), "value");
-            var instance = Expression.Convert(p, instanceType);
+            var instance = Expression.Convert(p, fieldInfo.DeclaringType);
             var value = Expression.Convert(pValue, fieldInfo.FieldType);
 
             var field = Expression.Field(instance, fieldInfo);
@@ -165,10 +165,10 @@ namespace Chloe.Core
 
             return ret;
         }
-        public static Func<object, object> CreateValueGetter(Type instanceType, MemberInfo member)
+        public static Func<object, object> CreateValueGetter(MemberInfo member)
         {
             var p = Expression.Parameter(typeof(object), "a");
-            var instance = Expression.Convert(p, instanceType);
+            var instance = Expression.Convert(p, member.DeclaringType);
             var memberAccess = Expression.MakeMemberAccess(instance, member);
 
             Type type = ReflectionExtensions.GetMemberInfoType(member);

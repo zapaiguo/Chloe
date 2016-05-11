@@ -32,6 +32,5 @@ namespace Chloe.Descriptors
 
             return val;
         }
-
     }
 }
