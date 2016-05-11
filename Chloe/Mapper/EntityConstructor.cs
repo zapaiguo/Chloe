@@ -65,9 +65,6 @@ namespace Chloe.Mapper
         }
         public int Next()
         {
-            if (this._next > this._readerOrdinals.Count - 1)
-                throw new Exception();
-
             int ret = this._readerOrdinals[this._next];
             this._next++;
             return ret;
@@ -92,9 +89,6 @@ namespace Chloe.Mapper
         }
         public IObjectActivator Next()
         {
-            if (this._next > this._objectActivators.Count - 1)
-                throw new Exception();
-
             IObjectActivator ret = this._objectActivators[this._next];
             this._next++;
             return ret;
