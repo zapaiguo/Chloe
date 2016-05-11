@@ -15,6 +15,9 @@ namespace Chloe.Mapper
             this._setter = setter;
             this._ordinal = ordinal;
         }
+
+        public int Ordinal { get { return this._ordinal; } }
+
         public void SetValue(object obj, IDataReader reader)
         {
             this._setter(obj, reader, this._ordinal);

@@ -47,7 +47,7 @@ namespace Chloe.Mapper
         }
     }
 
-    public struct ReaderOrdinalEnumerator
+    public class ReaderOrdinalEnumerator
     {
         public static readonly MethodInfo NextMethodInfo;
         static ReaderOrdinalEnumerator()
@@ -58,19 +58,28 @@ namespace Chloe.Mapper
 
         List<int> _readerOrdinals;
         int _next;
+        int _currentOrdinal;
+        public int CurrentOrdinal { get { return this._currentOrdinal; } }
         public ReaderOrdinalEnumerator(List<int> readerOrdinals)
         {
             this._readerOrdinals = readerOrdinals;
             this._next = 0;
+            this._currentOrdinal = -1;
         }
         public int Next()
         {
-            int ret = this._readerOrdinals[this._next];
+            this._currentOrdinal = this._readerOrdinals[this._next];
             this._next++;
-            return ret;
+            return this._currentOrdinal;
+        }
+
+        public void Reset()
+        {
+            this._next = 0;
+            this._currentOrdinal = -1;
         }
     }
-    public struct ObjectActivatorEnumerator
+    public class ObjectActivatorEnumerator
     {
         List<IObjectActivator> _objectActivators;
         int _next;
@@ -92,6 +101,10 @@ namespace Chloe.Mapper
             IObjectActivator ret = this._objectActivators[this._next];
             this._next++;
             return ret;
+        }
+        public void Reset()
+        {
+            this._next = 0;
         }
     }
 
