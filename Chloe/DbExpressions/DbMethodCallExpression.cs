@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace Chloe.DbExpressions
@@ -8,16 +9,16 @@ namespace Chloe.DbExpressions
     {
         DbExpression _object;
         MethodInfo _method;
-        IReadOnlyList<DbExpression> _arguments;
-        public DbMethodCallExpression(DbExpression @object, MethodInfo method, IReadOnlyList<DbExpression> arguments)
+        ReadOnlyCollection<DbExpression> _arguments;
+        public DbMethodCallExpression(DbExpression @object, MethodInfo method, IList<DbExpression> arguments)
             : base(DbExpressionType.Call)
         {
             this._object = @object;
             this._method = method;
-            this._arguments = arguments;
+            this._arguments = new ReadOnlyCollection<DbExpression>(arguments);
         }
 
-        public IReadOnlyList<DbExpression> Arguments { get { return this._arguments; } }
+        public ReadOnlyCollection<DbExpression> Arguments { get { return this._arguments; } }
         public MethodInfo Method { get { return _method; } }
         public DbExpression Object { get { return _object; } }
         public override Type Type { get { return this.Method.ReturnType; } }

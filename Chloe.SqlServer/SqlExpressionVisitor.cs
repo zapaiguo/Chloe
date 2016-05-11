@@ -845,7 +845,7 @@ namespace Chloe.SqlServer
             DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(exp, UtilConstants.DbConstant_True);
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), UtilConstants.DbConstant_False, UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, UtilConstants.DbConstant_False, UtilConstants.TypeOfBoolean);
 
             return caseWhenExpression;
         }
@@ -938,7 +938,7 @@ namespace Chloe.SqlServer
 
                 DbExpression elseExp = opBody;
 
-                DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), elseExp, UtilConstants.TypeOfString);
+                DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, elseExp, UtilConstants.TypeOfString);
 
                 if (i < operands.Count - 1)
                     state.Append(" + ");
@@ -1058,7 +1058,7 @@ namespace Chloe.SqlServer
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
 
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), UtilConstants.DbConstant_0, UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, UtilConstants.DbConstant_0, UtilConstants.TypeOfBoolean);
 
             var eqExp = DbExpression.Equal(caseWhenExpression, UtilConstants.DbConstant_1);
             return eqExp.Accept(visitor);

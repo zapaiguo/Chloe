@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Chloe.DbExpressions
 {
@@ -20,7 +19,7 @@ namespace Chloe.DbExpressions
         }
 
         public MethodInfo Method { get { return this._method; } }
-        public IReadOnlyCollection<DbExpression> Parameters { get { return this._parameters; } }
+        public ReadOnlyCollection<DbExpression> Parameters { get { return this._parameters; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

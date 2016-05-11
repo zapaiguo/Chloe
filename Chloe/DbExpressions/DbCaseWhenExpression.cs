@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Chloe.DbExpressions
 {
     public class DbCaseWhenExpression : DbExpression
     {
-        IReadOnlyList<WhenThenExpressionPair> _whenThenExps;
+        ReadOnlyCollection<WhenThenExpressionPair> _whenThenExps;
         DbExpression _elseExp;
-        public DbCaseWhenExpression(Type type, IReadOnlyList<WhenThenExpressionPair> whenThenExps, DbExpression elseExp)
+        public DbCaseWhenExpression(Type type, IList<WhenThenExpressionPair> whenThenExps, DbExpression elseExp)
             : base(DbExpressionType.CaseWhen, type)
         {
-            this._whenThenExps = whenThenExps;
+            this._whenThenExps = new ReadOnlyCollection<WhenThenExpressionPair>(whenThenExps);
             this._elseExp = elseExp;
         }
 
-        public IReadOnlyList<WhenThenExpressionPair> WhenThenExps { get { return this._whenThenExps; } }
+        public ReadOnlyCollection<WhenThenExpressionPair> WhenThenExps { get { return this._whenThenExps; } }
         public DbExpression Else { get { return this._elseExp; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)

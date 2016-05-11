@@ -1,6 +1,7 @@
 ﻿using Chloe.Utility;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace Chloe.DbExpressions
@@ -57,7 +58,7 @@ namespace Chloe.DbExpressions
             return new DbConvertExpression(type, operand);
         }
 
-        public static DbCaseWhenExpression CaseWhen(IReadOnlyList<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps, DbExpression elseExp, Type type)
+        public static DbCaseWhenExpression CaseWhen(IList<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps, DbExpression elseExp, Type type)
         {
             return new DbCaseWhenExpression(type, whenThenExps, elseExp);
         }
@@ -105,7 +106,7 @@ namespace Chloe.DbExpressions
             return new DbMemberExpression(member, exp);
         }
 
-        public static DbMethodCallExpression MethodCall(DbExpression @object, MethodInfo method, IReadOnlyList<DbExpression> arguments)
+        public static DbMethodCallExpression MethodCall(DbExpression @object, MethodInfo method, IList<DbExpression> arguments)
         {
             return new DbMethodCallExpression(@object, method, arguments);
         }

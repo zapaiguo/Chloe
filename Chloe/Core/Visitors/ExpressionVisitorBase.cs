@@ -201,7 +201,7 @@ namespace Chloe.Core.Visitors
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(new DbCaseWhenExpression.WhenThenExpressionPair(DbExpression.Equal(whenExp, DbExpression.Constant(null, exp.Type)), thenExp));
 
-            DbExpression dbExp = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), elseExp, exp.Type);
+            DbExpression dbExp = DbExpression.CaseWhen(whenThenExps, elseExp, exp.Type);
 
             return dbExp;
         }
@@ -234,7 +234,7 @@ namespace Chloe.Core.Visitors
             whenThenExps.Add(new DbCaseWhenExpression.WhenThenExpressionPair(this.Visit(whenFalseTest), this.Visit(thenfFalse)));
 
             DbExpression elseExp = DbExpression.Constant(null, exp.Type);
-            DbExpression dbExp = DbExpression.CaseWhen(whenThenExps.AsReadOnly(), elseExp, exp.Type);
+            DbExpression dbExp = DbExpression.CaseWhen(whenThenExps, elseExp, exp.Type);
 
             //如果是 返回 bool 类型，则变成 (true?a:b)==true ，为了方便 select 字段返回 bool 类型的情况，交给 DbExpressionVisitor 去做
             return dbExp;
@@ -279,7 +279,7 @@ namespace Chloe.Core.Visitors
                 argList.Add(this.Visit(item));
             }
 
-            dbExp = DbExpression.MethodCall(obj, exp.Method, argList.AsReadOnly());
+            dbExp = DbExpression.MethodCall(obj, exp.Method, argList);
 
             return dbExp;
         }
