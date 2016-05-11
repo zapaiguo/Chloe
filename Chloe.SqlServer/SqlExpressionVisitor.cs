@@ -297,9 +297,15 @@ namespace Chloe.SqlServer
 
         public override ISqlState Visit(DbMemberExpression exp)
         {
+            ISqlState sqlState;
+            if (IsDbFunction_DATEDIFF(exp, this, out sqlState))
+            {
+                return sqlState;
+            }
+
             MemberInfo member = exp.Member;
 
-            if (member.DeclaringType == typeof(DateTime))
+            if (member.DeclaringType == UtilConstants.TypeOfDateTime)
             {
                 if (member == UtilConstants.PropertyInfo_DateTime_Now)
                 {
@@ -311,49 +317,19 @@ namespace Chloe.SqlServer
                     return SqlState.Create("GETUTCDATE()");
                 }
 
+                if (member == UtilConstants.PropertyInfo_DateTime_Today)
+                {
+                    return BuildCastState("GETDATE()", "DATE");
+                }
+
                 if (member == UtilConstants.PropertyInfo_DateTime_Date)
                 {
                     return BuildCastState(exp.Expression.Accept(this), "DATE");
                 }
 
-                if (member == UtilConstants.PropertyInfo_DateTime_Year)
+                if (IsDbFunction_DATEPART(exp, this, out sqlState))
                 {
-                    return DbFunction_DATEPART("YEAR", exp.Expression.Accept(this));
-                }
-
-                if (member == UtilConstants.PropertyInfo_DateTime_Month)
-                {
-                    return DbFunction_DATEPART("MONTH", exp.Expression.Accept(this));
-                }
-
-                if (member == UtilConstants.PropertyInfo_DateTime_Day)
-                {
-                    return DbFunction_DATEPART("DAY", exp.Expression.Accept(this));
-                }
-
-                if (member == UtilConstants.PropertyInfo_DateTime_Hour)
-                {
-                    return DbFunction_DATEPART("HOUR", exp.Expression.Accept(this));
-                }
-
-                if (member == UtilConstants.PropertyInfo_DateTime_Minute)
-                {
-                    return DbFunction_DATEPART("MINUTE", exp.Expression.Accept(this));
-                }
-
-                if (member == UtilConstants.PropertyInfo_DateTime_Second)
-                {
-                    return DbFunction_DATEPART("SECOND", exp.Expression.Accept(this));
-                }
-
-                if (member == UtilConstants.PropertyInfo_DateTime_Millisecond)
-                {
-                    return DbFunction_DATEPART("MILLISECOND", exp.Expression.Accept(this));
-                }
-
-                if (member == UtilConstants.PropertyInfo_DateTime_DayOfWeek)
-                {
-                    return SqlState.Create("(", DbFunction_DATEPART("WEEKDAY", exp.Expression.Accept(this)), " - 1)");
+                    return sqlState;
                 }
             }
 
@@ -1371,6 +1347,116 @@ namespace Chloe.SqlServer
         {
             return SqlState.Create("DATEPART(", interval, ",", sqlState, ")");
         }
+        static ISqlState DbFunction_DATEDIFF(string interval, ISqlState startDateTime, ISqlState endDateTime)
+        {
+            return SqlState.Create("DATEDIFF(", interval, ",", startDateTime, ",", endDateTime, ")");
+        }
+
+        static bool IsDbFunction_DATEPART(DbMemberExpression exp, SqlExpressionVisitor visitor, out ISqlState sqlState)
+        {
+            sqlState = null;
+
+            MemberInfo member = exp.Member;
+
+            if (member == UtilConstants.PropertyInfo_DateTime_Year)
+            {
+                sqlState = DbFunction_DATEPART("YEAR", exp.Expression.Accept(visitor));
+                return true;
+            }
+
+            if (member == UtilConstants.PropertyInfo_DateTime_Month)
+            {
+                sqlState = DbFunction_DATEPART("MONTH", exp.Expression.Accept(visitor));
+                return true;
+            }
+
+            if (member == UtilConstants.PropertyInfo_DateTime_Day)
+            {
+                sqlState = DbFunction_DATEPART("DAY", exp.Expression.Accept(visitor));
+                return true;
+            }
+
+            if (member == UtilConstants.PropertyInfo_DateTime_Hour)
+            {
+                sqlState = DbFunction_DATEPART("HOUR", exp.Expression.Accept(visitor));
+                return true;
+            }
+
+            if (member == UtilConstants.PropertyInfo_DateTime_Minute)
+            {
+                sqlState = DbFunction_DATEPART("MINUTE", exp.Expression.Accept(visitor));
+                return true;
+            }
+
+            if (member == UtilConstants.PropertyInfo_DateTime_Second)
+            {
+                sqlState = DbFunction_DATEPART("SECOND", exp.Expression.Accept(visitor));
+                return true;
+            }
+
+            if (member == UtilConstants.PropertyInfo_DateTime_Millisecond)
+            {
+                sqlState = DbFunction_DATEPART("MILLISECOND", exp.Expression.Accept(visitor));
+                return true;
+            }
+
+            if (member == UtilConstants.PropertyInfo_DateTime_DayOfWeek)
+            {
+                sqlState = SqlState.Create("(", DbFunction_DATEPART("WEEKDAY", exp.Expression.Accept(visitor)), " - 1)");
+                return true;
+            }
+
+            return false;
+        }
+        static bool IsDbFunction_DATEDIFF(DbMemberExpression exp, SqlExpressionVisitor visitor, out ISqlState sqlState)
+        {
+            sqlState = null;
+
+            MemberInfo member = exp.Member;
+
+            if (member.DeclaringType == UtilConstants.TypeOfTimeSpan)
+            {
+                if (exp.Expression.NodeType == DbExpressionType.Call)
+                {
+                    DbMethodCallExpression dbMethodExp = (DbMethodCallExpression)exp.Expression;
+                    if (dbMethodExp.Method == UtilConstants.MethodInfo_DateTime_Subtract_DateTime)
+                    {
+                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalDays)
+                        {
+                            sqlState = BuildCastState(DbFunction_DATEDIFF("DAY", dbMethodExp.Arguments[0].Accept(visitor), dbMethodExp.Object.Accept(visitor)), "FLOAT");
+                            return true;
+                        }
+
+                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalHours)
+                        {
+                            sqlState = BuildCastState(DbFunction_DATEDIFF("HOUR", dbMethodExp.Arguments[0].Accept(visitor), dbMethodExp.Object.Accept(visitor)), "FLOAT");
+                            return true;
+                        }
+
+                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalMinutes)
+                        {
+                            sqlState = BuildCastState(DbFunction_DATEDIFF("MINUTE", dbMethodExp.Arguments[0].Accept(visitor), dbMethodExp.Object.Accept(visitor)), "FLOAT");
+                            return true;
+                        }
+
+                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalSeconds)
+                        {
+                            sqlState = BuildCastState(DbFunction_DATEDIFF("SECOND", dbMethodExp.Arguments[0].Accept(visitor), dbMethodExp.Object.Accept(visitor)), "FLOAT");
+                            return true;
+                        }
+
+                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalMilliseconds)
+                        {
+                            sqlState = BuildCastState(DbFunction_DATEDIFF("MILLISECOND", dbMethodExp.Arguments[0].Accept(visitor), dbMethodExp.Object.Accept(visitor)), "FLOAT");
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
         static void EnsureTrimCharIsSpaces(DbMethodCallExpression exp)
         {
             if (exp.Arguments.Count != 1)
