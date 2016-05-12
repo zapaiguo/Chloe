@@ -175,37 +175,15 @@ namespace Chloe.Extensions
             return reader.GetChar(ordinal);
         }
 
-        public static TimeSpan Reader_GetTimeSpan(this IDataReader reader, int ordinal)
-        {
-            object o = reader.GetValue(ordinal);
-            if (o == DBNull.Value)
-            {
-                string name = reader.GetName(ordinal);
-                throw new Exception(name + " 不可为空");
-            }
-
-            return (TimeSpan)o;
-        }
-
-        public static TimeSpan? Reader_GetTimeSpan_Nullable(this IDataReader reader, int ordinal)
-        {
-            object o = reader.GetValue(ordinal);
-            if (o == DBNull.Value)
-            {
-                return null;
-            }
-
-            return (TimeSpan)o;
-        }
-
         public static string Reader_GetString(this IDataReader reader, int ordinal)
         {
-            if (reader.IsDBNull(ordinal))
+            object o = reader.GetValue(ordinal);
+            if (o == DBNull.Value)
             {
                 return null;
             }
 
-            return reader.GetString(ordinal);
+            return (string)o;
         }
 
         public static object Reader_GetValue(this IDataReader reader, int ordinal)
@@ -217,28 +195,6 @@ namespace Chloe.Extensions
             }
 
             return o;
-        }
-
-        public static byte[] Reader_GetBytes(this IDataReader reader, int ordinal)
-        {
-            object o = reader.GetValue(ordinal);
-            if (o == DBNull.Value)
-            {
-                return null;
-            }
-
-            return (byte[])o;
-        }
-
-        public static char[] Reader_GetChars(this IDataReader reader, int ordinal)
-        {
-            object o = reader.GetValue(ordinal);
-            if (o == DBNull.Value)
-            {
-                return null;
-            }
-
-            return (char[])o;
         }
 
         public static T Reader_GetEnum<T>(this IDataReader reader, int ordinal) where T : struct
@@ -258,6 +214,34 @@ namespace Chloe.Extensions
             int value = reader.GetInt32(ordinal);
             T t = (T)Enum.ToObject(typeof(T), value);
             return t;
+        }
+
+        public static T Reader_GetValue_T<T>(this IDataReader reader, int ordinal)
+        {
+            object val = reader.GetValue(ordinal);
+            if (val == DBNull.Value)
+            {
+                val = null;
+            }
+
+            try
+            {
+                return (T)val;
+            }
+            catch (NullReferenceException)
+            {
+                throw new SqlNullValueException("数据不可为 null");
+            }
+        }
+        public static T? Reader_GetValue_NullableT<T>(this IDataReader reader, int ordinal) where T : struct
+        {
+            object val = reader.GetValue(ordinal);
+            if (val == DBNull.Value)
+            {
+                return null;
+            }
+
+            return new Nullable<T>((T)val);
         }
 
     }

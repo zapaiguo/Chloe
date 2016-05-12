@@ -25,8 +25,8 @@ namespace Chloe.Mapper
             this._memberSetters = memberSetters;
             this._checkNullOrdinal = checkNullOrdinal;
 
-            this._readerOrdinalEnumerator = new ReaderOrdinalEnumerator(this._readerOrdinals);
-            this._objectActivatorEnumerator = new ObjectActivatorEnumerator(this._objectActivators);
+            this._readerOrdinalEnumerator = new ReaderOrdinalEnumerator(readerOrdinals);
+            this._objectActivatorEnumerator = new ObjectActivatorEnumerator(objectActivators);
         }
 
         public object CreateInstance(IDataReader reader)

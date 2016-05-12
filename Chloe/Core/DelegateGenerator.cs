@@ -250,21 +250,10 @@ namespace Chloe.Core
                     {
                         result = isNullable ? Reader_GetGuid_Nullable : Reader_GetGuid;
                     }
-                    else if (type == typeof(TimeSpan))
-                    {
-                        result = isNullable ? Reader_GetTimeSpan_Nullable : Reader_GetTimeSpan;
-                    }
-                    else if (type == typeof(Byte[]))
-                    {
-                        result = Reader_GetBytes;
-                    }
-                    else if (type == typeof(Char[]))
-                    {
-                        result = Reader_GetChars;
-                    }
                     else
                     {
-                        result = Reader_GetValue;
+                        result = (isNullable ? Reader_GetValue_NullableT : Reader_GetValue_T).MakeGenericMethod(type);
+                        return result;
                     }
                     break;
             }
@@ -294,15 +283,14 @@ namespace Chloe.Core
         internal static readonly MethodInfo Reader_GetByte_Nullable = typeof(DataReaderExtensions).GetMethod("Reader_GetByte_Nullable");
         internal static readonly MethodInfo Reader_GetChar = typeof(DataReaderExtensions).GetMethod("Reader_GetChar");
         internal static readonly MethodInfo Reader_GetChar_Nullable = typeof(DataReaderExtensions).GetMethod("Reader_GetChar_Nullable");
-        internal static readonly MethodInfo Reader_GetTimeSpan = typeof(DataReaderExtensions).GetMethod("Reader_GetTimeSpan");
-        internal static readonly MethodInfo Reader_GetTimeSpan_Nullable = typeof(DataReaderExtensions).GetMethod("Reader_GetTimeSpan_Nullable");
         internal static readonly MethodInfo Reader_GetString = typeof(DataReaderExtensions).GetMethod("Reader_GetString");
         internal static readonly MethodInfo Reader_GetValue = typeof(DataReaderExtensions).GetMethod("Reader_GetValue");
-        internal static readonly MethodInfo Reader_GetBytes = typeof(DataReaderExtensions).GetMethod("Reader_GetBytes");
-        internal static readonly MethodInfo Reader_GetChars = typeof(DataReaderExtensions).GetMethod("Reader_GetChars");
 
         internal static readonly MethodInfo Reader_GetEnum = typeof(DataReaderExtensions).GetMethod("Reader_GetEnum");
         internal static readonly MethodInfo Reader_GetEnum_Nullable = typeof(DataReaderExtensions).GetMethod("Reader_GetEnum_Nullable");
+
+        internal static readonly MethodInfo Reader_GetValue_T = typeof(DataReaderExtensions).GetMethod("Reader_GetValue_T");
+        internal static readonly MethodInfo Reader_GetValue_NullableT = typeof(DataReaderExtensions).GetMethod("Reader_GetValue_NullableT");
         #endregion
 
         #endregion
