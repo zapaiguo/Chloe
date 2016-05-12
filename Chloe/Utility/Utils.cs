@@ -23,11 +23,8 @@ namespace Chloe.Utility
             mapTypes.Add(UtilConstants.TypeOfGuid);
             mapTypes.Add(UtilConstants.TypeOfByte);
             mapTypes.Add(UtilConstants.TypeOfChar);
-            mapTypes.Add(UtilConstants.TypeOfTimeSpan);
             mapTypes.Add(UtilConstants.TypeOfString);
             mapTypes.Add(UtilConstants.TypeOfObject);
-            mapTypes.Add(UtilConstants.TypeOfByteArray);
-            mapTypes.Add(UtilConstants.TypeOfCharArray);
 
             mapTypes.TrimExcess();
 
