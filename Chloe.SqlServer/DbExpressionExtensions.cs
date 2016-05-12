@@ -209,26 +209,19 @@ namespace Chloe.SqlServer
             var result = false;
             memberValue = null;
 
-            try
+            if (exp.Member.MemberType
+               == MemberTypes.Field)
             {
-                if (exp.Member.MemberType
-                    == MemberTypes.Field)
-                {
-                    memberValue = ((FieldInfo)exp.Member).GetValue(instance);
-                    result = true;
-                }
-                else if (exp.Member.MemberType
-                         == MemberTypes.Property)
-                {
-                    memberValue = ((PropertyInfo)exp.Member).GetValue(instance, null);
-                    result = true;
-                }
-                return result;
+                memberValue = ((FieldInfo)exp.Member).GetValue(instance);
+                result = true;
             }
-            catch (TargetInvocationException ex)
+            else if (exp.Member.MemberType
+                     == MemberTypes.Property)
             {
-                throw ex.InnerException;
+                memberValue = ((PropertyInfo)exp.Member).GetValue(instance, null);
+                result = true;
             }
+            return result;
         }
     }
 }
