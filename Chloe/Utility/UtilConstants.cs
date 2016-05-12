@@ -26,6 +26,7 @@ namespace Chloe.Utility
         public static readonly Type TypeOfChar = typeof(Char);
         public static readonly Type TypeOfString = typeof(String);
         public static readonly Type TypeOfObject = typeof(Object);
+        public static readonly Type TypeOfByteArray = typeof(Byte[]);
 
 
         public static ConstantExpression Constant_True = Expression.Constant(true);

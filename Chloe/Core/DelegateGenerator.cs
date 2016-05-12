@@ -242,18 +242,18 @@ namespace Chloe.Core
                 case TypeCode.String:
                     result = Reader_GetString;
                     break;
-                case TypeCode.Object:
-                    result = Reader_GetValue;
-                    break;
                 default:
-                    if (type == typeof(Guid))
+                    if (type == UtilConstants.TypeOfGuid)
                     {
                         result = isNullable ? Reader_GetGuid_Nullable : Reader_GetGuid;
+                    }
+                    else if (type == UtilConstants.TypeOfObject)
+                    {
+                        result = Reader_GetValue;
                     }
                     else
                     {
                         result = (isNullable ? Reader_GetValue_NullableT : Reader_GetValue_T).MakeGenericMethod(type);
-                        return result;
                     }
                     break;
             }

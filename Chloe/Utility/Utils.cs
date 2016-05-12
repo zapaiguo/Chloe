@@ -26,6 +26,8 @@ namespace Chloe.Utility
             mapTypes.Add(UtilConstants.TypeOfString);
             mapTypes.Add(UtilConstants.TypeOfObject);
 
+            mapTypes.Add(UtilConstants.TypeOfByteArray);
+
             mapTypes.TrimExcess();
 
             MapTypes = mapTypes;
