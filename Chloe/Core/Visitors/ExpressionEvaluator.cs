@@ -21,7 +21,7 @@ namespace Chloe.Core.Visitors
             var val = this.Visit(exp.Expression);
 
             if (val == null)
-                ThrowHelper.ThrowNullReferenceException();
+                throw UtilExceptions.NullReferenceException();
 
             if (exp.Member.MemberType == MemberTypes.Property)
             {
@@ -54,7 +54,7 @@ namespace Chloe.Core.Visitors
             {
                 //(int)null
                 if (exp.Type.IsValueType && !Utils.IsNullable(exp.Type))
-                    ThrowHelper.ThrowNullReferenceException();
+                    throw UtilExceptions.NullReferenceException();
 
                 return null;
             }
@@ -112,9 +112,7 @@ namespace Chloe.Core.Visitors
                 return Convert.ChangeType(operandValue, exp.Type);
             }
 
-            ThrowHelper.ThrowNotSupportedException(string.Format("不支持将类型 {0} 转换成 {1}", operandValueType.FullName, exp.Type.FullName));
-
-            return null;
+            throw UtilExceptions.NotSupportedException(string.Format("不支持将类型 {0} 转换成 {1}", operandValueType.FullName, exp.Type.FullName));
         }
         protected override object VisitConstant(ConstantExpression exp)
         {
