@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
 using Chloe.Core;
+using Chloe.Core.Emit;
 
 namespace Chloe.Descriptors
 {

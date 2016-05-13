@@ -3,6 +3,7 @@ using System;
 using Chloe.DbExpressions;
 using System.Threading;
 using Chloe.Core;
+using Chloe.Core.Emit;
 
 namespace Chloe.Descriptors
 {

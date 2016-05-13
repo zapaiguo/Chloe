@@ -166,12 +166,13 @@ namespace Chloe.Extensions
 
         public static string Reader_GetString(this IDataReader reader, int ordinal)
         {
-            if (reader.IsDBNull(ordinal))
+            object o = reader.GetValue(ordinal);
+            if (o == DBNull.Value)
             {
                 return null;
             }
 
-            return reader.GetString(ordinal);
+            return (string)o;
         }
 
         public static object Reader_GetValue(this IDataReader reader, int ordinal)

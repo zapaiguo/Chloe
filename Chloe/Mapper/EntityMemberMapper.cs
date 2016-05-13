@@ -1,4 +1,5 @@
 ﻿using Chloe.Core;
+using Chloe.Core.Emit;
 using Chloe.Query.Mapping;
 using Chloe.Utility;
 using System;
@@ -12,7 +13,7 @@ namespace Chloe.Mapper
 {
     public class EntityMemberMapper
     {
-        Dictionary<MemberInfo, Action<object, IDataReader, int>> _mappingMemberSetters = new Dictionary<MemberInfo, Action<object, IDataReader, int>>();
+        Dictionary<MemberInfo, IMRM> _mappingMemberMRMContainer = new Dictionary<MemberInfo, IMRM>();
         Dictionary<MemberInfo, Action<object, object>> _navigationMemberSetters = new Dictionary<MemberInfo, Action<object, object>>();
 
         EntityMemberMapper(Type t)
@@ -47,8 +48,8 @@ namespace Chloe.Mapper
 
                 if (Utils.IsMapType(memberType))
                 {
-                    Action<object, IDataReader, int> valueSetter = DelegateGenerator.CreateSetValueFromReaderDelegate(member);
-                    this._mappingMemberSetters.Add(member, valueSetter);
+                    IMRM mrm = MRMHelper.CreateMRM(member);
+                    this._mappingMemberMRMContainer.Add(member, mrm);
                 }
                 else
                 {
@@ -72,11 +73,11 @@ namespace Chloe.Mapper
 
         public Type Type { get; private set; }
 
-        public Action<object, IDataReader, int> GetMemberSetter(MemberInfo memberInfo)
+        public IMRM GetMemberMapper(MemberInfo memberInfo)
         {
-            Action<object, IDataReader, int> valueSetter = null;
-            this._mappingMemberSetters.TryGetValue(memberInfo, out valueSetter);
-            return valueSetter;
+            IMRM mapper = null;
+            this._mappingMemberMRMContainer.TryGetValue(memberInfo, out mapper);
+            return mapper;
         }
         public Action<object, object> GetNavigationMemberSetter(MemberInfo memberInfo)
         {

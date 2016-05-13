@@ -8,11 +8,11 @@ namespace Chloe.Mapper
 {
     public class MappingMemberBinder : IValueSetter
     {
-        Action<object, IDataReader, int> _setter;
+        IMRM _mMapper;
         int _ordinal;
-        public MappingMemberBinder(Action<object, IDataReader, int> setter, int ordinal)
+        public MappingMemberBinder(IMRM mMapper, int ordinal)
         {
-            this._setter = setter;
+            this._mMapper = mMapper;
             this._ordinal = ordinal;
         }
 
@@ -20,7 +20,7 @@ namespace Chloe.Mapper
 
         public void SetValue(object obj, IDataReader reader)
         {
-            this._setter(obj, reader, this._ordinal);
+            this._mMapper.Map(obj, reader, this._ordinal);
         }
     }
 }

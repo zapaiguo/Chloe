@@ -36,7 +36,7 @@ namespace Chloe.Query.QueryState
 
             DbTable table = typeDescriptor.Table;
             resultElement.FromTable = CreateRootTable(table, resultElement.GenerateUniqueTableAlias(table.Name));
-            MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(UtilConstants.EmptyTypeArray));
+            MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(Type.EmptyTypes));
 
             DbTableSegmentExpression tableExp = resultElement.FromTable.Table;
 

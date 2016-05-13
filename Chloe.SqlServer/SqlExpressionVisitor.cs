@@ -1070,11 +1070,13 @@ namespace Chloe.SqlServer
             if (method.DeclaringType == UtilConstants.TypeOfString)
                 return Method_StringContains(exp, visitor);
 
-            List<DbExpression> exps = null;
+            List<DbExpression> exps = new List<DbExpression>();
             IEnumerable values = null;
             DbExpression arg = null;
 
-            if (typeof(IList).IsAssignableFrom(method.DeclaringType))
+            var declaringType = method.DeclaringType;
+
+            if (typeof(IList).IsAssignableFrom(declaringType) || (declaringType.IsGenericType && typeof(ICollection<>).MakeGenericType(declaringType.GenericTypeArguments).IsAssignableFrom(declaringType)))
             {
                 DbMemberExpression memberExp = exp.Object as DbMemberExpression;
 
@@ -1082,11 +1084,10 @@ namespace Chloe.SqlServer
                     throw new NotSupportedException(exp.Object.ToString());
 
                 values = memberExp.GetMemberValue() as IEnumerable; //Enumerable
-                exps = new List<DbExpression>(((IList)values).Count);
                 arg = exp.Arguments.First();
                 goto constructInState;
             }
-            if (method.IsStatic && method.DeclaringType == typeof(Enumerable) && exp.Arguments.Count == 2)
+            if (method.IsStatic && declaringType == typeof(Enumerable) && exp.Arguments.Count == 2)
             {
                 DbMemberExpression memberExp = exp.Arguments.First() as DbMemberExpression;
 
@@ -1094,7 +1095,6 @@ namespace Chloe.SqlServer
                     throw new NotSupportedException(exp.Object.ToString());
 
                 values = memberExp.GetMemberValue() as IEnumerable;
-                exps = new List<DbExpression>();
                 arg = exp.Arguments.Skip(1).First();
                 goto constructInState;
             }

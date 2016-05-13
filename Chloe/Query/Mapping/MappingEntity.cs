@@ -32,8 +32,8 @@ namespace Chloe.Query.Mapping
             List<IValueSetter> memberSetters = new List<IValueSetter>(this.Members.Count + this.EntityMembers.Count);
             foreach (var kv in this.Members)
             {
-                Action<object, IDataReader, int> del = mapper.GetMemberSetter(kv.Key);
-                MappingMemberBinder binder = new MappingMemberBinder(del, kv.Value);
+                IMRM mMapper = mapper.GetMemberMapper(kv.Key);
+                MappingMemberBinder binder = new MappingMemberBinder(mMapper, kv.Value);
                 memberSetters.Add(binder);
             }
 

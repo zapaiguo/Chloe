@@ -9,8 +9,6 @@ namespace Chloe.Utility
 {
     static class UtilConstants
     {
-        public static readonly Type[] EmptyTypeArray = new Type[0];
-
         public static readonly Type TypeOfVoid = typeof(void);
         public static readonly Type TypeOfInt16 = typeof(Int16);
         public static readonly Type TypeOfInt32 = typeof(Int32);

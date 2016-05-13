@@ -40,7 +40,7 @@ namespace Chloe.Query.Visitors
 
             DbTable table = typeDescriptor.Table;
             DbTableSegmentExpression tableExp = CreateTableExpression(table, this._resultElement.GenerateUniqueTableAlias(table.Name));
-            MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(UtilConstants.EmptyTypeArray));
+            MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(Type.EmptyTypes));
 
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors.Values)
             {

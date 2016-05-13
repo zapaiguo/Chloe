@@ -9,6 +9,27 @@ namespace Chloe.Extensions
 {
     internal static class ExpressionExtensions
     {
+        public static BinaryExpression Assign(MemberInfo propertyOrField, Expression instance, Expression value)
+        {
+            PropertyInfo propertyInfo = propertyOrField as PropertyInfo;
+            if (propertyInfo != null)
+            {
+                var pro = Expression.Property(instance, propertyInfo);
+                var setValue = Expression.Assign(pro, value);
+                return setValue;
+            }
+
+            FieldInfo fieldInfo = propertyOrField as FieldInfo;
+            if (fieldInfo != null)
+            {
+                var field = Expression.Field(instance, fieldInfo);
+                var setValue = Expression.Assign(field, value);
+                return setValue;
+            }
+
+            throw new ArgumentException();
+        }
+
         public static bool IsDerivedFromParameter(this MemberExpression exp)
         {
             ParameterExpression p;

@@ -1,18 +1,16 @@
-﻿using System;
+﻿using Chloe.Extensions;
+using Chloe.Mapper;
+using Chloe.Utility;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
-using Chloe.Query;
-using Chloe.Extensions;
-using Chloe.Utility;
-using Chloe.Mapper;
-using System.Linq.Expressions;
-using System.Globalization;
 
-namespace Chloe.Core
+namespace Chloe.Core.Emit
 {
     public static class DelegateGenerator
     {
@@ -33,7 +31,7 @@ namespace Chloe.Core
             il.Emit(OpCodes.Ldarg_S, 2);    //加载 read ordinal
             il.EmitCall(OpCodes.Call, readerMethod, null);     //调用对应的 readerMethod 得到 value  reader.Getxx(ordinal);  此时栈顶为 value
 
-            SetValueIL(il, member); // object.XX = value; 此时栈顶为空
+            EmitHelper.SetValueIL(il, member); // object.XX = value; 此时栈顶为空
 
             il.Emit(OpCodes.Ret);   // 即可 return
 
@@ -60,7 +58,7 @@ namespace Chloe.Core
 
             return del;
         }
- 
+
         public static Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> CreateObjectGenerator(ConstructorInfo constructor)
         {
             Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> ret = null;
@@ -180,25 +178,5 @@ namespace Chloe.Core
 
             return ret;
         }
-
-        public static Func<object, MethodBase> CreateTest(PropertyInfo propertyInfo)
-        {
-            var p = Expression.Parameter(typeof(object), "instance");
-            //var pValue = Expression.Parameter(typeof(object), "value");
-            //var instance = Expression.Convert(p, propertyInfo.DeclaringType);
-            //var value = Expression.Convert(pValue, propertyInfo.PropertyType);
-
-            //var pro = Expression.Property(instance, propertyInfo);
-            //var setValue = Expression.Assign(pro, value);
-
-            Expression body = Expression.Call(null, typeof(MethodBase).GetMethod("GetCurrentMethod"));
-
-            var lambda = Expression.Lambda<Func<object, MethodBase>>(body, p);
-            Func<object, MethodBase> ret = lambda.Compile();
-
-            return ret;
-        }
-
-
     }
 }

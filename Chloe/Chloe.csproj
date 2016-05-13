@@ -44,7 +44,9 @@
   <ItemGroup>
     <Compile Include="Core\DbCommandFactor.cs" />
     <Compile Include="Core\DbSession.cs" />
-    <Compile Include="Core\DelegateGenerator.cs" />
+    <Compile Include="Core\Emit\CodeGenerator.cs" />
+    <Compile Include="Core\Emit\DelegateGenerator.cs" />
+    <Compile Include="Core\Emit\EmitHelper.cs" />
     <Compile Include="Core\InternalDataReader.cs" />
     <Compile Include="Core\InternalDbSession.cs" />
     <Compile Include="Core\Visitors\AbstractDbExpressionVisitor.cs" />
@@ -109,6 +111,7 @@
     <Compile Include="Entity\ColumnAttribute.cs" />
     <Compile Include="Entity\NotMappedAttribute.cs" />
     <Compile Include="Entity\TableAttribute.cs" />
+    <Compile Include="Extensions\DataReaderConstant.cs" />
     <Compile Include="Extensions\DataReaderExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\ReflectionExtensions.cs" />
@@ -123,6 +126,7 @@
     <Compile Include="Mapper\EntityConstructor.cs" />
     <Compile Include="Mapper\EntityMemberMapper.cs" />
     <Compile Include="Mapper\IObjectActivator.cs" />
+    <Compile Include="Mapper\IMRM.cs" />
     <Compile Include="Mapper\IValueSetter.cs" />
     <Compile Include="Mapper\MappingFieldActivator.cs" />
     <Compile Include="Mapper\MappingMemberBinder.cs" />

@@ -117,7 +117,7 @@ namespace Chloe.Query.Internals
             {
                 Type type = typeof(T);
 
-                EntityConstructorDescriptor constructorDescriptor = EntityConstructorDescriptor.GetInstance(type.GetConstructor(UtilConstants.EmptyTypeArray));
+                EntityConstructorDescriptor constructorDescriptor = EntityConstructorDescriptor.GetInstance(type.GetConstructor(Type.EmptyTypes));
                 EntityMemberMapper mapper = constructorDescriptor.GetEntityMemberMapper();
                 Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator = constructorDescriptor.GetInstanceCreator();
 
@@ -149,11 +149,11 @@ namespace Chloe.Query.Internals
                             continue;
                     }
 
-                    Action<object, IDataReader, int> setter = mapper.GetMemberSetter(member);
-                    if (setter == null)
+                    IMRM mMapper = mapper.GetMemberMapper(member);
+                    if (mMapper == null)
                         continue;
 
-                    MappingMemberBinder memberBinder = new MappingMemberBinder(setter, i);
+                    MappingMemberBinder memberBinder = new MappingMemberBinder(mMapper, i);
                     memberSetters.Add(memberBinder);
                 }
 

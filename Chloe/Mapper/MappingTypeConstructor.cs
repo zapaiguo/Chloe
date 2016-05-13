@@ -1,4 +1,5 @@
 ﻿using Chloe.Core;
+using Chloe.Core.Emit;
 using System;
 using System.Collections.Generic;
 using System.Data;
