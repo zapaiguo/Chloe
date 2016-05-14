@@ -18,6 +18,7 @@ namespace Chloe.Query.Mapping
             this.ReaderOrdinal = readerOrdinal;
         }
         public int ReaderOrdinal { get; private set; }
+        public int? CheckNullOrdinal { get; set; }
 
         public IObjectActivator CreateObjectActivator()
         {

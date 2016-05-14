@@ -74,6 +74,26 @@ namespace Chloe.Query.Visitors
             {
                 JoinQueryResult joinQueryResult = JoinQueryExpressionVisitor.VisitQueryExpression(joiningQueryInfo.Query.QueryExpression, resultElement, joiningQueryInfo.JoinType, joiningQueryInfo.Condition, moeList);
 
+                if (joiningQueryInfo.JoinType == JoinType.LeftJoin)
+                {
+                    joinQueryResult.MappingObjectExpression.SetNullChecking(joinQueryResult.RightKeySelector);
+                }
+                else if (joiningQueryInfo.JoinType == JoinType.RightJoin)
+                {
+                    foreach (var item in moeList)
+                    {
+                        item.SetNullChecking(joinQueryResult.LeftKeySelector);
+                    }
+                }
+                else if (joiningQueryInfo.JoinType == JoinType.FullJoin)
+                {
+                    joinQueryResult.MappingObjectExpression.SetNullChecking(joinQueryResult.RightKeySelector);
+                    foreach (var item in moeList)
+                    {
+                        item.SetNullChecking(joinQueryResult.LeftKeySelector);
+                    }
+                }
+
                 fromTable.JoinTables.Add(joinQueryResult.JoinTable);
                 moeList.Add(joinQueryResult.MappingObjectExpression);
             }

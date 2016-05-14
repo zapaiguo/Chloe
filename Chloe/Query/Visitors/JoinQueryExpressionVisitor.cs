@@ -47,8 +47,8 @@ namespace Chloe.Query.Visitors
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
                 moe.AddMemberExpression(item.MemberInfo, columnAccessExpression);
 
-                if (item.IsPrimaryKey)
-                    moe.PrimaryKey = columnAccessExpression;
+                //if (item.IsPrimaryKey)
+                //    moe.PrimaryKey = columnAccessExpression;
             }
 
             //TODO 解析 on 条件表达式

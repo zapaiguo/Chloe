@@ -146,6 +146,8 @@
     <Compile Include="Query\JoiningQueryInfo.cs" />
     <Compile Include="Query\JoiningQuery`.cs" />
     <Compile Include="Query\JoinQueryResult.cs" />
+    <Compile Include="Query\MappingFieldExpression.cs" />
+    <Compile Include="Query\MappingObjectExpression.cs" />
     <Compile Include="Query\Mapping\IObjectActivatorCreator.cs" />
     <Compile Include="Query\Mapping\MappingData.cs" />
     <Compile Include="Query\Mapping\MappingEntity.cs" />
