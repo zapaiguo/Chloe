@@ -49,7 +49,7 @@ namespace Chloe.Mapper
             {
                 if (this._readerOrdinalEnumerator.CurrentOrdinal >= 0)
                 {
-                    throw new DataException(AppendThrowMsg(reader, this._readerOrdinalEnumerator.CurrentOrdinal), ex);
+                    throw new DataException(AppendErrorMsg(reader, this._readerOrdinalEnumerator.CurrentOrdinal), ex);
                 }
 
                 throw;
@@ -70,7 +70,7 @@ namespace Chloe.Mapper
                 MappingMemberBinder binder = memberSetter as MappingMemberBinder;
                 if (binder != null)
                 {
-                    throw new DataException(AppendThrowMsg(reader, binder.Ordinal), ex);
+                    throw new DataException(AppendErrorMsg(reader, binder.Ordinal), ex);
                 }
 
                 throw;
@@ -79,7 +79,7 @@ namespace Chloe.Mapper
             return obj;
         }
 
-        static string AppendThrowMsg(IDataReader reader, int ordinal)
+        static string AppendErrorMsg(IDataReader reader, int ordinal)
         {
             string msg = string.Format("Error: {0}({1},{2},{3})", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
             return msg;
