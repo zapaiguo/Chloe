@@ -42,11 +42,5 @@ namespace Chloe.SqlServer
 
             return SqlState.Create(leftState, " = ", rightState);
         }
-
-        public override ISqlState Visit(DbParameterExpression exp)
-        {
-            return exp.Accept(this._visitor);
-        }
-
     }
 }

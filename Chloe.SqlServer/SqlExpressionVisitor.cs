@@ -20,7 +20,6 @@ namespace Chloe.SqlServer
         public const string ParameterPrefix = "@P_";
 
         DbColumnExpressionVisitor _columnExpressionVisitor = null;
-        JoinConditionExpressionVisitor _joinConditionExpressionVisitor = null;
 
         protected Dictionary<string, object> _parameterStorage = new Dictionary<string, object>();
         protected Dictionary<object, SqlState> _innerParameterStorage = new Dictionary<object, SqlState>();
@@ -77,16 +76,6 @@ namespace Chloe.SqlServer
                 return this._columnExpressionVisitor;
             }
         }
-        JoinConditionExpressionVisitor JoinConditionExpressionVisitor
-        {
-            get
-            {
-                if (this._joinConditionExpressionVisitor == null)
-                    this._joinConditionExpressionVisitor = new JoinConditionExpressionVisitor(this);
-
-                return this._joinConditionExpressionVisitor;
-            }
-        }
 
         public static SqlExpressionVisitor CreateInstance()
         {
@@ -95,7 +84,6 @@ namespace Chloe.SqlServer
 
         public override ISqlState Visit(DbEqualExpression exp)
         {
-            SqlState state = null;
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
@@ -116,26 +104,29 @@ namespace Chloe.SqlServer
             ISqlState leftState = left.Accept(this);
             ISqlState rightState = right.Accept(this);
 
-            //明确 left right 其中至少一边一定不为 null
-            if (DbExpressionExtensions.AffirmExpressionRetValueIsNotNull(right) || DbExpressionExtensions.AffirmExpressionRetValueIsNotNull(left))
-            {
-                return SqlState.Create(leftState, " = ", rightState);
-            }
+            return SqlState.Create(leftState, " = ", rightState);
 
-            state = new SqlState(15);
-            state.Append("(");
+            ////明确 left right 其中至少一边一定不为 null
+            //if (DbExpressionExtensions.AffirmExpressionRetValueIsNotNull(right) || DbExpressionExtensions.AffirmExpressionRetValueIsNotNull(left))
+            //{
+            //    return SqlState.Create(leftState, " = ", rightState);
+            //}
 
-            state.Append("(", leftState, " = ", rightState, ")");
+            //SqlState state = null;
+            //state = new SqlState(15);
+            //state.Append("(");
 
-            state.Append(" OR ");
+            //state.Append("(", leftState, " = ", rightState, ")");
 
-            state.Append("(");
-            state.Append(leftState, " IS NULL", " AND ", rightState, " IS NULL");
-            state.Append(")");
+            //state.Append(" OR ");
 
-            state.Append(")");
+            //state.Append("(");
+            //state.Append(leftState, " IS NULL", " AND ", rightState, " IS NULL");
+            //state.Append(")");
 
-            return state;
+            //state.Append(")");
+
+            //return state;
         }
         public override ISqlState Visit(DbNotEqualExpression exp)
         {
@@ -440,7 +431,7 @@ namespace Chloe.SqlServer
             else
                 throw new NotSupportedException("JoinType: " + joinTablePart.JoinType);
 
-            return SqlState.Create(joinString, joinTablePart.Table.Accept(this), " ON ", joinTablePart.Condition.Accept(this.JoinConditionExpressionVisitor), this.VisitDbJoinTableExpressions(joinTablePart.JoinTables));
+            return SqlState.Create(joinString, joinTablePart.Table.Accept(this), " ON ", joinTablePart.Condition.Accept(this), this.VisitDbJoinTableExpressions(joinTablePart.JoinTables));
         }
 
         public override ISqlState Visit(DbOrderSegmentExpression exp)

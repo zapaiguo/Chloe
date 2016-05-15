@@ -177,7 +177,7 @@ namespace Chloe.Query
                 int ordinal;
                 ordinal = MappingObjectExpressionHelper.TryGetOrAddColumn(sqlQuery, exp, pi.Name).Value;
 
-                if (exp == this.PrimaryKey)
+                if (exp == this.NullChecking)
                     mappingEntity.CheckNullOrdinal = ordinal;
 
                 mappingEntity.ConstructorParameters.Add(pi, ordinal);
@@ -200,7 +200,7 @@ namespace Chloe.Query
                 int ordinal;
                 ordinal = MappingObjectExpressionHelper.TryGetOrAddColumn(sqlQuery, exp, member.Name).Value;
 
-                if (exp == this.PrimaryKey)
+                if (exp == this.NullChecking)
                     mappingEntity.CheckNullOrdinal = ordinal;
 
                 mappingEntity.Members.Add(member, ordinal);
@@ -258,7 +258,11 @@ namespace Chloe.Query
                 moe.AddMemberExpression(member, cae);
 
                 if (exp == this.PrimaryKey)
+                {
                     moe.PrimaryKey = cae;
+                    if (this.NullChecking == this.PrimaryKey)
+                        moe.NullChecking = cae;
+                }
             }
 
             foreach (var kv in mappingMembers.SubResultEntities)
@@ -270,7 +274,8 @@ namespace Chloe.Query
                 moe.AddNavMemberExpression(member, navMappingMember);
             }
 
-            moe.NullChecking = MappingObjectExpressionHelper.TryGetOrAddNullChecking(sqlQuery, table, this.NullChecking);
+            if (moe.NullChecking == null)
+                moe.NullChecking = MappingObjectExpressionHelper.TryGetOrAddNullChecking(sqlQuery, table, this.NullChecking);
 
             return moe;
         }
@@ -278,7 +283,12 @@ namespace Chloe.Query
         public void SetNullChecking(DbExpression exp)
         {
             if (this.NullChecking == null)
-                this.NullChecking = exp;
+            {
+                if (this.PrimaryKey != null)
+                    this.NullChecking = this.PrimaryKey;
+                else
+                    this.NullChecking = exp;
+            }
 
             foreach (var item in this.ConstructorEntityParameters.Values)
             {

@@ -46,7 +46,7 @@ namespace Chloe.Core.Visitors
                 case ExpressionType.LessThan:
                     return this.VisitBinary_LessThan((BinaryExpression)exp);
                 case ExpressionType.LessThanOrEqual:
-                    return this.VisitBinary_Divide((BinaryExpression)exp);
+                    return this.VisitBinary_LessThanOrEqual((BinaryExpression)exp);
                 case ExpressionType.GreaterThan:
                     return this.VisitBinary_GreaterThan((BinaryExpression)exp);
                 case ExpressionType.GreaterThanOrEqual:

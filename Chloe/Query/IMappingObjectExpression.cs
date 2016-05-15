@@ -31,26 +31,24 @@ namespace Chloe.Query
     {
         public static DbExpression TryGetOrAddNullChecking(DbSqlQueryExpression sqlQuery, DbTable table, DbExpression exp)
         {
+            if (exp == null)
+                return null;
+
             List<DbColumnSegmentExpression> columnList = sqlQuery.Columns;
-            if (exp != null)
+            DbColumnSegmentExpression columnSegExp = null;
+
+            columnSegExp = columnList.Where(a => DbExpressionEqualityComparer.EqualsCompare(a.Body, exp)).FirstOrDefault();
+
+            if (columnSegExp == null)
             {
-                DbColumnSegmentExpression columnSegExp = null;
+                string alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
+                columnSegExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
 
-                columnSegExp = columnList.Where(a => DbExpressionEqualityComparer.EqualsCompare(a.Body, exp)).FirstOrDefault();
-
-                if (columnSegExp == null)
-                {
-                    string alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
-                    columnSegExp = new DbColumnSegmentExpression(exp.Type, exp, alias);
-
-                    columnList.Add(columnSegExp);
-                }
-
-                DbColumnAccessExpression cae = new DbColumnAccessExpression(columnSegExp.Type, table, columnSegExp.Alias);
-                return cae;
+                columnList.Add(columnSegExp);
             }
 
-            return null;
+            DbColumnAccessExpression cae = new DbColumnAccessExpression(columnSegExp.Type, table, columnSegExp.Alias);
+            return cae;
         }
         public static int? TryGetOrAddColumn(DbSqlQueryExpression sqlQuery, DbExpression exp, string addDefaultAlias = Utils.DefaultColumnAlias)
         {
