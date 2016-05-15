@@ -34,19 +34,21 @@ namespace Chloe.Query.QueryState
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(type);
 
-            DbTable table = typeDescriptor.Table;
-            resultElement.FromTable = CreateRootTable(table, resultElement.GenerateUniqueTableAlias(table.Name));
+            string alias = resultElement.GenerateUniqueTableAlias(typeDescriptor.Table.Name);
+
+            resultElement.FromTable = CreateRootTable(typeDescriptor.Table, alias);
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(Type.EmptyTypes));
 
             DbTableSegmentExpression tableExp = resultElement.FromTable.Table;
+            DbTable table = new DbTable(alias);
 
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors.Values)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
 
                 moe.AddMemberExpression(item.MemberInfo, columnAccessExpression);
-                //if (item.IsPrimaryKey)
-                //    moe.PrimaryKey = columnAccessExpression;
+                if (item.IsPrimaryKey)
+                    moe.PrimaryKey = columnAccessExpression;
             }
 
             resultElement.MappingObjectExpression = moe;

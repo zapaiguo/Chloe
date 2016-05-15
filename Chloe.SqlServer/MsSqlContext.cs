@@ -250,7 +250,7 @@ namespace Chloe.SqlServer
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
 
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = typeDescriptor.UpdateBodyExpressionVisitor.Visit(body);
-            var conditionExp = typeDescriptor.Visitor.Visit(condition);
+            var conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
             DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
 

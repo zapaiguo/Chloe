@@ -26,7 +26,7 @@ namespace Chloe.Query
             this.SubResultEntities = new Dictionary<MemberInfo, IMappingObjectExpression>();
         }
 
-        //public DbExpression PrimaryKey { get; set; }
+        public DbExpression PrimaryKey { get; set; }
         public DbExpression NullChecking { get; set; }
 
         /// <summary>
@@ -177,8 +177,8 @@ namespace Chloe.Query
                 int ordinal;
                 ordinal = MappingObjectExpressionHelper.TryGetOrAddColumn(sqlQuery, exp, pi.Name).Value;
 
-                //if (exp == this.PrimaryKey)
-                //    mappingEntity.CheckNullOrdinal = ordinal;
+                if (exp == this.PrimaryKey)
+                    mappingEntity.CheckNullOrdinal = ordinal;
 
                 mappingEntity.ConstructorParameters.Add(pi, ordinal);
             }
@@ -200,8 +200,8 @@ namespace Chloe.Query
                 int ordinal;
                 ordinal = MappingObjectExpressionHelper.TryGetOrAddColumn(sqlQuery, exp, member.Name).Value;
 
-                //if (exp == this.PrimaryKey)
-                //    mappingEntity.CheckNullOrdinal = ordinal;
+                if (exp == this.PrimaryKey)
+                    mappingEntity.CheckNullOrdinal = ordinal;
 
                 mappingEntity.Members.Add(member, ordinal);
             }
@@ -215,7 +215,8 @@ namespace Chloe.Query
                 mappingEntity.EntityMembers.Add(kv.Key, navMappingMember);
             }
 
-            mappingEntity.CheckNullOrdinal = MappingObjectExpressionHelper.TryGetOrAddColumn(sqlQuery, this.NullChecking);
+            if (mappingEntity.CheckNullOrdinal == null)
+                mappingEntity.CheckNullOrdinal = MappingObjectExpressionHelper.TryGetOrAddColumn(sqlQuery, this.NullChecking);
 
             return mappingEntity;
         }
@@ -256,9 +257,8 @@ namespace Chloe.Query
 
                 moe.AddMemberExpression(member, cae);
 
-                //if (exp == this.PrimaryKey)
-                //    moe.PrimaryKey = cae;
-
+                if (exp == this.PrimaryKey)
+                    moe.PrimaryKey = cae;
             }
 
             foreach (var kv in mappingMembers.SubResultEntities)
@@ -270,7 +270,7 @@ namespace Chloe.Query
                 moe.AddNavMemberExpression(member, navMappingMember);
             }
 
-            moe.NullChecking = MappingObjectExpressionHelper.TryGetNullChecking(sqlQuery, table, this.NullChecking);
+            moe.NullChecking = MappingObjectExpressionHelper.TryGetOrAddNullChecking(sqlQuery, table, this.NullChecking);
 
             return moe;
         }

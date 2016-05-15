@@ -38,17 +38,19 @@ namespace Chloe.Query.Visitors
             Type type = exp.ElementType;
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(type);
 
-            DbTable table = typeDescriptor.Table;
-            DbTableSegmentExpression tableExp = CreateTableExpression(table, this._resultElement.GenerateUniqueTableAlias(table.Name));
+            string alias = this._resultElement.GenerateUniqueTableAlias(typeDescriptor.Table.Name);
+
+            DbTableSegmentExpression tableExp = CreateTableExpression(typeDescriptor.Table, alias);
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(Type.EmptyTypes));
 
+            DbTable table = new DbTable(alias);
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors.Values)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
                 moe.AddMemberExpression(item.MemberInfo, columnAccessExpression);
 
-                //if (item.IsPrimaryKey)
-                //    moe.PrimaryKey = columnAccessExpression;
+                if (item.IsPrimaryKey)
+                    moe.PrimaryKey = columnAccessExpression;
             }
 
             //TODO 解析 on 条件表达式

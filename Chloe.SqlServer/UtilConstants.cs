@@ -29,10 +29,6 @@ namespace Chloe.SqlServer
         #region DbExpression constants
 
         public static readonly DbParameterExpression DbParameter_1 = DbExpression.Parameter(1);
-        public static readonly DbConstantExpression DbConstant_1 = DbExpression.Constant(1);
-        public static readonly DbConstantExpression DbConstant_0 = DbExpression.Constant(0);
-        public static readonly DbConstantExpression DbConstant_True = DbExpression.Constant(true);
-        public static readonly DbConstantExpression DbConstant_False = DbExpression.Constant(false);
         public static readonly DbConstantExpression DbConstant_Null_String = DbExpression.Constant(null, typeof(string));
 
         #endregion

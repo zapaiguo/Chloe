@@ -8,10 +8,13 @@ namespace Chloe.Query
 {
     static class DbExpressionEqualityComparer
     {
-        public static bool ExpressionEquals(DbExpression exp1, DbExpression exp2)
+        public static bool EqualsCompare(DbExpression exp1, DbExpression exp2)
         {
             if (exp1.NodeType != exp2.NodeType)
                 return false;
+
+            if (exp1 == exp2)
+                return true;
 
             switch (exp1.NodeType)
             {
@@ -58,7 +61,7 @@ namespace Chloe.Query
         {
             if (exp1.Alias != exp2.Alias)
                 return false;
-            return ExpressionEquals(exp1.Body, exp2.Body);
+            return EqualsCompare(exp1.Body, exp2.Body);
         }
         public static bool ExpressionEquals(DbTableExpression exp1, DbTableExpression exp2)
         {
@@ -72,7 +75,7 @@ namespace Chloe.Query
         {
             if (exp1.Type != exp2.Type)
                 return false;
-            return ExpressionEquals(exp1.Operand, exp2.Operand);
+            return EqualsCompare(exp1.Operand, exp2.Operand);
         }
         public static bool ExpressionEquals(DbParameterExpression exp1, DbParameterExpression exp2)
         {
@@ -82,7 +85,7 @@ namespace Chloe.Query
         {
             if (exp1.Member != exp2.Member)
                 return false;
-            return ExpressionEquals(exp1.Expression, exp2.Expression);
+            return EqualsCompare(exp1.Expression, exp2.Expression);
         }
         public static bool ExpressionEquals(DbMethodCallExpression exp1, DbMethodCallExpression exp2)
         {
@@ -90,12 +93,12 @@ namespace Chloe.Query
                 return false;
             if (exp1.Arguments.Count != exp2.Arguments.Count)
                 return false;
-            if (!ExpressionEquals(exp1.Object, exp2.Object))
+            if (!EqualsCompare(exp1.Object, exp2.Object))
                 return false;
 
             for (int i = 0; i < exp1.Arguments.Count; i++)
             {
-                if (!ExpressionEquals(exp1.Arguments[i], exp2.Arguments[i]))
+                if (!EqualsCompare(exp1.Arguments[i], exp2.Arguments[i]))
                     return false;
             }
 
@@ -106,9 +109,9 @@ namespace Chloe.Query
         {
             if (exp1.Method != exp2.Method)
                 return false;
-            if (!ExpressionEquals(exp1.Left, exp2.Left))
+            if (!EqualsCompare(exp1.Left, exp2.Left))
                 return false;
-            if (!ExpressionEquals(exp1.Right, exp2.Right))
+            if (!EqualsCompare(exp1.Right, exp2.Right))
                 return false;
 
             return true;

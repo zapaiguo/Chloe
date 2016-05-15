@@ -11,6 +11,7 @@ namespace Chloe.Utility
     {
         public const string DefaultColumnAlias = "C";
         static List<Type> MapTypes;
+
         static Utils()
         {
             var mapTypes = new List<Type>();

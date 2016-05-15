@@ -1,6 +1,7 @@
 ﻿using Chloe.DbExpressions;
 using Chloe.Query.QueryExpressions;
 using Chloe.Query.QueryState;
+using Chloe.Utility;
 using System.Collections.Generic;
 
 namespace Chloe.Query.Visitors
@@ -74,23 +75,25 @@ namespace Chloe.Query.Visitors
             {
                 JoinQueryResult joinQueryResult = JoinQueryExpressionVisitor.VisitQueryExpression(joiningQueryInfo.Query.QueryExpression, resultElement, joiningQueryInfo.JoinType, joiningQueryInfo.Condition, moeList);
 
+                var nullChecking = DbExpression.CaseWhen(new DbCaseWhenExpression.WhenThenExpressionPair(joinQueryResult.JoinTable.Condition, DbConstantExpression.One), DbConstantExpression.Null, DbConstantExpression.One.Type);
+
                 if (joiningQueryInfo.JoinType == JoinType.LeftJoin)
                 {
-                    joinQueryResult.MappingObjectExpression.SetNullChecking(joinQueryResult.RightKeySelector);
+                    joinQueryResult.MappingObjectExpression.SetNullChecking(nullChecking);
                 }
                 else if (joiningQueryInfo.JoinType == JoinType.RightJoin)
                 {
                     foreach (var item in moeList)
                     {
-                        item.SetNullChecking(joinQueryResult.LeftKeySelector);
+                        item.SetNullChecking(nullChecking);
                     }
                 }
                 else if (joiningQueryInfo.JoinType == JoinType.FullJoin)
                 {
-                    joinQueryResult.MappingObjectExpression.SetNullChecking(joinQueryResult.RightKeySelector);
+                    joinQueryResult.MappingObjectExpression.SetNullChecking(nullChecking);
                     foreach (var item in moeList)
                     {
-                        item.SetNullChecking(joinQueryResult.LeftKeySelector);
+                        item.SetNullChecking(nullChecking);
                     }
                 }
 

@@ -842,10 +842,10 @@ namespace Chloe.SqlServer
         }
         public static DbCaseWhenExpression ConstructReturnCSharpBooleanCaseWhenExpression(DbExpression exp)
         {
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(exp, UtilConstants.DbConstant_True);
+            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(exp, DbConstantExpression.True);
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, UtilConstants.DbConstant_False, UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.False, UtilConstants.TypeOfBoolean);
 
             return caseWhenExpression;
         }
@@ -920,7 +920,7 @@ namespace Chloe.SqlServer
                 if (opBody.Type != UtilConstants.TypeOfString)
                 {
                     // 需要 cast type
-                    opBody = DbExpression.Convert(UtilConstants.TypeOfString, opBody);
+                    opBody = DbExpression.Convert(opBody, UtilConstants.TypeOfString);
                 }
 
                 DbExpression equalNullExp = DbExpression.Equal(opBody, UtilConstants.DbConstant_Null_String);
@@ -947,7 +947,7 @@ namespace Chloe.SqlServer
             state.Append(")");
 
             SqlState retState = new SqlState(8);
-            retState.Append("CASE", " WHEN ", whenExp.Accept(visitor), " THEN ", UtilConstants.DbConstant_Null_String.Accept(visitor));
+            retState.Append("CASE", " WHEN ", whenExp.Accept(visitor), " THEN ", DbConstantExpression.Null.Accept(visitor));
             retState.Append(" ELSE ", state, " END");
 
             return retState;
@@ -1053,14 +1053,14 @@ namespace Chloe.SqlServer
 
             DbOrExpression orExpression = DbExpression.Or(equalNullExpression, equalEmptyExpression);
 
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orExpression, UtilConstants.DbConstant_1);
+            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orExpression, DbConstantExpression.One);
 
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
 
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, UtilConstants.DbConstant_0, UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.One, UtilConstants.TypeOfBoolean);
 
-            var eqExp = DbExpression.Equal(caseWhenExpression, UtilConstants.DbConstant_1);
+            var eqExp = DbExpression.Equal(caseWhenExpression, DbConstantExpression.One);
             return eqExp.Accept(visitor);
         }
         static ISqlState Method_Contains(DbMethodCallExpression exp, SqlExpressionVisitor visitor)

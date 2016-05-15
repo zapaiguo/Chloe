@@ -179,6 +179,7 @@
     <Compile Include="Query\Query`.cs" />
     <Compile Include="Query\ResultElement.cs" />
     <Compile Include="Core\SqlState.cs" />
+    <Compile Include="Query\Visitors\FilterPredicateExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\GeneralExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />

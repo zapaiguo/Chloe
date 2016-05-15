@@ -41,8 +41,7 @@ namespace Chloe.Query.QueryState
 
         public virtual IQueryState Accept(WhereExpression exp)
         {
-            var lambda = Expression.Lambda(Expression.Equal(exp.Expression.Body, UtilConstants.Constant_True), exp.Expression.Parameters.ToArray());
-            var dbExp = GeneralExpressionVisitor.VisitPredicate(lambda, this.MoeList);
+            var dbExp = FilterPredicateExpressionVisitor.VisitFilterPredicate(exp.Expression, this.MoeList);
             this._resultElement.AppendCondition(dbExp);
 
             return this;
@@ -182,7 +181,7 @@ namespace Chloe.Query.QueryState
 
                     string alias = null;
 
-                    DbColumnSegmentExpression columnExpression = sqlQuery.Columns.Where(a => DbExpressionEqualityComparer.ExpressionEquals(orderExp, a.Body)).FirstOrDefault();
+                    DbColumnSegmentExpression columnExpression = sqlQuery.Columns.Where(a => DbExpressionEqualityComparer.EqualsCompare(orderExp, a.Body)).FirstOrDefault();
 
                     // 对于重复的则不需要往 sqlQuery.Columns 重复添加了
                     if (columnExpression != null)

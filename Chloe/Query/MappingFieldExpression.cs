@@ -95,7 +95,7 @@ namespace Chloe.Query
 
             MappingFieldExpression mf = new MappingFieldExpression(this._type, cae);
 
-            mf.NullChecking = MappingObjectExpressionHelper.TryGetNullChecking(sqlQuery, table, this.NullChecking);
+            mf.NullChecking = MappingObjectExpressionHelper.TryGetOrAddNullChecking(sqlQuery, table, this.NullChecking);
 
             return mf;
         }

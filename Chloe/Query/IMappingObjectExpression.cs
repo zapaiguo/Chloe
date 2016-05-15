@@ -29,14 +29,14 @@ namespace Chloe.Query
 
     public static class MappingObjectExpressionHelper
     {
-        public static DbExpression TryGetNullChecking(DbSqlQueryExpression sqlQuery, DbTable table, DbExpression exp)
+        public static DbExpression TryGetOrAddNullChecking(DbSqlQueryExpression sqlQuery, DbTable table, DbExpression exp)
         {
             List<DbColumnSegmentExpression> columnList = sqlQuery.Columns;
             if (exp != null)
             {
                 DbColumnSegmentExpression columnSegExp = null;
 
-                columnSegExp = columnList.Where(a => DbExpressionEqualityComparer.ExpressionEquals(a.Body, exp)).FirstOrDefault();
+                columnSegExp = columnList.Where(a => DbExpressionEqualityComparer.EqualsCompare(a.Body, exp)).FirstOrDefault();
 
                 if (columnSegExp == null)
                 {
@@ -64,7 +64,7 @@ namespace Chloe.Query
             for (int i = 0; i < columnList.Count; i++)
             {
                 var item = columnList[i];
-                if (DbExpressionEqualityComparer.ExpressionEquals(item.Body, exp))
+                if (DbExpressionEqualityComparer.EqualsCompare(item.Body, exp))
                 {
                     ordinal = i;
                     columnSegExp = item;

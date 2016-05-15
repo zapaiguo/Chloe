@@ -5,6 +5,9 @@ namespace Chloe.DbExpressions
 {
     public class DbEqualExpression : DbBinaryExpression
     {
+        public static readonly DbEqualExpression True = new DbEqualExpression(new DbConstantExpression(1), new DbConstantExpression(1));
+        public static readonly DbEqualExpression False = new DbEqualExpression(new DbConstantExpression(1), new DbConstantExpression(0));
+
         public DbEqualExpression(DbExpression left, DbExpression right)
             : this(left, right, null)
         {

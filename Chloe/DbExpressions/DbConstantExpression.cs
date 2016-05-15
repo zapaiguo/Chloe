@@ -8,6 +8,12 @@ namespace Chloe.DbExpressions
         object _value;
         Type _type;
 
+        public static readonly DbConstantExpression Null = new DbConstantExpression(null);
+        public static readonly DbConstantExpression One = new DbConstantExpression(1);
+        public static readonly DbConstantExpression Zero = new DbConstantExpression(0);
+        public static readonly DbConstantExpression True = new DbConstantExpression(true);
+        public static readonly DbConstantExpression False = new DbConstantExpression(false);
+
         public DbConstantExpression(object value)
             : base(DbExpressionType.Constant)
         {

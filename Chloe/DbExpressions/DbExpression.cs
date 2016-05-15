@@ -33,10 +33,23 @@ namespace Chloe.DbExpressions
         public abstract T Accept<T>(DbExpressionVisitor<T> visitor);
 
 
-        public static DbAddExpression Add(Type returnType, DbExpression left, DbExpression right, MethodInfo method)
+        public static DbAddExpression Add(DbExpression left, DbExpression right, Type returnType, MethodInfo method)
         {
             return new DbAddExpression(returnType, left, right, method);
         }
+        public static DbSubtractExpression Subtract(DbExpression left, DbExpression right, Type returnType)
+        {
+            return new DbSubtractExpression(returnType, left, right);
+        }
+        public static DbMultiplyExpression Multiply(DbExpression left, DbExpression right, Type returnType)
+        {
+            return new DbMultiplyExpression(returnType, left, right);
+        }
+        public static DbDivideExpression Divide(DbExpression left, DbExpression right, Type returnType)
+        {
+            return new DbDivideExpression(returnType, left, right);
+        }
+
         public static DbAndExpression And(DbExpression left, DbExpression right)
         {
             return new DbAndExpression(left, right);
@@ -53,11 +66,17 @@ namespace Chloe.DbExpressions
         {
             return new DbNotExpression(exp);
         }
-        public static DbConvertExpression Convert(Type type, DbExpression operand)
+        public static DbConvertExpression Convert(DbExpression operand, Type type)
         {
             return new DbConvertExpression(type, operand);
         }
 
+        public static DbCaseWhenExpression CaseWhen(DbCaseWhenExpression.WhenThenExpressionPair whenThenExpPair, DbExpression elseExp, Type type)
+        {
+            List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
+            whenThenExps.Add(whenThenExpPair);
+            return DbExpression.CaseWhen(whenThenExps, elseExp, type);
+        }
         public static DbCaseWhenExpression CaseWhen(IList<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps, DbExpression elseExp, Type type)
         {
             return new DbCaseWhenExpression(type, whenThenExps, elseExp);
@@ -71,11 +90,6 @@ namespace Chloe.DbExpressions
         public static DbConstantExpression Constant(object value, Type type)
         {
             return new DbConstantExpression(value, type);
-        }
-
-        public static DbDivideExpression Divide(Type returnType, DbExpression left, DbExpression right)
-        {
-            return new DbDivideExpression(returnType, left, right);
         }
 
         public static DbEqualExpression Equal(DbExpression left, DbExpression right)
@@ -111,11 +125,6 @@ namespace Chloe.DbExpressions
             return new DbMethodCallExpression(@object, method, arguments);
         }
 
-        public static DbMultiplyExpression Multiply(DbExpression left, DbExpression right, Type returnType)
-        {
-            return new DbMultiplyExpression(returnType, left, right);
-        }
-
         public static DbParameterExpression Parameter(object value)
         {
             return new DbParameterExpression(value);
@@ -125,11 +134,5 @@ namespace Chloe.DbExpressions
         {
             return new DbParameterExpression(value, type);
         }
-
-        public static DbSubtractExpression Subtract(DbExpression left, DbExpression right, Type returnType)
-        {
-            return new DbSubtractExpression(returnType, left, right);
-        }
-
     }
 }

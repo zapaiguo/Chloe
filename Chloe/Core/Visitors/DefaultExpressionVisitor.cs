@@ -20,6 +20,12 @@ namespace Chloe.Core.Visitors
             this._typeDescriptor = typeDescriptor;
         }
 
+        public DbExpression VisitFilterPredicate(LambdaExpression lambda)
+        {
+            lambda = ExpressionVisitorBase.ReBuildFilterPredicate(lambda);
+            return this.Visit(lambda);
+        }
+
         protected override DbExpression VisitMemberAccess(MemberExpression exp)
         {
             if (ExpressionExtensions.IsDerivedFromParameter(exp))

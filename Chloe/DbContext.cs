@@ -199,7 +199,7 @@ namespace Chloe
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
 
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = typeDescriptor.UpdateBodyExpressionVisitor.Visit(body);
-            var conditionExp = typeDescriptor.Visitor.Visit(condition);
+            var conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
             DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
 
@@ -242,7 +242,7 @@ namespace Chloe
             Utils.CheckNull(condition);
 
             MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
-            var conditionExp = typeDescriptor.Visitor.Visit(condition);
+            var conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
             DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
 
