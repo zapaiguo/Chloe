@@ -105,28 +105,6 @@ namespace Chloe.SqlServer
             ISqlState rightState = right.Accept(this);
 
             return SqlState.Create(leftState, " = ", rightState);
-
-            ////明确 left right 其中至少一边一定不为 null
-            //if (DbExpressionExtensions.AffirmExpressionRetValueIsNotNull(right) || DbExpressionExtensions.AffirmExpressionRetValueIsNotNull(left))
-            //{
-            //    return SqlState.Create(leftState, " = ", rightState);
-            //}
-
-            //SqlState state = null;
-            //state = new SqlState(15);
-            //state.Append("(");
-
-            //state.Append("(", leftState, " = ", rightState, ")");
-
-            //state.Append(" OR ");
-
-            //state.Append("(");
-            //state.Append(leftState, " IS NULL", " AND ", rightState, " IS NULL");
-            //state.Append(")");
-
-            //state.Append(")");
-
-            //return state;
         }
         public override ISqlState Visit(DbNotEqualExpression exp)
         {
