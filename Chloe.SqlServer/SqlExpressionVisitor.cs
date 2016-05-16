@@ -129,8 +129,6 @@ namespace Chloe.SqlServer
             ISqlState rightState = right.Accept(this);
 
             return SqlState.Create(leftState, " <> ", rightState);
-
-            //return SqlState.Create(exp.Left.Accept(this), " <> ", exp.Right.Accept(this));
         }
 
         public override ISqlState Visit(DbNotExpression exp)
