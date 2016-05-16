@@ -108,7 +108,29 @@ namespace Chloe.SqlServer
         }
         public override ISqlState Visit(DbNotEqualExpression exp)
         {
-            return SqlState.Create(exp.Left.Accept(this), " <> ", exp.Right.Accept(this));
+            DbExpression left = exp.Left;
+            DbExpression right = exp.Right;
+
+            left = DbExpressionExtensions.ParseDbExpression(left);
+            right = DbExpressionExtensions.ParseDbExpression(right);
+
+            //明确 left right 其中一边一定为 null
+            if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(right))
+            {
+                return SqlState.Create(left.Accept(this), " IS NOT NULL");
+            }
+
+            if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(left))
+            {
+                return SqlState.Create(right.Accept(this), " IS NOT NULL");
+            }
+
+            ISqlState leftState = left.Accept(this);
+            ISqlState rightState = right.Accept(this);
+
+            return SqlState.Create(leftState, " <> ", rightState);
+
+            //return SqlState.Create(exp.Left.Accept(this), " <> ", exp.Right.Accept(this));
         }
 
         public override ISqlState Visit(DbNotExpression exp)

@@ -58,6 +58,10 @@ namespace Chloe.DbExpressions
         {
             return new DbOrExpression(left, right);
         }
+        public static DbEqualExpression Equal(DbExpression left, DbExpression right)
+        {
+            return new DbEqualExpression(left, right);
+        }
         public static DbNotEqualExpression NotEqual(DbExpression left, DbExpression right)
         {
             return new DbNotEqualExpression(left, right);
@@ -90,11 +94,6 @@ namespace Chloe.DbExpressions
         public static DbConstantExpression Constant(object value, Type type)
         {
             return new DbConstantExpression(value, type);
-        }
-
-        public static DbEqualExpression Equal(DbExpression left, DbExpression right)
-        {
-            return new DbEqualExpression(left, right);
         }
 
         public static DbGreaterThanExpression GreaterThan(DbExpression left, DbExpression right)
