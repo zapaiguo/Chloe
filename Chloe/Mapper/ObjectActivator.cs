@@ -66,7 +66,6 @@ namespace Chloe.Mapper
             }
             catch (Exception ex)
             {
-
                 MappingMemberBinder binder = memberSetter as MappingMemberBinder;
                 if (binder != null)
                 {
