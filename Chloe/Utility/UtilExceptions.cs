@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Chloe.Utility
 {
-    public static class UtilExceptions
+    static class UtilExceptions
     {
         public static NullReferenceException NullReferenceException(string message = "未将对象引用设置到对象的实例。")
         {

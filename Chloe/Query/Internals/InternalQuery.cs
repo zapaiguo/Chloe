@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 namespace Chloe.Query.Internals
 {
-    public class InternalQuery<T> : IEnumerable<T>, IEnumerable
+    class InternalQuery<T> : IEnumerable<T>, IEnumerable
     {
         Query<T> _query;
 

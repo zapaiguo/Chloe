@@ -24,7 +24,7 @@ namespace Chloe.Mapper
         }
     }
 
-    public class MRM : IMRM
+    class MRM : IMRM
     {
         Action<object, IDataReader, int> _mapper;
         public MRM(Action<object, IDataReader, int> mapper)
