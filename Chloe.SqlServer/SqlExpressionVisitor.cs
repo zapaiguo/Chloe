@@ -24,17 +24,15 @@ namespace Chloe.SqlServer
         protected Dictionary<string, object> _parameterStorage = new Dictionary<string, object>();
         protected Dictionary<object, SqlState> _innerParameterStorage = new Dictionary<object, SqlState>();
 
-        static Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>> MethodHandlers = InitMethodHandlers();
-        static Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>> FuncHandlers = InitFuncHandlers();
-        static Dictionary<MethodInfo, Func<DbBinaryExpression, SqlExpressionVisitor, ISqlState>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
-        static Dictionary<Type, string> CSharpType_DbType_Mappings = null;
+        static readonly Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>> MethodHandlers = InitMethodHandlers();
+        static readonly Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>> FuncHandlers = InitFuncHandlers();
+        static readonly Dictionary<MethodInfo, Func<DbBinaryExpression, SqlExpressionVisitor, ISqlState>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
+        static readonly Dictionary<Type, string> CSharpType_DbType_Mappings = null;
 
-        public static ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes = null;
+        public static readonly ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes = null;
 
         static SqlExpressionVisitor()
         {
-            Type typeOfObject = typeof(object);
-
             List<DbExpressionType> list = new List<DbExpressionType>();
             list.Add(DbExpressionType.MemberAccess);
             list.Add(DbExpressionType.ColumnAccess);

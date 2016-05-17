@@ -27,10 +27,10 @@ namespace Chloe.Utility
         public static readonly Type TypeOfByteArray = typeof(Byte[]);
 
 
-        public static ConstantExpression Constant_Null_Boolean = Expression.Constant(null, typeof(Boolean?));
-        public static ConstantExpression Constant_True = Expression.Constant(true);
-        public static ConstantExpression Constant_False = Expression.Constant(false);
-        public static UnaryExpression Convert_TrueToNullable = Expression.Convert(Expression.Constant(true), typeof(Boolean?));
-        public static UnaryExpression Convert_FalseToNullable = Expression.Convert(Expression.Constant(false), typeof(Boolean?));
+        public static readonly ConstantExpression Constant_Null_Boolean = Expression.Constant(null, typeof(Boolean?));
+        public static readonly ConstantExpression Constant_True = Expression.Constant(true);
+        public static readonly ConstantExpression Constant_False = Expression.Constant(false);
+        public static readonly UnaryExpression Convert_TrueToNullable = Expression.Convert(Expression.Constant(true), typeof(Boolean?));
+        public static readonly UnaryExpression Convert_FalseToNullable = Expression.Convert(Expression.Constant(false), typeof(Boolean?));
     }
 }
