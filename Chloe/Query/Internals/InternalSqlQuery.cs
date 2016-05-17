@@ -137,7 +137,10 @@ namespace Chloe.Query.Internals
 
                 MemberInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.SetProperty);
                 MemberInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.SetField);
-                var members = properties.Concat(fields).ToList();
+                List<MemberInfo> members = new List<MemberInfo>(properties.Length + fields.Length);
+                members.AddRange(properties);
+                members.AddRange(fields);
+
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
                     string name = reader.GetName(i);
