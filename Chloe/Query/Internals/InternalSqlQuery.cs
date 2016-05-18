@@ -129,7 +129,7 @@ namespace Chloe.Query.Internals
                 Debug.WriteLine(this._internalSqlQuery._sql);
 #endif
 
-                this._objectActivator = TryGetObjectActivator(type, this._reader, mapper, instanceCreator, this._internalSqlQuery._sql) ?? GetObjectActivator(type, this._reader, mapper, instanceCreator);
+                this._objectActivator = TryGetObjectActivator(type, this._reader, mapper, instanceCreator) ?? GetObjectActivator(type, this._reader, mapper, instanceCreator);
             }
 
             static ObjectActivator GetObjectActivator(Type type, IDataReader reader, EntityMemberMapper mapper, Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator)
@@ -169,92 +169,94 @@ namespace Chloe.Query.Internals
                 return memberSetters;
             }
 
-            static ObjectActivator TryGetObjectActivator(Type type, IDataReader reader, EntityMemberMapper mapper, Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator, string sql)
+            static ObjectActivator TryGetObjectActivator(Type type, IDataReader reader, EntityMemberMapper mapper, Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator)
             {
                 ObjectActivator activator;
-                Dictionary<string, List<CacheInfo>> dic;
-                if (!ObjectActivatorCache.TryGetValue(type, out dic))
+                List<CacheInfo> caches;
+                if (!ObjectActivatorCache.TryGetValue(type, out caches))
                 {
-                    if (!Monitor.TryEnter(type))
+                    //对于一个 Type ，其对应的 EntityMemberMapper 是唯一实例的，所以可以 lock 它对应的 EntityMemberMapper，以避免 lock type 时可能与其它代码抢 lock 
+                    if (!Monitor.TryEnter(mapper))
                         return null;
 
                     try
                     {
-                        if (!ObjectActivatorCache.TryGetValue(type, out dic))
-                        {
-                            dic = new Dictionary<string, List<CacheInfo>>(1);
-                            ObjectActivatorCache.TryAdd(type, dic);
-                        }
+                        caches = ObjectActivatorCache.GetOrAdd(type, new List<CacheInfo>(1));
                     }
                     finally
                     {
-                        Monitor.Exit(type);
+                        Monitor.Exit(mapper);
                     }
                 }
 
-                List<CacheInfo> caches;
-                if (!dic.TryGetValue(sql, out caches))
+                CacheInfo cache = GetCacheInfoFromList(caches, reader);
+
+                if (cache == null)
                 {
-                    lock (dic)
+                    lock (caches)
                     {
-                        if (!dic.TryGetValue(sql, out caches))
+                        cache = GetCacheInfoFromList(caches, reader);
+                        if (cache == null)
                         {
-                            caches = new List<CacheInfo>(1);
-                            dic[sql] = caches;
+                            activator = GetObjectActivator(type, reader, mapper, instanceCreator);
+                            cache = new CacheInfo(activator, reader);
+                            caches.Add(cache);
                         }
                     }
                 }
 
+                return cache.ObjectActivator;
+            }
+
+            static CacheInfo GetCacheInfoFromList(List<CacheInfo> caches, IDataReader reader)
+            {
                 CacheInfo cache = null;
                 for (int i = 0; i < caches.Count; i++)
                 {
                     var item = caches[i];
-                    if (item.IsTheSameFieldTypes(reader))
+                    if (item.IsTheSameFields(reader))
                     {
                         cache = item;
                         break;
                     }
                 }
 
-                if (cache != null)
-                    return cache.ObjectActivator;
-
-                activator = GetObjectActivator(type, reader, mapper, instanceCreator);
-                cache = new CacheInfo(activator, reader);
-                caches.Add(cache);
-                caches.TrimExcess();
-
-                return cache.ObjectActivator;
+                return cache;
             }
-            static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Dictionary<string, List<CacheInfo>>> ObjectActivatorCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Dictionary<string, List<CacheInfo>>>();
+
+            static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, List<CacheInfo>> ObjectActivatorCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, List<CacheInfo>>();
         }
 
         public class CacheInfo
         {
+            Tuple<string, Type>[] _readerFields;
+            ObjectActivator _objectActivator;
             public CacheInfo(ObjectActivator activator, IDataReader reader)
             {
-                this.ObjectActivator = activator;
+                var readerFields = new Tuple<string, Type>[reader.FieldCount];
 
-                var readerFieldTypes = new Type[reader.FieldCount];
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
-                    readerFieldTypes[i] = reader.GetFieldType(i);
+                    readerFields[i] = new Tuple<string, Type>(reader.GetName(i), reader.GetFieldType(i));
                 }
 
-                this.ReaderFieldTypes = readerFieldTypes;
+                this._readerFields = readerFields;
+                this._objectActivator = activator;
             }
 
-            public Type[] ReaderFieldTypes { get; private set; }
-            public ObjectActivator ObjectActivator { get; private set; }
+            public ObjectActivator ObjectActivator { get { return this._objectActivator; } }
 
-            public bool IsTheSameFieldTypes(IDataReader reader)
+            public bool IsTheSameFields(IDataReader reader)
             {
-                if (reader.FieldCount != this.ReaderFieldTypes.Length)
+                var readerFields = this._readerFields;
+
+                if (reader.FieldCount != readerFields.Length)
                     return false;
 
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
-                    if (reader.GetFieldType(i) != this.ReaderFieldTypes[i])
+                    var tuple = readerFields[i];
+                    if (reader.GetFieldType(i) != tuple.Item2 || reader.GetName(i) != tuple.Item1)
                     {
                         return false;
                     }
