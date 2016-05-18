@@ -99,11 +99,11 @@ namespace Chloe.SqlServer
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
             decimal identity = (decimal)retIdentity;
-            if (autoIncrementMemberDescriptor.MemberInfoType == typeof(int))
+            if (autoIncrementMemberDescriptor.MemberInfoType == UtilConstants.TypeOfInt32)
             {
                 autoIncrementMemberDescriptor.SetValue(entity, (int)identity);
             }
-            else if (autoIncrementMemberDescriptor.MemberInfoType == typeof(long))
+            else if (autoIncrementMemberDescriptor.MemberInfoType == UtilConstants.TypeOfInt64)
             {
                 autoIncrementMemberDescriptor.SetValue(entity, (long)identity);
             }
@@ -178,11 +178,11 @@ namespace Chloe.SqlServer
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
             decimal identity = (decimal)retIdentity;
-            if (autoIncrementMemberDescriptor.MemberInfoType == typeof(int))
+            if (autoIncrementMemberDescriptor.MemberInfoType == UtilConstants.TypeOfInt32)
             {
                 return (int)identity;
             }
-            else if (autoIncrementMemberDescriptor.MemberInfoType == typeof(long))
+            else if (autoIncrementMemberDescriptor.MemberInfoType == UtilConstants.TypeOfInt64)
             {
                 return (long)identity;
             }
