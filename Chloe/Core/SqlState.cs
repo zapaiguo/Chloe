@@ -53,6 +53,9 @@ namespace Chloe.Core
         }
         public static SqlState Create(params object[] objs)
         {
+            if (objs == null)
+                return new SqlState();
+
             SqlState state = new SqlState(objs.Length);
             return state.Append(objs);
         }
@@ -81,6 +84,9 @@ namespace Chloe.Core
         }
         public SqlState Append(params object[] objs)
         {
+            if (objs == null)
+                return this;
+
             foreach (object obj in objs)
             {
                 this.Append(obj);
