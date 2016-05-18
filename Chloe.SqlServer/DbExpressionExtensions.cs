@@ -173,6 +173,7 @@ namespace Chloe.SqlServer
             if (c != null)
             {
                 exp.TryGetFieldOrPropertyValue(c.Value, out memberVal);
+                stack.Pop();
                 goto getValue;
             }
             else if (exp.Expression == null)//说明是静态成员
@@ -183,7 +184,7 @@ namespace Chloe.SqlServer
                 throw new NotSupportedException(exp.Expression.ToString());
 
         getValue:
-            stack.Pop();
+
             if (stack.Count > 0)
             {
                 foreach (var rec in stack)
