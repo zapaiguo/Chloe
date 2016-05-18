@@ -184,7 +184,6 @@ namespace Chloe.SqlServer
                 throw new NotSupportedException(exp.Expression.ToString());
 
         getValue:
-
             if (stack.Count > 0)
             {
                 foreach (var rec in stack)
