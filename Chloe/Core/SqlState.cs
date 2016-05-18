@@ -16,9 +16,9 @@ namespace Chloe.Core
 
         public int RecursiveDepth { get { return this._recursiveDepth; } }
 
-        public SqlState(int i)
+        public SqlState(int capacity)
         {
-            this._sqlStorage = new List<object>(i);
+            this._sqlStorage = new List<object>(capacity);
         }
 
         public static SqlState Create(object obj)
