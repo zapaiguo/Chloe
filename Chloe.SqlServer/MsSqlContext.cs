@@ -311,7 +311,7 @@ namespace Chloe.SqlServer
         }
         static void EnsureAutoIncrementMemberType(MappingMemberDescriptor autoIncrementMemberDescriptor)
         {
-            if (autoIncrementMemberDescriptor.MemberInfoType != typeof(int) && autoIncrementMemberDescriptor.MemberInfoType != typeof(long))
+            if (autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt32 && autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt64)
             {
                 throw new Exception("自增成员必须是 Int32 或 Int64 类型");
             }
