@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 
 namespace Chloe.Query.Internals
 {
@@ -18,6 +19,7 @@ namespace Chloe.Query.Internals
         InternalDbSession _dbSession;
         string _sql;
         IDictionary<string, object> _parameters;
+
         public InternalSqlQuery(InternalDbSession dbSession, string sql, IDictionary<string, object> parameters)
         {
             this._dbSession = dbSession;
@@ -127,10 +129,14 @@ namespace Chloe.Query.Internals
                 Debug.WriteLine(this._internalSqlQuery._sql);
 #endif
 
-                List<IValueSetter> memberSetters = PrepareValueSetters(type, _reader, mapper);
-                this._objectActivator = new ObjectActivator(instanceCreator, null, null, memberSetters, null);
+                this._objectActivator = TryGetObjectActivator(type, this._reader, mapper, instanceCreator, this._internalSqlQuery._sql) ?? GetObjectActivator(type, this._reader, mapper, instanceCreator);
             }
 
+            static ObjectActivator GetObjectActivator(Type type, IDataReader reader, EntityMemberMapper mapper, Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator)
+            {
+                List<IValueSetter> memberSetters = PrepareValueSetters(type, reader, mapper);
+                return new ObjectActivator(instanceCreator, null, null, memberSetters, null);
+            }
             static List<IValueSetter> PrepareValueSetters(Type type, IDataReader reader, EntityMemberMapper mapper)
             {
                 List<IValueSetter> memberSetters = new List<IValueSetter>(reader.FieldCount);
@@ -162,7 +168,102 @@ namespace Chloe.Query.Internals
 
                 return memberSetters;
             }
+
+            static ObjectActivator TryGetObjectActivator(Type type, IDataReader reader, EntityMemberMapper mapper, Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator, string sql)
+            {
+                ObjectActivator activator;
+                Dictionary<string, List<CacheInfo>> dic;
+                if (!ObjectActivatorCache.TryGetValue(type, out dic))
+                {
+                    if (!Monitor.TryEnter(type))
+                        return null;
+
+                    try
+                    {
+                        if (!ObjectActivatorCache.TryGetValue(type, out dic))
+                        {
+                            dic = new Dictionary<string, List<CacheInfo>>(1);
+                            ObjectActivatorCache.TryAdd(type, dic);
+                        }
+                    }
+                    finally
+                    {
+                        Monitor.Exit(type);
+                    }
+                }
+
+                List<CacheInfo> caches;
+                if (!dic.TryGetValue(sql, out caches))
+                {
+                    lock (dic)
+                    {
+                        if (!dic.TryGetValue(sql, out caches))
+                        {
+                            caches = new List<CacheInfo>(1);
+                            dic[sql] = caches;
+                        }
+                    }
+                }
+
+                CacheInfo cache = null;
+                for (int i = 0; i < caches.Count; i++)
+                {
+                    var item = caches[i];
+                    if (item.IsTheSameFieldTypes(reader))
+                    {
+                        cache = item;
+                        break;
+                    }
+                }
+
+                if (cache != null)
+                    return cache.ObjectActivator;
+
+                activator = GetObjectActivator(type, reader, mapper, instanceCreator);
+                cache = new CacheInfo(activator, reader);
+                caches.Add(cache);
+                caches.TrimExcess();
+
+                return cache.ObjectActivator;
+            }
+            static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Dictionary<string, List<CacheInfo>>> ObjectActivatorCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Dictionary<string, List<CacheInfo>>>();
+        }
+
+        public class CacheInfo
+        {
+            public CacheInfo(ObjectActivator activator, IDataReader reader)
+            {
+                this.ObjectActivator = activator;
+
+                var readerFieldTypes = new Type[reader.FieldCount];
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    readerFieldTypes[i] = reader.GetFieldType(i);
+                }
+
+                this.ReaderFieldTypes = readerFieldTypes;
+            }
+
+            public Type[] ReaderFieldTypes { get; private set; }
+            public ObjectActivator ObjectActivator { get; private set; }
+
+            public bool IsTheSameFieldTypes(IDataReader reader)
+            {
+                if (reader.FieldCount != this.ReaderFieldTypes.Length)
+                    return false;
+
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    if (reader.GetFieldType(i) != this.ReaderFieldTypes[i])
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
         }
 
     }
+
 }
