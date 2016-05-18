@@ -10,7 +10,7 @@ namespace Chloe
         IDbSession CurrentSession { get; }
 
         IQuery<T> Query<T>() where T : new();
-        IEnumerable<T> SqlQuery<T>(string sql, IDictionary<string, object> parameters) where T : new();
+        IEnumerable<T> SqlQuery<T>(string sql, IDictionary<string, object> parameters = null) where T : new();
 
         T Insert<T>(T entity);
         object Insert<T>(Expression<Func<T>> body);

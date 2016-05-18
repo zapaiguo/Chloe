@@ -50,7 +50,7 @@ namespace Chloe
         {
             return new Query<T>(this);
         }
-        public virtual IEnumerable<T> SqlQuery<T>(string sql, IDictionary<string, object> parameters) where T : new()
+        public virtual IEnumerable<T> SqlQuery<T>(string sql, IDictionary<string, object> parameters = null) where T : new()
         {
             Utils.CheckNull(sql, "sql");
 

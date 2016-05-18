@@ -9,9 +9,9 @@ namespace Chloe
     public interface IDbSession : IDisposable
     {
         bool IsInTransaction { get; }
-        int ExecuteNonQuery(string sql, IDictionary<string, object> parameters);
-        object ExecuteScalar(string sql, IDictionary<string, object> parameters);
-        IDataReader ExecuteReader(string sql, IDictionary<string, object> parameters);
+        int ExecuteNonQuery(string sql, IDictionary<string, object> parameters = null);
+        object ExecuteScalar(string sql, IDictionary<string, object> parameters = null);
+        IDataReader ExecuteReader(string sql, IDictionary<string, object> parameters = null);
 
         void BeginTransaction();
         void BeginTransaction(IsolationLevel il);
