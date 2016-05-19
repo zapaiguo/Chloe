@@ -1045,7 +1045,7 @@ namespace Chloe.SqlServer
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
 
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.One, UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.Zero, UtilConstants.TypeOfBoolean);
 
             var eqExp = DbExpression.Equal(caseWhenExpression, DbConstantExpression.One);
             return eqExp.Accept(visitor);
