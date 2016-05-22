@@ -47,6 +47,7 @@
     <Compile Include="Core\Emit\CodeGenerator.cs" />
     <Compile Include="Core\Emit\DelegateGenerator.cs" />
     <Compile Include="Core\Emit\EmitHelper.cs" />
+    <Compile Include="Core\IEntityState.cs" />
     <Compile Include="Core\InternalDataReader.cs" />
     <Compile Include="Core\InternalDbSession.cs" />
     <Compile Include="Core\Visitors\AbstractDbExpressionVisitor.cs" />
