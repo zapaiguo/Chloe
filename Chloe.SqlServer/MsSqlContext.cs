@@ -4,7 +4,6 @@ using Chloe.Descriptors;
 using Chloe.Infrastructure;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -86,10 +85,6 @@ namespace Chloe.SqlServer
             string sql = sqlState.ToSql();
             sql += ";SELECT @@IDENTITY";
 
-#if DEBUG
-            Debug.WriteLine(sql);
-#endif
-
             object retIdentity = this.CurrentSession.ExecuteScalar(sql, dbExpVisitor.ParameterStorage);
 
             if (retIdentity == null || retIdentity == DBNull.Value)
@@ -164,10 +159,6 @@ namespace Chloe.SqlServer
 
             string sql = sqlState.ToSql();
             sql += ";SELECT @@IDENTITY";
-
-#if DEBUG
-            Debug.WriteLine(sql);
-#endif
 
             object retIdentity = this.CurrentSession.ExecuteScalar(sql, dbExpVisitor.ParameterStorage);
 
@@ -276,10 +267,6 @@ namespace Chloe.SqlServer
             var sqlState = e.Accept(dbExpVisitor);
 
             string sql = sqlState.ToSql();
-
-#if DEBUG
-            Debug.WriteLine(sql);
-#endif
 
             int r = this.CurrentSession.ExecuteNonQuery(sql, dbExpVisitor.ParameterStorage);
             return r;

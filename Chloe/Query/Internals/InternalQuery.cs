@@ -40,12 +40,7 @@ namespace Chloe.Query.Internals
         public IEnumerator<T> GetEnumerator()
         {
             DbCommandFactor commandFactor = this.GenerateCommandFactor();
-
-#if DEBUG
-            Debug.WriteLine(commandFactor.CommandText);
-#endif
-
-            var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(this._query.DbContext.DbSession, commandFactor);
+            var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(this._query.DbContext.InnerDbSession, commandFactor);
             return enumerator;
         }
         IEnumerator IEnumerable.GetEnumerator()

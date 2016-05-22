@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
+using System.Linq;
+using System.Reflection;
 using Chloe.Query;
 using Chloe.Core;
 using Chloe.Utility;
@@ -9,9 +11,6 @@ using Chloe.Infrastructure;
 using Chloe.Descriptors;
 using Chloe.Query.Visitors;
 using Chloe.DbExpressions;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using Chloe.Mapper;
 using Chloe.Query.Internals;
 using Chloe.Core.Visitors;
@@ -21,12 +20,12 @@ namespace Chloe
     public abstract class DbContext : IDbContext, IDisposable
     {
         bool _disposed = false;
-        InternalDbSession _dbSession;
+        InternalDbSession _innerDbSession;
         IDbServiceProvider _dbServiceProvider;
 
         DbSession _currentSession;
 
-        internal InternalDbSession DbSession { get { return this._dbSession; } }
+        internal InternalDbSession InnerDbSession { get { return this._innerDbSession; } }
         public IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
 
         protected DbContext(IDbServiceProvider dbServiceProvider)
@@ -34,7 +33,7 @@ namespace Chloe
             Utils.CheckNull(dbServiceProvider, "dbServiceProvider");
 
             this._dbServiceProvider = dbServiceProvider;
-            this._dbSession = new InternalDbSession(dbServiceProvider.CreateConnection());
+            this._innerDbSession = new InternalDbSession(dbServiceProvider.CreateConnection());
             this._currentSession = new DbSession(this);
         }
 
@@ -54,7 +53,7 @@ namespace Chloe
         {
             Utils.CheckNull(sql, "sql");
 
-            return new InternalSqlQuery<T>(this._dbSession, sql, parameters);
+            return new InternalSqlQuery<T>(this._innerDbSession, sql, parameters);
         }
 
         public virtual T Insert<T>(T entity)
@@ -254,7 +253,7 @@ namespace Chloe
             if (this._disposed)
                 return;
 
-            this._dbSession.Dispose();
+            this._innerDbSession.Dispose();
             this.Dispose(true);
             this._disposed = true;
         }
@@ -270,11 +269,7 @@ namespace Chloe
 
             string sql = sqlState.ToSql();
 
-#if DEBUG
-            Debug.WriteLine(sql);
-#endif
-
-            int r = this._dbSession.ExecuteNonQuery(sql, dbExpVisitor.ParameterStorage);
+            int r = this._innerDbSession.ExecuteNonQuery(sql, dbExpVisitor.ParameterStorage);
             return r;
         }
 

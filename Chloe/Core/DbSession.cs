@@ -14,38 +14,38 @@ namespace Chloe.Core
         {
             this._dbContext = dbContext;
         }
-        public bool IsInTransaction { get { return this._dbContext.DbSession.IsInTransaction; } }
+        public bool IsInTransaction { get { return this._dbContext.InnerDbSession.IsInTransaction; } }
         public int ExecuteNonQuery(string sql, IDictionary<string, object> parameters = null)
         {
             Utils.CheckNull(sql, "sql");
-            return this._dbContext.DbSession.ExecuteNonQuery(sql, parameters);
+            return this._dbContext.InnerDbSession.ExecuteNonQuery(sql, parameters);
         }
         public object ExecuteScalar(string sql, IDictionary<string, object> parameters = null)
         {
             Utils.CheckNull(sql, "sql");
-            return this._dbContext.DbSession.ExecuteScalar(sql, parameters);
+            return this._dbContext.InnerDbSession.ExecuteScalar(sql, parameters);
         }
         public IDataReader ExecuteReader(string sql, IDictionary<string, object> parameters = null)
         {
             Utils.CheckNull(sql, "sql");
-            return this._dbContext.DbSession.ExecuteInternalReader(sql, parameters, CommandType.Text);
+            return this._dbContext.InnerDbSession.ExecuteInternalReader(sql, parameters, CommandType.Text);
         }
 
         public void BeginTransaction()
         {
-            this._dbContext.DbSession.BeginTransaction();
+            this._dbContext.InnerDbSession.BeginTransaction();
         }
         public void BeginTransaction(IsolationLevel il)
         {
-            this._dbContext.DbSession.BeginTransaction(il);
+            this._dbContext.InnerDbSession.BeginTransaction(il);
         }
         public void CommitTransaction()
         {
-            this._dbContext.DbSession.CommitTransaction();
+            this._dbContext.InnerDbSession.CommitTransaction();
         }
         public void RollbackTransaction()
         {
-            this._dbContext.DbSession.RollbackTransaction();
+            this._dbContext.InnerDbSession.RollbackTransaction();
         }
 
         public void Dispose()
