@@ -123,6 +123,10 @@ namespace Chloe.Core
         {
             this.CheckDisposed();
 
+#if DEBUG
+            PrintCommand(cmdText, parameters);
+#endif
+
             IDbCommand cmd = this.DbCommand;
 
             this.PrepareCommand(cmd, cmdText, parameters, cmdType);
@@ -141,6 +145,11 @@ namespace Chloe.Core
         public int ExecuteNonQuery(string cmdText, IDictionary<string, object> parameters, CommandType cmdType)
         {
             this.CheckDisposed();
+
+#if DEBUG
+            PrintCommand(cmdText, parameters);
+#endif
+
             try
             {
                 IDbCommand cmd = this.DbCommand;
@@ -165,6 +174,11 @@ namespace Chloe.Core
         public object ExecuteScalar(string cmdText, IDictionary<string, object> parameters, CommandType cmdType)
         {
             this.CheckDisposed();
+
+#if DEBUG
+            PrintCommand(cmdText, parameters);
+#endif
+
             try
             {
                 IDbCommand cmd = this.DbCommand;
@@ -248,8 +262,23 @@ namespace Chloe.Core
         {
             if (this._disposed)
             {
-                throw new ObjectDisposedException("对象已销毁");
+                throw new ObjectDisposedException(this.GetType().FullName);
             }
         }
+
+
+#if DEBUG
+        public static void PrintCommand(string cmdText, IDictionary<string, object> parameters)
+        {
+            if (parameters != null)
+            {
+                foreach (var item in parameters)
+                {
+                    System.Diagnostics.Debug.WriteLine("DECLARE {0} {1} = {2};", item.Key, item.Value == null ? null : item.Value.GetType().Name, item.Value);
+                }
+            }
+            System.Diagnostics.Debug.WriteLine(cmdText);
+        }
+#endif
     }
 }
