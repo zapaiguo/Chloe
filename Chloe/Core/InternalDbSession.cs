@@ -124,7 +124,7 @@ namespace Chloe.Core
             this.CheckDisposed();
 
 #if DEBUG
-            PrintCommand(cmdText, parameters);
+            System.Diagnostics.Debug.WriteLine(AppendDbCommandInfo(cmdText, parameters));
 #endif
 
             IDbCommand cmd = this.DbCommand;
@@ -147,7 +147,7 @@ namespace Chloe.Core
             this.CheckDisposed();
 
 #if DEBUG
-            PrintCommand(cmdText, parameters);
+            System.Diagnostics.Debug.WriteLine(AppendDbCommandInfo(cmdText, parameters));
 #endif
 
             try
@@ -176,7 +176,7 @@ namespace Chloe.Core
             this.CheckDisposed();
 
 #if DEBUG
-            PrintCommand(cmdText, parameters);
+            System.Diagnostics.Debug.WriteLine(AppendDbCommandInfo(cmdText, parameters));
 #endif
 
             try
@@ -267,18 +267,31 @@ namespace Chloe.Core
         }
 
 
-#if DEBUG
-        public static void PrintCommand(string cmdText, IDictionary<string, object> parameters)
+        public static string AppendDbCommandInfo(string cmdText, IDictionary<string, object> parameters)
         {
+            StringBuilder sb = new StringBuilder();
             if (parameters != null)
             {
                 foreach (var item in parameters)
                 {
-                    System.Diagnostics.Debug.WriteLine("DECLARE {0} {1} = {2};", item.Key, item.Value == null ? null : item.Value.GetType().Name, item.Value);
+                    string typeName = null;
+                    object value = null;
+                    if (item.Value != null)
+                    {
+                        Type t = item.Value.GetType();
+                        typeName = t.Name;
+                        if (t == typeof(string) || t == typeof(DateTime))
+                            value = "'" + item.Value + "'";
+                    }
+
+                    sb.AppendFormat("DECLARE {0} {1} = {2};", item.Key, typeName, value);
+                    sb.AppendLine();
                 }
             }
-            System.Diagnostics.Debug.WriteLine(cmdText);
+
+            sb.AppendLine(cmdText);
+
+            return sb.ToString();
         }
-#endif
     }
 }
