@@ -10,6 +10,6 @@ namespace Chloe.Core
     class IEntityState
     {
         public object Entity { get; set; }
-        public Dictionary<MemberInfo, object> Fakes { get; }
+        //public Dictionary<MemberInfo, object> Fakes { get; }
     }
 }
