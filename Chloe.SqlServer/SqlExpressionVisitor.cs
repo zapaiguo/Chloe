@@ -38,7 +38,7 @@ namespace Chloe.SqlServer
             list.Add(DbExpressionType.ColumnAccess);
             list.Add(DbExpressionType.Constant);
             list.Add(DbExpressionType.Parameter);
-            list.Add(DbExpressionType.Call);
+            list.Add(DbExpressionType.Convert);
             SafeDbExpressionTypes = list.AsReadOnly();
 
             Dictionary<Type, string> cSharpType_DbType_Mappings = new Dictionary<Type, string>(8);
@@ -58,6 +58,9 @@ namespace Chloe.SqlServer
             cSharpType_DbType_Mappings.Add(typeof(double?), "FLOAT");
             cSharpType_DbType_Mappings.Add(typeof(float?), "REAL");
             cSharpType_DbType_Mappings.Add(typeof(bool?), "BIT");
+
+            cSharpType_DbType_Mappings.Add(typeof(DateTime), "DATETIME");
+            cSharpType_DbType_Mappings.Add(typeof(DateTime?), "DATETIME");
 
             CSharpType_DbType_Mappings = cSharpType_DbType_Mappings;
         }
@@ -151,7 +154,7 @@ namespace Chloe.SqlServer
 
             if (stripedExp.NodeType != DbExpressionType.Convert)
             {
-                return stripedExp.Accept(this);
+                return EnsureDbExpressionReturnCSharpBoolean(stripedExp).Accept(this);
             }
 
             exp = (DbConvertExpression)stripedExp;
@@ -568,7 +571,7 @@ namespace Chloe.SqlServer
             if (orderParts.Count == 0)
             {
                 DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(UtilConstants.DbParameter_1, OrderType.Asc);
-                orderParts = new List<DbOrderSegmentExpression>();
+                orderParts = new List<DbOrderSegmentExpression>(1);
                 orderParts.Add(orderPart);
             }
 
@@ -664,7 +667,7 @@ namespace Chloe.SqlServer
             if (orderParts.Count == 0)
             {
                 DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(UtilConstants.DbParameter_1, OrderType.Asc);
-                orderParts = new List<DbOrderSegmentExpression>();
+                orderParts = new List<DbOrderSegmentExpression>(1);
                 orderParts.Add(orderPart);
             }
 
@@ -829,10 +832,13 @@ namespace Chloe.SqlServer
         }
         public static DbCaseWhenExpression ConstructReturnCSharpBooleanCaseWhenExpression(DbExpression exp)
         {
+            // case when 1>0 then 1 when not (1>0) then 0 else Null end
             DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(exp, DbConstantExpression.True);
-            List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
+            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair1 = new DbCaseWhenExpression.WhenThenExpressionPair(DbExpression.Not(exp), DbConstantExpression.False);
+            List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(2);
             whenThenExps.Add(whenThenPair);
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.False, UtilConstants.TypeOfBoolean);
+            whenThenExps.Add(whenThenPair1);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.Null, UtilConstants.TypeOfBoolean);
 
             return caseWhenExpression;
         }
@@ -972,6 +978,8 @@ namespace Chloe.SqlServer
             methodHandlers.Add("AddMinutes", Method_DateTime_AddMinutes);
             methodHandlers.Add("AddSeconds", Method_DateTime_AddSeconds);
             methodHandlers.Add("AddMilliseconds", Method_DateTime_AddMilliseconds);
+
+            methodHandlers.Add("Parse", Method_Parse);
 
             var ret = new Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>>(methodHandlers.Count, StringComparer.Ordinal);
             foreach (var item in methodHandlers)
@@ -1239,6 +1247,27 @@ namespace Chloe.SqlServer
         {
             EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
             return DbFunction_DATEADD("MILLISECOND", exp.Arguments[0].Accept(visitor), exp.Object.Accept(visitor));
+        }
+
+        static ISqlState Method_Parse(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            if (exp.Arguments.Count != 1)
+                throw new NotSupportedException();
+
+            DbExpression arg = exp.Arguments[0];
+            if (arg.Type != UtilConstants.TypeOfString)
+                throw new NotSupportedException();
+
+            Type retType = exp.Method.ReturnType;
+            EnsureMethodDeclaringType(exp, retType);
+
+            DbExpression e = DbExpression.Convert(arg, retType);
+            if (retType == UtilConstants.TypeOfBoolean)
+            {
+                return SqlState.Create(e.Accept(visitor), " = ", DbConstantExpression.True.Accept(visitor));
+            }
+
+            return e.Accept(visitor);
         }
 
         #endregion
