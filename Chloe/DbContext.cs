@@ -207,7 +207,10 @@ namespace Chloe
                 e.UpdateColumns.Add(item.Key.Column, item.Value);
             }
 
-            return this.ExecuteSqlCommand(e);
+            int ret = this.ExecuteSqlCommand(e);
+            if (entityState != null)
+                entityState.Refresh();
+            return ret;
         }
         public virtual int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> condition)
         {

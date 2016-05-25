@@ -13,6 +13,7 @@ namespace Chloe.Core
         object Entity { get; }
         TypeDescriptor TypeDescriptor { get; }
         bool IsChanged(MemberInfo member, object val);
+        void Refresh();
     }
 
     class EntityState : IEntityState
