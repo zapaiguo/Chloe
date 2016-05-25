@@ -21,5 +21,6 @@ namespace Chloe
         int Delete<T>(T entity);
         int Delete<T>(Expression<Func<T, bool>> condition);
 
+        void TrackEntity(object entity);
     }
 }

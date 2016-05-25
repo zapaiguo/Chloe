@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Descriptors;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,9 +8,75 @@ using System.Threading.Tasks;
 
 namespace Chloe.Core
 {
-    class IEntityState
+    public interface IEntityState
     {
-        public object Entity { get; set; }
-        //public Dictionary<MemberInfo, object> Fakes { get; }
+        object Entity { get; }
+        MappingTypeDescriptor TypeDescriptor { get; }
+        bool IsChanged(MemberInfo member, object val);
+    }
+
+    class EntityState : IEntityState
+    {
+        Dictionary<MemberInfo, object> _fakes;
+        object _entity;
+        MappingTypeDescriptor _typeDescriptor;
+
+        public EntityState(MappingTypeDescriptor typeDescriptor, object entity)
+        {
+            this._typeDescriptor = typeDescriptor;
+            this._entity = entity;
+            this.Refresh();
+        }
+
+        public object Entity { get { return this._entity; } }
+        public MappingTypeDescriptor TypeDescriptor { get { return this._typeDescriptor; } }
+
+        public bool IsChanged(MemberInfo member, object val)
+        {
+            object oldVal;
+            if (!this._fakes.TryGetValue(member, out oldVal))
+            {
+                return true;
+            }
+
+            if (oldVal == null && val == null)
+                return false;
+
+            if (oldVal != null)
+            {
+                return !oldVal.Equals(val);
+            }
+
+            if (val != null)
+            {
+                return !val.Equals(oldVal);
+            }
+
+            return !object.Equals(val, oldVal);
+        }
+        public void Refresh()
+        {
+            Dictionary<MemberInfo, MappingMemberDescriptor> mappingMemberDescriptors = this.TypeDescriptor.MappingMemberDescriptors;
+
+            if (this._fakes == null)
+            {
+                this._fakes = new Dictionary<MemberInfo, object>(mappingMemberDescriptors.Count);
+            }
+            else
+            {
+                this._fakes.Clear();
+            }
+
+            object entity = this._entity;
+            foreach (var kv in mappingMemberDescriptors)
+            {
+                var key = kv.Key;
+                var memberDescriptor = kv.Value;
+
+                var val = memberDescriptor.GetValue(entity);
+
+                this._fakes[key] = val;
+            }
+        }
     }
 }

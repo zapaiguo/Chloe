@@ -1,4 +1,5 @@
-﻿using Chloe.Core.Visitors;
+﻿using Chloe.Core;
+using Chloe.Core.Visitors;
 using Chloe.DbExpressions;
 using Chloe.Descriptors;
 using Chloe.Infrastructure;
@@ -192,6 +193,7 @@ namespace Chloe.SqlServer
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MemberInfo keyMember = keyMemberDescriptor.MemberInfo;
 
+            IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
             foreach (var kv in typeDescriptor.MappingMemberDescriptors)
             {
@@ -210,6 +212,10 @@ namespace Chloe.SqlServer
                     continue;
 
                 var val = memberDescriptor.GetValue(entity);
+
+                if (entityState != null && !entityState.IsChanged(member, val))
+                    continue;
+
                 DbExpression valExp = DbExpression.Parameter(val, memberDescriptor.MemberInfoType);
                 updateColumns.Add(memberDescriptor, valExp);
             }
@@ -218,7 +224,7 @@ namespace Chloe.SqlServer
                 throw new Exception(string.Format("实体主键 {0} 值为 null", keyMember.Name));
 
             if (updateColumns.Count == 0)
-                throw new Exception();
+                return 0;
 
             DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
             DbExpression right = DbExpression.Parameter(keyVal, keyMemberDescriptor.MemberInfoType);

@@ -22,8 +22,22 @@ namespace Chloe
         bool _disposed = false;
         InternalDbSession _innerDbSession;
         IDbServiceProvider _dbServiceProvider;
-
         DbSession _currentSession;
+
+        Dictionary<Type, TrackEntityCollection> _trackedEntityContainer;
+
+        Dictionary<Type, TrackEntityCollection> TrackedEntityContainer
+        {
+            get
+            {
+                if (this._trackedEntityContainer == null)
+                {
+                    this._trackedEntityContainer = new Dictionary<Type, TrackEntityCollection>();
+                }
+
+                return this._trackedEntityContainer;
+            }
+        }
 
         internal InternalDbSession InnerDbSession { get { return this._innerDbSession; } }
         public IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
@@ -153,6 +167,7 @@ namespace Chloe
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MemberInfo keyMember = keyMemberDescriptor.MemberInfo;
 
+            IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
             foreach (var kv in typeDescriptor.MappingMemberDescriptors)
             {
@@ -167,6 +182,10 @@ namespace Chloe
                 }
 
                 var val = memberDescriptor.GetValue(entity);
+
+                if (entityState != null && !entityState.IsChanged(member, val))
+                    continue;
+
                 DbExpression valExp = DbExpression.Parameter(val, memberDescriptor.MemberInfoType);
                 updateColumns.Add(memberDescriptor, valExp);
             }
@@ -175,7 +194,7 @@ namespace Chloe
                 throw new Exception(string.Format("实体主键 {0} 值为 null", keyMember.Name));
 
             if (updateColumns.Count == 0)
-                throw new Exception();
+                return 0;
 
             DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
             DbExpression right = DbExpression.Parameter(keyVal, keyMemberDescriptor.MemberInfoType);
@@ -248,6 +267,40 @@ namespace Chloe
             return this.ExecuteSqlCommand(e);
         }
 
+        public virtual void TrackEntity(object entity)
+        {
+            Utils.CheckNull(entity);
+            Type entityType = entity.GetType();
+            Dictionary<Type, TrackEntityCollection> entityContainer = this.TrackedEntityContainer;
+
+            TrackEntityCollection collection;
+            if (!entityContainer.TryGetValue(entityType, out collection))
+            {
+                collection = new TrackEntityCollection(MappingTypeDescriptor.GetEntityDescriptor(entityType));
+                entityContainer.Add(entityType, collection);
+            }
+
+            collection.TryAddEntity(entity);
+        }
+        protected virtual IEntityState TryGetTrackedEntityState(object entity)
+        {
+            Utils.CheckNull(entity);
+            Type entityType = entity.GetType();
+            Dictionary<Type, TrackEntityCollection> entityContainer = this._trackedEntityContainer;
+
+            if (entityContainer == null)
+                return null;
+
+            TrackEntityCollection collection;
+            if (!entityContainer.TryGetValue(entityType, out collection))
+            {
+                return null;
+            }
+
+            var ret = collection.TryGetEntityState(entity);
+            return ret;
+        }
+
         public void Dispose()
         {
             if (this._disposed)
@@ -277,6 +330,38 @@ namespace Chloe
         {
             if (typeDescriptor.PrimaryKey == null)
                 throw new Exception(string.Format("实体类型 {0} 未定义主键", typeDescriptor.EntityType.FullName));
+        }
+
+
+        class TrackEntityCollection
+        {
+            public TrackEntityCollection(MappingTypeDescriptor typeDescriptor)
+            {
+                this.TypeDescriptor = typeDescriptor;
+                this.Entities = new Dictionary<object, IEntityState>(1);
+            }
+            public MappingTypeDescriptor TypeDescriptor { get; private set; }
+            public Dictionary<object, IEntityState> Entities { get; private set; }
+            public bool TryAddEntity(object entity)
+            {
+                if (this.Entities.ContainsKey(entity))
+                {
+                    return false;
+                }
+
+                IEntityState entityState = new EntityState(this.TypeDescriptor, entity);
+                this.Entities.Add(entity, entityState);
+
+                return true;
+            }
+            public IEntityState TryGetEntityState(object entity)
+            {
+                IEntityState ret;
+                if (!this.Entities.TryGetValue(entity, out ret))
+                    ret = null;
+
+                return ret;
+            }
         }
     }
 }
