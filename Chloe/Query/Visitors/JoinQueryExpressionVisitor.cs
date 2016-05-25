@@ -36,7 +36,7 @@ namespace Chloe.Query.Visitors
         public override JoinQueryResult Visit(RootQueryExpression exp)
         {
             Type type = exp.ElementType;
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(type);
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(type);
 
             string alias = this._resultElement.GenerateUniqueTableAlias(typeDescriptor.Table.Name);
 

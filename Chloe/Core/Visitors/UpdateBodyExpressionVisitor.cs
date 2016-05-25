@@ -14,10 +14,10 @@ namespace Chloe.Core.Visitors
 {
     public class UpdateBodyExpressionVisitor : ExpressionVisitor<Dictionary<MappingMemberDescriptor, DbExpression>>
     {
-        MappingTypeDescriptor _typeDescriptor;
+        TypeDescriptor _typeDescriptor;
         ExpressionVisitorBase _visitor;
 
-        public UpdateBodyExpressionVisitor(MappingTypeDescriptor typeDescriptor)
+        public UpdateBodyExpressionVisitor(TypeDescriptor typeDescriptor)
         {
             this._typeDescriptor = typeDescriptor;
             this._visitor = typeDescriptor.Visitor;

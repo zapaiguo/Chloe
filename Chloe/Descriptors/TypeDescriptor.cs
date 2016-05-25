@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace Chloe.Descriptors
 {
-    public class MappingTypeDescriptor
+    public class TypeDescriptor
     {
         Dictionary<MemberInfo, MappingMemberDescriptor> _mappingMemberDescriptors = new Dictionary<MemberInfo, MappingMemberDescriptor>();
         Dictionary<MemberInfo, NavigationMemberDescriptor> _navigationMemberDescriptors = new Dictionary<MemberInfo, NavigationMemberDescriptor>();
@@ -22,7 +22,7 @@ namespace Chloe.Descriptors
         UpdateBodyExpressionVisitor _updateBodyExpressionVisitor = null;
         InsertBodyExpressionVisitor _insertBodyExpressionVisitor = null;
 
-        MappingTypeDescriptor(Type t)
+        TypeDescriptor(Type t)
         {
             this.EntityType = t;
             this.Init();
@@ -149,11 +149,11 @@ namespace Chloe.Descriptors
             PropertyInfo propertyInfo = member as PropertyInfo;
             if (propertyInfo != null)
             {
-                memberDescriptor = new MappingPropertyDescriptor(propertyInfo, this, columnName);
+                memberDescriptor = new PropertyDescriptor(propertyInfo, this, columnName);
             }
             else
             {
-                memberDescriptor = new MappingFieldDescriptor((FieldInfo)member, this, columnName);
+                memberDescriptor = new FieldDescriptor((FieldInfo)member, this, columnName);
             }
 
             memberDescriptor.IsPrimaryKey = isPrimaryKey;
@@ -210,6 +210,10 @@ namespace Chloe.Descriptors
         public Dictionary<MemberInfo, MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors; } }
         public Dictionary<MemberInfo, DbColumnAccessExpression> MemberColumnMap { get { return this._memberColumnMap; } }
 
+        public bool HasPrimaryKey()
+        {
+            return this._primaryKey != null;
+        }
         public MappingMemberDescriptor GetMappingMemberDescriptor(string name)
         {
             MemberInfo memberInfo = this._mappingMemberDescriptors.Keys.Where(a => a.Name == name).FirstOrDefault();
@@ -240,18 +244,18 @@ namespace Chloe.Descriptors
             return memberDescriptor;
         }
 
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, MappingTypeDescriptor> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, MappingTypeDescriptor>();
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, TypeDescriptor> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, TypeDescriptor>();
 
-        public static MappingTypeDescriptor GetEntityDescriptor(Type type)
+        public static TypeDescriptor GetDescriptor(Type type)
         {
-            MappingTypeDescriptor instance;
+            TypeDescriptor instance;
             if (!InstanceCache.TryGetValue(type, out instance))
             {
                 lock (type)
                 {
                     if (!InstanceCache.TryGetValue(type, out instance))
                     {
-                        instance = new MappingTypeDescriptor(type);
+                        instance = new TypeDescriptor(type);
                         InstanceCache.GetOrAdd(type, instance);
                     }
                 }

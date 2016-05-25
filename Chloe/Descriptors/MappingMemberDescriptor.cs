@@ -7,7 +7,7 @@ namespace Chloe.Descriptors
 {
     public abstract class MappingMemberDescriptor : MemberDescriptor
     {
-        protected MappingMemberDescriptor(MappingTypeDescriptor declaringEntityDescriptor)
+        protected MappingMemberDescriptor(TypeDescriptor declaringEntityDescriptor)
             : base(declaringEntityDescriptor)
         {
         }

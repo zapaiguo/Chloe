@@ -32,7 +32,7 @@ namespace Chloe.Query.QueryState
             //TODO init _resultElement
             ResultElement resultElement = new ResultElement();
 
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(type);
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(type);
 
             string alias = resultElement.GenerateUniqueTableAlias(typeDescriptor.Table.Name);
 

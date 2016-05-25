@@ -31,7 +31,7 @@ namespace Chloe.SqlServer
         {
             Utils.CheckNull(entity);
 
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(entity.GetType());
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
@@ -112,7 +112,7 @@ namespace Chloe.SqlServer
         {
             Utils.CheckNull(body);
 
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
@@ -186,7 +186,7 @@ namespace Chloe.SqlServer
         {
             Utils.CheckNull(entity);
 
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(entity.GetType());
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             object keyVal = null;
@@ -244,7 +244,7 @@ namespace Chloe.SqlServer
             Utils.CheckNull(body);
             Utils.CheckNull(condition);
 
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
 
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = typeDescriptor.UpdateBodyExpressionVisitor.Visit(body);
             var conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
@@ -278,13 +278,13 @@ namespace Chloe.SqlServer
             return r;
         }
 
-        static void EnsureMappingTypeHasPrimaryKey(MappingTypeDescriptor typeDescriptor)
+        static void EnsureMappingTypeHasPrimaryKey(TypeDescriptor typeDescriptor)
         {
-            if (typeDescriptor.PrimaryKey == null)
+            if (!typeDescriptor.HasPrimaryKey())
                 throw new Exception(string.Format("实体类型 {0} 未定义主键", typeDescriptor.EntityType.FullName));
         }
 
-        static MappingMemberDescriptor GetAutoIncrementMemberDescriptor(MappingTypeDescriptor typeDescriptor)
+        static MappingMemberDescriptor GetAutoIncrementMemberDescriptor(TypeDescriptor typeDescriptor)
         {
             var autoIncrementMemberDescriptors = typeDescriptor.MappingMemberDescriptors.Values.Where(a =>
             {

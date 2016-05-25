@@ -11,7 +11,7 @@ namespace Chloe.Core
     public interface IEntityState
     {
         object Entity { get; }
-        MappingTypeDescriptor TypeDescriptor { get; }
+        TypeDescriptor TypeDescriptor { get; }
         bool IsChanged(MemberInfo member, object val);
     }
 
@@ -19,9 +19,9 @@ namespace Chloe.Core
     {
         Dictionary<MemberInfo, object> _fakes;
         object _entity;
-        MappingTypeDescriptor _typeDescriptor;
+        TypeDescriptor _typeDescriptor;
 
-        public EntityState(MappingTypeDescriptor typeDescriptor, object entity)
+        public EntityState(TypeDescriptor typeDescriptor, object entity)
         {
             this._typeDescriptor = typeDescriptor;
             this._entity = entity;
@@ -29,7 +29,7 @@ namespace Chloe.Core
         }
 
         public object Entity { get { return this._entity; } }
-        public MappingTypeDescriptor TypeDescriptor { get { return this._typeDescriptor; } }
+        public TypeDescriptor TypeDescriptor { get { return this._typeDescriptor; } }
 
         public bool IsChanged(MemberInfo member, object val)
         {

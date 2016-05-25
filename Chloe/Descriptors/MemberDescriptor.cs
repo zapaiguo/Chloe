@@ -8,12 +8,12 @@ namespace Chloe.Descriptors
     public abstract class MemberDescriptor
     {
         Dictionary<Type, Attribute> _customAttributes = new Dictionary<Type, Attribute>();
-        protected MemberDescriptor(MappingTypeDescriptor declaringEntityDescriptor)
+        protected MemberDescriptor(TypeDescriptor declaringEntityDescriptor)
         {
             this.DeclaringEntityDescriptor = declaringEntityDescriptor;
         }
 
-        public MappingTypeDescriptor DeclaringEntityDescriptor { get; set; }
+        public TypeDescriptor DeclaringEntityDescriptor { get; set; }
         public abstract MemberInfo MemberInfo { get; }
         public abstract Type MemberInfoType { get; }
         public abstract MemberTypes MemberType { get; }

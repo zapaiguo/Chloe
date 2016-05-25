@@ -1,4 +1,5 @@
 ﻿using Chloe.Mapper;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -21,7 +22,7 @@ namespace Chloe.Descriptors
         {
             ConstructorInfo constructor = this.ConstructorInfo;
             Type type = constructor.DeclaringType;
-            if (IsAnonymousType(type))
+            if (Utils.IsAnonymousType(type))
             {
                 ParameterInfo[] parameters = constructor.GetParameters();
                 foreach (ParameterInfo parameter in parameters)
@@ -75,12 +76,6 @@ namespace Chloe.Descriptors
             }
 
             return instance;
-        }
-
-        static bool IsAnonymousType(Type type)
-        {
-            string typeName = type.Name;
-            return typeName.Contains("<>") && typeName.Contains("__") && typeName.Contains("AnonymousType");
         }
     }
 

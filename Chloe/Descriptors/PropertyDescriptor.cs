@@ -1,38 +1,38 @@
-﻿using System.Reflection;
+﻿using Chloe.DbExpressions;
 using System;
-using Chloe.DbExpressions;
+using System.Reflection;
+using System.Collections.Generic;
 using System.Threading;
 using Chloe.Core;
 using Chloe.Core.Emit;
 
 namespace Chloe.Descriptors
 {
-    public class MappingFieldDescriptor : MappingMemberDescriptor
+    public class PropertyDescriptor : MappingMemberDescriptor
     {
-        FieldInfo _fieldInfo;
+        PropertyInfo _propertyInfo;
         DbColumn _column;
 
         Func<object, object> _valueGetter = null;
         Action<object, object> _valueSetter = null;
-        public MappingFieldDescriptor(FieldInfo fieldInfo, MappingTypeDescriptor declaringEntityDescriptor, string columnName)
+        public PropertyDescriptor(PropertyInfo propertyInfo, TypeDescriptor declaringEntityDescriptor, string columnName)
             : base(declaringEntityDescriptor)
         {
-            this._fieldInfo = fieldInfo;
-            this._column = new DbColumn(columnName, fieldInfo.FieldType);
+            this._propertyInfo = propertyInfo;
+            this._column = new DbColumn(columnName, propertyInfo.PropertyType);
         }
-
 
         public override MemberInfo MemberInfo
         {
-            get { return this._fieldInfo; }
+            get { return this._propertyInfo; }
         }
         public override Type MemberInfoType
         {
-            get { return this._fieldInfo.FieldType; }
+            get { return this._propertyInfo.PropertyType; }
         }
         public override MemberTypes MemberType
         {
-            get { return MemberTypes.Field; }
+            get { return MemberTypes.Property; }
         }
         public override DbColumn Column
         {
@@ -49,7 +49,7 @@ namespace Chloe.Descriptors
                     {
                         if (null == this._valueGetter)
                         {
-                            this._valueGetter = DelegateGenerator.CreateValueGetter(this._fieldInfo);
+                            this._valueGetter = DelegateGenerator.CreateValueGetter(this._propertyInfo);
                         }
                     }
                     finally
@@ -59,7 +59,7 @@ namespace Chloe.Descriptors
                 }
                 else
                 {
-                    return this._fieldInfo.GetValue(instance);
+                    return this._propertyInfo.GetValue(instance);
                 }
             }
 
@@ -75,7 +75,7 @@ namespace Chloe.Descriptors
                     {
                         if (null == this._valueSetter)
                         {
-                            this._valueSetter = DelegateGenerator.CreateValueSetter(this._fieldInfo);
+                            this._valueSetter = DelegateGenerator.CreateValueSetter(this._propertyInfo);
                         }
                     }
                     finally
@@ -85,7 +85,7 @@ namespace Chloe.Descriptors
                 }
                 else
                 {
-                    this._fieldInfo.SetValue(instance, value);
+                    this._propertyInfo.SetValue(instance, value);
                     return;
                 }
             }
@@ -93,4 +93,5 @@ namespace Chloe.Descriptors
             this._valueSetter(instance, value);
         }
     }
+
 }

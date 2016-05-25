@@ -100,10 +100,10 @@
     <Compile Include="DbExpressions\JoinType.cs" />
     <Compile Include="DbExpressions\OrderType.cs" />
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
-    <Compile Include="Descriptors\MappingFieldDescriptor.cs" />
+    <Compile Include="Descriptors\FieldDescriptor.cs" />
     <Compile Include="Descriptors\MappingMemberDescriptor.cs" />
-    <Compile Include="Descriptors\MappingPropertyDescriptor.cs" />
-    <Compile Include="Descriptors\MappingTypeDescriptor.cs" />
+    <Compile Include="Descriptors\PropertyDescriptor.cs" />
+    <Compile Include="Descriptors\TypeDescriptor.cs" />
     <Compile Include="Descriptors\MemberDescriptor.cs" />
     <Compile Include="Descriptors\NavigationFieldDescriptor.cs" />
     <Compile Include="Descriptors\NavigationMemberDescriptor.cs" />

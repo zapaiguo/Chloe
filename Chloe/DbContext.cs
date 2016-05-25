@@ -74,7 +74,7 @@ namespace Chloe
         {
             Utils.CheckNull(entity);
 
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(entity.GetType());
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
@@ -119,7 +119,7 @@ namespace Chloe
         {
             Utils.CheckNull(body);
 
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
@@ -160,7 +160,7 @@ namespace Chloe
         {
             Utils.CheckNull(entity);
 
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(entity.GetType());
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             object keyVal = null;
@@ -214,7 +214,7 @@ namespace Chloe
             Utils.CheckNull(body);
             Utils.CheckNull(condition);
 
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
 
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = typeDescriptor.UpdateBodyExpressionVisitor.Visit(body);
             var conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
@@ -237,7 +237,7 @@ namespace Chloe
         {
             Utils.CheckNull(entity);
 
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(entity.GetType());
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
@@ -259,7 +259,7 @@ namespace Chloe
         {
             Utils.CheckNull(condition);
 
-            MappingTypeDescriptor typeDescriptor = MappingTypeDescriptor.GetEntityDescriptor(typeof(T));
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
             var conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
             DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
@@ -271,12 +271,21 @@ namespace Chloe
         {
             Utils.CheckNull(entity);
             Type entityType = entity.GetType();
+
+            if (Utils.IsAnonymousType(entityType))
+                return;
+
             Dictionary<Type, TrackEntityCollection> entityContainer = this.TrackedEntityContainer;
 
             TrackEntityCollection collection;
             if (!entityContainer.TryGetValue(entityType, out collection))
             {
-                collection = new TrackEntityCollection(MappingTypeDescriptor.GetEntityDescriptor(entityType));
+                TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entityType);
+
+                if (!typeDescriptor.HasPrimaryKey())
+                    return;
+
+                collection = new TrackEntityCollection(typeDescriptor);
                 entityContainer.Add(entityType, collection);
             }
 
@@ -326,7 +335,7 @@ namespace Chloe
             return r;
         }
 
-        static void EnsureMappingTypeHasPrimaryKey(MappingTypeDescriptor typeDescriptor)
+        static void EnsureMappingTypeHasPrimaryKey(TypeDescriptor typeDescriptor)
         {
             if (typeDescriptor.PrimaryKey == null)
                 throw new Exception(string.Format("实体类型 {0} 未定义主键", typeDescriptor.EntityType.FullName));
@@ -335,12 +344,12 @@ namespace Chloe
 
         class TrackEntityCollection
         {
-            public TrackEntityCollection(MappingTypeDescriptor typeDescriptor)
+            public TrackEntityCollection(TypeDescriptor typeDescriptor)
             {
                 this.TypeDescriptor = typeDescriptor;
                 this.Entities = new Dictionary<object, IEntityState>(1);
             }
-            public MappingTypeDescriptor TypeDescriptor { get; private set; }
+            public TypeDescriptor TypeDescriptor { get; private set; }
             public Dictionary<object, IEntityState> Entities { get; private set; }
             public bool TryAddEntity(object entity)
             {

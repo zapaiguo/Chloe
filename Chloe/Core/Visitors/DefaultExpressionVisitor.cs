@@ -13,9 +13,9 @@ namespace Chloe.Core.Visitors
 {
     public class DefaultExpressionVisitor : ExpressionVisitorBase
     {
-        MappingTypeDescriptor _typeDescriptor;
+        TypeDescriptor _typeDescriptor;
 
-        public DefaultExpressionVisitor(MappingTypeDescriptor typeDescriptor)
+        public DefaultExpressionVisitor(TypeDescriptor typeDescriptor)
         {
             this._typeDescriptor = typeDescriptor;
         }

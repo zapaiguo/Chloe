@@ -15,7 +15,7 @@ namespace Chloe.Descriptors
         /// <param name="declaringEntityDescriptor"></param>
         /// <param name="thisKey">定义导航属性实体相关的属性或字段名称</param>
         /// <param name="associatingKey">关联导航属性实体类型的属性或字段名称</param>
-        public NavigationMemberDescriptor(MemberInfo memberInfo, Type memberType, MappingTypeDescriptor declaringEntityDescriptor, string thisKey, string associatingKey)
+        public NavigationMemberDescriptor(MemberInfo memberInfo, Type memberType, TypeDescriptor declaringEntityDescriptor, string thisKey, string associatingKey)
             : base(declaringEntityDescriptor)
         {
             this._memberInfo = memberInfo;

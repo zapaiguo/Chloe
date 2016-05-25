@@ -12,9 +12,9 @@ namespace Chloe.Core.Visitors
 {
     public class InsertBodyExpressionVisitor : ExpressionVisitor<Dictionary<MappingMemberDescriptor, object>>
     {
-        MappingTypeDescriptor _typeDescriptor;
+        TypeDescriptor _typeDescriptor;
 
-        public InsertBodyExpressionVisitor(MappingTypeDescriptor typeDescriptor)
+        public InsertBodyExpressionVisitor(TypeDescriptor typeDescriptor)
         {
             this._typeDescriptor = typeDescriptor;
         }

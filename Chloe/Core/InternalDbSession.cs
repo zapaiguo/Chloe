@@ -282,9 +282,15 @@ namespace Chloe.Core
                         typeName = t.Name;
                         if (t == typeof(string) || t == typeof(DateTime))
                             value = "'" + item.Value + "'";
+                        else if (item.Value == DBNull.Value)
+                        {
+                            value = "null";
+                        }
                         else
                             value = item.Value;
                     }
+                    else
+                        value = "null";
 
                     sb.AppendFormat("DECLARE {0} {1} = {2};", item.Key, typeName, value);
                     sb.AppendLine();

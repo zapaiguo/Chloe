@@ -63,6 +63,11 @@ namespace Chloe.Utility
 
             return MapTypes.Contains(unType);
         }
+        public static bool IsAnonymousType(Type type)
+        {
+            string typeName = type.Name;
+            return typeName.Contains("<>") && typeName.Contains("__") && typeName.Contains("AnonymousType");
+        }
 
         public static string GenerateUniqueColumnAlias(DbSqlQueryExpression sqlQuery, string defaultAlias = DefaultColumnAlias)
         {
