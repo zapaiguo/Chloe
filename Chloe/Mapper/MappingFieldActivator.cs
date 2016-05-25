@@ -17,7 +17,14 @@ namespace Chloe.Mapper
         }
         public object CreateInstance(IDataReader reader)
         {
-            return _fn(reader, _readerOrdinal);
+            try
+            {
+                return _fn(reader, _readerOrdinal);
+            }
+            catch (Exception ex)
+            {
+                throw new DataException(ObjectActivator.AppendErrorMsg(reader, this._readerOrdinal), ex);
+            }
         }
     }
 }

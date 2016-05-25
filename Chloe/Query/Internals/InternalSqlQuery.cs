@@ -1,6 +1,7 @@
 ﻿using Chloe.Core;
 using Chloe.Descriptors;
 using Chloe.Mapper;
+using Chloe.Query.Mapping;
 using Chloe.Utility;
 using System;
 using System.Collections;
@@ -118,6 +119,14 @@ namespace Chloe.Query.Internals
             void Prepare()
             {
                 Type type = typeof(T);
+
+                if (Utils.IsMapType(type))
+                {
+                    MappingField mf = new MappingField(type, 0);
+                    this._objectActivator = mf.CreateObjectActivator();
+                    this._reader = this._internalSqlQuery._dbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, CommandType.Text);
+                    return;
+                }
 
                 EntityConstructorDescriptor constructorDescriptor = EntityConstructorDescriptor.GetInstance(type.GetConstructor(Type.EmptyTypes));
                 EntityMemberMapper mapper = constructorDescriptor.GetEntityMemberMapper();

@@ -78,7 +78,7 @@ namespace Chloe.Mapper
             return obj;
         }
 
-        static string AppendErrorMsg(IDataReader reader, int ordinal)
+        public static string AppendErrorMsg(IDataReader reader, int ordinal)
         {
             string msg = string.Format("Error: {0}({1},{2},{3})", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
             return msg;
