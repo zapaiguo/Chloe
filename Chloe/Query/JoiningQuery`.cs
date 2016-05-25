@@ -52,7 +52,7 @@ namespace Chloe.Query
         public IQuery<TResult> Select<TResult>(Expression<Func<T1, T2, TResult>> selector)
         {
             JoinQueryExpression e = new JoinQueryExpression(typeof(TResult), this._rootQuery.QueryExpression, this._joinedQueries, selector);
-            return new Query<TResult>(this.DbContext, e);
+            return new Query<TResult>(this.DbContext, e, this._rootQuery.TrackEntity);
         }
     }
 
@@ -99,7 +99,7 @@ namespace Chloe.Query
         public IQuery<TResult> Select<TResult>(Expression<Func<T1, T2, T3, TResult>> selector)
         {
             JoinQueryExpression e = new JoinQueryExpression(typeof(TResult), this._rootQuery.QueryExpression, this._joinedQueries, selector);
-            return new Query<TResult>(this.DbContext, e);
+            return new Query<TResult>(this.DbContext, e, this._rootQuery.TrackEntity);
         }
     }
 
@@ -146,7 +146,7 @@ namespace Chloe.Query
         public IQuery<TResult> Select<TResult>(Expression<Func<T1, T2, T3, T4, TResult>> selector)
         {
             JoinQueryExpression e = new JoinQueryExpression(typeof(TResult), this._rootQuery.QueryExpression, this._joinedQueries, selector);
-            return new Query<TResult>(this.DbContext, e);
+            return new Query<TResult>(this.DbContext, e, this._rootQuery.TrackEntity);
         }
     }
 
@@ -176,7 +176,7 @@ namespace Chloe.Query
         public IQuery<TResult> Select<TResult>(Expression<Func<T1, T2, T3, T4, T5, TResult>> selector)
         {
             JoinQueryExpression e = new JoinQueryExpression(typeof(TResult), this._rootQuery.QueryExpression, this._joinedQueries, selector);
-            return new Query<TResult>(this.DbContext, e);
+            return new Query<TResult>(this.DbContext, e, this._rootQuery.TrackEntity);
         }
     }
 

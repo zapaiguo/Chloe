@@ -11,20 +11,20 @@ namespace Chloe.Query
 {
     class OrderedQuery<T> : Query<T>, IOrderedQuery<T>
     {
-        public OrderedQuery(DbContext dbContext, QueryExpression exp)
-            : base(dbContext, exp)
+        public OrderedQuery(DbContext dbContext, QueryExpression exp, bool trackEntity)
+            : base(dbContext, exp, trackEntity)
         {
 
         }
         public IOrderedQuery<T> ThenBy<K>(Expression<Func<T, K>> predicate)
         {
             OrderExpression e = new OrderExpression(QueryExpressionType.ThenBy, typeof(T), this.QueryExpression, predicate);
-            return new OrderedQuery<T>(this.DbContext, e);
+            return new OrderedQuery<T>(this.DbContext, e, this._trackEntity);
         }
         public IOrderedQuery<T> ThenByDesc<K>(Expression<Func<T, K>> predicate)
         {
             OrderExpression e = new OrderExpression(QueryExpressionType.ThenByDesc, typeof(T), this.QueryExpression, predicate);
-            return new OrderedQuery<T>(this.DbContext, e);
+            return new OrderedQuery<T>(this.DbContext, e, this._trackEntity);
         }
     }
 }

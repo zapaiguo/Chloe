@@ -29,7 +29,12 @@ namespace Chloe.Query.Internals
             AbstractDbExpressionVisitor visitor = this._query.DbContext.DbServiceProvider.CreateDbExpressionVisitor();
             ISqlState sqlState = data.SqlQuery.Accept(visitor);
 
-            IObjectActivator objectActivator = data.MappingEntity.CreateObjectActivator();
+            IObjectActivator objectActivator;
+            if (this._query._trackEntity)
+                objectActivator = data.MappingEntity.CreateObjectActivator(this._query.DbContext);
+            else
+                objectActivator = data.MappingEntity.CreateObjectActivator();
+
             string cmdText = sqlState.ToSql();
             IDictionary<string, object> parameters = visitor.ParameterStorage;
 

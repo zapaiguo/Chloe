@@ -9,6 +9,7 @@ namespace Chloe
 {
     public interface IQuery<T> //:   IEnumerable<T>, IEnumerable
     {
+        IQuery<T> AsTracking();
         IEnumerable<T> AsEnumerable();
         IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector);
 

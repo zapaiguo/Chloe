@@ -56,7 +56,7 @@ namespace Chloe.Query
             var e = new GroupingQueryExpression(typeof(TResult), this._fromQuery.QueryExpression, selector);
             e.GroupPredicates.AddRange(this._groupPredicates);
             e.HavingPredicates.AddRange(this._havingPredicates);
-            return new Query<TResult>(this._fromQuery.DbContext, e);
+            return new Query<TResult>(this._fromQuery.DbContext, e, this._fromQuery._trackEntity);
         }
     }
 }

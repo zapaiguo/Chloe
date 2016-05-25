@@ -21,53 +21,59 @@ namespace Chloe.Query
         DbContext _dbContext;
         QueryExpression _expression;
 
+        internal bool _trackEntity = false;
         public DbContext DbContext { get { return this._dbContext; } }
 
         public Query(DbContext dbContext)
-            : this(dbContext, new RootQueryExpression(typeof(T)))
+            : this(dbContext, new RootQueryExpression(typeof(T)), false)
         {
 
         }
         public Query(DbContext dbContext, QueryExpression exp)
+            : this(dbContext, exp, false)
+        {
+        }
+        public Query(DbContext dbContext, QueryExpression exp, bool trackEntity)
         {
             this._dbContext = dbContext;
             this._expression = exp;
+            this._trackEntity = trackEntity;
         }
 
         public IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector)
         {
             Utils.CheckNull(selector);
             SelectExpression e = new SelectExpression(typeof(TResult), _expression, selector);
-            return new Query<TResult>(this._dbContext, e);
+            return new Query<TResult>(this._dbContext, e, this._trackEntity);
         }
 
         public IQuery<T> Where(Expression<Func<T, bool>> predicate)
         {
             Utils.CheckNull(predicate);
             WhereExpression e = new WhereExpression(_expression, typeof(T), predicate);
-            return new Query<T>(this._dbContext, e);
+            return new Query<T>(this._dbContext, e, this._trackEntity);
         }
         public IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> predicate)
         {
             Utils.CheckNull(predicate);
             OrderExpression e = new OrderExpression(QueryExpressionType.OrderBy, typeof(T), this._expression, predicate);
-            return new OrderedQuery<T>(this._dbContext, e);
+            return new OrderedQuery<T>(this._dbContext, e, this._trackEntity);
         }
         public IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate)
         {
             Utils.CheckNull(predicate);
             OrderExpression e = new OrderExpression(QueryExpressionType.OrderByDesc, typeof(T), this._expression, predicate);
-            return new OrderedQuery<T>(this._dbContext, e);
+            return new OrderedQuery<T>(this._dbContext, e, this._trackEntity);
         }
         public IQuery<T> Skip(int count)
         {
             SkipExpression e = new SkipExpression(typeof(T), this._expression, count);
-            return new Query<T>(this._dbContext, e);
+            return new Query<T>(this._dbContext, e, this._trackEntity);
         }
         public IQuery<T> Take(int count)
         {
             TakeExpression e = new TakeExpression(typeof(T), this._expression, count);
-            return new Query<T>(this._dbContext, e);
+            return new Query<T>(this._dbContext, e, this._trackEntity);
         }
 
         public IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate)
@@ -392,11 +398,13 @@ namespace Chloe.Query
             return iterator.Single();
         }
 
-        public override QueryExpression QueryExpression
-        {
-            get { return _expression; }
-        }
+        public override QueryExpression QueryExpression { get { return this._expression; } }
+        public override bool TrackEntity { get { return this._trackEntity; } }
 
+        public IQuery<T> AsTracking()
+        {
+            return new Query<T>(this._dbContext, this.QueryExpression, true);
+        }
         public IEnumerable<T> AsEnumerable()
         {
             return this.GenenateIterator();
@@ -410,7 +418,7 @@ namespace Chloe.Query
         InternalQuery<T1> CreateFunctionQuery<T1>(MethodInfo method, List<Expression> parameters)
         {
             FunctionExpression e = new FunctionExpression(typeof(T1), this._expression, method, parameters);
-            var q = new Query<T1>(this._dbContext, e);
+            var q = new Query<T1>(this._dbContext, e, false);
             InternalQuery<T1> iterator = q.GenenateIterator();
             return iterator;
         }

@@ -29,7 +29,7 @@ namespace Chloe.Mapper
             this._objectActivatorEnumerator = new ObjectActivatorEnumerator(objectActivators);
         }
 
-        public object CreateInstance(IDataReader reader)
+        public virtual object CreateInstance(IDataReader reader)
         {
             if (this._checkNullOrdinal != null)
             {
@@ -82,6 +82,26 @@ namespace Chloe.Mapper
         {
             string msg = string.Format("Error: {0}({1},{2},{3})", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
             return msg;
+        }
+    }
+
+    public class ObjectActivatorWithTracking : ObjectActivator
+    {
+        IDbContext _dbContext;
+        public ObjectActivatorWithTracking(Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator, List<int> readerOrdinals, List<IObjectActivator> objectActivators, List<IValueSetter> memberSetters, int? checkNullOrdinal, IDbContext dbContext)
+            : base(instanceCreator, readerOrdinals, objectActivators, memberSetters, checkNullOrdinal)
+        {
+            this._dbContext = dbContext;
+        }
+
+        public override object CreateInstance(IDataReader reader)
+        {
+            var obj = base.CreateInstance(reader);
+
+            if (obj != null)
+                this._dbContext.TrackEntity(obj);
+
+            return obj;
         }
     }
 }

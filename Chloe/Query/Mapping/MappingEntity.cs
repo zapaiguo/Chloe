@@ -28,6 +28,10 @@ namespace Chloe.Query.Mapping
 
         public IObjectActivator CreateObjectActivator()
         {
+            return this.CreateObjectActivator(null);
+        }
+        public IObjectActivator CreateObjectActivator(IDbContext dbContext)
+        {
             EntityMemberMapper mapper = this.ConstructorDescriptor.GetEntityMemberMapper();
             List<IValueSetter> memberSetters = new List<IValueSetter>(this.Members.Count + this.EntityMembers.Count);
             foreach (var kv in this.Members)
@@ -50,7 +54,11 @@ namespace Chloe.Query.Mapping
             List<int> readerOrdinals = this.ConstructorParameters.Select(a => a.Value).ToList();
             List<IObjectActivator> objectActivators = this.ConstructorEntityParameters.Select(a => a.Value.CreateObjectActivator()).ToList();
 
-            ObjectActivator ret = new ObjectActivator(instanceCreator, readerOrdinals, objectActivators, memberSetters, this.CheckNullOrdinal);
+            ObjectActivator ret;
+            if (dbContext != null)
+                ret = new ObjectActivatorWithTracking(instanceCreator, readerOrdinals, objectActivators, memberSetters, this.CheckNullOrdinal, dbContext);
+            else
+                ret = new ObjectActivator(instanceCreator, readerOrdinals, objectActivators, memberSetters, this.CheckNullOrdinal);
 
             return ret;
         }

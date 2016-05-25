@@ -22,6 +22,10 @@ namespace Chloe.Query.Mapping
 
         public IObjectActivator CreateObjectActivator()
         {
+            return this.CreateObjectActivator(null);
+        }
+        public IObjectActivator CreateObjectActivator(IDbContext dbContext)
+        {
             Func<IDataReader, int, object> fn = MappingTypeConstructor.GetInstance(this._type).InstanceCreator;
             MappingFieldActivator act = new MappingFieldActivator(fn, this.ReaderOrdinal);
             return act;
