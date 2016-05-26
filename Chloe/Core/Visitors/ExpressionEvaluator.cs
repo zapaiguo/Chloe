@@ -18,10 +18,9 @@ namespace Chloe.Core.Visitors
         }
         protected override object VisitMemberAccess(MemberExpression exp)
         {
-            var val = this.Visit(exp.Expression);
-
-            if (val == null)
-                throw UtilExceptions.NullReferenceException();
+            object val = null;
+            if (exp.Expression != null)
+                val = this.Visit(exp.Expression);
 
             if (exp.Member.MemberType == MemberTypes.Property)
             {
