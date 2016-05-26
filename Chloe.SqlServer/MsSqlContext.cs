@@ -265,7 +265,7 @@ namespace Chloe.SqlServer
         static void EnsureMappingTypeHasPrimaryKey(TypeDescriptor typeDescriptor)
         {
             if (!typeDescriptor.HasPrimaryKey())
-                throw new Exception(string.Format("实体类型 {0} 未定义主键", typeDescriptor.EntityType.FullName));
+                throw new Exception(string.Format("实体类 {0} 未定义主键", typeDescriptor.EntityType.FullName));
         }
 
         static MappingMemberDescriptor GetAutoIncrementMemberDescriptor(TypeDescriptor typeDescriptor)
