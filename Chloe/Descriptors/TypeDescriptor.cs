@@ -19,8 +19,6 @@ namespace Chloe.Descriptors
         MappingMemberDescriptor _primaryKey = null;
 
         DefaultExpressionVisitor _visitor = null;
-        UpdateBodyExpressionVisitor _updateBodyExpressionVisitor = null;
-        InsertBodyExpressionVisitor _insertBodyExpressionVisitor = null;
 
         TypeDescriptor(Type t)
         {
@@ -185,27 +183,6 @@ namespace Chloe.Descriptors
                 return this._visitor;
             }
         }
-        public InsertBodyExpressionVisitor InsertBodyExpressionVisitor
-        {
-            get
-            {
-                if (this._insertBodyExpressionVisitor == null)
-                    this._insertBodyExpressionVisitor = new InsertBodyExpressionVisitor(this);
-
-                return this._insertBodyExpressionVisitor;
-            }
-        }
-        public UpdateBodyExpressionVisitor UpdateBodyExpressionVisitor
-        {
-            get
-            {
-                if (this._updateBodyExpressionVisitor == null)
-                    this._updateBodyExpressionVisitor = new UpdateBodyExpressionVisitor(this);
-
-                return this._updateBodyExpressionVisitor;
-            }
-        }
-
 
         public Dictionary<MemberInfo, MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors; } }
         public Dictionary<MemberInfo, DbColumnAccessExpression> MemberColumnMap { get { return this._memberColumnMap; } }
@@ -214,17 +191,7 @@ namespace Chloe.Descriptors
         {
             return this._primaryKey != null;
         }
-        public MappingMemberDescriptor GetMappingMemberDescriptor(string name)
-        {
-            MemberInfo memberInfo = this._mappingMemberDescriptors.Keys.Where(a => a.Name == name).FirstOrDefault();
-            if (memberInfo == null)
-            {
-                return null;
-            }
-
-            return this._mappingMemberDescriptors[memberInfo];
-        }
-        public MappingMemberDescriptor GetMappingMemberDescriptor(MemberInfo memberInfo)
+        public MappingMemberDescriptor TryGetMappingMemberDescriptor(MemberInfo memberInfo)
         {
             MappingMemberDescriptor memberDescriptor;
             if (!this._mappingMemberDescriptors.TryGetValue(memberInfo, out memberDescriptor))
@@ -234,7 +201,7 @@ namespace Chloe.Descriptors
 
             return memberDescriptor;
         }
-        public NavigationMemberDescriptor GetNavigationMemberDescriptor(MemberInfo memberInfo)
+        public NavigationMemberDescriptor TryGetNavigationMemberDescriptor(MemberInfo memberInfo)
         {
             NavigationMemberDescriptor memberDescriptor;
             if (!this._navigationMemberDescriptors.TryGetValue(memberInfo, out memberDescriptor))

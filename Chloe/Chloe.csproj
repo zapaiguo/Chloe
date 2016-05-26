@@ -56,8 +56,7 @@
     <Compile Include="Core\Visitors\ExpressionVisitor.cs" />
     <Compile Include="Core\Visitors\ExpressionVisitorBase.cs" />
     <Compile Include="Core\Visitors\ExpressionVisitor`.cs" />
-    <Compile Include="Core\Visitors\InsertBodyExpressionVisitor.cs" />
-    <Compile Include="Core\Visitors\UpdateBodyExpressionVisitor.cs" />
+    <Compile Include="Core\Visitors\InitMemberExtractor.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="DbExpressions\DbAddExpression.cs" />
     <Compile Include="DbExpressions\DbAndExpression.cs" />

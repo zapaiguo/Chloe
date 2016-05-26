@@ -108,7 +108,7 @@ namespace Chloe.SqlServer
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MappingMemberDescriptor autoIncrementMemberDescriptor = GetAutoIncrementMemberDescriptor(typeDescriptor);
 
-            Dictionary<MappingMemberDescriptor, object> insertColumns = typeDescriptor.InsertBodyExpressionVisitor.Visit(body);
+            Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(body);
 
             DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
 
@@ -116,21 +116,25 @@ namespace Chloe.SqlServer
 
             foreach (var kv in insertColumns)
             {
-                var key = kv.Key;
-                var val = kv.Value;
+                MemberInfo key = kv.Key;
+                MappingMemberDescriptor memberDescriptor = typeDescriptor.TryGetMappingMemberDescriptor(key);
 
-                if (key == autoIncrementMemberDescriptor)
-                    throw new Exception(string.Format("无法将值插入自增列 {0}", key.Column.Name));
+                if (memberDescriptor == null)
+                    throw new Exception(string.Format("成员 {0} 未映射任何列", key.Name));
 
-                if (key.IsPrimaryKey && val == null)
+                if (memberDescriptor == autoIncrementMemberDescriptor)
+                    throw new Exception(string.Format("不能将值插入自增长列 '{0}'", memberDescriptor.Column.Name));
+
+                if (memberDescriptor.IsPrimaryKey)
                 {
-                    throw new Exception(string.Format("主键 {0} 值为 null", keyMemberDescriptor.MemberInfo.Name));
+                    object val = ExpressionEvaluator.Evaluate(kv.Value);
+                    if (val == null)
+                        throw new Exception(string.Format("主键 {0} 值为 null", memberDescriptor.MemberInfo.Name));
+                    else
+                        keyValue = val;
                 }
-                else
-                    keyValue = val;
 
-                DbParameterExpression p = DbExpression.Parameter(val, key.MemberInfoType);
-                e.InsertColumns.Add(kv.Key.Column, p);
+                e.InsertColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
             }
 
             //主键为空并且主键又不是自增列
@@ -230,22 +234,27 @@ namespace Chloe.SqlServer
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
 
-            Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = typeDescriptor.UpdateBodyExpressionVisitor.Visit(body);
+            Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(body);
             var conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
             DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
 
-            foreach (var item in updateColumns)
+            foreach (var kv in updateColumns)
             {
-                MappingMemberDescriptor key = item.Key;
-                if (key.IsPrimaryKey)
-                    throw new Exception(string.Format("成员 {0} 属于主键，无法对其进行更新操作", key.MemberInfo.Name));
+                MemberInfo key = kv.Key;
+                MappingMemberDescriptor memberDescriptor = typeDescriptor.TryGetMappingMemberDescriptor(key);
 
-                e.UpdateColumns.Add(item.Key.Column, item.Value);
+                if (memberDescriptor == null)
+                    throw new Exception(string.Format("成员 {0} 未映射任何列", key.Name));
+
+                if (memberDescriptor.IsPrimaryKey)
+                    throw new Exception(string.Format("无法对主键 '{0}' 进行更新", memberDescriptor.Column.Name));
 
                 AutoIncrementAttribute attr = (AutoIncrementAttribute)key.GetCustomAttribute(typeof(AutoIncrementAttribute));
                 if (attr != null)
-                    throw new Exception(string.Format("成员 {0} 属于自增成员，无法对其进行更新操作", key.MemberInfo.Name));
+                    throw new Exception(string.Format("无法对自增长列 '{0}' 进行更新", memberDescriptor.Column.Name));
+
+                e.UpdateColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
             }
 
             return this.ExecuteSqlCommand(e);
