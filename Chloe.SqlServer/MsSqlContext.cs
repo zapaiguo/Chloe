@@ -86,6 +86,7 @@ namespace Chloe.SqlServer
             string sql = sqlState.ToSql();
             sql += ";SELECT @@IDENTITY";
 
+            //SELECT @@IDENTITY 返回的是 decimal 类型
             object retIdentity = this.CurrentSession.ExecuteScalar(sql, dbExpVisitor.ParameterStorage);
 
             if (retIdentity == null || retIdentity == DBNull.Value)
@@ -93,19 +94,8 @@ namespace Chloe.SqlServer
                 throw new Exception("无法获取自增标识");
             }
 
-            //SELECT @@IDENTITY 返回的是 decimal 类型
-            decimal identity = (decimal)retIdentity;
-            if (autoIncrementMemberDescriptor.MemberInfoType == UtilConstants.TypeOfInt32)
-            {
-                autoIncrementMemberDescriptor.SetValue(entity, (int)identity);
-            }
-            else if (autoIncrementMemberDescriptor.MemberInfoType == UtilConstants.TypeOfInt64)
-            {
-                autoIncrementMemberDescriptor.SetValue(entity, (long)identity);
-            }
-            else
-                autoIncrementMemberDescriptor.SetValue(entity, retIdentity);
-
+            retIdentity = ConvertIdentity(retIdentity, autoIncrementMemberDescriptor.MemberInfoType);
+            autoIncrementMemberDescriptor.SetValue(entity, retIdentity);
             return entity;
         }
         public override object Insert<T>(Expression<Func<T>> body)
@@ -161,6 +151,7 @@ namespace Chloe.SqlServer
             string sql = sqlState.ToSql();
             sql += ";SELECT @@IDENTITY";
 
+            //SELECT @@IDENTITY 返回的是 decimal 类型
             object retIdentity = this.CurrentSession.ExecuteScalar(sql, dbExpVisitor.ParameterStorage);
 
             if (retIdentity == null || retIdentity == DBNull.Value)
@@ -168,17 +159,7 @@ namespace Chloe.SqlServer
                 throw new Exception("无法获取自增标识");
             }
 
-            //SELECT @@IDENTITY 返回的是 decimal 类型
-            decimal identity = (decimal)retIdentity;
-            if (autoIncrementMemberDescriptor.MemberInfoType == UtilConstants.TypeOfInt32)
-            {
-                return (int)identity;
-            }
-            else if (autoIncrementMemberDescriptor.MemberInfoType == UtilConstants.TypeOfInt64)
-            {
-                return (long)identity;
-            }
-
+            retIdentity = ConvertIdentity(retIdentity, autoIncrementMemberDescriptor.MemberInfoType);
             return retIdentity;
         }
 
@@ -307,10 +288,17 @@ namespace Chloe.SqlServer
         }
         static void EnsureAutoIncrementMemberType(MappingMemberDescriptor autoIncrementMemberDescriptor)
         {
-            if (autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt32 && autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt64)
+            if (autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt16 && autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt32 && autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt64)
             {
                 throw new Exception("自增成员必须是 Int32 或 Int64 类型");
             }
+        }
+        static object ConvertIdentity(object identity, Type conversionType)
+        {
+            if (identity.GetType() != conversionType)
+                return Convert.ChangeType(identity, conversionType);
+
+            return identity;
         }
 
     }

@@ -13,6 +13,12 @@ namespace Chloe
         IEnumerable<T> SqlQuery<T>(string sql, IDictionary<string, object> parameters = null) where T : new();
 
         T Insert<T>(T entity);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="body"></param>
+        /// <returns>主键值</returns>
         object Insert<T>(Expression<Func<T>> body);
 
         int Update<T>(T entity);
