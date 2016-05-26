@@ -133,11 +133,6 @@ namespace Chloe.Query.Internals
                 Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator = constructorDescriptor.GetInstanceCreator();
 
                 this._reader = this._internalSqlQuery._dbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, CommandType.Text);
-
-#if DEBUG
-                Debug.WriteLine(this._internalSqlQuery._sql);
-#endif
-
                 this._objectActivator = TryGetObjectActivator(type, this._reader, mapper, instanceCreator) ?? GetObjectActivator(type, this._reader, mapper, instanceCreator);
             }
 
