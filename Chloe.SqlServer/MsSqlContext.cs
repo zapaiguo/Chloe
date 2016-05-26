@@ -290,7 +290,7 @@ namespace Chloe.SqlServer
         {
             if (autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt16 && autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt32 && autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt64)
             {
-                throw new Exception("自增成员必须是 Int32 或 Int64 类型");
+                throw new Exception("自增成员必须是 Int16、Int32 或 Int64 类型");
             }
         }
         static object ConvertIdentity(object identity, Type conversionType)
