@@ -15,7 +15,8 @@ namespace Chloe.Utility
         static Utils()
         {
             var mapTypes = new List<Type>();
-            mapTypes.Add(UtilConstants.TypeOfInt16);
+
+            mapTypes.Add(UtilConstants.TypeOfString);
             mapTypes.Add(UtilConstants.TypeOfInt32);
             mapTypes.Add(UtilConstants.TypeOfInt64);
             mapTypes.Add(UtilConstants.TypeOfDecimal);
@@ -23,10 +24,11 @@ namespace Chloe.Utility
             mapTypes.Add(UtilConstants.TypeOfSingle);
             mapTypes.Add(UtilConstants.TypeOfBoolean);
             mapTypes.Add(UtilConstants.TypeOfDateTime);
+            mapTypes.Add(UtilConstants.TypeOfInt16);
             mapTypes.Add(UtilConstants.TypeOfGuid);
             mapTypes.Add(UtilConstants.TypeOfByte);
             mapTypes.Add(UtilConstants.TypeOfChar);
-            mapTypes.Add(UtilConstants.TypeOfString);
+
             mapTypes.Add(UtilConstants.TypeOfObject);
 
             mapTypes.Add(UtilConstants.TypeOfByteArray);
