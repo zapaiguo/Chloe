@@ -144,7 +144,11 @@ namespace Chloe
                     if (val == null)
                         throw new Exception(string.Format("主键 {0} 值为 null", memberDescriptor.MemberInfo.Name));
                     else
+                    {
                         keyValue = val;
+                        e.InsertColumns.Add(memberDescriptor.Column, DbExpression.Parameter(keyValue));
+                        continue;
+                    }
                 }
 
                 e.InsertColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));

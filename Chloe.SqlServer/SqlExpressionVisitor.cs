@@ -62,6 +62,9 @@ namespace Chloe.SqlServer
             cSharpType_DbType_Mappings.Add(typeof(DateTime), "DATETIME");
             cSharpType_DbType_Mappings.Add(typeof(DateTime?), "DATETIME");
 
+            cSharpType_DbType_Mappings.Add(typeof(Guid), "UNIQUEIDENTIFIER");
+            cSharpType_DbType_Mappings.Add(typeof(Guid?), "UNIQUEIDENTIFIER");
+
             CSharpType_DbType_Mappings = cSharpType_DbType_Mappings;
         }
 
@@ -397,7 +400,7 @@ namespace Chloe.SqlServer
             Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState> methodHandler;
             if (!MethodHandlers.TryGetValue(exp.Method.Name, out methodHandler))
             {
-                throw new NotSupportedException(exp.Method.Name);
+                throw NotSupportedException(exp.Method);
             }
             return methodHandler(exp, this);
         }
@@ -862,10 +865,15 @@ namespace Chloe.SqlServer
         }
         static void EnsureMethodDeclaringType(DbMethodCallExpression exp, Type ensureType)
         {
-            MethodInfo method = exp.Method;
-            if (method.DeclaringType != ensureType)
-                throw new NotSupportedException(exp.Method.Name);
+            if (exp.Method.DeclaringType != ensureType)
+                throw NotSupportedException(exp.Method);
         }
+        static void EnsureMethod(DbMethodCallExpression exp, MethodInfo methodInfo)
+        {
+            if (exp.Method != methodInfo)
+                throw NotSupportedException(exp.Method);
+        }
+
 
         #region BinaryWithMethodHandlers
 
@@ -958,11 +966,12 @@ namespace Chloe.SqlServer
             methodHandlers.Add("TrimEnd", Method_TrimEnd);
             methodHandlers.Add("StartsWith", Method_StartsWith);
             methodHandlers.Add("EndsWith", Method_EndsWith);
+            methodHandlers.Add("ToUpper", Method_String_ToUpper);
+            methodHandlers.Add("ToLower", Method_String_ToLower);
+            methodHandlers.Add("Substring", Method_String_Substring);
+            methodHandlers.Add("IsNullOrEmpty", Method_String_IsNullOrEmpty);
+
             methodHandlers.Add("Contains", Method_Contains);
-            methodHandlers.Add("IsNullOrEmpty", Method_IsNullOrEmpty);
-            methodHandlers.Add("ToUpper", Method_ToUpper);
-            methodHandlers.Add("ToLower", Method_ToLower);
-            methodHandlers.Add("Substring", Method_Substring);
 
             methodHandlers.Add("Count", Method_Count);
             methodHandlers.Add("LongCount", Method_LongCount);
@@ -981,6 +990,8 @@ namespace Chloe.SqlServer
 
             methodHandlers.Add("Parse", Method_Parse);
 
+            methodHandlers.Add("NewGuid", Method_Guid_NewGuid);
+
             var ret = new Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>>(methodHandlers.Count, StringComparer.Ordinal);
             foreach (var item in methodHandlers)
             {
@@ -992,55 +1003,67 @@ namespace Chloe.SqlServer
 
         static ISqlState Method_Trim(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
-
-            MethodInfo method = exp.Method;
-            if (exp.Arguments.Count != 0)
-                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
-
+            EnsureMethod(exp, UtilConstants.MethodInfo_String_Trim);
             return SqlState.Create("RTRIM(LTRIM(", exp.Object.Accept(visitor), "))");
         }
         static ISqlState Method_TrimStart(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
-            EnsureTrimCharIsSpaces(exp);
-
+            EnsureMethod(exp, UtilConstants.MethodInfo_String_TrimStart);
+            EnsureTrimCharParameterIsSpaces(exp.Arguments[0]);
             return SqlState.Create("LTRIM(", exp.Object.Accept(visitor), ")");
         }
         static ISqlState Method_TrimEnd(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
-            EnsureTrimCharIsSpaces(exp);
-
+            EnsureMethod(exp, UtilConstants.MethodInfo_String_TrimEnd);
+            EnsureTrimCharParameterIsSpaces(exp.Arguments[0]);
             return SqlState.Create("RTRIM(", exp.Object.Accept(visitor), ")");
         }
         static ISqlState Method_StartsWith(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
-
-            if (exp.Arguments.Count != 1)
-                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
-
+            EnsureMethod(exp, UtilConstants.MethodInfo_String_StartsWith);
             return SqlState.Create(exp.Object.Accept(visitor), " LIKE ", exp.Arguments.First().Accept(visitor), " + '%'");
         }
         static ISqlState Method_EndsWith(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
-
-            if (exp.Arguments.Count != 1)
-                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
-
+            EnsureMethod(exp, UtilConstants.MethodInfo_String_EndsWith);
             return SqlState.Create(exp.Object.Accept(visitor), " LIKE '%' + ", exp.Arguments.First().Accept(visitor));
         }
-        static ISqlState Method_StringContains(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        static ISqlState Method_String_Contains(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
-
+            EnsureMethod(exp, UtilConstants.MethodInfo_String_Contains);
             return SqlState.Create(exp.Object.Accept(visitor), " LIKE '%' + ", exp.Arguments.First().Accept(visitor), " + '%'");
         }
-        static ISqlState Method_IsNullOrEmpty(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        static ISqlState Method_String_ToUpper(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
+            EnsureMethod(exp, UtilConstants.MethodInfo_String_ToUpper);
+            return SqlState.Create("UPPER(", exp.Object.Accept(visitor), ")");
+        }
+        static ISqlState Method_String_ToLower(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethod(exp, UtilConstants.MethodInfo_String_ToLower);
+            return SqlState.Create("LOWER(", exp.Object.Accept(visitor), ")");
+        }
+        static ISqlState Method_String_Substring(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            ISqlState length = null;
+
+            if (exp.Method == UtilConstants.MethodInfo_String_Substring_Int32)
+            {
+                var string_LengthExp = DbExpression.MemberAccess(UtilConstants.PropertyInfo_String_Length, exp.Object);
+                length = string_LengthExp.Accept(visitor);
+            }
+            else if (exp.Method == UtilConstants.MethodInfo_String_Substring_Int32_Int32)
+            {
+                length = exp.Arguments[1].Accept(visitor);
+            }
+            else
+                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: ", exp.Arguments.Count, exp.Method.Name));
+
+            return SqlState.Create("SUBSTRING(", exp.Object.Accept(visitor), ",", exp.Arguments[0].Accept(visitor), " + 1", ",", length, ")");
+        }
+        static ISqlState Method_String_IsNullOrEmpty(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethod(exp, UtilConstants.MethodInfo_String_IsNullOrEmpty);
 
             DbExpression e = exp.Arguments.First();
             DbEqualExpression equalNullExpression = DbExpression.Equal(e, DbExpression.Constant(null, UtilConstants.TypeOfString));
@@ -1058,12 +1081,13 @@ namespace Chloe.SqlServer
             var eqExp = DbExpression.Equal(caseWhenExpression, DbConstantExpression.One);
             return eqExp.Accept(visitor);
         }
+
         static ISqlState Method_Contains(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
         {
             MethodInfo method = exp.Method;
 
             if (method.DeclaringType == UtilConstants.TypeOfString)
-                return Method_StringContains(exp, visitor);
+                return Method_String_Contains(exp, visitor);
 
             List<DbExpression> exps = new List<DbExpression>();
             IEnumerable values = null;
@@ -1105,48 +1129,6 @@ namespace Chloe.SqlServer
                     exps.Add(DbExpression.Parameter(value));
             }
             return In(visitor, exps, arg);
-        }
-        static ISqlState Method_ToUpper(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
-        {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
-
-            MethodInfo method = exp.Method;
-            if (exp.Arguments.Count != 0)
-                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
-
-            return SqlState.Create("UPPER(", exp.Object.Accept(visitor), ")");
-        }
-        static ISqlState Method_ToLower(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
-        {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
-
-            MethodInfo method = exp.Method;
-            if (exp.Arguments.Count != 0)
-                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: {1}", exp.Arguments.Count, exp.Method.Name));
-
-            return SqlState.Create("LOWER(", exp.Object.Accept(visitor), ")");
-        }
-        static ISqlState Method_Substring(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
-        {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfString);
-
-            MethodInfo method = exp.Method;
-
-            ISqlState length = null;
-
-            if (exp.Arguments.Count == 1)
-            {
-                var string_LengthExp = DbExpression.MemberAccess(UtilConstants.PropertyInfo_String_Length, exp.Object);
-                length = string_LengthExp.Accept(visitor);
-            }
-            else if (exp.Arguments.Count == 2)
-            {
-                length = exp.Arguments[1].Accept(visitor);
-            }
-            else
-                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: ", exp.Arguments.Count, exp.Method.Name));
-
-            return SqlState.Create("SUBSTRING(", exp.Object.Accept(visitor), ",", exp.Arguments[0].Accept(visitor), " + 1", ",", length, ")");
         }
 
 
@@ -1268,6 +1250,12 @@ namespace Chloe.SqlServer
             }
 
             return e.Accept(visitor);
+        }
+
+        static ISqlState Method_Guid_NewGuid(DbMethodCallExpression exp, SqlExpressionVisitor visitor)
+        {
+            EnsureMethod(exp, UtilConstants.MethodInfo_Guid_NewGuid);
+            return SqlState.Create("NEWID()");
         }
 
         #endregion
@@ -1473,12 +1461,9 @@ namespace Chloe.SqlServer
             return false;
         }
 
-        static void EnsureTrimCharIsSpaces(DbMethodCallExpression exp)
+        static void EnsureTrimCharParameterIsSpaces(DbExpression exp)
         {
-            if (exp.Arguments.Count != 1)
-                throw new NotSupportedException();
-
-            var m = exp.Arguments[0] as DbMemberExpression;
+            var m = exp as DbMemberExpression;
             if (m == null)
                 throw new NotSupportedException();
 
@@ -1498,6 +1483,28 @@ namespace Chloe.SqlServer
             {
                 throw new NotSupportedException();
             }
+        }
+
+        static Exception NotSupportedException(MethodInfo method)
+        {
+            StringBuilder sb = new StringBuilder();
+            ParameterInfo[] parameters = method.GetParameters();
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                ParameterInfo p = parameters[i];
+
+                if (i > 0)
+                    sb.Append(",");
+
+                string s = null;
+                if (p.IsOut)
+                    s = "out ";
+
+                sb.AppendFormat("{0}{1} {2}", s, p.ParameterType.Name, p.Name);
+            }
+
+            return new NotSupportedException(string.Format("不支持方法 {0}.{1}({2})", method.DeclaringType.Name, method.Name, sb.ToString()));
         }
     }
 
