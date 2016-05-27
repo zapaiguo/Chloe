@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Chloe.Utility
 {
-    internal static class Utils
+    static class Utils
     {
         public const string DefaultColumnAlias = "C";
         static List<Type> MapTypes;
