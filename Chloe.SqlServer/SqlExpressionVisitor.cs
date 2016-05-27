@@ -1102,7 +1102,7 @@ namespace Chloe.SqlServer
                 if (memberExp == null || !memberExp.CanEvaluate())
                     throw new NotSupportedException(exp.Object.ToString());
 
-                values = memberExp.GetMemberValue() as IEnumerable; //Enumerable
+                values = DbExpressionExtensions.GetExpressionValue(memberExp) as IEnumerable; //Enumerable
                 arg = exp.Arguments.First();
                 goto constructInState;
             }
@@ -1113,7 +1113,7 @@ namespace Chloe.SqlServer
                 if (memberExp == null || !memberExp.CanEvaluate())
                     throw new NotSupportedException(exp.Object.ToString());
 
-                values = memberExp.GetMemberValue() as IEnumerable;
+                values = DbExpressionExtensions.GetExpressionValue(memberExp) as IEnumerable;
                 arg = exp.Arguments.Skip(1).First();
                 goto constructInState;
             }

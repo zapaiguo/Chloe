@@ -108,7 +108,7 @@ namespace Chloe.SqlServer
         {
             DbParameterExpression ret = null;
             //求值
-            object val = memberExpression.GetMemberValue();
+            object val = DbExpressionExtensions.GetExpressionValue(memberExpression);
 
             ret = DbExpression.Parameter(val, memberExpression.Type);
 
@@ -163,65 +163,36 @@ namespace Chloe.SqlServer
             return false;
         }
 
-        public static object GetMemberValue(this DbMemberExpression exp)
+        public static object GetMemberAccessExpressionValue(this DbMemberExpression exp, object instance)
         {
-            object memberVal = null;
-            var stack = exp.Reverse();
-            exp = stack.Peek();
-
-            var c = exp.Expression as DbConstantExpression;
-            if (c != null)
-            {
-                exp.TryGetFieldOrPropertyValue(c.Value, out memberVal);
-                stack.Pop();
-                goto getValue;
-            }
-            else if (exp.Expression == null)//说明是静态成员
-            {
-                goto getValue;
-            }
-            else
-                throw new NotSupportedException(exp.Expression.ToString());
-
-        getValue:
-            if (stack.Count > 0)
-            {
-                foreach (var rec in stack)
-                {
-                    rec.TryGetFieldOrPropertyValue(memberVal, out memberVal);
-                }
-            }
-
-            return memberVal;
-        }
-        public static Stack<DbMemberExpression> Reverse(this DbMemberExpression exp)
-        {
-            var stack = new Stack<DbMemberExpression>();
-            stack.Push(exp);
-            while ((exp = exp.Expression as DbMemberExpression) != null)
-            {
-                stack.Push(exp);
-            }
-            return stack;
-        }
-        public static bool TryGetFieldOrPropertyValue(this DbMemberExpression exp, object instance, out object memberValue)
-        {
-            var result = false;
-            memberValue = null;
-
             if (exp.Member.MemberType
-               == MemberTypes.Field)
+              == MemberTypes.Field)
             {
-                memberValue = ((FieldInfo)exp.Member).GetValue(instance);
-                result = true;
+                return ((FieldInfo)exp.Member).GetValue(instance);
             }
             else if (exp.Member.MemberType
                      == MemberTypes.Property)
             {
-                memberValue = ((PropertyInfo)exp.Member).GetValue(instance, null);
-                result = true;
+                return ((PropertyInfo)exp.Member).GetValue(instance);
             }
-            return result;
+
+            throw new NotSupportedException();
+        }
+        public static object GetExpressionValue(this DbExpression exp)
+        {
+            if (exp.NodeType == DbExpressionType.Constant)
+                return ((DbConstantExpression)exp).Value;
+
+            if (exp.NodeType == DbExpressionType.MemberAccess)
+            {
+                DbMemberExpression m = (DbMemberExpression)exp;
+                object instance = null;
+                if (m.Expression != null)
+                    instance = DbExpressionExtensions.GetExpressionValue(m.Expression);
+                return GetMemberAccessExpressionValue(m, instance);
+            }
+
+            throw new NotSupportedException();
         }
     }
 }
