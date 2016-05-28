@@ -63,37 +63,6 @@ namespace Chloe.Extensions
             return exp;
         }
 
-        public static object GetMemberValue(this MemberExpression exp)
-        {
-            object memberVal = null;
-            var stack = exp.Reverse();
-            exp = stack.Peek();
-
-            var c = exp.Expression as ConstantExpression;
-            if (c != null)
-            {
-                exp.TryGetFieldOrPropertyValue(c.Value, out memberVal);
-                goto getValue;
-            }
-            else if (exp.Expression == null)//说明是静态成员
-            {
-                goto getValue;
-            }
-            else
-                throw new NotSupportedException(exp.Expression.ToString());
-
-        getValue:
-            stack.Pop();
-            if (stack.Count > 0)
-            {
-                foreach (var rec in stack)
-                {
-                    rec.TryGetFieldOrPropertyValue(memberVal, out memberVal);
-                }
-            }
-
-            return memberVal;
-        }
         public static Stack<MemberExpression> Reverse(this MemberExpression exp)
         {
             var stack = new Stack<MemberExpression>();
@@ -104,33 +73,5 @@ namespace Chloe.Extensions
             }
             return stack;
         }
-
-        public static bool TryGetFieldOrPropertyValue(this MemberExpression exp, object instance, out object memberValue)
-        {
-            var result = false;
-            memberValue = null;
-
-            try
-            {
-                if (exp.Member.MemberType
-                    == MemberTypes.Field)
-                {
-                    memberValue = ((FieldInfo)exp.Member).GetValue(instance);
-                    result = true;
-                }
-                else if (exp.Member.MemberType
-                         == MemberTypes.Property)
-                {
-                    memberValue = ((PropertyInfo)exp.Member).GetValue(instance, null);
-                    result = true;
-                }
-                return result;
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
-
     }
 }

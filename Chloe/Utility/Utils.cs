@@ -83,6 +83,18 @@ namespace Chloe.Utility
 
             return alias;
         }
+
+        public static Dictionary<TKey, TValue> Clone<TKey, TValue>(Dictionary<TKey, TValue> source)
+        {
+            Dictionary<TKey, TValue> ret = new Dictionary<TKey, TValue>(source.Count);
+
+            foreach (var kv in source)
+            {
+                ret.Add(kv.Key, kv.Value);
+            }
+
+            return ret;
+        }
     }
 
 }

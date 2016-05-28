@@ -14,7 +14,6 @@ namespace Chloe.Descriptors
         EntityConstructorDescriptor(ConstructorInfo constructorInfo)
         {
             this.ConstructorInfo = constructorInfo;
-            this.MemberParameterMap = new Dictionary<MemberInfo, ParameterInfo>();
             this.Init();
         }
 
@@ -22,15 +21,19 @@ namespace Chloe.Descriptors
         {
             ConstructorInfo constructor = this.ConstructorInfo;
             Type type = constructor.DeclaringType;
+
             if (Utils.IsAnonymousType(type))
             {
                 ParameterInfo[] parameters = constructor.GetParameters();
+                this.MemberParameterMap = new Dictionary<MemberInfo, ParameterInfo>(parameters.Length);
                 foreach (ParameterInfo parameter in parameters)
                 {
                     PropertyInfo prop = type.GetProperty(parameter.Name);
                     this.MemberParameterMap.Add(prop, parameter);
                 }
             }
+            else
+                this.MemberParameterMap = new Dictionary<MemberInfo, ParameterInfo>(0);
         }
 
         public ConstructorInfo ConstructorInfo { get; private set; }

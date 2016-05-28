@@ -51,13 +51,8 @@ namespace Chloe
             this._currentSession = new DbSession(this);
         }
 
-        public IDbSession CurrentSession
-        {
-            get
-            {
-                return this._currentSession;
-            }
-        }
+        public IDbSession CurrentSession { get { return this._currentSession; } }
+
 
         public virtual IQuery<T> Query<T>() where T : new()
         {

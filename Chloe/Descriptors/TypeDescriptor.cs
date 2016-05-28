@@ -13,8 +13,8 @@ namespace Chloe.Descriptors
 {
     public class TypeDescriptor
     {
-        Dictionary<MemberInfo, MappingMemberDescriptor> _mappingMemberDescriptors = new Dictionary<MemberInfo, MappingMemberDescriptor>();
-        Dictionary<MemberInfo, NavigationMemberDescriptor> _navigationMemberDescriptors = new Dictionary<MemberInfo, NavigationMemberDescriptor>();
+        Dictionary<MemberInfo, MappingMemberDescriptor> _mappingMemberDescriptors;
+        Dictionary<MemberInfo, NavigationMemberDescriptor> _navigationMemberDescriptors;
         Dictionary<MemberInfo, DbColumnAccessExpression> _memberColumnMap;
         MappingMemberDescriptor _primaryKey = null;
 
@@ -56,6 +56,9 @@ namespace Chloe.Descriptors
             Type t = this.EntityType;
             var members = t.GetMembers(BindingFlags.Public | BindingFlags.Instance);
 
+            Dictionary<MemberInfo, MappingMemberDescriptor> mappingMemberDescriptors = new Dictionary<MemberInfo, MappingMemberDescriptor>();
+            Dictionary<MemberInfo, NavigationMemberDescriptor> navigationMemberDescriptors = new Dictionary<MemberInfo, NavigationMemberDescriptor>();
+
             foreach (var member in members)
             {
                 var ignoreFlags = member.GetCustomAttributes(typeof(NotMappedAttribute), false);
@@ -82,7 +85,7 @@ namespace Chloe.Descriptors
                 if (Utils.IsMapType(memberType))
                 {
                     MappingMemberDescriptor memberDescriptor = this.ConstructDbFieldDescriptor(member);
-                    this._mappingMemberDescriptors.Add(member, memberDescriptor);
+                    mappingMemberDescriptors.Add(member, memberDescriptor);
                 }
                 else
                 {
@@ -102,17 +105,20 @@ namespace Chloe.Descriptors
                         else
                             continue;
 
-                        this._navigationMemberDescriptors.Add(member, navigationMemberDescriptor);
+                        navigationMemberDescriptors.Add(member, navigationMemberDescriptor);
                     }
 
                     continue;
                 }
             }
+
+            this._mappingMemberDescriptors = Utils.Clone(mappingMemberDescriptors);
+            this._navigationMemberDescriptors = Utils.Clone(navigationMemberDescriptors);
         }
         void InitMemberColumnMap()
         {
-            Dictionary<MemberInfo, DbColumnAccessExpression> memberColumnMap = new Dictionary<MemberInfo, DbColumnAccessExpression>(_mappingMemberDescriptors.Count);
-            foreach (var kv in _mappingMemberDescriptors)
+            Dictionary<MemberInfo, DbColumnAccessExpression> memberColumnMap = new Dictionary<MemberInfo, DbColumnAccessExpression>(this._mappingMemberDescriptors.Count);
+            foreach (var kv in this._mappingMemberDescriptors)
             {
                 memberColumnMap.Add(kv.Key, new DbColumnAccessExpression(this.Table, kv.Value.Column));
             }

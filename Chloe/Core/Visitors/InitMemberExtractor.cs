@@ -42,7 +42,7 @@ namespace Chloe.Core.Visitors
         }
         protected override Dictionary<MemberInfo, Expression> VisitMemberInit(MemberInitExpression exp)
         {
-            Dictionary<MemberInfo, Expression> ret = new Dictionary<MemberInfo, Expression>();
+            Dictionary<MemberInfo, Expression> ret = new Dictionary<MemberInfo, Expression>(exp.Bindings.Count);
 
             foreach (MemberBinding binding in exp.Bindings)
             {

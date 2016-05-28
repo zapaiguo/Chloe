@@ -131,5 +131,16 @@ namespace Chloe.Core.Visitors
 
             return exp.Constructor.Invoke(arguments);
         }
+        protected override object VisitNewArray(NewArrayExpression exp)
+        {
+            var arr = Array.CreateInstance(exp.Type, exp.Expressions.Count);
+            for (int i = 0; i < exp.Expressions.Count; i++)
+            {
+                var e = exp.Expressions[i];
+                arr.SetValue(this.Visit(e), i);
+            }
+
+            return arr;
+        }
     }
 }

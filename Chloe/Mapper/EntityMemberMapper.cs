@@ -13,8 +13,8 @@ namespace Chloe.Mapper
 {
     public class EntityMemberMapper
     {
-        Dictionary<MemberInfo, IMRM> _mappingMemberMRMContainer = new Dictionary<MemberInfo, IMRM>();
-        Dictionary<MemberInfo, Action<object, object>> _navigationMemberSetters = new Dictionary<MemberInfo, Action<object, object>>();
+        Dictionary<MemberInfo, IMRM> _mappingMemberMRMContainer;
+        Dictionary<MemberInfo, Action<object, object>> _navigationMemberSetters;
 
         EntityMemberMapper(Type t)
         {
@@ -26,6 +26,9 @@ namespace Chloe.Mapper
         {
             Type t = this.Type;
             var members = t.GetMembers(BindingFlags.Public | BindingFlags.Instance);
+
+            Dictionary<MemberInfo, IMRM> mappingMemberMRMContainer = new Dictionary<MemberInfo, IMRM>();
+            Dictionary<MemberInfo, Action<object, object>> navigationMemberSetters = new Dictionary<MemberInfo, Action<object, object>>();
 
             foreach (var member in members)
             {
@@ -49,19 +52,19 @@ namespace Chloe.Mapper
                 if (Utils.IsMapType(memberType))
                 {
                     IMRM mrm = MRMHelper.CreateMRM(member);
-                    this._mappingMemberMRMContainer.Add(member, mrm);
+                    mappingMemberMRMContainer.Add(member, mrm);
                 }
                 else
                 {
                     if (prop != null)
                     {
                         Action<object, object> valueSetter = DelegateGenerator.CreateValueSetter(prop);
-                        this._navigationMemberSetters.Add(member, valueSetter);
+                        navigationMemberSetters.Add(member, valueSetter);
                     }
                     else if (field != null)
                     {
                         Action<object, object> valueSetter = DelegateGenerator.CreateValueSetter(field);
-                        this._navigationMemberSetters.Add(member, valueSetter);
+                        navigationMemberSetters.Add(member, valueSetter);
                     }
                     else
                         continue;
@@ -69,6 +72,9 @@ namespace Chloe.Mapper
                     continue;
                 }
             }
+
+            this._mappingMemberMRMContainer = Utils.Clone(mappingMemberMRMContainer);
+            this._navigationMemberSetters = Utils.Clone(navigationMemberSetters);
         }
 
         public Type Type { get; private set; }

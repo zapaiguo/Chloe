@@ -58,7 +58,8 @@ namespace Chloe.Mapper
             IValueSetter memberSetter = null;
             try
             {
-                for (int i = 0; i < this._memberSetters.Count; i++)
+                int count = this._memberSetters.Count;
+                for (int i = 0; i < count; i++)
                 {
                     memberSetter = this._memberSetters[i];
                     memberSetter.SetValue(obj, reader);

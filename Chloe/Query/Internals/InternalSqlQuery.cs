@@ -237,9 +237,10 @@ namespace Chloe.Query.Internals
             ObjectActivator _objectActivator;
             public CacheInfo(ObjectActivator activator, IDataReader reader)
             {
-                var readerFields = new Tuple<string, Type>[reader.FieldCount];
+                int fieldCount = reader.FieldCount;
+                var readerFields = new Tuple<string, Type>[fieldCount];
 
-                for (int i = 0; i < reader.FieldCount; i++)
+                for (int i = 0; i < fieldCount; i++)
                 {
                     readerFields[i] = new Tuple<string, Type>(reader.GetName(i), reader.GetFieldType(i));
                 }
@@ -253,11 +254,12 @@ namespace Chloe.Query.Internals
             public bool IsTheSameFields(IDataReader reader)
             {
                 var readerFields = this._readerFields;
+                int fieldCount = reader.FieldCount;
 
-                if (reader.FieldCount != readerFields.Length)
+                if (fieldCount != readerFields.Length)
                     return false;
 
-                for (int i = 0; i < reader.FieldCount; i++)
+                for (int i = 0; i < fieldCount; i++)
                 {
                     var tuple = readerFields[i];
                     if (reader.GetFieldType(i) != tuple.Item2 || reader.GetName(i) != tuple.Item1)
