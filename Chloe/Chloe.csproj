@@ -120,7 +120,7 @@
     <Compile Include="IGroupingQuery.cs" />
     <Compile Include="IJoiningQuery`.cs" />
     <Compile Include="Infrastructure\IDbConnectionFactory.cs" />
-    <Compile Include="Infrastructure\IDbServiceProvider.cs" />
+    <Compile Include="Infrastructure\IDbContextServiceProvider.cs" />
     <Compile Include="IOrderedQuery`.cs" />
     <Compile Include="IQuery`.cs" />
     <Compile Include="Mapper\EntityConstructor.cs" />

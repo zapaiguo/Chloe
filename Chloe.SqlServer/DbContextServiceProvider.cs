@@ -10,10 +10,10 @@ using System.Text;
 
 namespace Chloe.SqlServer
 {
-    class DbServiceProvider : IDbServiceProvider
+    class DbContextServiceProvider : IDbContextServiceProvider
     {
         string _connString;
-        public DbServiceProvider(string connString)
+        public DbContextServiceProvider(string connString)
         {
             this._connString = connString;
         }

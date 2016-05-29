@@ -16,14 +16,14 @@ namespace Chloe.SqlServer
     {
         string _connString;
         public MsSqlContext(string connString)
-            : base(CreateDbServiceProvider(connString))
+            : base(CreateDbContextServiceProvider(connString))
         {
             this._connString = connString;
         }
 
-        static IDbServiceProvider CreateDbServiceProvider(string connString)
+        static IDbContextServiceProvider CreateDbContextServiceProvider(string connString)
         {
-            DbServiceProvider provider = new DbServiceProvider(connString);
+            DbContextServiceProvider provider = new DbContextServiceProvider(connString);
             return provider;
         }
 
@@ -80,7 +80,7 @@ namespace Chloe.SqlServer
                 return entity;
             }
 
-            AbstractDbExpressionVisitor dbExpVisitor = this.DbServiceProvider.CreateDbExpressionVisitor();
+            AbstractDbExpressionVisitor dbExpVisitor = this.DbContextServiceProvider.CreateDbExpressionVisitor();
             var sqlState = e.Accept(dbExpVisitor);
 
             string sql = sqlState.ToSql();
@@ -153,7 +153,7 @@ namespace Chloe.SqlServer
                 return keyValue;
             }
 
-            AbstractDbExpressionVisitor dbExpVisitor = this.DbServiceProvider.CreateDbExpressionVisitor();
+            AbstractDbExpressionVisitor dbExpVisitor = this.DbContextServiceProvider.CreateDbExpressionVisitor();
             var sqlState = e.Accept(dbExpVisitor);
 
             string sql = sqlState.ToSql();
@@ -266,7 +266,7 @@ namespace Chloe.SqlServer
 
         int ExecuteSqlCommand(DbExpression e)
         {
-            AbstractDbExpressionVisitor dbExpVisitor = this.DbServiceProvider.CreateDbExpressionVisitor();
+            AbstractDbExpressionVisitor dbExpVisitor = this.DbContextServiceProvider.CreateDbExpressionVisitor();
             var sqlState = e.Accept(dbExpVisitor);
 
             string sql = sqlState.ToSql();

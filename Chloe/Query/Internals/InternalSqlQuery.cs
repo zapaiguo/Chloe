@@ -17,13 +17,13 @@ namespace Chloe.Query.Internals
 {
     class InternalSqlQuery<T> : IEnumerable<T>, IEnumerable
     {
-        InternalDbSession _dbSession;
+        DbContext _dbContext;
         string _sql;
         IDictionary<string, object> _parameters;
 
-        public InternalSqlQuery(InternalDbSession dbSession, string sql, IDictionary<string, object> parameters)
+        public InternalSqlQuery(DbContext dbContext, string sql, IDictionary<string, object> parameters)
         {
-            this._dbSession = dbSession;
+            this._dbContext = dbContext;
             this._sql = sql;
             this._parameters = parameters;
         }
@@ -81,7 +81,7 @@ namespace Chloe.Query.Internals
                 else
                 {
                     this._reader.Close();
-                    this._internalSqlQuery._dbSession.Complete();
+                    this._internalSqlQuery._dbContext.InnerDbSession.Complete();
                     this._current = default(T);
                     this._hasFinished = true;
                     return false;
@@ -103,7 +103,7 @@ namespace Chloe.Query.Internals
 
                 if (!this._hasFinished)
                 {
-                    this._internalSqlQuery._dbSession.Complete();
+                    this._internalSqlQuery._dbContext.InnerDbSession.Complete();
                     this._hasFinished = true;
                 }
 
@@ -124,7 +124,7 @@ namespace Chloe.Query.Internals
                 {
                     MappingField mf = new MappingField(type, 0);
                     this._objectActivator = mf.CreateObjectActivator();
-                    this._reader = this._internalSqlQuery._dbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, CommandType.Text);
+                    this._reader = this._internalSqlQuery._dbContext.InnerDbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, CommandType.Text);
                     return;
                 }
 
@@ -132,7 +132,7 @@ namespace Chloe.Query.Internals
                 EntityMemberMapper mapper = constructorDescriptor.GetEntityMemberMapper();
                 Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator = constructorDescriptor.GetInstanceCreator();
 
-                this._reader = this._internalSqlQuery._dbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, CommandType.Text);
+                this._reader = this._internalSqlQuery._dbContext.InnerDbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, CommandType.Text);
                 this._objectActivator = TryGetObjectActivator(type, this._reader, mapper, instanceCreator) ?? GetObjectActivator(type, this._reader, mapper, instanceCreator);
             }
 

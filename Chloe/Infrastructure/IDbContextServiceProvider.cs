@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Chloe.Infrastructure
 {
-    public interface IDbServiceProvider
+    public interface IDbContextServiceProvider
     {
         IDbConnection CreateConnection();
         AbstractDbExpressionVisitor CreateDbExpressionVisitor();

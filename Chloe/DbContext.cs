@@ -21,7 +21,7 @@ namespace Chloe
     {
         bool _disposed = false;
         InternalDbSession _innerDbSession;
-        IDbServiceProvider _dbServiceProvider;
+        IDbContextServiceProvider _dbContextServiceProvider;
         DbSession _currentSession;
 
         Dictionary<Type, TrackEntityCollection> _trackedEntityContainer;
@@ -39,15 +39,22 @@ namespace Chloe
             }
         }
 
-        internal InternalDbSession InnerDbSession { get { return this._innerDbSession; } }
-        public IDbServiceProvider DbServiceProvider { get { return this._dbServiceProvider; } }
-
-        protected DbContext(IDbServiceProvider dbServiceProvider)
+        internal InternalDbSession InnerDbSession
         {
-            Utils.CheckNull(dbServiceProvider, "dbServiceProvider");
+            get
+            {
+                if (this._innerDbSession == null)
+                    this._innerDbSession = new InternalDbSession(this._dbContextServiceProvider.CreateConnection());
+                return this._innerDbSession;
+            }
+        }
+        public IDbContextServiceProvider DbContextServiceProvider { get { return this._dbContextServiceProvider; } }
 
-            this._dbServiceProvider = dbServiceProvider;
-            this._innerDbSession = new InternalDbSession(dbServiceProvider.CreateConnection());
+        protected DbContext(IDbContextServiceProvider dbContextServiceProvider)
+        {
+            Utils.CheckNull(dbContextServiceProvider, "dbServiceProvider");
+
+            this._dbContextServiceProvider = dbContextServiceProvider;
             this._currentSession = new DbSession(this);
         }
 
@@ -62,7 +69,7 @@ namespace Chloe
         {
             Utils.CheckNull(sql, "sql");
 
-            return new InternalSqlQuery<T>(this._innerDbSession, sql, parameters);
+            return new InternalSqlQuery<T>(this, sql, parameters);
         }
 
         public virtual T Insert<T>(T entity)
@@ -337,7 +344,7 @@ namespace Chloe
 
         int ExecuteSqlCommand(DbExpression e)
         {
-            AbstractDbExpressionVisitor dbExpVisitor = this._dbServiceProvider.CreateDbExpressionVisitor();
+            AbstractDbExpressionVisitor dbExpVisitor = this._dbContextServiceProvider.CreateDbExpressionVisitor();
             var sqlState = e.Accept(dbExpVisitor);
 
             string sql = sqlState.ToSql();
