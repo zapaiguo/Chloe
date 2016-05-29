@@ -6,21 +6,18 @@ namespace Chloe.DbExpressions
     {
         JoinType _joinType;
         DbTableSegment _table;
-        DbFromTableExpression _fromTable;
         DbExpression _condition;
         List<DbJoinTableExpression> _joinTables;
-        public DbJoinTableExpression(JoinType joinType, DbTableSegment table, DbFromTableExpression fromTable, DbExpression condition)
+        public DbJoinTableExpression(JoinType joinType, DbTableSegment table, DbExpression condition)
             : base(DbExpressionType.JoinTable)
         {
             this._joinType = joinType;
             this._table = table;
-            this._fromTable = fromTable;
             this._condition = condition;
             this._joinTables = new List<DbJoinTableExpression>();
         }
 
         public DbTableSegment Table { get { return this._table; } }
-        public DbFromTableExpression FromTable { get { return this._fromTable; } }
         public JoinType JoinType { get { return this._joinType; } }
         public DbExpression Condition { get { return this._condition; } }
         public List<DbJoinTableExpression> JoinTables { get { return this._joinTables; } }

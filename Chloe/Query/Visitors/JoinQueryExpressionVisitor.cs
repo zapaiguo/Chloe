@@ -40,7 +40,7 @@ namespace Chloe.Query.Visitors
 
             string alias = this._resultElement.GenerateUniqueTableAlias(typeDescriptor.Table.Name);
 
-            DbTableSegment tableExp = CreateTableExpression(typeDescriptor.Table, alias);
+            DbTableSegment tableSeg = CreateTableExpression(typeDescriptor.Table, alias);
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(Type.EmptyTypes));
 
             DbTable table = new DbTable(alias);
@@ -60,7 +60,7 @@ namespace Chloe.Query.Visitors
             moeList.Add(moe);
             condition = GeneralExpressionVisitor.VisitPredicate(this._conditionExpression, moeList);
 
-            DbJoinTableExpression joinTable = new DbJoinTableExpression(this._joinType, tableExp, this._resultElement.FromTable, condition);
+            DbJoinTableExpression joinTable = new DbJoinTableExpression(this._joinType, tableSeg, condition);
 
             JoinQueryResult result = new JoinQueryResult();
             result.MappingObjectExpression = moe;

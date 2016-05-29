@@ -272,7 +272,7 @@ namespace Chloe.Query.QueryState
             moes.Add(newMoe);
             DbExpression condition = GeneralExpressionVisitor.VisitPredicate(conditionExpression, moes);
 
-            DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType, tableSeg, fromTable, condition);
+            DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType, tableSeg, condition);
 
             JoinQueryResult result = new JoinQueryResult();
             result.MappingObjectExpression = newMoe;
