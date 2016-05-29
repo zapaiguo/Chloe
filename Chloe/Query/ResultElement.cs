@@ -13,7 +13,7 @@ namespace Chloe.Query
 
         public ResultElement()
         {
-            this.OrderSegments = new List<DbOrderSegmentExpression>();
+            this.OrderSegments = new List<DbOrderSegment>();
             this.GroupSegments = new List<DbExpression>();
         }
 
@@ -24,7 +24,7 @@ namespace Chloe.Query
         /// </summary>
         public bool IsOrderSegmentsFromSubQuery { get; set; }
 
-        public List<DbOrderSegmentExpression> OrderSegments { get; private set; }
+        public List<DbOrderSegment> OrderSegments { get; private set; }
         public List<DbExpression> GroupSegments { get; private set; }
 
         /// <summary>

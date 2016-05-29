@@ -103,19 +103,10 @@ namespace Chloe.SqlServer
         {
             return exp.Accept(this._visitor);
         }
-        public override ISqlState Visit(DbTableSegmentExpression exp)
-        {
-            return exp.Accept(this._visitor);
-        }
 
         public override ISqlState Visit(DbColumnAccessExpression exp)
         {
             return exp.Accept(this._visitor);
-        }
-        public override ISqlState Visit(DbColumnSegmentExpression exp)
-        {
-            ISqlState columnState = SqlExpressionVisitor.QuoteName(exp.Alias);
-            return SqlState.Create(exp.Body.Accept(this), " AS ", columnState);
         }
 
         public override ISqlState Visit(DbMemberExpression exp)
@@ -150,10 +141,6 @@ namespace Chloe.SqlServer
         }
 
         public override ISqlState Visit(DbJoinTableExpression exp)
-        {
-            return exp.Accept(this._visitor);
-        }
-        public override ISqlState Visit(DbOrderSegmentExpression exp)
         {
             return exp.Accept(this._visitor);
         }

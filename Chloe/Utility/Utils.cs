@@ -75,7 +75,7 @@ namespace Chloe.Utility
         {
             string alias = defaultAlias;
             int i = 0;
-            while (sqlQuery.Columns.Any(a => string.Equals(a.Alias, alias, StringComparison.OrdinalIgnoreCase)))
+            while (sqlQuery.ColumnSegments.Any(a => string.Equals(a.Alias, alias, StringComparison.OrdinalIgnoreCase)))
             {
                 alias = defaultAlias + i.ToString();
                 i++;

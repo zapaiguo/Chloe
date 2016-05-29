@@ -23,15 +23,11 @@ namespace Chloe.DbExpressions
         Call,
 
         Table,
-        TableSegment,
-
         ColumnAccess,
-        ColumnSegment,
 
         Parameter,
         FromTable,
         JoinTable,
-        OrderSegment,
         Function,
 
         SqlQuery,

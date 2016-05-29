@@ -20,8 +20,6 @@ namespace Chloe.Query
             {
                 case DbExpressionType.ColumnAccess:
                     return ExpressionEquals((DbColumnAccessExpression)exp1, (DbColumnAccessExpression)exp2);
-                case DbExpressionType.TableSegment:
-                    return ExpressionEquals((DbTableSegmentExpression)exp1, (DbTableSegmentExpression)exp2);
                 case DbExpressionType.Table:
                     return ExpressionEquals((DbTableExpression)exp1, (DbTableExpression)exp2);
                 case DbExpressionType.Constant:
@@ -56,12 +54,6 @@ namespace Chloe.Query
             if (exp1.Column.Name != exp2.Column.Name)
                 return false;
             return exp1.Table.Name == exp2.Table.Name;
-        }
-        public static bool ExpressionEquals(DbTableSegmentExpression exp1, DbTableSegmentExpression exp2)
-        {
-            if (exp1.Alias != exp2.Alias)
-                return false;
-            return EqualsCompare(exp1.Body, exp2.Body);
         }
         public static bool ExpressionEquals(DbTableExpression exp1, DbTableExpression exp2)
         {

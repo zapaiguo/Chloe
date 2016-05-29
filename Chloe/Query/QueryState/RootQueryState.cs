@@ -39,7 +39,7 @@ namespace Chloe.Query.QueryState
             resultElement.FromTable = CreateRootTable(typeDescriptor.Table, alias);
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(Type.EmptyTypes));
 
-            DbTableSegmentExpression tableExp = resultElement.FromTable.Table;
+            DbTableSegment tableExp = resultElement.FromTable.Table;
             DbTable table = new DbTable(alias);
 
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors.Values)
@@ -58,8 +58,8 @@ namespace Chloe.Query.QueryState
         static DbFromTableExpression CreateRootTable(DbTable table, string alias)
         {
             DbTableExpression tableExp = new DbTableExpression(table);
-            DbTableSegmentExpression tableSegExp = new DbTableSegmentExpression(tableExp, alias);
-            var fromTableExp = new DbFromTableExpression(tableSegExp);
+            DbTableSegment tableSeg = new DbTableSegment(tableExp, alias);
+            var fromTableExp = new DbFromTableExpression(tableSeg);
             return fromTableExp;
         }
     }

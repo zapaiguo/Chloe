@@ -165,7 +165,7 @@ namespace Chloe.SqlServer
             string dbTypeString;
             if (!CSharpType_DbType_Mappings.TryGetValue(exp.Type, out dbTypeString))
             {
-                throw new NotSupportedException(string.Format("{0} 向 {1} 类型转换", exp.Operand.Type.Name, exp.Type.Name));
+                throw new NotSupportedException(string.Format("不支持将类型 {0} 转换为 {1}", exp.Operand.Type.Name, exp.Type.Name));
             }
 
             SqlState state = BuildCastState(EnsureDbExpressionReturnCSharpBoolean(exp.Operand).Accept(this), dbTypeString);
@@ -272,20 +272,10 @@ namespace Chloe.SqlServer
         {
             return QuoteName(exp.Table.Name);
         }
-        public override ISqlState Visit(DbTableSegmentExpression exp)
-        {
-            ISqlState bodyState = exp.Body.Accept(this);
-            return SqlState.Create(bodyState, " AS ", QuoteName(exp.Alias));
-        }
 
         public override ISqlState Visit(DbColumnAccessExpression exp)
         {
             return SqlState.Create(QuoteName(exp.Table.Name), ".", QuoteName(exp.Column.Name));
-        }
-        public override ISqlState Visit(DbColumnSegmentExpression exp)
-        {
-            ISqlState bodyState = exp.Body.Accept(this.ColumnExpressionVisitor);
-            return SqlState.Create(bodyState, " AS ", QuoteName(exp.Alias));
         }
 
         public override ISqlState Visit(DbMemberExpression exp)
@@ -407,7 +397,7 @@ namespace Chloe.SqlServer
 
         public override ISqlState Visit(DbFromTableExpression exp)
         {
-            return SqlState.Create(exp.Table.Accept(this), this.VisitDbJoinTableExpressions(exp.JoinTables));
+            return SqlState.Create(this.AppendTableSegment(exp.Table), this.VisitDbJoinTableExpressions(exp.JoinTables));
         }
 
         public override ISqlState Visit(DbJoinTableExpression exp)
@@ -433,17 +423,7 @@ namespace Chloe.SqlServer
             else
                 throw new NotSupportedException("JoinType: " + joinTablePart.JoinType);
 
-            return SqlState.Create(joinString, joinTablePart.Table.Accept(this), " ON ", joinTablePart.Condition.Accept(this), this.VisitDbJoinTableExpressions(joinTablePart.JoinTables));
-        }
-
-        public override ISqlState Visit(DbOrderSegmentExpression exp)
-        {
-            if (exp.OrderType == OrderType.Asc)
-                return SqlState.Create(exp.DbExpression.Accept(this), " ASC");
-            else if (exp.OrderType == OrderType.Desc)
-                return SqlState.Create(exp.DbExpression.Accept(this), " DESC");
-
-            throw new NotSupportedException("OrderType: " + exp.OrderType);
+            return SqlState.Create(joinString, this.AppendTableSegment(joinTablePart.Table), " ON ", joinTablePart.Condition.Accept(this), this.VisitDbJoinTableExpressions(joinTablePart.JoinTables));
         }
 
         public override ISqlState Visit(DbFunctionExpression exp)
@@ -510,6 +490,25 @@ namespace Chloe.SqlServer
             return SqlState.Create("DELETE ", QuoteName(exp.Table.Name), BuildWhereState(exp.Condition));
         }
 
+        ISqlState AppendTableSegment(DbTableSegment seq)
+        {
+            ISqlState bodyState = seq.Body.Accept(this);
+            return SqlState.Create(bodyState, " AS ", QuoteName(seq.Alias));
+        }
+        ISqlState AppendColumnSegment(DbColumnSegment seq)
+        {
+            ISqlState bodyState = seq.Body.Accept(this.ColumnExpressionVisitor);
+            return SqlState.Create(bodyState, " AS ", QuoteName(seq.Alias));
+        }
+        ISqlState AppendOrderSegment(DbOrderSegment seq)
+        {
+            if (seq.OrderType == OrderType.Asc)
+                return SqlState.Create(seq.DbExpression.Accept(this), " ASC");
+            else if (seq.OrderType == OrderType.Desc)
+                return SqlState.Create(seq.DbExpression.Accept(this), " DESC");
+
+            throw new NotSupportedException("OrderType: " + seq.OrderType);
+        }
 
         ISqlState VisitDbJoinTableExpressions(List<DbJoinTableExpression> tables)
         {
@@ -524,15 +523,15 @@ namespace Chloe.SqlServer
         ISqlState BuildGeneralSqlState(DbSqlQueryExpression exp)
         {
             SqlState columnsState = new SqlState();
-            List<DbColumnSegmentExpression> columns = exp.Columns;
+            List<DbColumnSegment> columns = exp.ColumnSegments;
 
             for (int i = 0; i < columns.Count; i++)
             {
-                DbColumnSegmentExpression column = columns[i];
+                DbColumnSegment column = columns[i];
                 if (i > 0)
                     columnsState.Append(",");
 
-                columnsState.Append(column.Accept(this));
+                columnsState.Append(this.AppendColumnSegment(column));
             }
 
             ISqlState fromTableState = exp.Table.Accept(this);
@@ -557,11 +556,11 @@ namespace Chloe.SqlServer
         ISqlState BuildLimitSqlState(DbSqlQueryExpression exp)
         {
             SqlState columnsState = new SqlState();
-            List<DbColumnSegmentExpression> columns = exp.Columns;
+            List<DbColumnSegment> columns = exp.ColumnSegments;
             List<ISqlState> columnStates = new List<ISqlState>(columns.Count);
             for (int i = 0; i < columns.Count; i++)
             {
-                DbColumnSegmentExpression column = columns[i];
+                DbColumnSegment column = columns[i];
                 if (i > 0)
                     columnsState.Append(",");
 
@@ -570,17 +569,17 @@ namespace Chloe.SqlServer
                 columnStates.Add(columnState);
             }
 
-            List<DbOrderSegmentExpression> orderParts = exp.OrderSegments;
-            if (orderParts.Count == 0)
+            List<DbOrderSegment> orderSegs = exp.OrderSegments;
+            if (orderSegs.Count == 0)
             {
-                DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(UtilConstants.DbParameter_1, OrderType.Asc);
-                orderParts = new List<DbOrderSegmentExpression>(1);
-                orderParts.Add(orderPart);
+                DbOrderSegment orderSeg = new DbOrderSegment(UtilConstants.DbParameter_1, OrderType.Asc);
+                orderSegs = new List<DbOrderSegment>(1);
+                orderSegs.Add(orderSeg);
             }
 
             ISqlState fromTableState = exp.Table.Accept(this);
 
-            SqlState orderState = this.ConcatOrderSegments(orderParts);
+            SqlState orderState = this.ConcatOrderSegments(orderSegs);
 
             string row_numberName = CreateRowNumberName(columns);
 
@@ -618,18 +617,18 @@ namespace Chloe.SqlServer
         ISqlState BuildTakeSqlState(DbSqlQueryExpression exp)
         {
             SqlState columnsState = new SqlState();
-            List<DbColumnSegmentExpression> columns = exp.Columns;
+            List<DbColumnSegment> columns = exp.ColumnSegments;
 
             for (int i = 0; i < columns.Count; i++)
             {
-                DbColumnSegmentExpression column = columns[i];
+                DbColumnSegment column = columns[i];
                 if (i > 0)
                     columnsState.Append(",");
 
-                columnsState.Append(column.Accept(this));
+                columnsState.Append(this.AppendColumnSegment(column));
             }
 
-            List<DbOrderSegmentExpression> orderParts = exp.OrderSegments;
+            List<DbOrderSegment> orderSegs = exp.OrderSegments;
 
             ISqlState fromTableState = exp.Table.Accept(this);
 
@@ -645,7 +644,7 @@ namespace Chloe.SqlServer
                 sqlState.Append(groupPartState);
             }
 
-            SqlState orderState = this.BuildOrderState(orderParts);
+            SqlState orderState = this.BuildOrderState(orderSegs);
             sqlState.Append(orderState);
 
             return sqlState;
@@ -653,11 +652,11 @@ namespace Chloe.SqlServer
         ISqlState BuildSkipSqlState(DbSqlQueryExpression exp)
         {
             SqlState columnsState = new SqlState();
-            List<DbColumnSegmentExpression> columns = exp.Columns;
+            List<DbColumnSegment> columns = exp.ColumnSegments;
             List<SqlState> columnStates = new List<SqlState>(columns.Count);
             for (int i = 0; i < columns.Count; i++)
             {
-                DbColumnSegmentExpression column = columns[i];
+                DbColumnSegment column = columns[i];
                 if (i > 0)
                     columnsState.Append(",");
 
@@ -666,16 +665,16 @@ namespace Chloe.SqlServer
                 columnStates.Add(columnState);
             }
 
-            List<DbOrderSegmentExpression> orderParts = exp.OrderSegments;
-            if (orderParts.Count == 0)
+            List<DbOrderSegment> orderSegs = exp.OrderSegments;
+            if (orderSegs.Count == 0)
             {
-                DbOrderSegmentExpression orderPart = new DbOrderSegmentExpression(UtilConstants.DbParameter_1, OrderType.Asc);
-                orderParts = new List<DbOrderSegmentExpression>(1);
-                orderParts.Add(orderPart);
+                DbOrderSegment orderSeg = new DbOrderSegment(UtilConstants.DbParameter_1, OrderType.Asc);
+                orderSegs = new List<DbOrderSegment>(1);
+                orderSegs.Add(orderSeg);
             }
 
             ISqlState fromTableState = exp.Table.Accept(this);
-            SqlState orderState = this.ConcatOrderSegments(orderParts);
+            SqlState orderState = this.ConcatOrderSegments(orderSegs);
 
             string row_numberName = CreateRowNumberName(columns);
 
@@ -721,7 +720,7 @@ namespace Chloe.SqlServer
 
             return whereState;
         }
-        SqlState BuildOrderState(List<DbOrderSegmentExpression> orderSegments)
+        SqlState BuildOrderState(List<DbOrderSegment> orderSegments)
         {
             if (orderSegments.Count > 0)
             {
@@ -730,7 +729,7 @@ namespace Chloe.SqlServer
 
             return null;
         }
-        SqlState ConcatOrderSegments(List<DbOrderSegmentExpression> orderSegments)
+        SqlState ConcatOrderSegments(List<DbOrderSegment> orderSegments)
         {
             SqlState state = new SqlState(orderSegments.Count + 1);
 
@@ -741,7 +740,7 @@ namespace Chloe.SqlServer
                     state.Append(",");
                 }
 
-                state.Append(orderSegments[i].Accept(this));
+                state.Append(this.AppendOrderSegment(orderSegments[i]));
             }
 
             return state;
@@ -806,7 +805,7 @@ namespace Chloe.SqlServer
         {
             return SqlState.Create("CAST(", castObject, " AS ", targetDbTypeString, ")");
         }
-        static string CreateRowNumberName(List<DbColumnSegmentExpression> columns)
+        static string CreateRowNumberName(List<DbColumnSegment> columns)
         {
             int ROW_NUMBER_INDEX = 1;
             string row_numberName = "ROW_NUMBER_0";

@@ -64,7 +64,7 @@
     <Compile Include="DbExpressions\DbCaseWhenExpression.cs" />
     <Compile Include="DbExpressions\DbColumn.cs" />
     <Compile Include="DbExpressions\DbColumnAccessExpression.cs" />
-    <Compile Include="DbExpressions\DbColumnSegmentExpression.cs" />
+    <Compile Include="DbExpressions\DbColumnSegment.cs" />
     <Compile Include="DbExpressions\DbConstantExpression.cs" />
     <Compile Include="DbExpressions\DbConvertExpression.cs" />
     <Compile Include="DbExpressions\DbDeleteExpression.cs" />
@@ -86,7 +86,7 @@
     <Compile Include="DbExpressions\DbMultiplyExpression.cs" />
     <Compile Include="DbExpressions\DbNotEqualExpression.cs" />
     <Compile Include="DbExpressions\DbNotExpression.cs" />
-    <Compile Include="DbExpressions\DbOrderSegmentExpression.cs" />
+    <Compile Include="DbExpressions\DbOrderSegment.cs" />
     <Compile Include="DbExpressions\DbOrExpression.cs" />
     <Compile Include="DbExpressions\DbParameterExpression.cs" />
     <Compile Include="DbExpressions\DbSqlQueryExpression.cs" />
@@ -94,7 +94,7 @@
     <Compile Include="DbExpressions\DbSubtractExpression.cs" />
     <Compile Include="DbExpressions\DbTable.cs" />
     <Compile Include="DbExpressions\DbTableExpression.cs" />
-    <Compile Include="DbExpressions\DbTableSegmentExpression.cs" />
+    <Compile Include="DbExpressions\DbTableSegment.cs" />
     <Compile Include="DbExpressions\DbUpdateExpression.cs" />
     <Compile Include="DbExpressions\JoinType.cs" />
     <Compile Include="DbExpressions\OrderType.cs" />
