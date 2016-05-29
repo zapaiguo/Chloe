@@ -43,6 +43,7 @@ namespace Chloe
         {
             get
             {
+                this.CheckDisposed();
                 if (this._innerDbSession == null)
                     this._innerDbSession = new InternalDbSession(this._dbContextServiceProvider.CreateConnection());
                 return this._innerDbSession;
@@ -333,7 +334,8 @@ namespace Chloe
             if (this._disposed)
                 return;
 
-            this._innerDbSession.Dispose();
+            if (this._innerDbSession != null)
+                this._innerDbSession.Dispose();
             this.Dispose(true);
             this._disposed = true;
         }
@@ -341,6 +343,14 @@ namespace Chloe
         {
 
         }
+        void CheckDisposed()
+        {
+            if (this._disposed)
+            {
+                throw new ObjectDisposedException(this.GetType().FullName);
+            }
+        }
+
 
         int ExecuteSqlCommand(DbExpression e)
         {
