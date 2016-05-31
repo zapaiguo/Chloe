@@ -21,7 +21,7 @@ namespace Chloe.SqlServer
 
         DbColumnExpressionVisitor _columnExpressionVisitor = null;
 
-        protected Dictionary<string, object> _parameterStorage = new Dictionary<string, object>();
+        protected List<DbParam> _parameters = new List<DbParam>();
         protected Dictionary<object, SqlState> _innerParameterStorage = new Dictionary<object, SqlState>();
 
         static readonly Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>> MethodHandlers = InitMethodHandlers();
@@ -68,7 +68,7 @@ namespace Chloe.SqlServer
             CSharpType_DbType_Mappings = cSharpType_DbType_Mappings;
         }
 
-        public override Dictionary<string, object> ParameterStorage { get { return this._parameterStorage; } }
+        public override List<DbParam> Parameters { get { return this._parameters; } }
 
         DbColumnExpressionVisitor ColumnExpressionVisitor
         {
@@ -336,19 +336,31 @@ namespace Chloe.SqlServer
         }
         public override ISqlState Visit(DbParameterExpression exp)
         {
-            SqlState state;
-
             object val = exp.Value;
             if (val == null)
                 val = DBNull.Value;
 
+            if (val == DBNull.Value)
+            {
+                var p = this._parameters.Where(a => a.Value == val && a.Type == exp.Type).FirstOrDefault();
+                if (p != null)
+                {
+                    return SqlState.Create(p.Name);
+                }
+
+                string paramName = ParameterPrefix + this._parameters.Count.ToString();
+                this._parameters.Add(DbParam.Create(paramName, val, exp.Type));
+                return SqlState.Create(paramName);
+            }
+
+            SqlState state;
             if (!this._innerParameterStorage.TryGetValue(val, out state))
             {
-                string paramName = ParameterPrefix + this._innerParameterStorage.Count.ToString();
+                string paramName = ParameterPrefix + this._parameters.Count.ToString();
                 state = SqlState.Create(paramName);
 
                 this._innerParameterStorage.Add(val, state);
-                this._parameterStorage.Add(paramName, val);
+                this._parameters.Add(DbParam.Create(paramName, val, exp.Type));
             }
 
             return state;

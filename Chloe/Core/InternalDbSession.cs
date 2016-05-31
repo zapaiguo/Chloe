@@ -1,4 +1,5 @@
 ﻿using Chloe.Core;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -107,19 +108,19 @@ namespace Chloe.Core
             this.Complete();
         }
 
-        public IDataReader ExecuteReader(string cmdText, IDictionary<string, object> parameters)
+        public IDataReader ExecuteReader(string cmdText, DbParam[] parameters)
         {
             return this.ExecuteReader(cmdText, parameters, CommandBehavior.Default, CommandType.Text);
         }
-        public IDataReader ExecuteReader(string cmdText, IDictionary<string, object> parameters, CommandType cmdType)
+        public IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             return this.ExecuteReader(cmdText, parameters, CommandBehavior.Default, cmdType);
         }
-        public IDataReader ExecuteReader(string cmdText, IDictionary<string, object> parameters, CommandBehavior behavior)
+        public IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandBehavior behavior)
         {
             return this.ExecuteReader(cmdText, parameters, behavior, CommandType.Text);
         }
-        public IDataReader ExecuteReader(string cmdText, IDictionary<string, object> parameters, CommandBehavior behavior, CommandType cmdType)
+        public IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandBehavior behavior, CommandType cmdType)
         {
             this.CheckDisposed();
 
@@ -138,11 +139,11 @@ namespace Chloe.Core
             return reader;
         }
 
-        public int ExecuteNonQuery(string cmdText, IDictionary<string, object> parameters)
+        public int ExecuteNonQuery(string cmdText, DbParam[] parameters)
         {
             return this.ExecuteNonQuery(cmdText, parameters, CommandType.Text);
         }
-        public int ExecuteNonQuery(string cmdText, IDictionary<string, object> parameters, CommandType cmdType)
+        public int ExecuteNonQuery(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             this.CheckDisposed();
 
@@ -167,11 +168,11 @@ namespace Chloe.Core
             }
         }
 
-        public object ExecuteScalar(string cmdText, IDictionary<string, object> parameters)
+        public object ExecuteScalar(string cmdText, DbParam[] parameters)
         {
             return this.ExecuteScalar(cmdText, parameters, CommandType.Text);
         }
-        public object ExecuteScalar(string cmdText, IDictionary<string, object> parameters, CommandType cmdType)
+        public object ExecuteScalar(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             this.CheckDisposed();
 
@@ -196,7 +197,7 @@ namespace Chloe.Core
             }
         }
 
-        internal InternalDataReader ExecuteInternalReader(string cmdText, IDictionary<string, object> parameters, CommandType cmdType)
+        internal InternalDataReader ExecuteInternalReader(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             IDataReader reader = this.ExecuteReader(cmdText, parameters, cmdType);
             return new InternalDataReader(this, reader);
@@ -238,7 +239,7 @@ namespace Chloe.Core
             this._disposed = true;
         }
 
-        void PrepareCommand(IDbCommand cmd, string cmdText, IDictionary<string, object> parameters, CommandType cmdType)
+        void PrepareCommand(IDbCommand cmd, string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             cmd.CommandText = cmdText;
             cmd.CommandType = cmdType;
@@ -248,11 +249,30 @@ namespace Chloe.Core
 
             if (parameters != null)
             {
-                foreach (var kv in parameters)
+                foreach (var param in parameters)
                 {
+                    if (param == null)
+                        continue;
+
                     var parameter = cmd.CreateParameter();
-                    parameter.ParameterName = kv.Key;
-                    parameter.Value = kv.Value == null ? DBNull.Value : kv.Value;
+                    parameter.ParameterName = param.Name;
+
+                    Type parameterType;
+                    if (param.Value == null || param.Value == DBNull.Value)
+                    {
+                        parameter.Value = DBNull.Value;
+                        parameterType = param.Type;
+                    }
+                    else
+                    {
+                        parameter.Value = param.Value;
+                        parameterType = param.Value.GetType();
+                    }
+
+                    DbType? dbType = Utils.TryGetDbType(parameterType);
+                    if (dbType != null)
+                        parameter.DbType = dbType.Value;
+
                     cmd.Parameters.Add(parameter);
                 }
             }
@@ -267,32 +287,37 @@ namespace Chloe.Core
         }
 
 
-        public static string AppendDbCommandInfo(string cmdText, IDictionary<string, object> parameters)
+        public static string AppendDbCommandInfo(string cmdText, DbParam[] parameters)
         {
             StringBuilder sb = new StringBuilder();
             if (parameters != null)
             {
-                foreach (var item in parameters)
+                foreach (var param in parameters)
                 {
+                    if (param == null)
+                        continue;
+
                     string typeName = null;
                     object value = null;
-                    if (item.Value != null)
+                    Type parameterType;
+                    if (param.Value == null || param.Value == DBNull.Value)
                     {
-                        Type t = item.Value.GetType();
-                        typeName = t.Name;
-                        if (t == typeof(string) || t == typeof(DateTime))
-                            value = "'" + item.Value + "'";
-                        else if (item.Value == DBNull.Value)
-                        {
-                            value = "null";
-                        }
-                        else
-                            value = item.Value;
+                        parameterType = param.Type;
+                        value = "NULL";
                     }
                     else
-                        value = "null";
+                    {
+                        value = param.Value;
+                        parameterType = param.Value.GetType();
 
-                    sb.AppendFormat("DECLARE {0} {1} = {2};", item.Key, typeName, value);
+                        if (parameterType == typeof(string) || parameterType == typeof(DateTime))
+                            value = "\"" + value + "\"";
+                    }
+
+                    if (parameterType != null)
+                        typeName = GetTypeName(parameterType);
+
+                    sb.AppendFormat("{0} {1} = {2};", typeName, param.Name, value);
                     sb.AppendLine();
                 }
             }
@@ -300,6 +325,16 @@ namespace Chloe.Core
             sb.AppendLine(cmdText);
 
             return sb.ToString();
+        }
+        static string GetTypeName(Type type)
+        {
+            Type unType;
+            if (Utils.IsNullable(type, out unType))
+            {
+                return string.Format("Nullable<{0}>", GetTypeName(unType));
+            }
+
+            return type.Name;
         }
     }
 }

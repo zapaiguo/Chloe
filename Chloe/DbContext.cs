@@ -66,7 +66,13 @@ namespace Chloe
         {
             return new Query<T>(this);
         }
-        public virtual IEnumerable<T> SqlQuery<T>(string sql, IDictionary<string, object> parameters = null) where T : new()
+        public virtual IEnumerable<T> SqlQuery<T>(string sql) where T : new()
+        {
+            Utils.CheckNull(sql, "sql");
+
+            return this.SqlQuery<T>(sql, null);
+        }
+        public virtual IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters) where T : new()
         {
             Utils.CheckNull(sql, "sql");
 
@@ -359,7 +365,7 @@ namespace Chloe
 
             string sql = sqlState.ToSql();
 
-            int r = this._innerDbSession.ExecuteNonQuery(sql, dbExpVisitor.ParameterStorage);
+            int r = this._innerDbSession.ExecuteNonQuery(sql, dbExpVisitor.Parameters.ToArray());
             return r;
         }
 

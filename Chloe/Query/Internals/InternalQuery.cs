@@ -36,9 +36,9 @@ namespace Chloe.Query.Internals
                 objectActivator = data.MappingEntity.CreateObjectActivator();
 
             string cmdText = sqlState.ToSql();
-            IDictionary<string, object> parameters = visitor.ParameterStorage;
+            var parameters = visitor.Parameters;
 
-            DbCommandFactor commandFactor = new DbCommandFactor(objectActivator, cmdText, parameters);
+            DbCommandFactor commandFactor = new DbCommandFactor(objectActivator, cmdText, parameters.ToArray());
             return commandFactor;
         }
 

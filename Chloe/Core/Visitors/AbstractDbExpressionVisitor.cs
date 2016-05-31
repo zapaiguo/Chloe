@@ -10,7 +10,6 @@ namespace Chloe.Core.Visitors
 {
     public abstract class AbstractDbExpressionVisitor : DbExpressionVisitor<ISqlState>
     {
-        public abstract Dictionary<string, object> ParameterStorage { get; }
+        public abstract List<DbParam> Parameters { get; }
     }
-
 }

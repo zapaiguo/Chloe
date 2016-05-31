@@ -2,6 +2,7 @@
 using Chloe.Query;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -11,33 +12,77 @@ namespace Chloe.Utility
     {
         public const string DefaultColumnAlias = "C";
         static List<Type> MapTypes;
+        public static readonly Dictionary<Type, DbType> _typeDbTypeMap;
 
         static Utils()
         {
             var mapTypes = new List<Type>();
 
-            mapTypes.Add(UtilConstants.TypeOfString);
-            mapTypes.Add(UtilConstants.TypeOfInt32);
-            mapTypes.Add(UtilConstants.TypeOfInt64);
-            mapTypes.Add(UtilConstants.TypeOfDecimal);
-            mapTypes.Add(UtilConstants.TypeOfDouble);
-            mapTypes.Add(UtilConstants.TypeOfSingle);
-            mapTypes.Add(UtilConstants.TypeOfBoolean);
-            mapTypes.Add(UtilConstants.TypeOfDateTime);
-            mapTypes.Add(UtilConstants.TypeOfInt16);
-            mapTypes.Add(UtilConstants.TypeOfGuid);
-            mapTypes.Add(UtilConstants.TypeOfByte);
-            mapTypes.Add(UtilConstants.TypeOfChar);
+            mapTypes.Add(typeof(string));
+            mapTypes.Add(typeof(int));
+            mapTypes.Add(typeof(long));
+            mapTypes.Add(typeof(decimal));
+            mapTypes.Add(typeof(double));
+            mapTypes.Add(typeof(float));
+            mapTypes.Add(typeof(bool));
+            mapTypes.Add(typeof(DateTime));
+            mapTypes.Add(typeof(short));
+            mapTypes.Add(typeof(Guid));
+            mapTypes.Add(typeof(byte));
+            mapTypes.Add(typeof(char));
 
-            mapTypes.Add(UtilConstants.TypeOfObject);
+            mapTypes.Add(typeof(Object));
 
-            mapTypes.Add(UtilConstants.TypeOfByteArray);
+            mapTypes.Add(typeof(byte[]));
 
             mapTypes.TrimExcess();
-
             MapTypes = mapTypes;
+
+
+            var typeDbTypeMap = new Dictionary<Type, DbType>();
+
+            typeDbTypeMap[typeof(byte)] = DbType.Byte;
+            typeDbTypeMap[typeof(sbyte)] = DbType.SByte;
+            typeDbTypeMap[typeof(short)] = DbType.Int16;
+            typeDbTypeMap[typeof(ushort)] = DbType.UInt16;
+            typeDbTypeMap[typeof(int)] = DbType.Int32;
+            typeDbTypeMap[typeof(uint)] = DbType.UInt32;
+            typeDbTypeMap[typeof(long)] = DbType.Int64;
+            typeDbTypeMap[typeof(ulong)] = DbType.UInt64;
+            typeDbTypeMap[typeof(float)] = DbType.Single;
+            typeDbTypeMap[typeof(double)] = DbType.Double;
+            typeDbTypeMap[typeof(decimal)] = DbType.Decimal;
+            typeDbTypeMap[typeof(bool)] = DbType.Boolean;
+            typeDbTypeMap[typeof(string)] = DbType.String;
+            typeDbTypeMap[typeof(char)] = DbType.StringFixedLength;
+            typeDbTypeMap[typeof(Guid)] = DbType.Guid;
+            typeDbTypeMap[typeof(DateTime)] = DbType.DateTime;
+            typeDbTypeMap[typeof(DateTimeOffset)] = DbType.DateTimeOffset;
+            typeDbTypeMap[typeof(TimeSpan)] = DbType.Time;
+            typeDbTypeMap[typeof(byte[])] = DbType.Binary;
+            typeDbTypeMap[typeof(Object)] = DbType.Object;
+
+            _typeDbTypeMap = Utils.Clone(typeDbTypeMap);
         }
 
+        public static DbType? TryGetDbType(Type type)
+        {
+            if (type == null)
+                return null;
+
+            Type unType;
+            if (!Utils.IsNullable(type, out unType))
+                unType = type;
+
+            if (unType.IsEnum)
+                unType = UtilConstants.TypeOfInt32;
+
+            DbType ret;
+            if (_typeDbTypeMap.TryGetValue(unType, out ret))
+                return ret;
+
+            return null;
+        }
         public static void CheckNull(object obj, string paramName = null)
         {
             if (obj == null)

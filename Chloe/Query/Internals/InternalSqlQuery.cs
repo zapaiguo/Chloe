@@ -19,9 +19,9 @@ namespace Chloe.Query.Internals
     {
         DbContext _dbContext;
         string _sql;
-        IDictionary<string, object> _parameters;
+        DbParam[] _parameters;
 
-        public InternalSqlQuery(DbContext dbContext, string sql, IDictionary<string, object> parameters)
+        public InternalSqlQuery(DbContext dbContext, string sql, DbParam[] parameters)
         {
             this._dbContext = dbContext;
             this._sql = sql;

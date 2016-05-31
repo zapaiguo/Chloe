@@ -87,7 +87,7 @@ namespace Chloe.SqlServer
             sql += ";SELECT @@IDENTITY";
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
-            object retIdentity = this.CurrentSession.ExecuteScalar(sql, dbExpVisitor.ParameterStorage);
+            object retIdentity = this.CurrentSession.ExecuteScalar(sql, dbExpVisitor.Parameters.ToArray());
 
             if (retIdentity == null || retIdentity == DBNull.Value)
             {
@@ -160,7 +160,7 @@ namespace Chloe.SqlServer
             sql += ";SELECT @@IDENTITY";
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
-            object retIdentity = this.CurrentSession.ExecuteScalar(sql, dbExpVisitor.ParameterStorage);
+            object retIdentity = this.CurrentSession.ExecuteScalar(sql, dbExpVisitor.Parameters.ToArray());
 
             if (retIdentity == null || retIdentity == DBNull.Value)
             {
@@ -271,7 +271,7 @@ namespace Chloe.SqlServer
 
             string sql = sqlState.ToSql();
 
-            int r = this.CurrentSession.ExecuteNonQuery(sql, dbExpVisitor.ParameterStorage);
+            int r = this.CurrentSession.ExecuteNonQuery(sql, dbExpVisitor.Parameters.ToArray());
             return r;
         }
 
