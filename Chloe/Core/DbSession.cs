@@ -15,27 +15,15 @@ namespace Chloe.Core
             this._dbContext = dbContext;
         }
         public bool IsInTransaction { get { return this._dbContext.InnerDbSession.IsInTransaction; } }
-        public int ExecuteNonQuery(string sql)
-        {
-            return this.ExecuteNonQuery(sql, null);
-        }
         public int ExecuteNonQuery(string sql, params DbParam[] parameters)
         {
             Utils.CheckNull(sql, "sql");
             return this._dbContext.InnerDbSession.ExecuteNonQuery(sql, parameters);
         }
-        public object ExecuteScalar(string sql)
-        {
-            return this.ExecuteScalar(sql, null);
-        }
         public object ExecuteScalar(string sql, params DbParam[] parameters)
         {
             Utils.CheckNull(sql, "sql");
             return this._dbContext.InnerDbSession.ExecuteScalar(sql, parameters);
-        }
-        public IDataReader ExecuteReader(string sql)
-        {
-            return this.ExecuteReader(sql, null);
         }
         public IDataReader ExecuteReader(string sql, params DbParam[] parameters)
         {
