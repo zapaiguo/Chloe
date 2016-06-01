@@ -44,6 +44,8 @@ namespace Chloe.Core
         public static DbParam Create<T>(string name, T value)
         {
             var param = new DbParam(name, value);
+            if (value == null)
+                param.Type = typeof(T);
             return param;
         }
         public static DbParam Create(string name, object value)
