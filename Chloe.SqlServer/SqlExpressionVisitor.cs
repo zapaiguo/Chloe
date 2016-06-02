@@ -31,6 +31,8 @@ namespace Chloe.SqlServer
 
         public static readonly ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes = null;
 
+        static readonly List<Tuple<string, SqlState>> CacheParameterSqlStates = null;
+
         static SqlExpressionVisitor()
         {
             List<DbExpressionType> list = new List<DbExpressionType>();
@@ -66,6 +68,18 @@ namespace Chloe.SqlServer
             cSharpType_DbType_Mappings.Add(typeof(Guid?), "UNIQUEIDENTIFIER");
 
             CSharpType_DbType_Mappings = cSharpType_DbType_Mappings;
+
+            int cacheParameterSqlStateCount = 2 * 12;
+            List<Tuple<string, SqlState>> cacheParameterSqlStates = new List<Tuple<string, SqlState>>(cacheParameterSqlStateCount);
+
+            for (int i = 0; i < cacheParameterSqlStateCount; i++)
+            {
+                string paramName = ParameterPrefix + i.ToString();
+                Tuple<string, SqlState> tuple = new Tuple<string, SqlState>(paramName, SqlState.Create(paramName));
+                cacheParameterSqlStates.Add(tuple);
+            }
+
+            CacheParameterSqlStates = cacheParameterSqlStates;
         }
 
         public override List<DbParam> Parameters { get { return this._parameters; } }
@@ -340,6 +354,7 @@ namespace Chloe.SqlServer
             if (val == null)
                 val = DBNull.Value;
 
+            SqlState state;
             if (val == DBNull.Value)
             {
                 var p = this._parameters.Where(a => a.Value == val && a.Type == exp.Type).FirstOrDefault();
@@ -348,16 +363,17 @@ namespace Chloe.SqlServer
                     return SqlState.Create(p.Name);
                 }
 
-                string paramName = ParameterPrefix + this._parameters.Count.ToString();
+
+                string paramName;
+                state = GetParameterNameSqlState(this._parameters.Count, out paramName);
                 this._parameters.Add(DbParam.Create(paramName, val, exp.Type));
-                return SqlState.Create(paramName);
+                return state;
             }
 
-            SqlState state;
             if (!this._innerParameterStorage.TryGetValue(val, out state))
             {
-                string paramName = ParameterPrefix + this._parameters.Count.ToString();
-                state = SqlState.Create(paramName);
+                string paramName;
+                state = GetParameterNameSqlState(this._parameters.Count, out paramName);
 
                 this._innerParameterStorage.Add(val, state);
                 this._parameters.Add(DbParam.Create(paramName, val, exp.Type));
@@ -801,6 +817,18 @@ namespace Chloe.SqlServer
             return state;
         }
 
+        static SqlState GetParameterNameSqlState(int ordinal, out string paramName)
+        {
+            if (ordinal <= CacheParameterSqlStates.Count - 1)
+            {
+                var tup = CacheParameterSqlStates[ordinal];
+                paramName = tup.Item1;
+                return tup.Item2;
+            }
+
+            paramName = ParameterPrefix + ordinal.ToString();
+            return SqlState.Create(paramName);
+        }
         public static SqlState QuoteName(string name)
         {
             if (string.IsNullOrEmpty(name))
