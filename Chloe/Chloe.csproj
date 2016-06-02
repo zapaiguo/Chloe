@@ -136,7 +136,7 @@
     <Compile Include="Mapper\ObjectActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\DbExpressionEqualityComparer.cs" />
-    <Compile Include="Core\DbFunction.cs" />
+    <Compile Include="Core\DbFunctions.cs" />
     <Compile Include="Query\FromQueryResult.cs" />
     <Compile Include="Query\GroupingQuery.cs" />
     <Compile Include="Query\IMappingObjectExpression.cs" />

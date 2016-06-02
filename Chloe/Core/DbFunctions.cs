@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Chloe.Core
 {
-    public static class DbFunction
+    public static class DbFunctions
     {
         public static int Count()
         {
