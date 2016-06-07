@@ -14,6 +14,7 @@ namespace Chloe.Core
         {
             this._dbContext = dbContext;
         }
+        public IDbContext DbContext { get { return this._dbContext; } }
         public bool IsInTransaction { get { return this._dbContext.InnerDbSession.IsInTransaction; } }
         public int ExecuteNonQuery(string sql, params DbParam[] parameters)
         {
