@@ -13,6 +13,7 @@ namespace Chloe.SqlServer
     class DbContextServiceProvider : IDbContextServiceProvider
     {
         string _connString;
+
         public DbContextServiceProvider(string connString)
         {
             this._connString = connString;
@@ -22,10 +23,9 @@ namespace Chloe.SqlServer
             SqlConnection conn = new SqlConnection(this._connString);
             return conn;
         }
-        public AbstractDbExpressionVisitor CreateDbExpressionVisitor()
+        public IDbExpressionTranslator CreateDbExpressionTranslator()
         {
-            AbstractDbExpressionVisitor visitor = SqlExpressionVisitor.CreateInstance();
-            return visitor;
+            return DbExpressionTranslator.Instance;
         }
     }
 }

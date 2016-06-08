@@ -80,14 +80,14 @@ namespace Chloe.SqlServer
                 return entity;
             }
 
-            AbstractDbExpressionVisitor dbExpVisitor = this.DbContextServiceProvider.CreateDbExpressionVisitor();
-            var sqlState = e.Accept(dbExpVisitor);
+            IDbExpressionTranslator translator = this.DbContextServiceProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string sql = translator.Translate(e, out parameters);
 
-            string sql = sqlState.ToSql();
             sql += ";SELECT @@IDENTITY";
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
-            object retIdentity = this.CurrentSession.ExecuteScalar(sql, dbExpVisitor.Parameters.ToArray());
+            object retIdentity = this.CurrentSession.ExecuteScalar(sql, parameters.ToArray());
 
             if (retIdentity == null || retIdentity == DBNull.Value)
             {
@@ -153,14 +153,13 @@ namespace Chloe.SqlServer
                 return keyValue;
             }
 
-            AbstractDbExpressionVisitor dbExpVisitor = this.DbContextServiceProvider.CreateDbExpressionVisitor();
-            var sqlState = e.Accept(dbExpVisitor);
-
-            string sql = sqlState.ToSql();
+            IDbExpressionTranslator translator = this.DbContextServiceProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string sql = translator.Translate(e, out parameters);
             sql += ";SELECT @@IDENTITY";
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
-            object retIdentity = this.CurrentSession.ExecuteScalar(sql, dbExpVisitor.Parameters.ToArray());
+            object retIdentity = this.CurrentSession.ExecuteScalar(sql, parameters.ToArray());
 
             if (retIdentity == null || retIdentity == DBNull.Value)
             {
@@ -266,12 +265,11 @@ namespace Chloe.SqlServer
 
         int ExecuteSqlCommand(DbExpression e)
         {
-            AbstractDbExpressionVisitor dbExpVisitor = this.DbContextServiceProvider.CreateDbExpressionVisitor();
-            var sqlState = e.Accept(dbExpVisitor);
+            IDbExpressionTranslator translator = this.DbContextServiceProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string sql = translator.Translate(e, out parameters);
 
-            string sql = sqlState.ToSql();
-
-            int r = this.CurrentSession.ExecuteNonQuery(sql, dbExpVisitor.Parameters.ToArray());
+            int r = this.CurrentSession.ExecuteNonQuery(sql, parameters.ToArray());
             return r;
         }
 

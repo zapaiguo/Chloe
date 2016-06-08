@@ -363,7 +363,6 @@ namespace Chloe.SqlServer
                     return SqlState.Create(p.Name);
                 }
 
-
                 string paramName;
                 state = GetParameterNameSqlState(this._parameters.Count, out paramName);
                 this._parameters.Add(DbParam.Create(paramName, val, exp.Type));

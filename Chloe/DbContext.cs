@@ -355,12 +355,17 @@ namespace Chloe
 
         int ExecuteSqlCommand(DbExpression e)
         {
-            AbstractDbExpressionVisitor dbExpVisitor = this._dbContextServiceProvider.CreateDbExpressionVisitor();
-            var sqlState = e.Accept(dbExpVisitor);
+            //AbstractDbExpressionVisitor dbExpVisitor = this._dbContextServiceProvider.CreateDbExpressionVisitor();
+            //var sqlState = e.Accept(dbExpVisitor);
 
-            string sql = sqlState.ToSql();
+            //string cmdText = sqlState.ToSql();
+            //List<DbParam> parameters = dbExpVisitor.Parameters;
 
-            int r = this._innerDbSession.ExecuteNonQuery(sql, dbExpVisitor.Parameters.ToArray());
+            IDbExpressionTranslator translator = this._dbContextServiceProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string cmdText = translator.Translate(e, out parameters);
+
+            int r = this.InnerDbSession.ExecuteNonQuery(cmdText, parameters.ToArray());
             return r;
         }
 

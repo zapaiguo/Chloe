@@ -98,6 +98,24 @@ namespace Chloe.Utility
             unType = Nullable.GetUnderlyingType(type);
             return unType != null;
         }
+        public static bool IsEqual(object obj1, object obj2)
+        {
+            if (obj1 == null && obj2 == null)
+                return true;
+
+            if (obj1 != null)
+            {
+                return obj1.Equals(obj2);
+            }
+
+            if (obj2 != null)
+            {
+                return obj2.Equals(obj1);
+            }
+
+            return object.Equals(obj1, obj2);
+        }
+
 
         public static bool IsMapType(Type type)
         {

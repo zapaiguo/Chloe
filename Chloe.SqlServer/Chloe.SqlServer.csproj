@@ -44,9 +44,13 @@
     <Compile Include="DbExpressionExtensions.cs" />
     <Compile Include="DbContextServiceProvider.cs" />
     <Compile Include="DbExpressionHelper.cs" />
+    <Compile Include="DbExpressionTranslator.cs" />
+    <Compile Include="DbValueExpressionVisitor.cs" />
+    <Compile Include="ISqlBuilder.cs" />
     <Compile Include="MsSqlContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlExpressionVisitor.cs" />
+    <Compile Include="SqlGenerator.cs" />
     <Compile Include="UtilConstants.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

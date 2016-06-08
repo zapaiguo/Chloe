@@ -26,17 +26,15 @@ namespace Chloe.Query.Internals
             IQueryState qs = QueryExpressionVisitor.VisitQueryExpression(this._query.QueryExpression);
             MappingData data = qs.GenerateMappingData();
 
-            AbstractDbExpressionVisitor visitor = this._query.DbContext.DbContextServiceProvider.CreateDbExpressionVisitor();
-            ISqlState sqlState = data.SqlQuery.Accept(visitor);
-
             IObjectActivator objectActivator;
             if (this._query._trackEntity)
                 objectActivator = data.MappingEntity.CreateObjectActivator(this._query.DbContext);
             else
                 objectActivator = data.MappingEntity.CreateObjectActivator();
 
-            string cmdText = sqlState.ToSql();
-            var parameters = visitor.Parameters;
+            IDbExpressionTranslator translator = this._query.DbContext.DbContextServiceProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string cmdText = translator.Translate(data.SqlQuery, out parameters);
 
             DbCommandFactor commandFactor = new DbCommandFactor(objectActivator, cmdText, parameters.ToArray());
             return commandFactor;

@@ -9,6 +9,7 @@ namespace Chloe.DbExpressions
         Type _type;
 
         public static readonly DbConstantExpression Null = new DbConstantExpression(null);
+        public static readonly DbConstantExpression StringEmpty = new DbConstantExpression(string.Empty);
         public static readonly DbConstantExpression One = new DbConstantExpression(1);
         public static readonly DbConstantExpression Zero = new DbConstantExpression(0);
         public static readonly DbConstantExpression True = new DbConstantExpression(true);

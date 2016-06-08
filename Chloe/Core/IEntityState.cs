@@ -1,4 +1,5 @@
 ﻿using Chloe.Descriptors;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,20 +41,7 @@ namespace Chloe.Core
                 return true;
             }
 
-            if (oldVal == null && val == null)
-                return false;
-
-            if (oldVal != null)
-            {
-                return !oldVal.Equals(val);
-            }
-
-            if (val != null)
-            {
-                return !val.Equals(oldVal);
-            }
-
-            return !object.Equals(val, oldVal);
+            return !Utils.IsEqual(oldVal, val);
         }
         public void Refresh()
         {
