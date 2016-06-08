@@ -24,7 +24,6 @@ namespace Chloe.SqlServer
         protected List<DbParam> _parameters = new List<DbParam>();
         protected Dictionary<object, SqlState> _innerParameterStorage = new Dictionary<object, SqlState>();
 
-
         static readonly Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>> MethodHandlers = InitMethodHandlers();
         static readonly Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>> FuncHandlers = InitFuncHandlers();
         static readonly Dictionary<MethodInfo, Func<DbBinaryExpression, SqlExpressionVisitor, ISqlState>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
