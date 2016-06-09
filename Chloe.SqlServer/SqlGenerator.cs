@@ -471,7 +471,7 @@ namespace Chloe.SqlServer
             Action<DbMethodCallExpression, SqlGenerator> methodHandler;
             if (!MethodHandlers.TryGetValue(exp.Method.Name, out methodHandler))
             {
-                throw NotSupportedException(exp.Method);
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
             }
 
             methodHandler(exp, this);
@@ -885,12 +885,12 @@ namespace Chloe.SqlServer
         static void EnsureMethodDeclaringType(DbMethodCallExpression exp, Type ensureType)
         {
             if (exp.Method.DeclaringType != ensureType)
-                throw NotSupportedException(exp.Method);
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
         static void EnsureMethod(DbMethodCallExpression exp, MethodInfo methodInfo)
         {
             if (exp.Method != methodInfo)
-                throw NotSupportedException(exp.Method);
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
 
 
@@ -1039,7 +1039,7 @@ namespace Chloe.SqlServer
         static void Method_TrimStart(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethod(exp, UtilConstants.MethodInfo_String_TrimStart);
-            EnsureTrimCharParameterIsSpaces(exp.Arguments[0]);
+            EnsureTrimCharArgumentIsSpaces(exp.Arguments[0]);
 
             generator._sqlBuilder.Append("LTRIM(");
             exp.Object.Accept(generator);
@@ -1048,7 +1048,7 @@ namespace Chloe.SqlServer
         static void Method_TrimEnd(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethod(exp, UtilConstants.MethodInfo_String_TrimEnd);
-            EnsureTrimCharParameterIsSpaces(exp.Arguments[0]);
+            EnsureTrimCharArgumentIsSpaces(exp.Arguments[0]);
 
             generator._sqlBuilder.Append("RTRIM(");
             exp.Object.Accept(generator);
@@ -1114,7 +1114,7 @@ namespace Chloe.SqlServer
                 exp.Arguments[1].Accept(generator);
             }
             else
-                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: ", exp.Arguments.Count, exp.Method.Name));
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
 
             generator._sqlBuilder.Append(")");
         }
@@ -1565,7 +1565,7 @@ namespace Chloe.SqlServer
             return false;
         }
 
-        static void EnsureTrimCharParameterIsSpaces(DbExpression exp)
+        static void EnsureTrimCharArgumentIsSpaces(DbExpression exp)
         {
             var m = exp as DbMemberExpression;
             if (m == null)
@@ -1587,28 +1587,6 @@ namespace Chloe.SqlServer
             {
                 throw new NotSupportedException();
             }
-        }
-
-        static Exception NotSupportedException(MethodInfo method)
-        {
-            StringBuilder sb = new StringBuilder();
-            ParameterInfo[] parameters = method.GetParameters();
-
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                ParameterInfo p = parameters[i];
-
-                if (i > 0)
-                    sb.Append(",");
-
-                string s = null;
-                if (p.IsOut)
-                    s = "out ";
-
-                sb.AppendFormat("{0}{1} {2}", s, p.ParameterType.Name, p.Name);
-            }
-
-            return new NotSupportedException(string.Format("不支持方法 {0}.{1}({2})", method.DeclaringType.Name, method.Name, sb.ToString()));
         }
     }
 }

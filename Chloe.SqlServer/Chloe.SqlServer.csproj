@@ -52,6 +52,7 @@
     <Compile Include="SqlExpressionVisitor.cs" />
     <Compile Include="SqlGenerator.cs" />
     <Compile Include="UtilConstants.cs" />
+    <Compile Include="UtilExceptions.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

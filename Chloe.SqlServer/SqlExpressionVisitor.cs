@@ -417,7 +417,7 @@ namespace Chloe.SqlServer
             Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState> methodHandler;
             if (!MethodHandlers.TryGetValue(exp.Method.Name, out methodHandler))
             {
-                throw NotSupportedException(exp.Method);
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
             }
             return methodHandler(exp, this);
         }
@@ -904,12 +904,12 @@ namespace Chloe.SqlServer
         static void EnsureMethodDeclaringType(DbMethodCallExpression exp, Type ensureType)
         {
             if (exp.Method.DeclaringType != ensureType)
-                throw NotSupportedException(exp.Method);
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
         static void EnsureMethod(DbMethodCallExpression exp, MethodInfo methodInfo)
         {
             if (exp.Method != methodInfo)
-                throw NotSupportedException(exp.Method);
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
 
 
@@ -1095,7 +1095,7 @@ namespace Chloe.SqlServer
                 length = exp.Arguments[1].Accept(visitor);
             }
             else
-                throw new NotSupportedException(string.Format("不支持 {0} 个参数的方法: ", exp.Arguments.Count, exp.Method.Name));
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
 
             return SqlState.Create("SUBSTRING(", exp.Object.Accept(visitor), ",", exp.Arguments[0].Accept(visitor), " + 1", ",", length, ")");
         }
@@ -1521,28 +1521,6 @@ namespace Chloe.SqlServer
             {
                 throw new NotSupportedException();
             }
-        }
-
-        static Exception NotSupportedException(MethodInfo method)
-        {
-            StringBuilder sb = new StringBuilder();
-            ParameterInfo[] parameters = method.GetParameters();
-
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                ParameterInfo p = parameters[i];
-
-                if (i > 0)
-                    sb.Append(",");
-
-                string s = null;
-                if (p.IsOut)
-                    s = "out ";
-
-                sb.AppendFormat("{0}{1} {2}", s, p.ParameterType.Name, p.Name);
-            }
-
-            return new NotSupportedException(string.Format("不支持方法 {0}.{1}({2})", method.DeclaringType.Name, method.Name, sb.ToString()));
         }
     }
 
