@@ -5,12 +5,12 @@ namespace Chloe.DbExpressions
 {
     public class DbLessThanOrEqualExpression : DbBinaryExpression
     {
-        internal DbLessThanOrEqualExpression(DbExpression left, DbExpression right)
+        public DbLessThanOrEqualExpression(DbExpression left, DbExpression right)
             : this(left, right, null)
         {
 
         }
-        internal DbLessThanOrEqualExpression(DbExpression left, DbExpression right, MethodInfo method)
+        public DbLessThanOrEqualExpression(DbExpression left, DbExpression right, MethodInfo method)
             : base(DbExpressionType.LessThanOrEqual, UtilConstants.TypeOfBoolean, left, right, method)
         {
 

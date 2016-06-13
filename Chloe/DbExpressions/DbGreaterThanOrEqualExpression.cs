@@ -5,12 +5,12 @@ namespace Chloe.DbExpressions
 {
     public class DbGreaterThanOrEqualExpression : DbBinaryExpression
     {
-        internal DbGreaterThanOrEqualExpression(DbExpression left, DbExpression right)
+        public DbGreaterThanOrEqualExpression(DbExpression left, DbExpression right)
             : this(left, right, null)
         {
 
         }
-        internal DbGreaterThanOrEqualExpression(DbExpression left, DbExpression right, MethodInfo method)
+        public DbGreaterThanOrEqualExpression(DbExpression left, DbExpression right, MethodInfo method)
             : base(DbExpressionType.GreaterThanOrEqual, UtilConstants.TypeOfBoolean, left, right, method)
         {
 

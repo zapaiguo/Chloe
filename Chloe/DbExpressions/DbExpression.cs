@@ -129,10 +129,10 @@ namespace Chloe.DbExpressions
             return new DbParameterExpression(value);
         }
 
-        public static DbParameterExpression Parameter(object value, Type typeIfValueIsNull)
+        public static DbParameterExpression Parameter(object value, Type defaultType)
         {
             if (value == null)
-                return new DbParameterExpression(value, typeIfValueIsNull);
+                return new DbParameterExpression(value, defaultType);
             else
                 return new DbParameterExpression(value, value.GetType());
         }

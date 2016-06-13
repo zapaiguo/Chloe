@@ -5,12 +5,12 @@ namespace Chloe.DbExpressions
 {
     public class DbOrExpression : DbBinaryExpression
     {
-        internal DbOrExpression(DbExpression left, DbExpression right)
+        public DbOrExpression(DbExpression left, DbExpression right)
             : this(left, right, null)
         {
 
         }
-        internal DbOrExpression(DbExpression left, DbExpression right, MethodInfo method)
+        public DbOrExpression(DbExpression left, DbExpression right, MethodInfo method)
             : base(DbExpressionType.Or, UtilConstants.TypeOfBoolean, left, right, method)
         {
 

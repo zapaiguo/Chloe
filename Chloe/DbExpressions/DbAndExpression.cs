@@ -5,7 +5,7 @@ namespace Chloe.DbExpressions
 {
     public class DbAndExpression : DbBinaryExpression
     {
-        internal DbAndExpression(DbExpression left, DbExpression right)
+        public DbAndExpression(DbExpression left, DbExpression right)
             : this(left, right, null)
         {
 
