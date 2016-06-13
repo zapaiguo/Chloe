@@ -435,7 +435,7 @@ namespace Chloe.SqlServer
                 return exp;
             }
 
-            paramName = GetParameterName(this._parameters.Count);
+            paramName = GenParameterName(this._parameters.Count);
             this._parameters.Add(DbParam.Create(paramName, val, exp.Type));
             this._sqlBuilder.Append(paramName);
             return exp;
@@ -799,7 +799,7 @@ namespace Chloe.SqlServer
             return;
         }
 
-        static string GetParameterName(int ordinal)
+        static string GenParameterName(int ordinal)
         {
             if (ordinal < CacheParameterNames.Count)
             {
