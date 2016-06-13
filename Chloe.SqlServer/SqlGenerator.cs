@@ -490,13 +490,14 @@ namespace Chloe.SqlServer
         {
             DbJoinTableExpression joinTablePart = exp;
             string joinString = null;
-            if (joinTablePart.JoinType == JoinType.LeftJoin)
-            {
-                joinString = " LEFT JOIN ";
-            }
-            else if (joinTablePart.JoinType == JoinType.InnerJoin)
+
+            if (joinTablePart.JoinType == JoinType.InnerJoin)
             {
                 joinString = " INNER JOIN ";
+            }
+            else if (joinTablePart.JoinType == JoinType.LeftJoin)
+            {
+                joinString = " LEFT JOIN ";
             }
             else if (joinTablePart.JoinType == JoinType.RightJoin)
             {
