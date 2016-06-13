@@ -1,4 +1,4 @@
-﻿#if release
+﻿#if DEBUG
 using Chloe.Extensions;
 using Chloe.DbExpressions;
 using Chloe.Utility;
@@ -172,6 +172,4 @@ namespace Chloe.SqlServer
 
     }
 }
-
-
 #endif

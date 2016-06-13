@@ -1,5 +1,4 @@
-﻿#if release
-
+﻿#if DEBUG
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -915,7 +914,7 @@ namespace Chloe.SqlServer
         }
 
 
-#region BinaryWithMethodHandlers
+        #region BinaryWithMethodHandlers
 
         static Dictionary<MethodInfo, Func<DbBinaryExpression, SqlExpressionVisitor, ISqlState>> InitBinaryWithMethodHandlers()
         {
@@ -996,7 +995,7 @@ namespace Chloe.SqlServer
 
         #endregion
 
-#region MethodHandlers
+        #region MethodHandlers
 
         static Dictionary<string, Func<DbMethodCallExpression, SqlExpressionVisitor, ISqlState>> InitMethodHandlers()
         {
@@ -1300,7 +1299,7 @@ namespace Chloe.SqlServer
 
         #endregion
 
-#region FuncHandlers
+        #region FuncHandlers
         static Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>> InitFuncHandlers()
         {
             var funcHandlers = new Dictionary<string, Func<DbFunctionExpression, SqlExpressionVisitor, ISqlState>>();
@@ -1355,7 +1354,7 @@ namespace Chloe.SqlServer
 
         #endregion
 
-#region AggregateFunction
+        #region AggregateFunction
         static ISqlState Func_Count()
         {
             return SqlState.Create("COUNT(1)");
@@ -1527,6 +1526,4 @@ namespace Chloe.SqlServer
     }
 
 }
-
-
 #endif
