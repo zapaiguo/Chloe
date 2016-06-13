@@ -801,7 +801,7 @@ namespace Chloe.SqlServer
 
         static string GetParameterName(int ordinal)
         {
-            if (ordinal <= CacheParameterNames.Count - 1)
+            if (ordinal < CacheParameterNames.Count)
             {
                 return CacheParameterNames[ordinal];
             }
