@@ -249,8 +249,9 @@ namespace Chloe.Core
 
             if (parameters != null)
             {
-                foreach (var param in parameters)
+                for (int i = 0; i < parameters.Length; i++)
                 {
+                    var param = parameters[i];
                     if (param == null)
                         continue;
 
