@@ -11,9 +11,9 @@ namespace Chloe.Query.Internals
 {
     static class QueryEnumeratorCreator
     {
-        public static IEnumerator<T> CreateEnumerator<T>(InternalDbSession dbSession, DbCommandFactor queryFactor)
+        public static IEnumerator<T> CreateEnumerator<T>(InternalDbSession dbSession, DbCommandFactor commandFactor)
         {
-            return new QueryEnumerator<T>(dbSession, queryFactor);
+            return new QueryEnumerator<T>(dbSession, commandFactor);
         }
         internal struct QueryEnumerator<T> : IEnumerator<T>
         {

@@ -120,7 +120,6 @@
     <Compile Include="IDbSession.cs" />
     <Compile Include="IGroupingQuery.cs" />
     <Compile Include="IJoiningQuery`.cs" />
-    <Compile Include="Infrastructure\IDbConnectionFactory.cs" />
     <Compile Include="Infrastructure\IDbContextServiceProvider.cs" />
     <Compile Include="Infrastructure\IDbExpressionTranslator.cs" />
     <Compile Include="IOrderedQuery`.cs" />
