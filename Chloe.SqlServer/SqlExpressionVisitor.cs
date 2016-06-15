@@ -16,7 +16,7 @@ using Chloe.Core;
 
 namespace Chloe.SqlServer
 {
-    class SqlExpressionVisitor : AbstractDbExpressionVisitor
+    class SqlExpressionVisitor : DbExpressionVisitor<ISqlState>
     {
         public const string ParameterPrefix = "@P_";
 
@@ -83,7 +83,7 @@ namespace Chloe.SqlServer
             CacheParameterSqlStates = cacheParameterSqlStates;
         }
 
-        public override List<DbParam> Parameters { get { return this._parameters; } }
+        public List<DbParam> Parameters { get { return this._parameters; } }
 
         DbColumnExpressionVisitor ColumnExpressionVisitor
         {
@@ -432,13 +432,14 @@ namespace Chloe.SqlServer
         {
             DbJoinTableExpression joinTablePart = exp;
             string joinString = null;
-            if (joinTablePart.JoinType == JoinType.LeftJoin)
-            {
-                joinString = " LEFT JOIN ";
-            }
-            else if (joinTablePart.JoinType == JoinType.InnerJoin)
+
+            if (joinTablePart.JoinType == JoinType.InnerJoin)
             {
                 joinString = " INNER JOIN ";
+            }
+            else if (joinTablePart.JoinType == JoinType.LeftJoin)
+            {
+                joinString = " LEFT JOIN ";
             }
             else if (joinTablePart.JoinType == JoinType.RightJoin)
             {
