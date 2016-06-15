@@ -1,2 +1,2 @@
 # Chloe
-业余练手
+Chloe is a Object/Relational Mapping (ORM) library.
