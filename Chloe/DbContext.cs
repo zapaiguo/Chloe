@@ -365,7 +365,7 @@ namespace Chloe
 
         static void EnsureMappingTypeHasPrimaryKey(TypeDescriptor typeDescriptor)
         {
-            if (typeDescriptor.PrimaryKey == null)
+            if (!typeDescriptor.HasPrimaryKey())
                 throw new Exception(string.Format("实体类 {0} 未定义主键", typeDescriptor.EntityType.FullName));
         }
 
