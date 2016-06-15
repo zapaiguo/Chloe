@@ -94,7 +94,7 @@ namespace Chloe.SqlServer
                 throw new Exception("无法获取自增标识");
             }
 
-            retIdentity = ConvertIdentity(retIdentity, autoIncrementMemberDescriptor.MemberInfoType);
+            retIdentity = ConvertIdentityType(retIdentity, autoIncrementMemberDescriptor.MemberInfoType);
             autoIncrementMemberDescriptor.SetValue(entity, retIdentity);
             return entity;
         }
@@ -166,7 +166,7 @@ namespace Chloe.SqlServer
                 throw new Exception("无法获取自增标识");
             }
 
-            retIdentity = ConvertIdentity(retIdentity, autoIncrementMemberDescriptor.MemberInfoType);
+            retIdentity = ConvertIdentityType(retIdentity, autoIncrementMemberDescriptor.MemberInfoType);
             return retIdentity;
         }
 
@@ -304,7 +304,7 @@ namespace Chloe.SqlServer
                 throw new Exception("自增成员必须是 Int16、Int32 或 Int64 类型");
             }
         }
-        static object ConvertIdentity(object identity, Type conversionType)
+        static object ConvertIdentityType(object identity, Type conversionType)
         {
             if (identity.GetType() != conversionType)
                 return Convert.ChangeType(identity, conversionType);
