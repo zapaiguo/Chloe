@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Chloe.SqlServer
 {
@@ -467,7 +466,7 @@ namespace Chloe.SqlServer
         {
             if (exp.SkipCount != null)
             {
-                this.BuildSkipOrLimitSql(exp);
+                this.BuildLimitSql(exp);
                 return exp;
             }
             else
@@ -616,34 +615,34 @@ namespace Chloe.SqlServer
             return exp;
         }
 
-        void AppendTableSegment(DbTableSegment seq)
+        void AppendTableSegment(DbTableSegment seg)
         {
-            seq.Body.Accept(this);
+            seg.Body.Accept(this);
             this._sqlBuilder.Append(" AS ");
-            this.QuoteName(seq.Alias);
+            this.QuoteName(seg.Alias);
         }
-        void AppendColumnSegment(DbColumnSegment seq)
+        void AppendColumnSegment(DbColumnSegment seg)
         {
-            seq.Body.Accept(this.ValueExpressionVisitor);
+            seg.Body.Accept(this.ValueExpressionVisitor);
             this._sqlBuilder.Append(" AS ");
-            this.QuoteName(seq.Alias);
+            this.QuoteName(seg.Alias);
         }
-        void AppendOrderSegment(DbOrderSegment seq)
+        void AppendOrderSegment(DbOrderSegment seg)
         {
-            if (seq.OrderType == OrderType.Asc)
+            if (seg.OrderType == OrderType.Asc)
             {
-                seq.DbExpression.Accept(this);
+                seg.DbExpression.Accept(this);
                 this._sqlBuilder.Append(" ASC");
                 return;
             }
-            else if (seq.OrderType == OrderType.Desc)
+            else if (seg.OrderType == OrderType.Desc)
             {
-                seq.DbExpression.Accept(this);
+                seg.DbExpression.Accept(this);
                 this._sqlBuilder.Append(" DESC");
                 return;
             }
 
-            throw new NotSupportedException("OrderType: " + seq.OrderType);
+            throw new NotSupportedException("OrderType: " + seg.OrderType);
         }
 
         void VisitDbJoinTableExpressions(List<DbJoinTableExpression> tables)
@@ -675,7 +674,7 @@ namespace Chloe.SqlServer
             this.BuildGroupState(exp);
             this.BuildOrderState(exp.OrderSegments);
         }
-        void BuildSkipOrLimitSql(DbSqlQueryExpression exp)
+        void BuildLimitSql(DbSqlQueryExpression exp)
         {
             this._sqlBuilder.Append("SELECT ");
             if (exp.TakeCount != null)
