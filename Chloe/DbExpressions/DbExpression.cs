@@ -50,13 +50,13 @@ namespace Chloe.DbExpressions
             return new DbDivideExpression(returnType, left, right);
         }
 
-        public static DbAndExpression And(DbExpression left, DbExpression right)
+        public static DbAndAlsoExpression AndAlso(DbExpression left, DbExpression right)
         {
-            return new DbAndExpression(left, right);
+            return new DbAndAlsoExpression(left, right);
         }
-        public static DbOrExpression Or(DbExpression left, DbExpression right)
+        public static DbOrElseExpression OrElse(DbExpression left, DbExpression right)
         {
-            return new DbOrExpression(left, right);
+            return new DbOrElseExpression(left, right);
         }
         public static DbEqualExpression Equal(DbExpression left, DbExpression right)
         {

@@ -4,7 +4,9 @@ namespace Chloe.DbExpressions
     public enum DbExpressionType
     {
         And = 1,
+        AndAlso,
         Or,
+        OrElse,
         Equal,
         NotEqual,
         Not,

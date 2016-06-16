@@ -88,7 +88,7 @@ namespace Chloe.Core.Visitors
             return DbExpression.GreaterThanOrEqual(this.Visit(exp.Left), this.Visit(exp.Right));
         }
 
-        protected override DbExpression VisitBinary_And(BinaryExpression exp)
+        protected override DbExpression VisitBinary_AndAlso(BinaryExpression exp)
         {
             // true && a.ID == 1 或者 a.ID == 1 && true
             Expression left = exp.Left, right = exp.Right;
@@ -138,12 +138,12 @@ namespace Chloe.Core.Visitors
             var newRight = Expression.Equal(right, UtilConstants.Constant_True);
 
             //dbExp = new DbAndExpression(this.Visit(newLeft), this.Visit(newRight));
-            dbExp = DbExpression.And(this.Visit(newLeft), this.Visit(newRight));
+            dbExp = DbExpression.AndAlso(this.Visit(newLeft), this.Visit(newRight));
 
             return dbExp;
         }
 
-        protected override DbExpression VisitBinary_Or(BinaryExpression exp)
+        protected override DbExpression VisitBinary_OrElse(BinaryExpression exp)
         {
             // true && a.ID == 1 或者 a.ID == 1 && true
             Expression left = exp.Left, right = exp.Right;
@@ -190,7 +190,7 @@ namespace Chloe.Core.Visitors
             // right==true
             var newRight = Expression.Equal(right, UtilConstants.Constant_True);
 
-            dbExp = DbExpression.Or(this.Visit(newLeft), this.Visit(newRight));
+            dbExp = DbExpression.OrElse(this.Visit(newLeft), this.Visit(newRight));
             return dbExp;
         }
 

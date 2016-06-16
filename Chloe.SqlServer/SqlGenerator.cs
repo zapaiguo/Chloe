@@ -165,14 +165,14 @@ namespace Chloe.SqlServer
             return exp;
         }
 
-        public override DbExpression Visit(DbAndExpression exp)
+        public override DbExpression Visit(DbAndAlsoExpression exp)
         {
             Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
             this.ConcatOperands(operands, " AND ");
 
             return exp;
         }
-        public override DbExpression Visit(DbOrExpression exp)
+        public override DbExpression Visit(DbOrElseExpression exp)
         {
             Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
             this.ConcatOperands(operands, " OR ");
@@ -946,7 +946,7 @@ namespace Chloe.SqlServer
                 if (whenExp == null)
                     whenExp = equalNullExp;
                 else
-                    whenExp = DbExpression.And(whenExp, equalNullExp);
+                    whenExp = DbExpression.AndAlso(whenExp, equalNullExp);
 
                 DbExpression thenExp = DbConstantExpression.StringEmpty;
                 DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(equalNullExp, thenExp);
@@ -1127,9 +1127,9 @@ namespace Chloe.SqlServer
             DbEqualExpression equalNullExpression = DbExpression.Equal(e, DbExpression.Constant(null, UtilConstants.TypeOfString));
             DbEqualExpression equalEmptyExpression = DbExpression.Equal(e, DbExpression.Constant(string.Empty));
 
-            DbOrExpression orExpression = DbExpression.Or(equalNullExpression, equalEmptyExpression);
+            DbOrElseExpression orElseExpression = DbExpression.OrElse(equalNullExpression, equalEmptyExpression);
 
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orExpression, DbConstantExpression.One);
+            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orElseExpression, DbConstantExpression.One);
 
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);

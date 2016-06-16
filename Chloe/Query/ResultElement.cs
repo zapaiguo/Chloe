@@ -39,14 +39,14 @@ namespace Chloe.Query
             if (this.Condition == null)
                 this.Condition = condition;
             else
-                this.Condition = new DbAndExpression(this.Condition, condition);
+                this.Condition = new DbAndAlsoExpression(this.Condition, condition);
         }
         public void AppendHavingCondition(DbExpression condition)
         {
             if (this.HavingCondition == null)
                 this.HavingCondition = condition;
             else
-                this.HavingCondition = new DbAndExpression(this.HavingCondition, condition);
+                this.HavingCondition = new DbAndAlsoExpression(this.HavingCondition, condition);
         }
 
 

@@ -38,11 +38,13 @@ namespace Chloe.Core.Visitors
                 case ExpressionType.Divide:
                     return this.VisitBinary_Divide((BinaryExpression)exp);
                 case ExpressionType.And:
-                case ExpressionType.AndAlso:
                     return this.VisitBinary_And((BinaryExpression)exp);
+                case ExpressionType.AndAlso:
+                    return this.VisitBinary_AndAlso((BinaryExpression)exp);
                 case ExpressionType.Or:
-                case ExpressionType.OrElse:
                     return this.VisitBinary_Or((BinaryExpression)exp);
+                case ExpressionType.OrElse:
+                    return this.VisitBinary_OrElse((BinaryExpression)exp);
                 case ExpressionType.LessThan:
                     return this.VisitBinary_LessThan((BinaryExpression)exp);
                 case ExpressionType.LessThanOrEqual:
@@ -129,7 +131,15 @@ namespace Chloe.Core.Visitors
         {
             throw new NotImplementedException(exp.ToString());
         }
+        protected virtual T VisitBinary_AndAlso(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
         protected virtual T VisitBinary_Or(BinaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitBinary_OrElse(BinaryExpression exp)
         {
             throw new NotImplementedException(exp.ToString());
         }

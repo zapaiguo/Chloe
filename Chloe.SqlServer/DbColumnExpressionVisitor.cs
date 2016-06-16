@@ -35,12 +35,12 @@ namespace Chloe.SqlServer
         {
             return this.VisistDbBooleanExpression(exp);
         }
-        public override ISqlState Visit(DbAndExpression exp)
+        public override ISqlState Visit(DbAndAlsoExpression exp)
         {
             return this.VisistDbBooleanExpression(exp);
         }
 
-        public override ISqlState Visit(DbOrExpression exp)
+        public override ISqlState Visit(DbOrElseExpression exp)
         {
             return this.VisistDbBooleanExpression(exp);
         }

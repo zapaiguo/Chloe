@@ -59,7 +59,7 @@
     <Compile Include="Core\Visitors\InitMemberExtractor.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="DbExpressions\DbAddExpression.cs" />
-    <Compile Include="DbExpressions\DbAndExpression.cs" />
+    <Compile Include="DbExpressions\DbAndAlsoExpression.cs" />
     <Compile Include="DbExpressions\DbBinaryExpression.cs" />
     <Compile Include="DbExpressions\DbCaseWhenExpression.cs" />
     <Compile Include="DbExpressions\DbColumn.cs" />
@@ -87,7 +87,7 @@
     <Compile Include="DbExpressions\DbNotEqualExpression.cs" />
     <Compile Include="DbExpressions\DbNotExpression.cs" />
     <Compile Include="DbExpressions\DbOrderSegment.cs" />
-    <Compile Include="DbExpressions\DbOrExpression.cs" />
+    <Compile Include="DbExpressions\DbOrElseExpression.cs" />
     <Compile Include="DbExpressions\DbParameterExpression.cs" />
     <Compile Include="DbExpressions\DbSqlQueryExpression.cs" />
     <Compile Include="DbExpressions\DbSubQueryExpression.cs" />
