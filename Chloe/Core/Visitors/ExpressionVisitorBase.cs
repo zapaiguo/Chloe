@@ -90,7 +90,10 @@ namespace Chloe.Core.Visitors
         // & 
         protected override DbExpression VisitBinary_And(BinaryExpression exp)
         {
-            return DbExpression.And(exp.Type, this.Visit(exp.Left), this.Visit(exp.Right));
+            if (exp.Type == UtilConstants.TypeOfBoolean)
+                return this.Visit(Expression.AndAlso(exp.Left, exp.Right, exp.Method));
+            else
+                return DbExpression.And(exp.Type, this.Visit(exp.Left), this.Visit(exp.Right));
         }
         protected override DbExpression VisitBinary_AndAlso(BinaryExpression exp)
         {
@@ -149,7 +152,10 @@ namespace Chloe.Core.Visitors
         // |
         protected override DbExpression VisitBinary_Or(BinaryExpression exp)
         {
-            return DbExpression.Or(exp.Type, this.Visit(exp.Left), this.Visit(exp.Right));
+            if (exp.Type == UtilConstants.TypeOfBoolean)
+                return this.Visit(Expression.OrElse(exp.Left, exp.Right, exp.Method));
+            else
+                return DbExpression.Or(exp.Type, this.Visit(exp.Left), this.Visit(exp.Right));
         }
         protected override DbExpression VisitBinary_OrElse(BinaryExpression exp)
         {
@@ -168,7 +174,7 @@ namespace Chloe.Core.Visitors
                 }
                 else
                 {
-                    dbExp = DbEqualExpression.False;
+                    dbExp = DbEqualExpression.True;
                     return dbExp;
                 }
             }
@@ -186,7 +192,7 @@ namespace Chloe.Core.Visitors
                 else
                 {
                     // 直接 (1=0)
-                    dbExp = DbEqualExpression.False;
+                    dbExp = DbEqualExpression.True;
                     return dbExp;
                 }
             }
