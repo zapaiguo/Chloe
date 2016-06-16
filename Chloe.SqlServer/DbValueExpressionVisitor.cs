@@ -31,11 +31,19 @@ namespace Chloe.SqlServer
         {
             return this.VisistDbBooleanExpression(exp);
         }
+
+        public override DbExpression Visit(DbAndExpression exp)
+        {
+            return exp.Accept(this._generator);
+        }
         public override DbExpression Visit(DbAndAlsoExpression exp)
         {
             return this.VisistDbBooleanExpression(exp);
         }
-
+        public override DbExpression Visit(DbOrExpression exp)
+        {
+            return exp.Accept(this._generator);
+        }
         public override DbExpression Visit(DbOrElseExpression exp)
         {
             return this.VisistDbBooleanExpression(exp);

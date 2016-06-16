@@ -165,10 +165,24 @@ namespace Chloe.SqlServer
             return exp;
         }
 
+        public override DbExpression Visit(DbAndExpression exp)
+        {
+            Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
+            this.ConcatOperands(operands, " & ");
+
+            return exp;
+        }
         public override DbExpression Visit(DbAndAlsoExpression exp)
         {
             Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
             this.ConcatOperands(operands, " AND ");
+
+            return exp;
+        }
+        public override DbExpression Visit(DbOrExpression exp)
+        {
+            Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
+            this.ConcatOperands(operands, " | ");
 
             return exp;
         }
@@ -780,7 +794,7 @@ namespace Chloe.SqlServer
             }
         }
 
-        void ConcatOperands(Stack<DbExpression> operands, string connector)
+        void ConcatOperands(IEnumerable<DbExpression> operands, string connector)
         {
             this._sqlBuilder.Append("(");
 

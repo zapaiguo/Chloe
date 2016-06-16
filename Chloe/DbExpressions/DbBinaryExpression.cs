@@ -8,6 +8,10 @@ namespace Chloe.DbExpressions
         DbExpression _left;
         DbExpression _right;
         MethodInfo _method;
+        protected DbBinaryExpression(DbExpressionType nodeType, Type type, DbExpression left, DbExpression right)
+            : this(nodeType, type, left, right, null)
+        {
+        }
         protected DbBinaryExpression(DbExpressionType nodeType, Type type, DbExpression left, DbExpression right, MethodInfo method)
             : base(nodeType, type)
         {

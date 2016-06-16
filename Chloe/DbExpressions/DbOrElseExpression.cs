@@ -8,12 +8,10 @@ namespace Chloe.DbExpressions
         public DbOrElseExpression(DbExpression left, DbExpression right)
             : this(left, right, null)
         {
-
         }
         public DbOrElseExpression(DbExpression left, DbExpression right, MethodInfo method)
             : base(DbExpressionType.OrElse, UtilConstants.TypeOfBoolean, left, right, method)
         {
-
         }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
