@@ -111,8 +111,9 @@ namespace Chloe.Core
         {
             this._recursiveDepth = 0;
 
-            foreach (object obj in this._sqlStorage)
+            for (int i = 0; i < this._sqlStorage.Count; i++)
             {
+                var obj = this._sqlStorage[i];
                 SqlState state = obj as SqlState;
                 if (state != null)
                 {

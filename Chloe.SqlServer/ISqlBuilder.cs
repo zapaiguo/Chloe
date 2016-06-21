@@ -50,10 +50,12 @@ namespace Chloe.SqlServer
             if (objs == null)
                 return this;
 
-            foreach (object obj in objs)
+            for (int i = 0; i < objs.Length; i++)
             {
+                var obj = objs[i];
                 this.Append(obj);
             }
+
             return this;
         }
     }
