@@ -132,7 +132,7 @@ namespace Chloe
 
             DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
 
-            object keyValue = null;
+            object keyVal = null;
 
             foreach (var kv in insertColumns)
             {
@@ -149,8 +149,8 @@ namespace Chloe
                         throw new Exception(string.Format("主键 {0} 值为 null", memberDescriptor.MemberInfo.Name));
                     else
                     {
-                        keyValue = val;
-                        e.InsertColumns.Add(memberDescriptor.Column, DbExpression.Parameter(keyValue));
+                        keyVal = val;
+                        e.InsertColumns.Add(memberDescriptor.Column, DbExpression.Parameter(keyVal));
                         continue;
                     }
                 }
@@ -159,13 +159,13 @@ namespace Chloe
             }
 
             //主键为空
-            if (keyValue == null)
+            if (keyVal == null)
             {
                 throw new Exception(string.Format("主键 {0} 值为 null", keyMemberDescriptor.MemberInfo.Name));
             }
 
             this.ExecuteSqlCommand(e);
-            return keyValue;
+            return keyVal;
         }
 
         public virtual int Update<T>(T entity)
@@ -263,13 +263,13 @@ namespace Chloe
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             var keyMember = typeDescriptor.PrimaryKey.MemberInfo;
 
-            var val = keyMemberDescriptor.GetValue(entity);
+            var keyVal = keyMemberDescriptor.GetValue(entity);
 
-            if (val == null)
+            if (keyVal == null)
                 throw new Exception(string.Format("实体主键 {0} 值为 null", keyMember.Name));
 
             DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
-            DbExpression right = new DbParameterExpression(val);
+            DbExpression right = new DbParameterExpression(keyVal);
             DbExpression conditionExp = new DbEqualExpression(left, right);
 
             DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);

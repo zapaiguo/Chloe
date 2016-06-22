@@ -112,7 +112,7 @@ namespace Chloe.SqlServer
 
             DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
 
-            object keyValue = null;
+            object keyVal = null;
 
             foreach (var kv in insertColumns)
             {
@@ -132,8 +132,8 @@ namespace Chloe.SqlServer
                         throw new Exception(string.Format("主键 {0} 值为 null", memberDescriptor.MemberInfo.Name));
                     else
                     {
-                        keyValue = val;
-                        e.InsertColumns.Add(memberDescriptor.Column, DbExpression.Parameter(keyValue));
+                        keyVal = val;
+                        e.InsertColumns.Add(memberDescriptor.Column, DbExpression.Parameter(keyVal));
                         continue;
                     }
                 }
@@ -142,7 +142,7 @@ namespace Chloe.SqlServer
             }
 
             //主键为空并且主键又不是自增列
-            if (keyValue == null && keyMemberDescriptor != autoIncrementMemberDescriptor)
+            if (keyVal == null && keyMemberDescriptor != autoIncrementMemberDescriptor)
             {
                 throw new Exception(string.Format("主键 {0} 值为 null", keyMemberDescriptor.MemberInfo.Name));
             }
@@ -150,7 +150,7 @@ namespace Chloe.SqlServer
             if (autoIncrementMemberDescriptor == null)
             {
                 this.ExecuteSqlCommand(e);
-                return keyValue;
+                return keyVal;
             }
 
             IDbExpressionTranslator translator = this.DbContextServiceProvider.CreateDbExpressionTranslator();
