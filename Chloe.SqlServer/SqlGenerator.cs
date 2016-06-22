@@ -1192,7 +1192,7 @@ namespace Chloe.SqlServer
                 goto constructInState;
             }
 
-            throw new NotSupportedException(exp.Object.ToString());
+            throw UtilExceptions.NotSupportedMethod(exp.Method);
 
         constructInState:
             foreach (object value in values)
