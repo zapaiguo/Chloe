@@ -53,7 +53,7 @@ namespace Chloe
 
         protected DbContext(IDbContextServiceProvider dbContextServiceProvider)
         {
-            Utils.CheckNull(dbContextServiceProvider, "dbServiceProvider");
+            Utils.CheckNull(dbContextServiceProvider, "dbContextServiceProvider");
 
             this._dbContextServiceProvider = dbContextServiceProvider;
             this._currentSession = new DbSession(this);
