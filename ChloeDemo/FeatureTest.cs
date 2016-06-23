@@ -57,7 +57,7 @@ namespace ChloeDemo
 
             ret = q.Where(a => (a.Name == name) == (a.Id > 0)).ToList();
             ret = q.Where(a => a.Name == (a.Name ?? name)).ToList();
-            ret = q.Where(a => a.Age == null ? false : a.Age > 1).ToList();
+            ret = q.Where(a => (a.Age == null ? 0 : 1) == 1).ToList();
 
             ret = q.Select(a => b & b1).ToList();
             ret = q.Select(a => a.Id & 1).ToList();

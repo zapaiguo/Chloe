@@ -253,7 +253,7 @@ namespace Chloe.SqlServer
                 if (memberDescriptor.IsPrimaryKey)
                     throw new Exception(string.Format("无法对主键 '{0}' 进行更新", memberDescriptor.Column.Name));
 
-                AutoIncrementAttribute attr = (AutoIncrementAttribute)key.GetCustomAttribute(typeof(AutoIncrementAttribute));
+                AutoIncrementAttribute attr = (AutoIncrementAttribute)memberDescriptor.GetCustomAttribute(typeof(AutoIncrementAttribute));
                 if (attr != null)
                     throw new Exception(string.Format("无法对自增长列 '{0}' 进行更新", memberDescriptor.Column.Name));
 

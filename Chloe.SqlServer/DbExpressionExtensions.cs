@@ -173,7 +173,7 @@ namespace Chloe.SqlServer
             else if (exp.Member.MemberType
                      == MemberTypes.Property)
             {
-                return ((PropertyInfo)exp.Member).GetValue(instance);
+                return ((PropertyInfo)exp.Member).GetValue(instance, null);
             }
 
             throw new NotSupportedException();

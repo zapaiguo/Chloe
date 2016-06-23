@@ -43,7 +43,7 @@ namespace Chloe.Extensions
         public static void SetPropertyOrFieldValue(this MemberInfo propertyOrField, object obj, object value)
         {
             if (propertyOrField.MemberType == MemberTypes.Property)
-                ((PropertyInfo)propertyOrField).SetValue(obj, value);
+                ((PropertyInfo)propertyOrField).SetValue(obj, value, null);
             else if (propertyOrField.MemberType == MemberTypes.Field)
                 ((FieldInfo)propertyOrField).SetValue(obj, value);
             else
@@ -53,7 +53,7 @@ namespace Chloe.Extensions
         public static object GetPropertyOrFieldValue(this MemberInfo propertyOrField, object obj)
         {
             if (propertyOrField.MemberType == MemberTypes.Property)
-                return ((PropertyInfo)propertyOrField).GetValue(obj);
+                return ((PropertyInfo)propertyOrField).GetValue(obj, null);
             else if (propertyOrField.MemberType == MemberTypes.Field)
                 return ((FieldInfo)propertyOrField).GetValue(obj);
             else

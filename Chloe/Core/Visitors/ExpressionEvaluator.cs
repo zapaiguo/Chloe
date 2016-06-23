@@ -25,7 +25,7 @@ namespace Chloe.Core.Visitors
             if (exp.Member.MemberType == MemberTypes.Property)
             {
                 var pro = (PropertyInfo)exp.Member;
-                return pro.GetValue(val);
+                return pro.GetValue(val, null);
             }
             else if (exp.Member.MemberType == MemberTypes.Field)
             {
@@ -92,7 +92,7 @@ namespace Chloe.Core.Visitors
                 if (unType == exp.Type)
                 {
                     var pro = operandValueType.GetProperty("Value");
-                    var val = pro.GetValue(operandValue);
+                    var val = pro.GetValue(operandValue, null);
                     return val;
                 }
                 else

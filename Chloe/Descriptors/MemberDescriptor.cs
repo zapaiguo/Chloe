@@ -23,7 +23,7 @@ namespace Chloe.Descriptors
             Attribute val;
             if (!this._customAttributes.TryGetValue(attributeType, out val))
             {
-                val = this.MemberInfo.GetCustomAttribute(attributeType);
+                val = this.MemberInfo.GetCustomAttributes(attributeType, false).FirstOrDefault() as Attribute;
                 lock (this._customAttributes)
                 {
                     this._customAttributes[attributeType] = val;

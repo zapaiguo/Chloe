@@ -59,7 +59,7 @@ namespace Chloe.Descriptors
                 }
                 else
                 {
-                    return this._propertyInfo.GetValue(instance);
+                    return this._propertyInfo.GetValue(instance, null);
                 }
             }
 
@@ -85,7 +85,7 @@ namespace Chloe.Descriptors
                 }
                 else
                 {
-                    this._propertyInfo.SetValue(instance, value);
+                    this._propertyInfo.SetValue(instance, value, null);
                     return;
                 }
             }
