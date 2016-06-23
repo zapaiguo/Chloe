@@ -92,6 +92,7 @@ namespace ChloeDemo
             ret = q.Where(a => a.Id > 0).Take(999).OrderBy(a => a.Age).ToList();
             ret = q.Where(a => a.Id > 0).Skip(1).Take(999).ToList();
             ret = q.Where(a => a.Id > 0).OrderBy(a => a.Id).ThenByDesc(a => a.Age).Skip(1).Take(999).ToList();
+            ret = q.Where(a => a.Id > 0).OrderBy(a => a.Id).ThenByDesc(a => a.Age).Skip(1).Take(999).Where(a => a.Id > -100).ToList();
 
             ret = q.Select(a => new { Name1 = a.Name, Name2 = a.Name }).ToList();
 
