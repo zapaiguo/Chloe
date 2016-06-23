@@ -107,12 +107,8 @@ namespace ChloeDemo
             SqlDataReader reader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
             return reader;
         }
-        /// <summary>
-        /// 以事务下订单，返回下订单成功与否
-        /// </summary>
-        /// <param name="dt">字典中以key为sql执行语句，value为参数数组</param>
-        /// <returns></returns>
-        public static bool CreatOrder(Dictionary<string, SqlParameter[]> dt)
+
+        public static bool Execute(Dictionary<string, SqlParameter[]> dt)
         {
             using (SqlConnection conn = new SqlConnection())
             {
@@ -141,7 +137,7 @@ namespace ChloeDemo
                     catch
                     {
                         tran.Rollback();
-                        return false;
+                        throw;
                     }
                 }
             }

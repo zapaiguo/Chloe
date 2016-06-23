@@ -45,7 +45,7 @@ namespace ChloeDemo
             ret = q.Where(a => true).ToList();
             ret = q.Where(a => a.Id == FeatureTest.ID).ToList();
             ret = q.Where(a => a.Id == FeatureTest.ID || a.Id > 1).ToList();
-            ret = q.Where(a => a.Id == 1 && a.Name == name && a.Name == nullString && a.Id == FeatureTest.ID).ToList();
+            ret = q.Where(a => a.Id == 1 && a.Name == name && a.Name == null && a.Name == nullString && a.Id == FeatureTest.ID).ToList();
             ret = q.Where(a => ids.Contains(a.Id)).ToList();
             ret = q.Where(a => !b == (a.Id > 0)).ToList();
 
@@ -171,8 +171,6 @@ namespace ChloeDemo
             MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
             object ret = null;
-            //Dictionary<string, object> dic = new Dictionary<string, object>();
-            //dic.Add("@p", "shuxin");
 
             var users = context.SqlQuery<User>("select Id as id,Name as name,'asdsd' as Name,ByteArray from Users where Name=@name", DbParam.Create("@name", "lu1"));
 
