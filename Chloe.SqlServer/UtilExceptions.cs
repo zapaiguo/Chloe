@@ -8,7 +8,7 @@ namespace Chloe.SqlServer
 {
     static class UtilExceptions
     {
-        public static Exception NotSupportedMethod(MethodInfo method)
+        public static NotSupportedException NotSupportedMethod(MethodInfo method)
         {
             StringBuilder sb = new StringBuilder();
             ParameterInfo[] parameters = method.GetParameters();
