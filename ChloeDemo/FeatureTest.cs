@@ -245,6 +245,8 @@ namespace ChloeDemo
         {
             MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
+            object ret = null;
+
             var q = context.Query<User>();
 
             var r = q.GroupBy(a => a.Id).Having(a => a.Id > 1).Select(a => new { a.Id, Count = DbFunctions.Count(), Sum = DbFunctions.Sum(a.Id), Max = DbFunctions.Max(a.Id), Min = DbFunctions.Min(a.Id), Avg = DbFunctions.Average(a.Id) }).ToList();
@@ -261,9 +263,8 @@ namespace ChloeDemo
             //gq = gq.Take(100);
             //gq = gq.Where(a => a > -1);
 
-
-            //var r = gq.ToList();
-            //var c = gq.Count();
+            ret = gq.ToList();
+            var c = gq.Count();
 
             ConsoleHelper.WriteLineAndReadKey();
         }
