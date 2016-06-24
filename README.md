@@ -26,7 +26,7 @@ public class User
 * DbContext
 ```C#
 MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
-var q = context.Query<User>();
+var q = context.Query<User>(); //return a IQuery<T> object
 ```
 * Query
 ```C#
@@ -34,3 +34,4 @@ int id = 0;
 string name = "lu";
 string nullString = null;
 q.Where(a => a.Id == 1 && a.Id == id && a.Name == name && a.Name == null && a.Name == nullString).ToList();
+q.Where(a => a.Id > 0).OrderBy(a => a.Id).ThenByDesc(a => a.Age).Skip(1).Take(999).ToList();
