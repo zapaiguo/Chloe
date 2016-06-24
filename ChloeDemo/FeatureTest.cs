@@ -83,7 +83,7 @@ namespace ChloeDemo
             var q = context.Query<User>();
 
             object ret = null;
-
+            q.Where(a => a.Id > 0).FirstOrDefault();
             ret = q.Where(a => a.Id > 0).ToList();
             ret = q.Where(a => a.Id > 0).OrderBy(a => a.Id).ToList();
             ret = q.Where(a => a.Id > 0).OrderBy(a => a.Id).ThenByDesc(a => a.Age).ToList();
@@ -107,19 +107,13 @@ namespace ChloeDemo
             var q = context.Query<User>();
 
             var space = new char[] { ' ' };
-
             DateTime startTime = DateTime.Now;
             DateTime endTime = DateTime.Now.AddDays(1);
-            int i = 0;
-            string n = "";
-            //q = q.Where(a => a.Name == n);
-            //q = q.Where(a => !string.IsNullOrEmpty(a.Name));
-            //q = q.Where(a => bool.Parse(null));
-            //var xxx = q.Where(a => a.Name.Substring(0, 2).Length > 2).ToList();
             var xxxx = q.Select(a => new
             {
                 Id = a.Id,
 
+                String_Length = a.Name.Length,
                 Substring = a.Name.Substring(0),
                 Substring1 = a.Name.Substring(1),
                 Substring1_2 = a.Name.Substring(1, 2),
@@ -229,7 +223,7 @@ namespace ChloeDemo
 
             ret = q.InnerJoin(q1, (a, b) => a.Id == b.Id).InnerJoin(q2, (a, b, c) => a.Name == c.Name).Select((a, b, c) => new { A = a, B = b, C = c }).ToList();
 
-            ret = q.InnerJoin(q1, (a, b) => a.Id == b.Id).InnerJoin(q2, (a, b, c) => a.Name == c.Name).RightJoin(q, (a, b, c, d) => a.Id == d.Id + 1).Select((a, b, c, d) => new { A = a, B = b, C = c, D = d }).ToList();
+            ret = q.InnerJoin(q1, (a, b) => a.Id == b.Id).LeftJoin(q2, (a, b, c) => a.Name == c.Name).RightJoin(q, (a, b, c, d) => a.Id == d.Id + 1).Select((a, b, c, d) => new { A = a, B = b, C = c, D = d }).ToList();
 
             ret = q.InnerJoin(q1, (a, b) => a.Id == b.Id).InnerJoin(q2, (a, b, c) => a.Name == c.Name).RightJoin(q, (a, b, c, d) => a.Id == d.Id + 1).Select((a, b, c, d) => new { A = a, D = d }).ToList();
 
@@ -250,6 +244,8 @@ namespace ChloeDemo
             var q = context.Query<User>();
 
             var r = q.GroupBy(a => a.Id).Having(a => a.Id > 1).Select(a => new { a.Id, Count = DbFunctions.Count(), Sum = DbFunctions.Sum(a.Id), Max = DbFunctions.Max(a.Id), Min = DbFunctions.Min(a.Id), Avg = DbFunctions.Average(a.Id) }).ToList();
+
+            q.GroupBy(a => a.Age).Having(a => a.Age > 1).Select(a => new { a.Age, Count = DbFunctions.Count(), Sum = DbFunctions.Sum(a.Age), Max = DbFunctions.Max(a.Age), Min = DbFunctions.Min(a.Age), Avg = DbFunctions.Average(a.Age) }).ToList();
 
             var r1 = q.GroupBy(a => a.Age).Having(a => DbFunctions.Count() > 0).Select(a => new { a.Age, Count = DbFunctions.Count(), Sum = DbFunctions.Sum(a.Age), Max = DbFunctions.Max(a.Age), Min = DbFunctions.Min(a.Age), Avg = DbFunctions.Average(a.Age) }).ToList();
 
@@ -273,9 +269,9 @@ namespace ChloeDemo
             MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
             var q = context.Query<User>();
-            var xxx = q.Select(a => DbFunctions.Count()).ToList().First();
-
             q = q.Where(a => a.Id > 0);
+            var xxx = q.Select(a => DbFunctions.Count()).First();
+            q.Select(a => new { Count = DbFunctions.Count(), LongCount = DbFunctions.LongCount(), Sum = DbFunctions.Sum(a.Age), Max = DbFunctions.Max(a.Age), Min = DbFunctions.Min(a.Age), Average = DbFunctions.Average(a.Age) }).First();
             var count = q.Count();
             var longCount = q.LongCount();
             var sum = q.Sum(a => a.Age);
@@ -304,6 +300,8 @@ namespace ChloeDemo
 
             var id = context.Insert<User>(() => new User() { Name = user.Name, NickName = user.Name, Age = user.Age, Gender = Gender.Man, OpTime = DateTime.Now });
 
+            var id = context.Insert<User>(() => new User() { Name = "lu", NickName = "so", Age = 18, Gender = Gender.Man, OpTime = DateTime.Now });
+
             //var users = context.Query<User>().Where(a => a.Name == null).ToList();
 
             //user = context.Query<User>().Where(a => a.Id == (int)id).First();
@@ -311,6 +309,8 @@ namespace ChloeDemo
             user.ByteArray = new byte[] { 1, 2, 3 };
             user.OpTime = DateTime.Now;
             var user1 = context.Insert(user);
+
+            context.Insert(new User() { Name = "lu", NickName = "so", Age = 18, Gender = Gender.Man, ByteArray = new byte[] { 1, 2 }, OpTime = DateTime.Now });
 
             ConsoleHelper.WriteLineAndReadKey();
         }
@@ -334,7 +334,7 @@ namespace ChloeDemo
 
             r = context.Update<User>(a => new User() { Name = stringNull, NickName = stringNull, Age = intNull, Gender = null, OpTime = dateTimeNull }, a => false);
 
-            User user = new User();
+            User user = new User() { Id = 1, Name = "lu", Age = 18, Gender = Gender.Man };
             user.Id = 2;
             user.Name = "shuxin";
             user.Age = 28;
@@ -390,9 +390,8 @@ namespace ChloeDemo
 
             User user = new User();
             user.Id = 6;
-
             r = context.Delete(user);
-
+            context.Delete(new User() { Id = 1 });
             Console.WriteLine(1);
         }
     }
