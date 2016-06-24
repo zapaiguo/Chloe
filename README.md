@@ -79,6 +79,7 @@ q.Select(a => new
 {
     Id = a.Id,
 
+    String_Length = a.Name.Length,
     Substring = a.Name.Substring(0),
     Substring1 = a.Name.Substring(1),
     Substring1_2 = a.Name.Substring(1, 2),
