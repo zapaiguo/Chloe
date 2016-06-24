@@ -128,16 +128,53 @@ namespace Chloe.Query.Internals
                     return;
                 }
 
+                this._reader = this._internalSqlQuery._dbContext.InnerDbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, CommandType.Text);
+                this._objectActivator = GetObjectActivator(type, this._reader);
+            }
+
+            static ObjectActivator GetObjectActivator(Type type, IDataReader reader)
+            {
+                List<CacheInfo> caches;
+                if (!ObjectActivatorCache.TryGetValue(type, out caches))
+                {
+                    if (!Monitor.TryEnter(type))
+                    {
+                        return CreateObjectActivator(type, reader);
+                    }
+
+                    try
+                    {
+                        caches = ObjectActivatorCache.GetOrAdd(type, new List<CacheInfo>(1));
+                    }
+                    finally
+                    {
+                        Monitor.Exit(type);
+                    }
+                }
+
+                CacheInfo cache = TryGetCacheInfoFromList(caches, reader);
+
+                if (cache == null)
+                {
+                    lock (caches)
+                    {
+                        cache = TryGetCacheInfoFromList(caches, reader);
+                        if (cache == null)
+                        {
+                            ObjectActivator activator = CreateObjectActivator(type, reader);
+                            cache = new CacheInfo(activator, reader);
+                            caches.Add(cache);
+                        }
+                    }
+                }
+
+                return cache.ObjectActivator;
+            }
+            static ObjectActivator CreateObjectActivator(Type type, IDataReader reader)
+            {
                 EntityConstructorDescriptor constructorDescriptor = EntityConstructorDescriptor.GetInstance(type.GetConstructor(Type.EmptyTypes));
                 EntityMemberMapper mapper = constructorDescriptor.GetEntityMemberMapper();
                 Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator = constructorDescriptor.GetInstanceCreator();
-
-                this._reader = this._internalSqlQuery._dbContext.InnerDbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, CommandType.Text);
-                this._objectActivator = TryGetObjectActivator(type, this._reader, mapper, instanceCreator) ?? GetObjectActivator(type, this._reader, mapper, instanceCreator);
-            }
-
-            static ObjectActivator GetObjectActivator(Type type, IDataReader reader, EntityMemberMapper mapper, Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator)
-            {
                 List<IValueSetter> memberSetters = PrepareValueSetters(type, reader, mapper);
                 return new ObjectActivator(instanceCreator, null, null, memberSetters, null);
             }
@@ -172,47 +209,7 @@ namespace Chloe.Query.Internals
 
                 return memberSetters;
             }
-
-            static ObjectActivator TryGetObjectActivator(Type type, IDataReader reader, EntityMemberMapper mapper, Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator)
-            {
-                ObjectActivator activator;
-                List<CacheInfo> caches;
-                if (!ObjectActivatorCache.TryGetValue(type, out caches))
-                {
-                    //对于一个 Type ，其对应的 EntityMemberMapper 是唯一实例的，所以可以 lock 它对应的 EntityMemberMapper，以避免 lock type 时可能与其它代码抢 lock 
-                    if (!Monitor.TryEnter(mapper))
-                        return null;
-
-                    try
-                    {
-                        caches = ObjectActivatorCache.GetOrAdd(type, new List<CacheInfo>(1));
-                    }
-                    finally
-                    {
-                        Monitor.Exit(mapper);
-                    }
-                }
-
-                CacheInfo cache = GetCacheInfoFromList(caches, reader);
-
-                if (cache == null)
-                {
-                    lock (caches)
-                    {
-                        cache = GetCacheInfoFromList(caches, reader);
-                        if (cache == null)
-                        {
-                            activator = GetObjectActivator(type, reader, mapper, instanceCreator);
-                            cache = new CacheInfo(activator, reader);
-                            caches.Add(cache);
-                        }
-                    }
-                }
-
-                return cache.ObjectActivator;
-            }
-
-            static CacheInfo GetCacheInfoFromList(List<CacheInfo> caches, IDataReader reader)
+            static CacheInfo TryGetCacheInfoFromList(List<CacheInfo> caches, IDataReader reader)
             {
                 CacheInfo cache = null;
                 for (int i = 0; i < caches.Count; i++)
