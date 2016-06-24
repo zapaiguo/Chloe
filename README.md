@@ -1,6 +1,6 @@
-#Chloe
+# Chloe
 Chloe is an Object/Relational Mapping (ORM) library.
-#Usage
-*Query
+# Usage
+* Query
 ```C#
 int i = 0;
