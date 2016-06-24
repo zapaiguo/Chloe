@@ -1,5 +1,5 @@
 # Chloe
-Chloe is an Object/Relational Mapping (ORM) library.
+Chloe is a Object/Relational Mapping (ORM) library.
 # Usage
 * Entity
 ```C#
