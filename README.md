@@ -132,11 +132,13 @@ User user = context.Insert(new User() { Name = "lu", NickName = "so", Age = 18, 
 * Update
 ```C#
 context.Update<User>(a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now }, a => a.Name == "lu");
+
 User user = new User() { Id = 1, Name = "lu", Age = 18, Gender = Gender.Man };
-context.Update(o);//update all columns
+context.Update(user);//update all columns
+
 context.TrackEntity(user);//track entity on the context
 user.Name = user.Name + "1";
-context.Update(o);//just update the column 'Name'
+context.Update(user);//just update the column 'Name'
 ```
 * Delete
 ```C#
