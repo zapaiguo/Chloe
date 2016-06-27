@@ -19,8 +19,8 @@ public class User
     public string NickName { get; set; }
     public Gender? Gender { get; set; }
     public int? Age { get; set; }
-    public DateTime? OpTime { get; set; }
     public Byte[] ByteArray { get; set; }
+    public DateTime? OpTime { get; set; }
 }
 ```
 * DbContext
@@ -44,7 +44,7 @@ IQuery<User> q1 = context.Query<User>();
 q.InnerJoin(q1, (a, b) => a.Id == b.Id).Select((a, b) => new { A = a, B = b }).ToList();
 q.LeftJoin(q.Select(a => new { a.Id, a.Name }), (a, b) => a.Id == b.Id + 1).Select((a, b) => new { A = a, B = b }).ToList();
 q.RightJoin(q1, (a, b) => a.Id == b.Id).Select((a, b) => new { A = a, B = b }).ToList();
-q.InnerJoin(q1, (a, b) => a.Id == b.Id).LeftJoin(q2, (a, b, c) => a.Name == c.Name).RightJoin(q, (a, b, c, d) => a.Id == d.Id + 1).Select((a, b, c, d) => new { A = a, B = b, C = c, D = d }).ToList();
+q.InnerJoin(q1, (a, b) => a.Id == b.Id).LeftJoin(q1, (a, b, c) => a.Name == c.Name).RightJoin(q, (a, b, c, d) => a.Id == d.Id + 1).Select((a, b, c, d) => new { A = a, B = b, C = c, D = d }).ToList();
 ```
 * Group Query
 ```C#
