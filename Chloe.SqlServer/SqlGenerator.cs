@@ -437,10 +437,10 @@ namespace Chloe.SqlServer
             DbParam p;
             if (val == DBNull.Value)
             {
-                p = this._parameters.Where(a => Utils.IsEqual(a.Value, val) && a.Type == exp.Type).FirstOrDefault();
+                p = this._parameters.Where(a => Utils.AreEqual(a.Value, val) && a.Type == exp.Type).FirstOrDefault();
             }
             else
-                p = this._parameters.Where(a => Utils.IsEqual(a.Value, val)).FirstOrDefault();
+                p = this._parameters.Where(a => Utils.AreEqual(a.Value, val)).FirstOrDefault();
 
             if (p != null)
             {

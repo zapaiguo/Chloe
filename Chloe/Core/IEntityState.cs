@@ -41,7 +41,7 @@ namespace Chloe.Core
                 return true;
             }
 
-            return !Utils.IsEqual(oldVal, val);
+            return !Utils.AreEqual(oldVal, val);
         }
         public void Refresh()
         {

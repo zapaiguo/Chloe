@@ -98,7 +98,7 @@ namespace Chloe.Utility
             unType = Nullable.GetUnderlyingType(type);
             return unType != null;
         }
-        public static bool IsEqual(object obj1, object obj2)
+        public static bool AreEqual(object obj1, object obj2)
         {
             if (obj1 == null && obj2 == null)
                 return true;
