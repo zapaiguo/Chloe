@@ -82,15 +82,15 @@ namespace Chloe
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
-            var keyMember = typeDescriptor.PrimaryKey.MemberInfo;
+            MemberInfo keyMember = typeDescriptor.PrimaryKey.MemberInfo;
 
             object keyValue = null;
 
             Dictionary<MappingMemberDescriptor, DbExpression> insertColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
             foreach (var kv in typeDescriptor.MappingMemberDescriptors)
             {
-                var member = kv.Key;
-                var memberDescriptor = kv.Value;
+                MemberInfo member = kv.Key;
+                MappingMemberDescriptor memberDescriptor = kv.Value;
 
                 var val = memberDescriptor.GetValue(entity);
 
@@ -183,8 +183,8 @@ namespace Chloe
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
             foreach (var kv in typeDescriptor.MappingMemberDescriptors)
             {
-                var member = kv.Key;
-                var memberDescriptor = kv.Value;
+                MemberInfo member = kv.Key;
+                MappingMemberDescriptor memberDescriptor = kv.Value;
 
                 if (member == keyMember)
                 {
@@ -232,7 +232,7 @@ namespace Chloe
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
 
             Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(body);
-            var conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
+            DbExpression conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
             DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
 
@@ -261,7 +261,7 @@ namespace Chloe
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
-            var keyMember = typeDescriptor.PrimaryKey.MemberInfo;
+            MemberInfo keyMember = typeDescriptor.PrimaryKey.MemberInfo;
 
             var keyVal = keyMemberDescriptor.GetValue(entity);
 
@@ -280,7 +280,7 @@ namespace Chloe
             Utils.CheckNull(condition);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
-            var conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
+            DbExpression conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
             DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
 
@@ -326,7 +326,7 @@ namespace Chloe
                 return null;
             }
 
-            var ret = collection.TryGetEntityState(entity);
+            IEntityState ret = collection.TryGetEntityState(entity);
             return ret;
         }
 

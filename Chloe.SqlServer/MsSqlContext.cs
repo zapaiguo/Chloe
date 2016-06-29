@@ -35,7 +35,7 @@ namespace Chloe.SqlServer
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
-            var keyMember = typeDescriptor.PrimaryKey.MemberInfo;
+            MemberInfo keyMember = typeDescriptor.PrimaryKey.MemberInfo;
 
             object keyValue = null;
 
@@ -44,8 +44,8 @@ namespace Chloe.SqlServer
             Dictionary<MappingMemberDescriptor, DbExpression> insertColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
             foreach (var kv in typeDescriptor.MappingMemberDescriptors)
             {
-                var member = kv.Key;
-                var memberDescriptor = kv.Value;
+                MemberInfo member = kv.Key;
+                MappingMemberDescriptor memberDescriptor = kv.Value;
 
                 if (memberDescriptor == autoIncrementMemberDescriptor)
                     continue;
@@ -185,8 +185,8 @@ namespace Chloe.SqlServer
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
             foreach (var kv in typeDescriptor.MappingMemberDescriptors)
             {
-                var member = kv.Key;
-                var memberDescriptor = kv.Value;
+                MemberInfo member = kv.Key;
+                MappingMemberDescriptor memberDescriptor = kv.Value;
 
                 if (member == keyMember)
                 {
@@ -238,7 +238,7 @@ namespace Chloe.SqlServer
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
 
             Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(body);
-            var conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
+            DbExpression conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
             DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
 
@@ -281,7 +281,7 @@ namespace Chloe.SqlServer
 
         static MappingMemberDescriptor GetAutoIncrementMemberDescriptor(TypeDescriptor typeDescriptor)
         {
-            var autoIncrementMemberDescriptors = typeDescriptor.MappingMemberDescriptors.Values.Where(a =>
+            List<MappingMemberDescriptor> autoIncrementMemberDescriptors = typeDescriptor.MappingMemberDescriptors.Values.Where(a =>
             {
                 AutoIncrementAttribute attr = (AutoIncrementAttribute)a.GetCustomAttribute(typeof(AutoIncrementAttribute));
                 return attr != null;
@@ -290,7 +290,7 @@ namespace Chloe.SqlServer
             if (autoIncrementMemberDescriptors.Count > 1)
                 throw new Exception(string.Format("实体类型 {0} 定义多个自增成员", typeDescriptor.EntityType.FullName));
 
-            var autoIncrementMemberDescriptor = autoIncrementMemberDescriptors.FirstOrDefault();
+            MappingMemberDescriptor autoIncrementMemberDescriptor = autoIncrementMemberDescriptors.FirstOrDefault();
 
             if (autoIncrementMemberDescriptor != null)
                 EnsureAutoIncrementMemberType(autoIncrementMemberDescriptor);
