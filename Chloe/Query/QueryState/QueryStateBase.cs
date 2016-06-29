@@ -144,10 +144,10 @@ namespace Chloe.Query.QueryState
 
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
 
-            var moe = this._resultElement.MappingObjectExpression.GenarateObjectActivatorCreator(sqlQuery);
+            var objectActivatorCreator = this._resultElement.MappingObjectExpression.GenarateObjectActivatorCreator(sqlQuery);
 
             data.SqlQuery = sqlQuery;
-            data.MappingEntity = moe;
+            data.ObjectActivatorCreator = objectActivatorCreator;
 
             return data;
         }
