@@ -410,7 +410,7 @@ namespace Chloe.SqlServer
                 return newExp.Accept(this);
             }
 
-            if (member.Name == "Length" && member.DeclaringType == typeof(string))
+            if (member.Name == "Length" && member.DeclaringType == UtilConstants.TypeOfString)
             {
                 this._sqlBuilder.Append("LEN(");
                 exp.Expression.Accept(this);
