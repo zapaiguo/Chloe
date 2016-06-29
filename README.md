@@ -9,11 +9,11 @@ public enum Gender
     Woman
 }
 
-[TableAttribute("Users")]
+[Table("Users")]
 public class User
 {
     [Column(IsPrimaryKey = true)]
-    [AutoIncrementAttribute]
+    [AutoIncrement]
     public int Id { get; set; }
     public string Name { get; set; }
     public string NickName { get; set; }
