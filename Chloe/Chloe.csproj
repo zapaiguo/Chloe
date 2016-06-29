@@ -113,6 +113,7 @@
     <Compile Include="Entity\ColumnAttribute.cs" />
     <Compile Include="Entity\NotMappedAttribute.cs" />
     <Compile Include="Entity\TableAttribute.cs" />
+    <Compile Include="Exceptions\ChloeException.cs" />
     <Compile Include="Extensions\DataReaderConstant.cs" />
     <Compile Include="Extensions\DataReaderExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />

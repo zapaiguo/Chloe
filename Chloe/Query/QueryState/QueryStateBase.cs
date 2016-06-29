@@ -244,7 +244,7 @@ namespace Chloe.Query.QueryState
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
-            DbTableSegment tableSeg = new DbTableSegment(subQuery, ResultElement.DefaultTableAlias);
+            DbTableSegment tableSeg = new DbTableSegment(subQuery, UtilConstants.DefaultTableAlias);
             DbFromTableExpression fromTable = new DbFromTableExpression(tableSeg);
 
             DbTable table = new DbTable(tableSeg.Alias);
