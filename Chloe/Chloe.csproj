@@ -45,7 +45,7 @@
     <Compile Include="Core\DbCommandFactor.cs" />
     <Compile Include="Core\DbParam.cs" />
     <Compile Include="Core\DbSession.cs" />
-    <Compile Include="Core\Emit\CodeGenerator.cs" />
+    <Compile Include="Core\Emit\ClassGenerator.cs" />
     <Compile Include="Core\Emit\DelegateGenerator.cs" />
     <Compile Include="Core\Emit\EmitHelper.cs" />
     <Compile Include="Core\IEntityState.cs" />

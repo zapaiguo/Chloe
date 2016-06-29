@@ -18,7 +18,7 @@ namespace Chloe.Mapper
     {
         public static IMRM CreateMRM(MemberInfo member)
         {
-            Type type = CodeGenerator.CreateMRMType(member);
+            Type type = ClassGenerator.CreateMRMType(member);
             IMRM obj = (IMRM)type.GetConstructor(Type.EmptyTypes).Invoke(null);
             return obj;
         }
