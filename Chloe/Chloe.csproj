@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\DbCommandFactor.cs" />
-    <Compile Include="Core\DbParam.cs" />
     <Compile Include="Core\DbSession.cs" />
     <Compile Include="Core\Emit\ClassGenerator.cs" />
     <Compile Include="Core\Emit\DelegateGenerator.cs" />
@@ -100,6 +99,8 @@
     <Compile Include="DbExpressions\DbUpdateExpression.cs" />
     <Compile Include="DbExpressions\JoinType.cs" />
     <Compile Include="DbExpressions\OrderType.cs" />
+    <Compile Include="DbFunctions.cs" />
+    <Compile Include="DbParam.cs" />
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
     <Compile Include="Descriptors\FieldDescriptor.cs" />
     <Compile Include="Descriptors\MappingMemberDescriptor.cs" />
@@ -138,7 +139,6 @@
     <Compile Include="Mapper\ObjectActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\DbExpressionEqualityComparer.cs" />
-    <Compile Include="Core\DbFunctions.cs" />
     <Compile Include="Query\FromQueryResult.cs" />
     <Compile Include="Query\GroupingQuery.cs" />
     <Compile Include="Query\IMappingObjectExpression.cs" />
