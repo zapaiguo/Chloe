@@ -1,4 +1,5 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,6 @@ namespace Chloe.Query
 {
     public class ResultElement
     {
-        public const string DefaultTableAlias = "T";
-
         public ResultElement()
         {
             this.OrderSegments = new List<DbOrderSegment>();
@@ -50,7 +49,7 @@ namespace Chloe.Query
         }
 
 
-        public string GenerateUniqueTableAlias(string prefix = DefaultTableAlias)
+        public string GenerateUniqueTableAlias(string prefix = UtilConstants.DefaultTableAlias)
         {
             if (this.FromTable == null)
                 return prefix;

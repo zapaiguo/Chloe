@@ -144,10 +144,10 @@ namespace Chloe.Query.QueryState
 
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
 
-            var moe = this._resultElement.MappingObjectExpression.GenarateObjectActivatorCreator(sqlQuery);
+            var objectActivatorCreator = this._resultElement.MappingObjectExpression.GenarateObjectActivatorCreator(sqlQuery);
 
             data.SqlQuery = sqlQuery;
-            data.MappingEntity = moe;
+            data.ObjectActivatorCreator = objectActivatorCreator;
 
             return data;
         }
@@ -244,7 +244,7 @@ namespace Chloe.Query.QueryState
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
-            DbTableSegment tableSeg = new DbTableSegment(subQuery, ResultElement.DefaultTableAlias);
+            DbTableSegment tableSeg = new DbTableSegment(subQuery, UtilConstants.DefaultTableAlias);
             DbFromTableExpression fromTable = new DbFromTableExpression(tableSeg);
 
             DbTable table = new DbTable(tableSeg.Alias);

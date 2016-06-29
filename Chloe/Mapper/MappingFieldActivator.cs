@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace Chloe.Mapper
             }
             catch (Exception ex)
             {
-                throw new DataException(ObjectActivator.AppendErrorMsg(reader, this._readerOrdinal), ex);
+                throw new ChloeException(ObjectActivator.AppendErrorMsg(reader, this._readerOrdinal), ex);
             }
         }
     }

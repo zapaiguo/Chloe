@@ -1174,7 +1174,7 @@ namespace Chloe.SqlServer
                 DbMemberExpression memberExp = exp.Object as DbMemberExpression;
 
                 if (memberExp == null || !memberExp.CanEvaluate())
-                    throw new NotSupportedException(exp.Object.ToString());
+                    throw new NotSupportedException(exp.ToString());
 
                 values = DbExpressionExtensions.GetExpressionValue(memberExp) as IEnumerable; //Enumerable
                 arg = exp.Arguments.First();
@@ -1185,7 +1185,7 @@ namespace Chloe.SqlServer
                 DbMemberExpression memberExp = exp.Arguments.First() as DbMemberExpression;
 
                 if (memberExp == null || !memberExp.CanEvaluate())
-                    throw new NotSupportedException(exp.Object.ToString());
+                    throw new NotSupportedException(exp.ToString());
 
                 values = DbExpressionExtensions.GetExpressionValue(memberExp) as IEnumerable;
                 arg = exp.Arguments.Skip(1).First();
@@ -1313,11 +1313,11 @@ namespace Chloe.SqlServer
         static void Method_Parse(DbMethodCallExpression exp, SqlGenerator generator)
         {
             if (exp.Arguments.Count != 1)
-                throw new NotSupportedException();
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
 
             DbExpression arg = exp.Arguments[0];
             if (arg.Type != UtilConstants.TypeOfString)
-                throw new NotSupportedException();
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
 
             Type retType = exp.Method.ReturnType;
             EnsureMethodDeclaringType(exp, retType);

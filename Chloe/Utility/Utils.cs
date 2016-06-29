@@ -10,7 +10,6 @@ namespace Chloe.Utility
 {
     static class Utils
     {
-        public const string DefaultColumnAlias = "C";
         static List<Type> MapTypes;
         public static readonly Dictionary<Type, DbType> _typeDbTypeMap;
 
@@ -134,7 +133,7 @@ namespace Chloe.Utility
             return typeName.Contains("<>") && typeName.Contains("__") && typeName.Contains("AnonymousType");
         }
 
-        public static string GenerateUniqueColumnAlias(DbSqlQueryExpression sqlQuery, string defaultAlias = DefaultColumnAlias)
+        public static string GenerateUniqueColumnAlias(DbSqlQueryExpression sqlQuery, string defaultAlias = UtilConstants.DefaultColumnAlias)
         {
             string alias = defaultAlias;
             int i = 0;

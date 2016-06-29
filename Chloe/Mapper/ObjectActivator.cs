@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -45,11 +46,15 @@ namespace Chloe.Mapper
             {
                 obj = this._instanceCreator(reader, this._readerOrdinalEnumerator, this._objectActivatorEnumerator);
             }
+            catch (ChloeException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 if (this._readerOrdinalEnumerator.CurrentOrdinal >= 0)
                 {
-                    throw new DataException(AppendErrorMsg(reader, this._readerOrdinalEnumerator.CurrentOrdinal), ex);
+                    throw new ChloeException(AppendErrorMsg(reader, this._readerOrdinalEnumerator.CurrentOrdinal), ex);
                 }
 
                 throw;
@@ -65,12 +70,16 @@ namespace Chloe.Mapper
                     memberSetter.SetValue(obj, reader);
                 }
             }
+            catch (ChloeException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 MappingMemberBinder binder = memberSetter as MappingMemberBinder;
                 if (binder != null)
                 {
-                    throw new DataException(AppendErrorMsg(reader, binder.Ordinal), ex);
+                    throw new ChloeException(AppendErrorMsg(reader, binder.Ordinal), ex);
                 }
 
                 throw;

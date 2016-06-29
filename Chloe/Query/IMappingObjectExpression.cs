@@ -50,7 +50,7 @@ namespace Chloe.Query
             DbColumnAccessExpression cae = new DbColumnAccessExpression(columnSeg.Body.Type, table, columnSeg.Alias);
             return cae;
         }
-        public static int? TryGetOrAddColumn(DbSqlQueryExpression sqlQuery, DbExpression exp, string addDefaultAlias = Utils.DefaultColumnAlias)
+        public static int? TryGetOrAddColumn(DbSqlQueryExpression sqlQuery, DbExpression exp, string addDefaultAlias = UtilConstants.DefaultColumnAlias)
         {
             if (exp == null)
                 return null;
@@ -81,7 +81,7 @@ namespace Chloe.Query
 
             return ordinal.Value;
         }
-        public static DbColumnAccessExpression ParseColumnAccessExpression(DbSqlQueryExpression sqlQuery, DbTable table, DbExpression exp, string defaultAlias = Utils.DefaultColumnAlias)
+        public static DbColumnAccessExpression ParseColumnAccessExpression(DbSqlQueryExpression sqlQuery, DbTable table, DbExpression exp, string defaultAlias = UtilConstants.DefaultColumnAlias)
         {
             string alias = Utils.GenerateUniqueColumnAlias(sqlQuery, defaultAlias);
             DbColumnSegment columnSeg = new DbColumnSegment(exp, alias);

@@ -28,9 +28,9 @@ namespace Chloe.Query.Internals
 
             IObjectActivator objectActivator;
             if (this._query._trackEntity)
-                objectActivator = data.MappingEntity.CreateObjectActivator(this._query.DbContext);
+                objectActivator = data.ObjectActivatorCreator.CreateObjectActivator(this._query.DbContext);
             else
-                objectActivator = data.MappingEntity.CreateObjectActivator();
+                objectActivator = data.ObjectActivatorCreator.CreateObjectActivator();
 
             IDbExpressionTranslator translator = this._query.DbContext.DbContextServiceProvider.CreateDbExpressionTranslator();
             List<DbParam> parameters;
