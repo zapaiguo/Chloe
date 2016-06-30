@@ -195,7 +195,7 @@ namespace Chloe
 
                 var val = memberDescriptor.GetValue(entity);
 
-                if (entityState != null && !entityState.IsChanged(member, val))
+                if (entityState != null && !entityState.HasChanged(memberDescriptor, val))
                     continue;
 
                 DbExpression valExp = DbExpression.Parameter(val, memberDescriptor.MemberInfoType);

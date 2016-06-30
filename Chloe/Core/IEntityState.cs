@@ -13,7 +13,7 @@ namespace Chloe.Core
     {
         object Entity { get; }
         TypeDescriptor TypeDescriptor { get; }
-        bool IsChanged(MemberInfo member, object val);
+        bool HasChanged(MappingMemberDescriptor memberDescriptor, object val);
         void Refresh();
     }
 
@@ -33,12 +33,18 @@ namespace Chloe.Core
         public object Entity { get { return this._entity; } }
         public TypeDescriptor TypeDescriptor { get { return this._typeDescriptor; } }
 
-        public bool IsChanged(MemberInfo member, object val)
+        public bool HasChanged(MappingMemberDescriptor memberDescriptor, object val)
         {
             object oldVal;
-            if (!this._fakes.TryGetValue(member, out oldVal))
+            if (!this._fakes.TryGetValue(memberDescriptor.MemberInfo, out oldVal))
             {
                 return true;
+            }
+
+            if (memberDescriptor.MemberInfoType == UtilConstants.TypeOfByteArray)
+            {
+                //byte[] is a big big hole~
+                return !AreEqual((byte[])oldVal, (byte[])val);
             }
 
             return !Utils.AreEqual(oldVal, val);
@@ -59,13 +65,54 @@ namespace Chloe.Core
             object entity = this._entity;
             foreach (var kv in mappingMemberDescriptors)
             {
-                var key = kv.Key;
-                var memberDescriptor = kv.Value;
+                MemberInfo key = kv.Key;
+                MappingMemberDescriptor memberDescriptor = kv.Value;
 
                 var val = memberDescriptor.GetValue(entity);
 
+                //I hate the byte[].
+                if (memberDescriptor.MemberInfoType == UtilConstants.TypeOfByteArray)
+                {
+                    val = Clone((byte[])val);
+                }
+
                 this._fakes[key] = val;
             }
+        }
+
+        static byte[] Clone(byte[] arr)
+        {
+            if (arr == null)
+                return null;
+
+            byte[] ret = new byte[arr.Length];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                ret[i] = arr[i];
+            }
+
+            return ret;
+        }
+        static bool AreEqual(byte[] obj1, byte[] obj2)
+        {
+            if (obj1 == obj2)
+                return true;
+
+            if (obj1 != null && obj2 != null)
+            {
+                if (obj1.Length != obj2.Length)
+                    return false;
+
+                for (int i = 0; i < obj1.Length; i++)
+                {
+                    if (obj1[i] != obj2[i])
+                        return false;
+                }
+
+                return true;
+            }
+
+            return false;
         }
     }
 }
