@@ -53,7 +53,7 @@ q.GroupBy(a => a.Age).Having(a => a.Age > 1 && DbFunctions.Count() > 0).Select(a
 ```
 * Sql Query
 ```C#
-context.SqlQuery<User>("select Id as Id,Name as Name,Age as Age from Users where Name=@name", DbParam.Create("@name", "lu")).ToList();
+context.SqlQuery<User>("select Id,Name,Age from Users where Name=@name", DbParam.Create("@name", "lu")).ToList();
 context.SqlQuery<int>("select Id from Users").ToList();
 ```
 * Aggregate Function
@@ -110,6 +110,7 @@ q.Select(a => new
     Minute = DateTime.Now.Minute,
     Second = DateTime.Now.Second,
     Millisecond = DateTime.Now.Millisecond,
+	DayOfWeek = DateTime.Now.DayOfWeek,
 
     Int_Parse = int.Parse("1"),
     Int16_Parse = Int16.Parse("11"),
@@ -128,7 +129,7 @@ q.Select(a => new
 * Insert
 ```C#
 var id = context.Insert<User>(() => new User() { Name = "lu", NickName = "so", Age = 18, Gender = Gender.Man, OpTime = DateTime.Now });//return the key value
-User user = context.Insert(new User() { Name = "lu", NickName = "so", Age = 18, Gender = Gender.Man, ByteArray = new byte[] { 1, 2 }, OpTime = DateTime.Now });
+User user = context.Insert(new User() { Name = "lu", NickName = "so", Age = 18, Gender = Gender.Man, OpTime = DateTime.Now });
 ```
 * Update
 ```C#

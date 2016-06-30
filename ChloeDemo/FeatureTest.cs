@@ -144,6 +144,7 @@ namespace ChloeDemo
                 Minute = DateTime.Now.Minute,
                 Second = DateTime.Now.Second,
                 Millisecond = DateTime.Now.Millisecond,
+                DayOfWeek = DateTime.Now.DayOfWeek,
 
                 Int_Parse = int.Parse("1"),
                 Int16_Parse = Int16.Parse("11"),

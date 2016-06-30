@@ -19,7 +19,7 @@ namespace Chloe
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="body"></param>
-        /// <returns>主键值</returns>
+        /// <returns>PrimaryKey</returns>
         object Insert<T>(Expression<Func<T>> body);
 
         int Update<T>(T entity);
