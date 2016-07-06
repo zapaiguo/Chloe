@@ -24,7 +24,7 @@ namespace Chloe.Mapper
             }
             catch (Exception ex)
             {
-                throw new ChloeException(ObjectActivator.AppendErrorMsg(reader, this._readerOrdinal), ex);
+                throw new ChloeException(ObjectActivator.AppendErrorMsg(reader, this._readerOrdinal, ex), ex);
             }
         }
     }

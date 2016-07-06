@@ -218,7 +218,7 @@ namespace Chloe.Extensions
             }
             catch (NullReferenceException)
             {
-                throw new SqlNullValueException("数据不可为 null");
+                throw new SqlNullValueException("The column value could not be null");
             }
         }
         public static T? GetTValue_Nullable<T>(this IDataReader reader, int ordinal) where T : struct

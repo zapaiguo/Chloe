@@ -2,6 +2,7 @@
 using Chloe.Core.Visitors;
 using Chloe.DbExpressions;
 using Chloe.Descriptors;
+using Chloe.Exceptions;
 using Chloe.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -64,7 +65,7 @@ namespace Chloe.SqlServer
             //主键为空并且主键又不是自增列
             if (keyValue == null && keyMemberDescriptor != autoIncrementMemberDescriptor)
             {
-                throw new Exception(string.Format("主键 {0} 值为 null", keyMemberDescriptor.MemberInfo.Name));
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
             }
 
             DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
@@ -91,7 +92,7 @@ namespace Chloe.SqlServer
 
             if (retIdentity == null || retIdentity == DBNull.Value)
             {
-                throw new Exception("无法获取自增标识");
+                throw new ChloeException("Unable to get the identity value.");
             }
 
             retIdentity = ConvertIdentityType(retIdentity, autoIncrementMemberDescriptor.MemberInfoType);
@@ -120,16 +121,16 @@ namespace Chloe.SqlServer
                 MappingMemberDescriptor memberDescriptor = typeDescriptor.TryGetMappingMemberDescriptor(key);
 
                 if (memberDescriptor == null)
-                    throw new Exception(string.Format("成员 {0} 未映射任何列", key.Name));
+                    throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
 
                 if (memberDescriptor == autoIncrementMemberDescriptor)
-                    throw new Exception(string.Format("不能将值插入自增长列 '{0}'", memberDescriptor.Column.Name));
+                    throw new ChloeException(string.Format("Could not insert value into the identity column '{0}'.", memberDescriptor.Column.Name));
 
                 if (memberDescriptor.IsPrimaryKey)
                 {
                     object val = ExpressionEvaluator.Evaluate(kv.Value);
                     if (val == null)
-                        throw new Exception(string.Format("主键 {0} 值为 null", memberDescriptor.MemberInfo.Name));
+                        throw new ChloeException(string.Format("The primary key '{0}' could not be null.", memberDescriptor.MemberInfo.Name));
                     else
                     {
                         keyVal = val;
@@ -144,7 +145,7 @@ namespace Chloe.SqlServer
             //主键为空并且主键又不是自增列
             if (keyVal == null && keyMemberDescriptor != autoIncrementMemberDescriptor)
             {
-                throw new Exception(string.Format("主键 {0} 值为 null", keyMemberDescriptor.MemberInfo.Name));
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
             }
 
             if (autoIncrementMemberDescriptor == null)
@@ -163,7 +164,7 @@ namespace Chloe.SqlServer
 
             if (retIdentity == null || retIdentity == DBNull.Value)
             {
-                throw new Exception("无法获取自增标识");
+                throw new ChloeException("Unable to get the identity value.");
             }
 
             retIdentity = ConvertIdentityType(retIdentity, autoIncrementMemberDescriptor.MemberInfoType);
@@ -209,7 +210,7 @@ namespace Chloe.SqlServer
             }
 
             if (keyVal == null)
-                throw new Exception(string.Format("实体主键 {0} 值为 null", keyMember.Name));
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMember.Name));
 
             if (updateColumns.Count == 0)
                 return 0;
@@ -248,14 +249,14 @@ namespace Chloe.SqlServer
                 MappingMemberDescriptor memberDescriptor = typeDescriptor.TryGetMappingMemberDescriptor(key);
 
                 if (memberDescriptor == null)
-                    throw new Exception(string.Format("成员 {0} 未映射任何列", key.Name));
+                    throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
 
                 if (memberDescriptor.IsPrimaryKey)
-                    throw new Exception(string.Format("无法对主键 '{0}' 进行更新", memberDescriptor.Column.Name));
+                    throw new ChloeException(string.Format("Could not update the primary key '{0}'.", memberDescriptor.Column.Name));
 
                 AutoIncrementAttribute attr = (AutoIncrementAttribute)memberDescriptor.GetCustomAttribute(typeof(AutoIncrementAttribute));
                 if (attr != null)
-                    throw new Exception(string.Format("无法对自增长列 '{0}' 进行更新", memberDescriptor.Column.Name));
+                    throw new ChloeException(string.Format("Could not update the identity column '{0}'.", memberDescriptor.Column.Name));
 
                 e.UpdateColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
             }
@@ -276,7 +277,7 @@ namespace Chloe.SqlServer
         static void EnsureMappingTypeHasPrimaryKey(TypeDescriptor typeDescriptor)
         {
             if (!typeDescriptor.HasPrimaryKey())
-                throw new Exception(string.Format("实体类 {0} 未定义主键", typeDescriptor.EntityType.FullName));
+                throw new ChloeException(string.Format("Mapping type '{0}' does not define a primary key.", typeDescriptor.EntityType.FullName));
         }
 
         static MappingMemberDescriptor GetAutoIncrementMemberDescriptor(TypeDescriptor typeDescriptor)
@@ -288,7 +289,7 @@ namespace Chloe.SqlServer
             }).ToList();
 
             if (autoIncrementMemberDescriptors.Count > 1)
-                throw new Exception(string.Format("实体类型 {0} 定义多个自增成员", typeDescriptor.EntityType.FullName));
+                throw new ChloeException(string.Format("Mapping type '{0}' can not define multiple identity.", typeDescriptor.EntityType.FullName));
 
             MappingMemberDescriptor autoIncrementMemberDescriptor = autoIncrementMemberDescriptors.FirstOrDefault();
 
@@ -301,7 +302,7 @@ namespace Chloe.SqlServer
         {
             if (autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt16 && autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt32 && autoIncrementMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt64)
             {
-                throw new Exception("自增成员必须是 Int16、Int32 或 Int64 类型");
+                throw new ChloeException("Identity type must be Int16,Int32 or Int64.");
             }
         }
         static object ConvertIdentityType(object identity, Type conversionType)

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -54,7 +55,7 @@ namespace Chloe.Mapper
             {
                 if (this._readerOrdinalEnumerator.CurrentOrdinal >= 0)
                 {
-                    throw new ChloeException(AppendErrorMsg(reader, this._readerOrdinalEnumerator.CurrentOrdinal), ex);
+                    throw new ChloeException(AppendErrorMsg(reader, this._readerOrdinalEnumerator.CurrentOrdinal, ex), ex);
                 }
 
                 throw;
@@ -79,7 +80,7 @@ namespace Chloe.Mapper
                 MappingMemberBinder binder = memberSetter as MappingMemberBinder;
                 if (binder != null)
                 {
-                    throw new ChloeException(AppendErrorMsg(reader, binder.Ordinal), ex);
+                    throw new ChloeException(AppendErrorMsg(reader, binder.Ordinal, ex), ex);
                 }
 
                 throw;
@@ -88,9 +89,19 @@ namespace Chloe.Mapper
             return obj;
         }
 
-        public static string AppendErrorMsg(IDataReader reader, int ordinal)
+        public static string AppendErrorMsg(IDataReader reader, int ordinal, Exception ex)
         {
-            string msg = string.Format("Error: {0}({1},{2},{3})", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
+            string msg = null;
+            if (ex is InvalidCastException)
+            {
+                msg = string.Format("Please make sure that the member of the column '{0}'({1},{2},{3}) map is the correct type.", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
+            }
+            else if (ex is SqlNullValueException)
+            {
+                msg = string.Format("Please make sure that the member of the column '{0}'({1},{2},{3}) map is nullable.", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
+            }
+            else
+                msg = string.Format("Error: {0}({1},{2},{3})", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
             return msg;
         }
     }

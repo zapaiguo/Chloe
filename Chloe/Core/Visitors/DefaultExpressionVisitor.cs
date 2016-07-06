@@ -1,6 +1,7 @@
 ﻿using Chloe.Core.Visitors;
 using Chloe.DbExpressions;
 using Chloe.Descriptors;
+using Chloe.Exceptions;
 using Chloe.Extensions;
 using System;
 using System.Collections.Generic;
@@ -43,7 +44,7 @@ namespace Chloe.Core.Visitors
                         DbColumnAccessExpression dbColumnAccessExpression;
                         if (!memberColumnMap.TryGetValue(me.Member, out dbColumnAccessExpression))
                         {
-                            throw new Exception(string.Format("成员 {0} 未映射任何列", me.Member.Name));
+                            throw new ChloeException(string.Format("The member '{0}' does not map any column.", me.Member.Name));
                         }
 
                         dbExp = dbColumnAccessExpression;

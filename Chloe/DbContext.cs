@@ -14,6 +14,7 @@ using Chloe.DbExpressions;
 using Chloe.Mapper;
 using Chloe.Query.Internals;
 using Chloe.Core.Visitors;
+using Chloe.Exceptions;
 
 namespace Chloe
 {
@@ -106,7 +107,7 @@ namespace Chloe
             //主键为空并且主键又不是自增列
             if (keyValue == null)
             {
-                throw new Exception(string.Format("主键 {0} 值为 null", keyMemberDescriptor.MemberInfo.Name));
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
             }
 
             DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
@@ -140,13 +141,13 @@ namespace Chloe
                 MappingMemberDescriptor memberDescriptor = typeDescriptor.TryGetMappingMemberDescriptor(key);
 
                 if (memberDescriptor == null)
-                    throw new Exception(string.Format("成员 {0} 未映射任何列", key.Name));
+                    throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
 
                 if (memberDescriptor.IsPrimaryKey)
                 {
                     object val = ExpressionEvaluator.Evaluate(kv.Value);
                     if (val == null)
-                        throw new Exception(string.Format("主键 {0} 值为 null", memberDescriptor.MemberInfo.Name));
+                        throw new ChloeException(string.Format("The primary key '{0}' could not be null.", memberDescriptor.MemberInfo.Name));
                     else
                     {
                         keyVal = val;
@@ -161,7 +162,7 @@ namespace Chloe
             //主键为空
             if (keyVal == null)
             {
-                throw new Exception(string.Format("主键 {0} 值为 null", keyMemberDescriptor.MemberInfo.Name));
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
             }
 
             this.ExecuteSqlCommand(e);
@@ -203,7 +204,7 @@ namespace Chloe
             }
 
             if (keyVal == null)
-                throw new Exception(string.Format("实体主键 {0} 值为 null", keyMember.Name));
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMember.Name));
 
             if (updateColumns.Count == 0)
                 return 0;
@@ -242,10 +243,10 @@ namespace Chloe
                 MappingMemberDescriptor memberDescriptor = typeDescriptor.TryGetMappingMemberDescriptor(key);
 
                 if (memberDescriptor == null)
-                    throw new Exception(string.Format("成员 {0} 未映射任何列", key.Name));
+                    throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
 
                 if (memberDescriptor.IsPrimaryKey)
-                    throw new Exception(string.Format("无法对主键 '{0}' 进行更新", memberDescriptor.Column.Name));
+                    throw new ChloeException(string.Format("Could not update the primary key '{0}'.", memberDescriptor.Column.Name));
 
                 e.UpdateColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
             }
@@ -266,7 +267,7 @@ namespace Chloe
             var keyVal = keyMemberDescriptor.GetValue(entity);
 
             if (keyVal == null)
-                throw new Exception(string.Format("实体主键 {0} 值为 null", keyMember.Name));
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMember.Name));
 
             DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
             DbExpression right = new DbParameterExpression(keyVal);
@@ -366,7 +367,7 @@ namespace Chloe
         static void EnsureMappingTypeHasPrimaryKey(TypeDescriptor typeDescriptor)
         {
             if (!typeDescriptor.HasPrimaryKey())
-                throw new Exception(string.Format("实体类 {0} 未定义主键", typeDescriptor.EntityType.FullName));
+                throw new ChloeException(string.Format("Mapping type '{0}' does not define a primary key.", typeDescriptor.EntityType.FullName));
         }
 
 

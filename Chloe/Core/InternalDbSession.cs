@@ -1,4 +1,5 @@
 ﻿using Chloe.Core;
+using Chloe.Exceptions;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
@@ -89,7 +90,7 @@ namespace Chloe.Core
         {
             if (!this._isInTransaction)
             {
-                throw new Exception("未在当前上下文中开启事务");
+                throw new ChloeException("未在当前上下文中开启事务");
             }
             this._dbTransaction.Commit();
             this._dbTransaction.Dispose();
@@ -100,7 +101,7 @@ namespace Chloe.Core
         {
             if (!this._isInTransaction)
             {
-                throw new Exception("未在当前上下文中开启事务");
+                throw new ChloeException("未在当前上下文中开启事务");
             }
             this._dbTransaction.Rollback();
             this._dbTransaction.Dispose();
