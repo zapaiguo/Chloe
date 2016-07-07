@@ -289,7 +289,7 @@ namespace Chloe.SqlServer
             }).ToList();
 
             if (autoIncrementMemberDescriptors.Count > 1)
-                throw new ChloeException(string.Format("Mapping type '{0}' can not define multiple identity.", typeDescriptor.EntityType.FullName));
+                throw new ChloeException(string.Format("Mapping type '{0}' can not define multiple identity members.", typeDescriptor.EntityType.FullName));
 
             MappingMemberDescriptor autoIncrementMemberDescriptor = autoIncrementMemberDescriptors.FirstOrDefault();
 

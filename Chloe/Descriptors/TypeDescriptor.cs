@@ -166,7 +166,7 @@ namespace Chloe.Descriptors
             {
                 if (this._primaryKey != null)
                 {
-                    throw new NotSupportedException(string.Format("Mapping type '{0}' can not define multiple primary key.", this.EntityType.FullName));
+                    throw new NotSupportedException(string.Format("Mapping type '{0}' can not define multiple primary keys.", this.EntityType.FullName));
                 }
 
                 this._primaryKey = memberDescriptor;
