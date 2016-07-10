@@ -14,7 +14,7 @@ namespace Chloe.SqlServer
     {
         public const string ParameterPrefix = "@P_";
 
-        ISqlBuilder _sqlBuilder = new SqlBuilder();
+        internal ISqlBuilder _sqlBuilder = new SqlBuilder();
         List<DbParam> _parameters = new List<DbParam>();
 
         DbValueExpressionVisitor _valueExpressionVisitor = null;
@@ -621,7 +621,7 @@ namespace Chloe.SqlServer
             this._sqlBuilder.Append(" AS ");
             this.QuoteName(seg.Alias);
         }
-        void AppendColumnSegment(DbColumnSegment seg)
+        internal void AppendColumnSegment(DbColumnSegment seg)
         {
             seg.Body.Accept(this.ValueExpressionVisitor);
             this._sqlBuilder.Append(" AS ");
@@ -674,7 +674,7 @@ namespace Chloe.SqlServer
             this.BuildGroupState(exp);
             this.BuildOrderState(exp.OrderSegments);
         }
-        void BuildLimitSql(DbSqlQueryExpression exp)
+        protected virtual void BuildLimitSql(DbSqlQueryExpression exp)
         {
             this._sqlBuilder.Append("SELECT ");
             if (exp.TakeCount != null)
@@ -743,7 +743,7 @@ namespace Chloe.SqlServer
         }
 
 
-        void BuildWhereState(DbExpression whereExpression)
+        internal void BuildWhereState(DbExpression whereExpression)
         {
             if (whereExpression != null)
             {
@@ -751,7 +751,7 @@ namespace Chloe.SqlServer
                 whereExpression.Accept(this);
             }
         }
-        void BuildOrderState(List<DbOrderSegment> orderSegments)
+        internal void BuildOrderState(List<DbOrderSegment> orderSegments)
         {
             if (orderSegments.Count > 0)
             {
@@ -771,7 +771,7 @@ namespace Chloe.SqlServer
                 this.AppendOrderSegment(orderSegments[i]);
             }
         }
-        void BuildGroupState(DbSqlQueryExpression exp)
+        internal void BuildGroupState(DbSqlQueryExpression exp)
         {
             var groupSegments = exp.GroupSegments;
             if (groupSegments.Count == 0)

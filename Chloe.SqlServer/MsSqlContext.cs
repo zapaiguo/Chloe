@@ -15,17 +15,22 @@ namespace Chloe.SqlServer
 {
     public class MsSqlContext : DbContext
     {
-        string _connString;
+        DbContextServiceProvider _dbContextServiceProvider;
         public MsSqlContext(string connString)
-            : base(CreateDbContextServiceProvider(connString))
+            : this(new DefaultDbConnectionFactory(connString))
         {
-            this._connString = connString;
         }
 
-        static IDbContextServiceProvider CreateDbContextServiceProvider(string connString)
+        public MsSqlContext(IDbConnectionFactory dbConnectionFactory)
         {
-            DbContextServiceProvider provider = new DbContextServiceProvider(connString);
-            return provider;
+            this.PagingMode = PagingMode.ROW_NUMBER;
+            this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory, this);
+        }
+
+        public PagingMode PagingMode { get; set; }
+        public override IDbContextServiceProvider DbContextServiceProvider
+        {
+            get { return this._dbContextServiceProvider; }
         }
 
         public override T Insert<T>(T entity)

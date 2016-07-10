@@ -12,20 +12,30 @@ namespace Chloe.SqlServer
 {
     class DbContextServiceProvider : IDbContextServiceProvider
     {
-        string _connString;
+        IDbConnectionFactory _dbConnectionFactory;
+        MsSqlContext _msSqlContext;
 
-        public DbContextServiceProvider(string connString)
+        public DbContextServiceProvider(IDbConnectionFactory dbConnectionFactory, MsSqlContext msSqlContext)
         {
-            this._connString = connString;
+            this._dbConnectionFactory = dbConnectionFactory;
+            this._msSqlContext = msSqlContext;
         }
         public IDbConnection CreateConnection()
         {
-            SqlConnection conn = new SqlConnection(this._connString);
-            return conn;
+            return this._dbConnectionFactory.CreateConnection();
         }
         public IDbExpressionTranslator CreateDbExpressionTranslator()
         {
-            return DbExpressionTranslator.Instance;
+            if (this._msSqlContext.PagingMode == PagingMode.ROW_NUMBER)
+            {
+                return DbExpressionTranslator.Instance;
+            }
+            else if (this._msSqlContext.PagingMode == PagingMode.OFFSET_FETCH)
+            {
+                return DbExpressionTranslator_OffsetFetch.Instance;
+            }
+
+            throw new NotSupportedException();
         }
     }
 }

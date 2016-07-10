@@ -49,11 +49,14 @@
     <Compile Include="DbExpressionHelper.cs" />
     <Compile Include="DbExpressionTranslator.cs" />
     <Compile Include="DbValueExpressionVisitor.cs" />
+    <Compile Include="DefaultDbConnectionFactory.cs" />
     <Compile Include="ISqlBuilder.cs" />
     <Compile Include="MsSqlContext.cs" />
+    <Compile Include="PagingMode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlExpressionVisitor.cs" />
     <Compile Include="SqlGenerator.cs" />
+    <Compile Include="SqlGenerator_OffsetFetch.cs" />
     <Compile Include="UtilConstants.cs" />
     <Compile Include="UtilExceptions.cs" />
     <Compile Include="Utils.cs" />

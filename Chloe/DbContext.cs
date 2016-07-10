@@ -22,21 +22,20 @@ namespace Chloe
     {
         bool _disposed = false;
         InternalDbSession _innerDbSession;
-        IDbContextServiceProvider _dbContextServiceProvider;
         DbSession _currentSession;
 
-        Dictionary<Type, TrackEntityCollection> _trackedEntityContainer;
+        Dictionary<Type, TrackEntityCollection> _trackingEntityContainer;
 
-        Dictionary<Type, TrackEntityCollection> TrackedEntityContainer
+        Dictionary<Type, TrackEntityCollection> TrackingEntityContainer
         {
             get
             {
-                if (this._trackedEntityContainer == null)
+                if (this._trackingEntityContainer == null)
                 {
-                    this._trackedEntityContainer = new Dictionary<Type, TrackEntityCollection>();
+                    this._trackingEntityContainer = new Dictionary<Type, TrackEntityCollection>();
                 }
 
-                return this._trackedEntityContainer;
+                return this._trackingEntityContainer;
             }
         }
 
@@ -46,17 +45,14 @@ namespace Chloe
             {
                 this.CheckDisposed();
                 if (this._innerDbSession == null)
-                    this._innerDbSession = new InternalDbSession(this._dbContextServiceProvider.CreateConnection());
+                    this._innerDbSession = new InternalDbSession(this.DbContextServiceProvider.CreateConnection());
                 return this._innerDbSession;
             }
         }
-        public IDbContextServiceProvider DbContextServiceProvider { get { return this._dbContextServiceProvider; } }
+        public abstract IDbContextServiceProvider DbContextServiceProvider { get; }
 
-        protected DbContext(IDbContextServiceProvider dbContextServiceProvider)
+        protected DbContext()
         {
-            Utils.CheckNull(dbContextServiceProvider, "dbContextServiceProvider");
-
-            this._dbContextServiceProvider = dbContextServiceProvider;
             this._currentSession = new DbSession(this);
         }
 
@@ -296,7 +292,7 @@ namespace Chloe
             if (Utils.IsAnonymousType(entityType))
                 return;
 
-            Dictionary<Type, TrackEntityCollection> entityContainer = this.TrackedEntityContainer;
+            Dictionary<Type, TrackEntityCollection> entityContainer = this.TrackingEntityContainer;
 
             TrackEntityCollection collection;
             if (!entityContainer.TryGetValue(entityType, out collection))
@@ -316,7 +312,7 @@ namespace Chloe
         {
             Utils.CheckNull(entity);
             Type entityType = entity.GetType();
-            Dictionary<Type, TrackEntityCollection> entityContainer = this._trackedEntityContainer;
+            Dictionary<Type, TrackEntityCollection> entityContainer = this._trackingEntityContainer;
 
             if (entityContainer == null)
                 return null;
@@ -356,7 +352,7 @@ namespace Chloe
 
         int ExecuteSqlCommand(DbExpression e)
         {
-            IDbExpressionTranslator translator = this._dbContextServiceProvider.CreateDbExpressionTranslator();
+            IDbExpressionTranslator translator = this.DbContextServiceProvider.CreateDbExpressionTranslator();
             List<DbParam> parameters;
             string cmdText = translator.Translate(e, out parameters);
 

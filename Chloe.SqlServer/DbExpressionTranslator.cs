@@ -23,4 +23,19 @@ namespace Chloe.SqlServer
             return sql;
         }
     }
+
+    class DbExpressionTranslator_OffsetFetch : IDbExpressionTranslator
+    {
+        public static readonly DbExpressionTranslator_OffsetFetch Instance = new DbExpressionTranslator_OffsetFetch();
+        public string Translate(DbExpression expression, out List<DbParam> parameters)
+        {
+            SqlGenerator_OffsetFetch generator = new SqlGenerator_OffsetFetch();
+            expression.Accept(generator);
+
+            parameters = generator.Parameters;
+            string sql = generator.SqlBuilder.ToSql();
+
+            return sql;
+        }
+    }
 }
