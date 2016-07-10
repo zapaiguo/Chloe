@@ -22,10 +22,6 @@ namespace Chloe.Core
             this._dbConnection = conn;
         }
 
-        //public IDbConnection DbConnection
-        //{
-        //    get { return this._dbConnection; }
-        //}
         IDbCommand DbCommand
         {
             get
@@ -36,10 +32,6 @@ namespace Chloe.Core
                 return this._dbCommand;
             }
         }
-        //public IDbTransaction DbTransaction
-        //{
-        //    get { return this._dbTransaction; }
-        //}
         public bool IsInTransaction
         {
             get { return this._isInTransaction; }
@@ -90,7 +82,7 @@ namespace Chloe.Core
         {
             if (!this._isInTransaction)
             {
-                throw new ChloeException("未在当前上下文中开启事务");
+                throw new ChloeException("Current session does not open a transaction.");
             }
             this._dbTransaction.Commit();
             this._dbTransaction.Dispose();
@@ -101,7 +93,7 @@ namespace Chloe.Core
         {
             if (!this._isInTransaction)
             {
-                throw new ChloeException("未在当前上下文中开启事务");
+                throw new ChloeException("Current session does not open a transaction.");
             }
             this._dbTransaction.Rollback();
             this._dbTransaction.Dispose();
