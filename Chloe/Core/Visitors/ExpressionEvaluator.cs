@@ -78,8 +78,7 @@ namespace Chloe.Core.Visitors
                 }
                 else
                 {
-                    //如果不等，则诸如：(long?)int / (long?)int? 
-                    //则转成：(long?)((long)int) / (long?)((long)int?)
+                    //如果不等，则诸如：(long?)int / (long?)int?  -->  (long?)((long)int) / (long?)((long)int?)
                     var c = Expression.MakeUnary(ExpressionType.Convert, Expression.Constant(operandValue), unType);
                     var cc = Expression.MakeUnary(ExpressionType.Convert, c, exp.Type);
                     return this.Visit(cc);
@@ -97,8 +96,7 @@ namespace Chloe.Core.Visitors
                 }
                 else
                 {
-                    //如果不等，则诸如：(long)int? 
-                    //则转成：(long)((long)int) 处理
+                    //如果不等，则诸如：(long)int?  -->  (long)((long)int)
                     var c = Expression.MakeUnary(ExpressionType.Convert, Expression.Constant(operandValue), unType);
                     var cc = Expression.MakeUnary(ExpressionType.Convert, c, exp.Type);
                     return this.Visit(cc);
@@ -111,7 +109,7 @@ namespace Chloe.Core.Visitors
                 return Convert.ChangeType(operandValue, exp.Type);
             }
 
-            throw UtilExceptions.NotSupportedException(string.Format("不支持将类型 {0} 转换成 {1}", operandValueType.FullName, exp.Type.FullName));
+            throw UtilExceptions.NotSupportedException(string.Format("Does not support the type '{0}' converted to type '{1}'.", operandValueType.FullName, exp.Type.FullName));
         }
         protected override object VisitConstant(ConstantExpression exp)
         {

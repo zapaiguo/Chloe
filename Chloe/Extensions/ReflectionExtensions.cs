@@ -46,8 +46,8 @@ namespace Chloe.Extensions
                 ((PropertyInfo)propertyOrField).SetValue(obj, value, null);
             else if (propertyOrField.MemberType == MemberTypes.Field)
                 ((FieldInfo)propertyOrField).SetValue(obj, value);
-            else
-                throw new ArgumentException("只支持 FieldInfo 和 PropertyInfo");
+
+            throw new ArgumentException();
         }
 
         public static object GetPropertyOrFieldValue(this MemberInfo propertyOrField, object obj)
@@ -56,8 +56,8 @@ namespace Chloe.Extensions
                 return ((PropertyInfo)propertyOrField).GetValue(obj, null);
             else if (propertyOrField.MemberType == MemberTypes.Field)
                 return ((FieldInfo)propertyOrField).GetValue(obj);
-            else
-                throw new ArgumentException("只支持 FieldInfo 和 PropertyInfo");
+
+            throw new ArgumentException();
         }
     }
 }
