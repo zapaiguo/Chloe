@@ -53,7 +53,7 @@ namespace Chloe.Core.Visitors
             {
                 //(int)null
                 if (exp.Type.IsValueType && !Utils.IsNullable(exp.Type))
-                    throw UtilExceptions.NullReferenceException();
+                    throw new NullReferenceException();
 
                 return null;
             }
@@ -109,7 +109,7 @@ namespace Chloe.Core.Visitors
                 return Convert.ChangeType(operandValue, exp.Type);
             }
 
-            throw UtilExceptions.NotSupportedException(string.Format("Does not support the type '{0}' converted to type '{1}'.", operandValueType.FullName, exp.Type.FullName));
+            throw new NotSupportedException(string.Format("Does not support the type '{0}' converted to type '{1}'.", operandValueType.FullName, exp.Type.FullName));
         }
         protected override object VisitConstant(ConstantExpression exp)
         {
