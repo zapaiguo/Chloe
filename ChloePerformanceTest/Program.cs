@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Chloe;
 using Chloe.SqlServer;
-using Newtonsoft.Json;
 using Db;
 using System.Data;
 using Dapper;
@@ -19,11 +18,11 @@ namespace ChloePerformanceTest
     {
         static void Main(string[] args)
         {
-            //MappingSpeedTest.SpeedTest();
+            MappingSpeedTest.SpeedTest();
             //MappingSpeedTest.GCMemoryTest();
 
 
-            QueryPerformanceTest.SpeedTest();
+            //QueryPerformanceTest.SpeedTest();
             //QueryPerformanceTest.GCMemoryTest();
         }
 
