@@ -16,11 +16,13 @@ namespace ChloePerformanceTest
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Conventions.Remove<System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention
->();
+            Database.SetInitializer<EFContext>(null);
+            this.Configuration.LazyLoadingEnabled = false;
+            this.Configuration.ProxyCreationEnabled = false; modelBuilder.Conventions.Remove<System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention
+ >();
         }
 
-        public DbSet<Test> Test { get; set; }
+        public DbSet<TestEntity> TestEntity { get; set; }
 
     }
 }

@@ -301,7 +301,7 @@ namespace ChloeDemo
 
             var id = context.Insert<User>(() => new User() { Name = user.Name, NickName = user.Name, Age = user.Age, Gender = Gender.Man, OpTime = DateTime.Now });
 
-            var id = context.Insert<User>(() => new User() { Name = "lu", NickName = "so", Age = 18, Gender = Gender.Man, OpTime = DateTime.Now });
+            //var id = context.Insert<User>(() => new User() { Name = "lu", NickName = "so", Age = 18, Gender = Gender.Man, OpTime = DateTime.Now });
 
             //var users = context.Query<User>().Where(a => a.Name == null).ToList();
 
