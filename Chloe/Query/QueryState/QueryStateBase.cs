@@ -176,8 +176,8 @@ namespace Chloe.Query.QueryState
             {
                 for (int i = 0; i < this.Result.OrderSegments.Count; i++)
                 {
-                    DbOrderSegment orderPart = this.Result.OrderSegments[i];
-                    DbExpression orderExp = orderPart.DbExpression;
+                    DbOrderSegment orderSeg = this.Result.OrderSegments[i];
+                    DbExpression orderExp = orderSeg.DbExpression;
 
                     string alias = null;
 
@@ -196,7 +196,7 @@ namespace Chloe.Query.QueryState
                     }
 
                     DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(orderExp.Type, table, alias);
-                    result.OrderSegments.Add(new DbOrderSegment(columnAccessExpression, orderPart.OrderType));
+                    result.OrderSegments.Add(new DbOrderSegment(columnAccessExpression, orderSeg.OrderType));
                 }
             }
 

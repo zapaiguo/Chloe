@@ -21,11 +21,11 @@ namespace ChloePerformanceTest
             MappingSpeedTest.SpeedTest();
             //MappingSpeedTest.GCMemoryTest();
 
+            //LoopQueryTest.SpeedTest();
+            //LoopQueryTest.GCMemoryTest();
 
-            //QueryPerformanceTest.SpeedTest();
-            //QueryPerformanceTest.GCMemoryTest();
+            //LoopQueryTestWithNotCreateDbContext.SpeedTest();
+            //LoopQueryTestWithNotCreateDbContext.GCMemoryTest();
         }
-
-
     }
 }

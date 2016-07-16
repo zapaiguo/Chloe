@@ -51,10 +51,11 @@
   <ItemGroup>
     <Compile Include="DbHelper.cs" />
     <Compile Include="EFContext.cs" />
+    <Compile Include="LoopQueryTest.cs" />
+    <Compile Include="LoopQueryTestWithNotCreateDbContext.cs" />
     <Compile Include="MappingSpeedTest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryPerformanceTest.cs" />
     <Compile Include="SqlMapper.cs" />
     <Compile Include="SW.cs" />
     <Compile Include="TestEntity.cs" />
