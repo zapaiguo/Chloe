@@ -19,13 +19,16 @@ namespace Chloe.Utility
 
             mapTypes.Add(typeof(string));
             mapTypes.Add(typeof(int));
+            mapTypes.Add(typeof(uint));
             mapTypes.Add(typeof(long));
+            mapTypes.Add(typeof(ulong));
             mapTypes.Add(typeof(decimal));
             mapTypes.Add(typeof(double));
             mapTypes.Add(typeof(float));
             mapTypes.Add(typeof(bool));
             mapTypes.Add(typeof(DateTime));
             mapTypes.Add(typeof(short));
+            mapTypes.Add(typeof(ushort));
             mapTypes.Add(typeof(Guid));
             mapTypes.Add(typeof(byte));
             mapTypes.Add(typeof(char));
