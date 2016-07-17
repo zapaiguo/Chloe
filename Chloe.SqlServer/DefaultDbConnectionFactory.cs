@@ -13,6 +13,8 @@ namespace Chloe.SqlServer
         string _connString;
         public DefaultDbConnectionFactory(string connString)
         {
+            Utils.CheckNull(connString);
+
             this._connString = connString;
         }
         public IDbConnection CreateConnection()

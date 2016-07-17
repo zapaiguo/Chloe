@@ -23,6 +23,8 @@ namespace Chloe.SqlServer
 
         public MsSqlContext(IDbConnectionFactory dbConnectionFactory)
         {
+            Utils.CheckNull(dbConnectionFactory);
+
             this.PagingMode = PagingMode.ROW_NUMBER;
             this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory, this);
         }
