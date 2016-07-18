@@ -13,12 +13,15 @@ namespace ChloePerformanceTest
             : base("name=connString")
         {
         }
-
+        
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             Database.SetInitializer<EFContext>(null);
             this.Configuration.LazyLoadingEnabled = false;
-            this.Configuration.ProxyCreationEnabled = false; modelBuilder.Conventions.Remove<System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention
+            this.Configuration.ProxyCreationEnabled = false;
+            this.Configuration.AutoDetectChangesEnabled = false;
+            this.Configuration.ValidateOnSaveEnabled = false;
+            modelBuilder.Conventions.Remove<System.Data.Entity.ModelConfiguration.Conventions.PluralizingTableNameConvention
  >();
         }
 

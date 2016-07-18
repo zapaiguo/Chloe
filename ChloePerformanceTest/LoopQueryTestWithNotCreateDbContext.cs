@@ -20,7 +20,7 @@ namespace ChloePerformanceTest
     class LoopQueryTestWithNotCreateDbContext
     {
         static int takeCount = 1;
-        static int queryCount = 10000;
+        static int queryCount = 20000;
 
         public static void GCMemoryTest()
         {
@@ -29,11 +29,11 @@ namespace ChloePerformanceTest
              * 每次运行程序只能调用下面中的一个方法，不能同时调用
              */
 
-            //ChloeQueryTest(takeCount, queryCount);
+            ChloeQueryTest(takeCount, queryCount);
             //ChloeSqlQueryTest(takeCount, queryCount);
             //DapperQueryTest(takeCount, queryCount);
             //EFLinqQueryTest(takeCount, queryCount);
-            EFSqlQueryTest(takeCount, queryCount);
+            //EFSqlQueryTest(takeCount, queryCount);
         }
         public static void SpeedTest()
         {
