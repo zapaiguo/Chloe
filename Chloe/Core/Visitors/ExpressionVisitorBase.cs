@@ -9,6 +9,7 @@ namespace Chloe.Core.Visitors
 {
     public class ExpressionVisitorBase : ExpressionVisitor<DbExpression>
     {
+        //Bad name!!! Help,help!!!
         static List<ExpressionType> LL = new List<ExpressionType>();
 
         static ExpressionVisitorBase()

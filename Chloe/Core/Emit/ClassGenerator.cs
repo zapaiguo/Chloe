@@ -20,7 +20,7 @@ namespace Chloe.Core.Emit
 
             Type entityType = member.DeclaringType;
 
-            var assembly = typeof(IMRM).Assembly;
+            Assembly assembly = typeof(IMRM).Assembly;
 
             ModuleBuilder moduleBuilder;
             if (!_moduleBuilders.TryGetValue(assembly, out moduleBuilder))
@@ -42,14 +42,14 @@ namespace Chloe.Core.Emit
                 }
             }
 
-            var typeAttributes = TypeAttributes.Class | TypeAttributes.NotPublic | TypeAttributes.Sealed;
+            TypeAttributes typeAttributes = TypeAttributes.Class | TypeAttributes.NotPublic | TypeAttributes.Sealed;
             TypeBuilder tb = moduleBuilder.DefineType(string.Format("Chloe.Core.Mapper.MRMs.{0}_{1}_{2}", entityType.Name, member.Name, Guid.NewGuid().ToString("N")), typeAttributes, null, new Type[] { typeof(IMRM) });
 
             tb.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName);
 
             MethodBuilder methodBuilder = tb.DefineMethod("Map", MethodAttributes.Public | MethodAttributes.Virtual, CallingConventions.HasThis, typeof(void), new Type[] { typeof(object), typeof(IDataReader), typeof(int) });
 
-            var il = methodBuilder.GetILGenerator();
+            ILGenerator il = methodBuilder.GetILGenerator();
 
             int parameStartIndex = 1;
 

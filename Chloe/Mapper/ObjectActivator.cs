@@ -117,7 +117,7 @@ namespace Chloe.Mapper
 
         public override object CreateInstance(IDataReader reader)
         {
-            var obj = base.CreateInstance(reader);
+            object obj = base.CreateInstance(reader);
 
             if (obj != null)
                 this._dbContext.TrackEntity(obj);

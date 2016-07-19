@@ -155,7 +155,7 @@ namespace Chloe.SqlServer
                 throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
             }
 
-            if (autoIncrementMemberDescriptor == null)
+            if (keyMemberDescriptor != autoIncrementMemberDescriptor)
             {
                 this.ExecuteSqlCommand(e);
                 return keyVal;
@@ -185,9 +185,10 @@ namespace Chloe.SqlServer
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
-            object keyVal = null;
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MemberInfo keyMember = keyMemberDescriptor.MemberInfo;
+
+            object keyVal = null;
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();

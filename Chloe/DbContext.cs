@@ -172,9 +172,10 @@ namespace Chloe
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
-            object keyVal = null;
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MemberInfo keyMember = keyMemberDescriptor.MemberInfo;
+
+            object keyVal = null;
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();

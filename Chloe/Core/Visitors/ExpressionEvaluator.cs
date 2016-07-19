@@ -24,12 +24,12 @@ namespace Chloe.Core.Visitors
 
             if (exp.Member.MemberType == MemberTypes.Property)
             {
-                var pro = (PropertyInfo)exp.Member;
+                PropertyInfo pro = (PropertyInfo)exp.Member;
                 return pro.GetValue(val, null);
             }
             else if (exp.Member.MemberType == MemberTypes.Field)
             {
-                var field = (FieldInfo)exp.Member;
+                FieldInfo field = (FieldInfo)exp.Member;
                 return field.GetValue(val);
             }
 
@@ -46,7 +46,7 @@ namespace Chloe.Core.Visitors
         }
         protected override object VisitUnary_Convert(UnaryExpression exp)
         {
-            var operandValue = this.Visit(exp.Operand);
+            object operandValue = this.Visit(exp.Operand);
 
             //(int)null
             if (operandValue == null)
@@ -117,21 +117,21 @@ namespace Chloe.Core.Visitors
         }
         protected override object VisitMethodCall(MethodCallExpression exp)
         {
-            var instance = this.Visit(exp.Object);
+            object instance = this.Visit(exp.Object);
 
-            var arguments = exp.Arguments.Select(a => this.Visit(a)).ToArray();
+            object[] arguments = exp.Arguments.Select(a => this.Visit(a)).ToArray();
 
             return exp.Method.Invoke(instance, arguments);
         }
         protected override object VisitNew(NewExpression exp)
         {
-            var arguments = exp.Arguments.Select(a => this.Visit(a)).ToArray();
+            object[] arguments = exp.Arguments.Select(a => this.Visit(a)).ToArray();
 
             return exp.Constructor.Invoke(arguments);
         }
         protected override object VisitNewArray(NewArrayExpression exp)
         {
-            var arr = Array.CreateInstance(exp.Type, exp.Expressions.Count);
+            Array arr = Array.CreateInstance(exp.Type, exp.Expressions.Count);
             for (int i = 0; i < exp.Expressions.Count; i++)
             {
                 var e = exp.Expressions[i];
