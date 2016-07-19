@@ -107,45 +107,6 @@ namespace Db
             SqlDataReader reader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
             return reader;
         }
-        /// <summary>
-        /// 以事务下订单，返回下订单成功与否
-        /// </summary>
-        /// <param name="dt">字典中以key为sql执行语句，value为参数数组</param>
-        /// <returns></returns>
-        public static bool CreatOrder(Dictionary<string, SqlParameter[]> dt)
-        {
-            using (SqlConnection conn = new SqlConnection())
-            {
-                conn.ConnectionString = ConnectionString;
-                conn.Open();
-                using (SqlTransaction tran = conn.BeginTransaction())
-                {
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = conn;
-                    cmd.Transaction = tran;
-                    try
-                    {
-                        foreach (KeyValuePair<string, SqlParameter[]> kv in dt)
-                        {
-                            cmd.CommandText = kv.Key;
-                            if (kv.Value != null)
-                            {
-                                cmd.Parameters.AddRange(kv.Value);
-                            }
-                            cmd.ExecuteNonQuery();
-                            cmd.Parameters.Clear();
-                        }
-                        tran.Commit();
-                        return true;
-                    }
-                    catch
-                    {
-                        tran.Rollback();
-                        return false;
-                    }
-                }
-            }
-        }
 
         public static DataTable FillDataTable(IDataReader reader)
         {
