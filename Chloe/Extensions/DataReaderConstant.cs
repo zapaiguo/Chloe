@@ -13,7 +13,6 @@ namespace Chloe.Extensions
         #region
         internal static MethodInfo GetReaderMethod(Type type)
         {
-
             MethodInfo result;
             bool isNullable = false;
             Type underlyingType;
@@ -29,7 +28,7 @@ namespace Chloe.Extensions
                 return result;
             }
 
-            var typeCode = Type.GetTypeCode(type);
+            TypeCode typeCode = Type.GetTypeCode(type);
 
             switch (typeCode)
             {

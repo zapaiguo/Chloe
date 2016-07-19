@@ -250,7 +250,7 @@ namespace Chloe.Query.Internals
 
             public bool IsTheSameFields(IDataReader reader)
             {
-                var readerFields = this._readerFields;
+                Tuple<string, Type>[] readerFields = this._readerFields;
                 int fieldCount = reader.FieldCount;
 
                 if (fieldCount != readerFields.Length)
@@ -258,7 +258,7 @@ namespace Chloe.Query.Internals
 
                 for (int i = 0; i < fieldCount; i++)
                 {
-                    var tuple = readerFields[i];
+                    Tuple<string, Type> tuple = readerFields[i];
                     if (reader.GetFieldType(i) != tuple.Item2 || reader.GetName(i) != tuple.Item1)
                     {
                         return false;

@@ -19,42 +19,42 @@ namespace Chloe.Query.Visitors
 
         public override IQueryState Visit(RootQueryExpression exp)
         {
-            var queryState = new RootQueryState(exp.ElementType);
+            IQueryState queryState = new RootQueryState(exp.ElementType);
             return queryState;
         }
         public override IQueryState Visit(WhereExpression exp)
         {
-            var prevState = exp.PrevExpression.Accept(this);
+            IQueryState prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
         public override IQueryState Visit(OrderExpression exp)
         {
-            var prevState = exp.PrevExpression.Accept(this);
+            IQueryState prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
         public override IQueryState Visit(SelectExpression exp)
         {
-            var prevState = exp.PrevExpression.Accept(this);
+            IQueryState prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
         public override IQueryState Visit(SkipExpression exp)
         {
-            var prevState = exp.PrevExpression.Accept(this);
+            IQueryState prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
         public override IQueryState Visit(TakeExpression exp)
         {
-            var prevState = exp.PrevExpression.Accept(this);
+            IQueryState prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
         public override IQueryState Visit(FunctionExpression exp)
         {
-            var prevState = exp.PrevExpression.Accept(this);
+            IQueryState prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }
@@ -83,7 +83,7 @@ namespace Chloe.Query.Visitors
                 }
                 else if (joiningQueryInfo.JoinType == JoinType.RightJoin)
                 {
-                    foreach (var item in moeList)
+                    foreach (IMappingObjectExpression item in moeList)
                     {
                         item.SetNullChecking(nullChecking);
                     }
@@ -91,7 +91,7 @@ namespace Chloe.Query.Visitors
                 else if (joiningQueryInfo.JoinType == JoinType.FullJoin)
                 {
                     joinQueryResult.MappingObjectExpression.SetNullChecking(nullChecking);
-                    foreach (var item in moeList)
+                    foreach (IMappingObjectExpression item in moeList)
                     {
                         item.SetNullChecking(nullChecking);
                     }
@@ -109,7 +109,7 @@ namespace Chloe.Query.Visitors
         }
         public override IQueryState Visit(GroupingQueryExpression exp)
         {
-            var prevState = exp.PrevExpression.Accept(this);
+            IQueryState prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);
             return state;
         }

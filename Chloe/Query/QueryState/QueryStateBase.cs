@@ -41,7 +41,7 @@ namespace Chloe.Query.QueryState
 
         public virtual IQueryState Accept(WhereExpression exp)
         {
-            var dbExp = FilterPredicateExpressionVisitor.VisitFilterPredicate(exp.Expression, this.MoeList);
+            DbExpression dbExp = FilterPredicateExpressionVisitor.VisitFilterPredicate(exp.Expression, this.MoeList);
             this._resultElement.AppendCondition(dbExp);
 
             return this;
@@ -51,7 +51,7 @@ namespace Chloe.Query.QueryState
             if (exp.NodeType == QueryExpressionType.OrderBy || exp.NodeType == QueryExpressionType.OrderByDesc)
                 this._resultElement.OrderSegments.Clear();
 
-            var r = VisistOrderExpression(this.MoeList, exp);
+            DbOrderSegment orderSeg = VisistOrderExpression(this.MoeList, exp);
 
             if (this._resultElement.IsOrderSegmentsFromSubQuery)
             {
@@ -59,7 +59,7 @@ namespace Chloe.Query.QueryState
                 this._resultElement.IsOrderSegmentsFromSubQuery = false;
             }
 
-            this._resultElement.OrderSegments.Add(r);
+            this._resultElement.OrderSegments.Add(orderSeg);
 
             return this;
         }

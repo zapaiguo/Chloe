@@ -26,7 +26,7 @@ namespace Chloe.Query.Visitors
         }
         public static DbExpression VisitPredicate(LambdaExpression lambda, List<IMappingObjectExpression> moeList)
         {
-            var visitor = new GeneralExpressionVisitor(moeList);
+            GeneralExpressionVisitor visitor = new GeneralExpressionVisitor(moeList);
             return visitor.Visit(lambda);
         }
 
