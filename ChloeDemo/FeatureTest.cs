@@ -151,7 +151,7 @@ namespace ChloeDemo
                 Long_Parse = long.Parse("2"),
                 Double_Parse = double.Parse("3"),
                 Float_Parse = float.Parse("4"),
-                Decimal_Parse = decimal.Parse("5"),
+                //Decimal_Parse = decimal.Parse("5"),//'Decimal.Parse(string s)' is not supported now,because we don't know the precision and scale information.
                 Guid_Parse = Guid.Parse("D544BC4C-739E-4CD3-A3D3-7BF803FCE179"),
 
                 Bool_Parse = bool.Parse("1"),

@@ -221,7 +221,7 @@ q.Select(a => new
     Long_Parse = long.Parse("2"),//CAST(N'2' AS BIGINT)
     Double_Parse = double.Parse("3"),//CAST(N'3' AS FLOAT)
     Float_Parse = float.Parse("4"),//CAST(N'4' AS REAL)
-    Decimal_Parse = decimal.Parse("5"),//CAST(N'5' AS DECIMAL)
+    //Decimal_Parse = decimal.Parse("5"),//CAST(N'5' AS DECIMAL)  ps: 'Decimal.Parse(string s)' is not supported now,because we don't know the precision and scale information.
     Guid_Parse = Guid.Parse("D544BC4C-739E-4CD3-A3D3-7BF803FCE179"),//CAST(N'D544BC4C-739E-4CD3-A3D3-7BF803FCE179' AS UNIQUEIDENTIFIER) AS [Guid_Parse]
 
     Bool_Parse = bool.Parse("1"),//CASE WHEN CAST(N'1' AS BIT) = CAST(1 AS BIT) THEN CAST(1 AS BIT) WHEN NOT (CAST(N'1' AS BIT) = CAST(1 AS BIT)) THEN CAST(0 AS BIT) ELSE NULL END AS [Bool_Parse]
