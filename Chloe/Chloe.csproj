@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AggregateFunctions.cs" />
     <Compile Include="Core\DbCommandFactor.cs" />
     <Compile Include="Core\DbSession.cs" />
     <Compile Include="Core\Emit\ClassGenerator.cs" />
@@ -99,7 +100,6 @@
     <Compile Include="DbExpressions\DbUpdateExpression.cs" />
     <Compile Include="DbExpressions\JoinType.cs" />
     <Compile Include="DbExpressions\OrderType.cs" />
-    <Compile Include="DbFunctions.cs" />
     <Compile Include="DbParam.cs" />
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
     <Compile Include="Descriptors\FieldDescriptor.cs" />

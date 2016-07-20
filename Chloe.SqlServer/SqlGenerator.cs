@@ -38,7 +38,7 @@ namespace Chloe.SqlServer
             list.Add(DbExpressionType.Convert);
             SafeDbExpressionTypes = list.AsReadOnly();
 
-            Dictionary<Type, string> cSharpType_DbType_Mappings = new Dictionary<Type, string>(8);
+            Dictionary<Type, string> cSharpType_DbType_Mappings = new Dictionary<Type, string>(10);
             cSharpType_DbType_Mappings.Add(typeof(string), "NVARCHAR(MAX)");
             cSharpType_DbType_Mappings.Add(typeof(Int16), "SMALLINT");
             cSharpType_DbType_Mappings.Add(typeof(int), "INT");
@@ -47,9 +47,7 @@ namespace Chloe.SqlServer
             cSharpType_DbType_Mappings.Add(typeof(double), "FLOAT");
             cSharpType_DbType_Mappings.Add(typeof(float), "REAL");
             cSharpType_DbType_Mappings.Add(typeof(bool), "BIT");
-
             cSharpType_DbType_Mappings.Add(typeof(DateTime), "DATETIME");
-
             cSharpType_DbType_Mappings.Add(typeof(Guid), "UNIQUEIDENTIFIER");
 
             CSharpType_DbType_Mappings = cSharpType_DbType_Mappings;
@@ -1628,8 +1626,6 @@ namespace Chloe.SqlServer
             else
                 return false;
         }
-
-
         static string AppendNotSupportedCastErrorMsg(Type sourceType, Type targetType)
         {
             return string.Format("Does not support the type '{0}' converted to type '{1}'.", sourceType.FullName, targetType.FullName);

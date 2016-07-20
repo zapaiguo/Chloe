@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Chloe
 {
-    public static class DbFunctions
+    public static class AggregateFunctions
     {
         public static int Count()
         {
@@ -180,4 +180,5 @@ namespace Chloe
             return p;
         }
     }
+
 }

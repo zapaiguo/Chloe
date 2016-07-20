@@ -111,9 +111,9 @@ view.Where(a => a.User.Id == 1).Select(a => new { UserId = a.User.Id, CityName =
 IQuery<User> q = context.Query<User>();
 
 IGroupingQuery<User> g = q.Where(a => a.Id > 0).GroupBy(a => a.Age);
-g = g.Having(a => a.Age > 1 && DbFunctions.Count() > 0);
+g = g.Having(a => a.Age > 1 && AggregateFunctions.Count() > 0);
 
-g.Select(a => new { a.Age, Count = DbFunctions.Count(), Sum = DbFunctions.Sum(a.Age), Max = DbFunctions.Max(a.Age), Min = DbFunctions.Min(a.Age), Avg = DbFunctions.Average(a.Age) }).ToList();
+g.Select(a => new { a.Age, Count = AggregateFunctions.Count(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Avg = AggregateFunctions.Average(a.Age) }).ToList();
 /*
  * SELECT [Users].[Age] AS [Age],COUNT(1) AS [Count],SUM([Users].[Age]) AS [Sum],MAX([Users].[Age]) AS [Max],MIN([Users].[Age]) AS [Min],CAST(AVG([Users].[Age]) AS FLOAT) AS [Avg] 
  * FROM [Users] AS [Users] 
@@ -130,12 +130,12 @@ context.SqlQuery<int>("select Id from Users").ToList();
 ```C#
 IQuery<User> q = context.Query<User>();
 
-q.Select(a => DbFunctions.Count()).First();
+q.Select(a => AggregateFunctions.Count()).First();
 /*
  * SELECT TOP (1) COUNT(1) AS [C] FROM [Users] AS [Users]
  */
 
-q.Select(a => new { Count = DbFunctions.Count(), LongCount = DbFunctions.LongCount(), Sum = DbFunctions.Sum(a.Age), Max = DbFunctions.Max(a.Age), Min = DbFunctions.Min(a.Age), Average = DbFunctions.Average(a.Age) }).First();
+q.Select(a => new { Count = AggregateFunctions.Count(), LongCount = AggregateFunctions.LongCount(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Average = AggregateFunctions.Average(a.Age) }).First();
 /*
  * SELECT TOP (1) COUNT(1) AS [Count],COUNT_BIG(1) AS [LongCount],SUM([Users].[Age]) AS [Sum],MAX([Users].[Age]) AS [Max],MIN([Users].[Age]) AS [Min],CAST(AVG([Users].[Age]) AS FLOAT) AS [Average] 
  * FROM [Users] AS [Users]

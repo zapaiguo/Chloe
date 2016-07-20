@@ -244,17 +244,17 @@ namespace ChloeDemo
 
             var q = context.Query<User>();
 
-            var r = q.GroupBy(a => a.Id).Having(a => a.Id > 1).Select(a => new { a.Id, Count = DbFunctions.Count(), Sum = DbFunctions.Sum(a.Id), Max = DbFunctions.Max(a.Id), Min = DbFunctions.Min(a.Id), Avg = DbFunctions.Average(a.Id) }).ToList();
+            var r = q.GroupBy(a => a.Id).Having(a => a.Id > 1).Select(a => new { a.Id, Count = AggregateFunctions.Count(), Sum = AggregateFunctions.Sum(a.Id), Max = AggregateFunctions.Max(a.Id), Min = AggregateFunctions.Min(a.Id), Avg = AggregateFunctions.Average(a.Id) }).ToList();
 
-            q.GroupBy(a => a.Age).Having(a => a.Age > 1).Select(a => new { a.Age, Count = DbFunctions.Count(), Sum = DbFunctions.Sum(a.Age), Max = DbFunctions.Max(a.Age), Min = DbFunctions.Min(a.Age), Avg = DbFunctions.Average(a.Age) }).ToList();
+            q.GroupBy(a => a.Age).Having(a => a.Age > 1).Select(a => new { a.Age, Count = AggregateFunctions.Count(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Avg = AggregateFunctions.Average(a.Age) }).ToList();
 
-            var r1 = q.GroupBy(a => a.Age).Having(a => DbFunctions.Count() > 0).Select(a => new { a.Age, Count = DbFunctions.Count(), Sum = DbFunctions.Sum(a.Age), Max = DbFunctions.Max(a.Age), Min = DbFunctions.Min(a.Age), Avg = DbFunctions.Average(a.Age) }).ToList();
+            var r1 = q.GroupBy(a => a.Age).Having(a => AggregateFunctions.Count() > 0).Select(a => new { a.Age, Count = AggregateFunctions.Count(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Avg = AggregateFunctions.Average(a.Age) }).ToList();
 
             var g = q.GroupBy(a => a.Gender);
             //g = g.ThenBy(a => a.Name);
             //g = g.Having(a => a.Id > 0);
             //g = g.Having(a => a.Name.Length > 0);
-            var gq = g.Select(a => new { Count = DbFunctions.Count() });
+            var gq = g.Select(a => new { Count = AggregateFunctions.Count() });
 
             //gq = gq.Skip(1);
             //gq = gq.Take(100);
@@ -271,8 +271,8 @@ namespace ChloeDemo
 
             var q = context.Query<User>();
             q = q.Where(a => a.Id > 0);
-            var xxx = q.Select(a => DbFunctions.Count()).First();
-            q.Select(a => new { Count = DbFunctions.Count(), LongCount = DbFunctions.LongCount(), Sum = DbFunctions.Sum(a.Age), Max = DbFunctions.Max(a.Age), Min = DbFunctions.Min(a.Age), Average = DbFunctions.Average(a.Age) }).First();
+            var xxx = q.Select(a => AggregateFunctions.Count()).First();
+            q.Select(a => new { Count = AggregateFunctions.Count(), LongCount = AggregateFunctions.LongCount(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Average = AggregateFunctions.Average(a.Age) }).First();
             var count = q.Count();
             var longCount = q.LongCount();
             var sum = q.Sum(a => a.Age);
