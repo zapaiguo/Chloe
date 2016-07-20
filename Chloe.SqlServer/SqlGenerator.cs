@@ -43,24 +43,14 @@ namespace Chloe.SqlServer
             cSharpType_DbType_Mappings.Add(typeof(Int16), "SMALLINT");
             cSharpType_DbType_Mappings.Add(typeof(int), "INT");
             cSharpType_DbType_Mappings.Add(typeof(long), "BIGINT");
-            cSharpType_DbType_Mappings.Add(typeof(decimal), "DECIMAL");
+            cSharpType_DbType_Mappings.Add(typeof(decimal), "DECIMAL(19,0)");//I think this will be a bug.
             cSharpType_DbType_Mappings.Add(typeof(double), "FLOAT");
             cSharpType_DbType_Mappings.Add(typeof(float), "REAL");
             cSharpType_DbType_Mappings.Add(typeof(bool), "BIT");
 
-            cSharpType_DbType_Mappings.Add(typeof(Int16?), "SMALLINT");
-            cSharpType_DbType_Mappings.Add(typeof(int?), "INT");
-            cSharpType_DbType_Mappings.Add(typeof(long?), "BIGINT");
-            cSharpType_DbType_Mappings.Add(typeof(decimal?), "DECIMAL");
-            cSharpType_DbType_Mappings.Add(typeof(double?), "FLOAT");
-            cSharpType_DbType_Mappings.Add(typeof(float?), "REAL");
-            cSharpType_DbType_Mappings.Add(typeof(bool?), "BIT");
-
             cSharpType_DbType_Mappings.Add(typeof(DateTime), "DATETIME");
-            cSharpType_DbType_Mappings.Add(typeof(DateTime?), "DATETIME");
 
             cSharpType_DbType_Mappings.Add(typeof(Guid), "UNIQUEIDENTIFIER");
-            cSharpType_DbType_Mappings.Add(typeof(Guid?), "UNIQUEIDENTIFIER");
 
             CSharpType_DbType_Mappings = cSharpType_DbType_Mappings;
 
@@ -206,12 +196,12 @@ namespace Chloe.SqlServer
             exp = (DbConvertExpression)stripedExp;
 
             string dbTypeString;
-            if (!CSharpType_DbType_Mappings.TryGetValue(exp.Type, out dbTypeString))
+            if (TryGetCastTargetDbTypeString(exp.Operand.Type, exp.Type, out dbTypeString))
             {
-                throw new NotSupportedException(string.Format("不支持将类型 {0} 转换为 {1}", exp.Operand.Type.Name, exp.Type.Name));
+                this.BuildCastState(EnsureDbExpressionReturnCSharpBoolean(exp.Operand), dbTypeString);
             }
-
-            this.BuildCastState(EnsureDbExpressionReturnCSharpBoolean(exp.Operand), dbTypeString);
+            else
+                EnsureDbExpressionReturnCSharpBoolean(exp.Operand).Accept(this);
 
             return exp;
         }
@@ -1256,14 +1246,16 @@ namespace Chloe.SqlServer
         static void Method_Average(DbMethodCallExpression exp, SqlGenerator generator)
         {
             string dbTypeString;
-            if (CSharpType_DbType_Mappings.TryGetValue(exp.Type, out dbTypeString))
+            if (TryGetCastTargetDbTypeString(exp.Arguments.First().Type, exp.Type, out dbTypeString))
             {
                 generator._sqlBuilder.Append("CAST(");
                 Func_Average(exp.Arguments.First(), generator);
                 generator._sqlBuilder.Append(" AS ", dbTypeString, ")");
             }
             else
+            {
                 Func_Average(exp.Arguments.First(), generator);
+            }
         }
 
 
@@ -1385,14 +1377,16 @@ namespace Chloe.SqlServer
         static void Func_Average(DbFunctionExpression exp, SqlGenerator generator)
         {
             string dbTypeString;
-            if (CSharpType_DbType_Mappings.TryGetValue(exp.Type, out dbTypeString))
+            if (TryGetCastTargetDbTypeString(exp.Parameters.First().Type, exp.Type, out dbTypeString))
             {
                 generator._sqlBuilder.Append("CAST(");
                 Func_Average(exp.Parameters.First(), generator);
                 generator._sqlBuilder.Append(" AS ", dbTypeString, ")");
             }
             else
+            {
                 Func_Average(exp.Parameters.First(), generator);
+            }
         }
 
         #endregion
@@ -1601,6 +1595,44 @@ namespace Chloe.SqlServer
             {
                 throw new NotSupportedException();
             }
+        }
+        static bool TryGetCastTargetDbTypeString(Type sourceType, Type targetType, out string dbTypeString, bool throwNotSupportedException = true)
+        {
+            dbTypeString = null;
+
+            sourceType = Utils.GetUnderlyingType(sourceType);
+            targetType = Utils.GetUnderlyingType(targetType);
+
+            if (sourceType == targetType)
+                return false;
+
+            if (targetType == UtilConstants.TypeOfDecimal)
+            {
+                //Casting to Decimal is not supported when missing the precision and scale information.I have no idea to deal with this case now.
+                if (sourceType != UtilConstants.TypeOfInt16 && sourceType != UtilConstants.TypeOfInt32 && sourceType != UtilConstants.TypeOfInt64 && sourceType != UtilConstants.TypeOfByte)
+                {
+                    if (throwNotSupportedException)
+                        throw new NotSupportedException(AppendNotSupportedCastErrorMsg(sourceType, targetType));
+                    else
+                        return false;
+                }
+            }
+
+            if (CSharpType_DbType_Mappings.TryGetValue(targetType, out dbTypeString))
+            {
+                return true;
+            }
+
+            if (throwNotSupportedException)
+                throw new NotSupportedException(AppendNotSupportedCastErrorMsg(sourceType, targetType));
+            else
+                return false;
+        }
+
+
+        static string AppendNotSupportedCastErrorMsg(Type sourceType, Type targetType)
+        {
+            return string.Format("Does not support the type '{0}' converted to type '{1}'.", sourceType.FullName, targetType.FullName);
         }
     }
 }
