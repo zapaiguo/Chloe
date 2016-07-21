@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq.Expressions;
-using System.Linq;
 using System.Reflection;
 using Chloe.Query;
 using Chloe.Core;
 using Chloe.Utility;
 using Chloe.Infrastructure;
 using Chloe.Descriptors;
-using Chloe.Query.Visitors;
 using Chloe.DbExpressions;
-using Chloe.Mapper;
 using Chloe.Query.Internals;
 using Chloe.Core.Visitors;
 using Chloe.Exceptions;
