@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Chloe.SqlServer
 {
-    class SqlGenerator : DbExpressionVisitor<DbExpression>
+    partial class SqlGenerator : DbExpressionVisitor<DbExpression>
     {
         public const string ParameterPrefix = "@P_";
 
@@ -352,11 +352,6 @@ namespace Chloe.SqlServer
 
         public override DbExpression Visit(DbMemberExpression exp)
         {
-            if (IsDbFunction_DATEDIFF(exp))
-            {
-                return exp;
-            }
-
             MemberInfo member = exp.Member;
 
             if (member.DeclaringType == UtilConstants.TypeOfDateTime)
@@ -412,7 +407,7 @@ namespace Chloe.SqlServer
                 return exp;
             }
 
-            throw new NotSupportedException(member.Name);
+            throw new NotSupportedException(string.Format("'{0}.{1}' is not supported.", member.DeclaringType.FullName, member.Name));
         }
         public override DbExpression Visit(DbParameterExpression exp)
         {
@@ -602,6 +597,7 @@ namespace Chloe.SqlServer
 
             return exp;
         }
+
 
         void AppendTableSegment(DbTableSegment seg)
         {
@@ -800,15 +796,6 @@ namespace Chloe.SqlServer
             return;
         }
 
-        static string GenParameterName(int ordinal)
-        {
-            if (ordinal < CacheParameterNames.Count)
-            {
-                return CacheParameterNames[ordinal];
-            }
-
-            return ParameterPrefix + ordinal.ToString();
-        }
         void QuoteName(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -827,73 +814,65 @@ namespace Chloe.SqlServer
         {
             this._sqlBuilder.Append("CAST(", castObject, " AS ", targetDbTypeString, ")");
         }
-        static string CreateRowNumberName(List<DbColumnSegment> columns)
+
+        bool IsDbFunction_DATEPART(DbMemberExpression exp)
         {
-            int ROW_NUMBER_INDEX = 1;
-            string row_numberName = "ROW_NUMBER_0";
-            while (columns.Any(a => string.Equals(a.Alias, row_numberName, StringComparison.OrdinalIgnoreCase)))
+            MemberInfo member = exp.Member;
+
+            if (member == UtilConstants.PropertyInfo_DateTime_Year)
             {
-                row_numberName = "ROW_NUMBER_" + ROW_NUMBER_INDEX.ToString();
-                ROW_NUMBER_INDEX++;
+                DbFunction_DATEPART(this, "YEAR", exp.Expression);
+                return true;
             }
 
-            return row_numberName;
-        }
-
-        static DbExpression EnsureDbExpressionReturnCSharpBoolean(DbExpression exp)
-        {
-            if (exp.Type != UtilConstants.TypeOfBoolean && exp.Type != UtilConstants.TypeOfBoolean_Nullable)
-                return exp;
-
-            if (SafeDbExpressionTypes.Contains(exp.NodeType))
+            if (member == UtilConstants.PropertyInfo_DateTime_Month)
             {
-                return exp;
+                DbFunction_DATEPART(this, "MONTH", exp.Expression);
+                return true;
             }
 
-            //将且认为不符合上述条件的都是诸如 a.Id>1,a.Name=="name" 等不能作为 bool 返回值的表达式
-            //构建 case when 
-            return ConstructReturnCSharpBooleanCaseWhenExpression(exp);
-        }
-        public static DbCaseWhenExpression ConstructReturnCSharpBooleanCaseWhenExpression(DbExpression exp)
-        {
-            // case when 1>0 then 1 when not (1>0) then 0 else Null end
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(exp, DbConstantExpression.True);
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair1 = new DbCaseWhenExpression.WhenThenExpressionPair(DbExpression.Not(exp), DbConstantExpression.False);
-            List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(2);
-            whenThenExps.Add(whenThenPair);
-            whenThenExps.Add(whenThenPair1);
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.Null, UtilConstants.TypeOfBoolean);
-
-            return caseWhenExpression;
-        }
-        static Stack<DbExpression> GatherBinaryExpressionOperand(DbBinaryExpression exp)
-        {
-            DbExpressionType nodeType = exp.NodeType;
-
-            Stack<DbExpression> items = new Stack<DbExpression>();
-            items.Push(exp.Right);
-
-            DbExpression left = exp.Left;
-            while (left.NodeType == nodeType)
+            if (member == UtilConstants.PropertyInfo_DateTime_Day)
             {
-                exp = (DbBinaryExpression)left;
-                items.Push(exp.Right);
-                left = exp.Left;
+                DbFunction_DATEPART(this, "DAY", exp.Expression);
+                return true;
             }
 
-            items.Push(left);
-            return items;
+            if (member == UtilConstants.PropertyInfo_DateTime_Hour)
+            {
+                DbFunction_DATEPART(this, "HOUR", exp.Expression);
+                return true;
+            }
+
+            if (member == UtilConstants.PropertyInfo_DateTime_Minute)
+            {
+                DbFunction_DATEPART(this, "MINUTE", exp.Expression);
+                return true;
+            }
+
+            if (member == UtilConstants.PropertyInfo_DateTime_Second)
+            {
+                DbFunction_DATEPART(this, "SECOND", exp.Expression);
+                return true;
+            }
+
+            if (member == UtilConstants.PropertyInfo_DateTime_Millisecond)
+            {
+                DbFunction_DATEPART(this, "MILLISECOND", exp.Expression);
+                return true;
+            }
+
+            if (member == UtilConstants.PropertyInfo_DateTime_DayOfWeek)
+            {
+                this._sqlBuilder.Append("(");
+                DbFunction_DATEPART(this, "WEEKDAY", exp.Expression);
+                this._sqlBuilder.Append(" - 1)");
+
+                return true;
+            }
+
+            return false;
         }
-        static void EnsureMethodDeclaringType(DbMethodCallExpression exp, Type ensureType)
-        {
-            if (exp.Method.DeclaringType != ensureType)
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
-        }
-        static void EnsureMethod(DbMethodCallExpression exp, MethodInfo methodInfo)
-        {
-            if (exp.Method != methodInfo)
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
-        }
+
 
 
         #region BinaryWithMethodHandlers
@@ -984,651 +963,5 @@ namespace Chloe.SqlServer
         }
 
         #endregion
-
-        #region MethodHandlers
-
-        static Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>> InitMethodHandlers()
-        {
-            var methodHandlers = new Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>>();
-            methodHandlers.Add("Trim", Method_Trim);
-            methodHandlers.Add("TrimStart", Method_TrimStart);
-            methodHandlers.Add("TrimEnd", Method_TrimEnd);
-            methodHandlers.Add("StartsWith", Method_StartsWith);
-            methodHandlers.Add("EndsWith", Method_EndsWith);
-            methodHandlers.Add("ToUpper", Method_String_ToUpper);
-            methodHandlers.Add("ToLower", Method_String_ToLower);
-            methodHandlers.Add("Substring", Method_String_Substring);
-            methodHandlers.Add("IsNullOrEmpty", Method_String_IsNullOrEmpty);
-
-            methodHandlers.Add("Contains", Method_Contains);
-
-            methodHandlers.Add("Count", Method_Count);
-            methodHandlers.Add("LongCount", Method_LongCount);
-            methodHandlers.Add("Sum", Method_Sum);
-            methodHandlers.Add("Max", Method_Max);
-            methodHandlers.Add("Min", Method_Min);
-            methodHandlers.Add("Average", Method_Average);
-
-            methodHandlers.Add("AddYears", Method_DateTime_AddYears);
-            methodHandlers.Add("AddMonths", Method_DateTime_AddMonths);
-            methodHandlers.Add("AddDays", Method_DateTime_AddDays);
-            methodHandlers.Add("AddHours", Method_DateTime_AddHours);
-            methodHandlers.Add("AddMinutes", Method_DateTime_AddMinutes);
-            methodHandlers.Add("AddSeconds", Method_DateTime_AddSeconds);
-            methodHandlers.Add("AddMilliseconds", Method_DateTime_AddMilliseconds);
-
-            methodHandlers.Add("Parse", Method_Parse);
-
-            methodHandlers.Add("NewGuid", Method_Guid_NewGuid);
-
-            var ret = new Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>>(methodHandlers.Count, StringComparer.Ordinal);
-            foreach (var item in methodHandlers)
-            {
-                ret.Add(item.Key, item.Value);
-            }
-
-            return ret;
-        }
-
-        static void Method_Trim(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethod(exp, UtilConstants.MethodInfo_String_Trim);
-
-            generator._sqlBuilder.Append("RTRIM(LTRIM(");
-            exp.Object.Accept(generator);
-            generator._sqlBuilder.Append("))");
-        }
-        static void Method_TrimStart(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethod(exp, UtilConstants.MethodInfo_String_TrimStart);
-            EnsureTrimCharArgumentIsSpaces(exp.Arguments[0]);
-
-            generator._sqlBuilder.Append("LTRIM(");
-            exp.Object.Accept(generator);
-            generator._sqlBuilder.Append(")");
-        }
-        static void Method_TrimEnd(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethod(exp, UtilConstants.MethodInfo_String_TrimEnd);
-            EnsureTrimCharArgumentIsSpaces(exp.Arguments[0]);
-
-            generator._sqlBuilder.Append("RTRIM(");
-            exp.Object.Accept(generator);
-            generator._sqlBuilder.Append(")");
-        }
-        static void Method_StartsWith(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethod(exp, UtilConstants.MethodInfo_String_StartsWith);
-
-            exp.Object.Accept(generator);
-            generator._sqlBuilder.Append(" LIKE ");
-            exp.Arguments.First().Accept(generator);
-            generator._sqlBuilder.Append(" + '%'");
-        }
-        static void Method_EndsWith(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethod(exp, UtilConstants.MethodInfo_String_EndsWith);
-
-            exp.Object.Accept(generator);
-            generator._sqlBuilder.Append(" LIKE '%' + ");
-            exp.Arguments.First().Accept(generator);
-        }
-        static void Method_String_Contains(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethod(exp, UtilConstants.MethodInfo_String_Contains);
-
-            exp.Object.Accept(generator);
-            generator._sqlBuilder.Append(" LIKE '%' + ");
-            exp.Arguments.First().Accept(generator);
-            generator._sqlBuilder.Append(" + '%'");
-        }
-        static void Method_String_ToUpper(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethod(exp, UtilConstants.MethodInfo_String_ToUpper);
-
-            generator._sqlBuilder.Append("UPPER(");
-            exp.Object.Accept(generator);
-            generator._sqlBuilder.Append(")");
-        }
-        static void Method_String_ToLower(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethod(exp, UtilConstants.MethodInfo_String_ToLower);
-
-            generator._sqlBuilder.Append("LOWER(");
-            exp.Object.Accept(generator);
-            generator._sqlBuilder.Append(")");
-        }
-        static void Method_String_Substring(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            generator._sqlBuilder.Append("SUBSTRING(");
-            exp.Object.Accept(generator);
-            generator._sqlBuilder.Append(",");
-            exp.Arguments[0].Accept(generator);
-            generator._sqlBuilder.Append(" + 1");
-            generator._sqlBuilder.Append(",");
-            if (exp.Method == UtilConstants.MethodInfo_String_Substring_Int32)
-            {
-                var string_LengthExp = DbExpression.MemberAccess(UtilConstants.PropertyInfo_String_Length, exp.Object);
-                string_LengthExp.Accept(generator);
-            }
-            else if (exp.Method == UtilConstants.MethodInfo_String_Substring_Int32_Int32)
-            {
-                exp.Arguments[1].Accept(generator);
-            }
-            else
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
-
-            generator._sqlBuilder.Append(")");
-        }
-        static void Method_String_IsNullOrEmpty(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethod(exp, UtilConstants.MethodInfo_String_IsNullOrEmpty);
-
-            DbExpression e = exp.Arguments.First();
-            DbEqualExpression equalNullExpression = DbExpression.Equal(e, DbExpression.Constant(null, UtilConstants.TypeOfString));
-            DbEqualExpression equalEmptyExpression = DbExpression.Equal(e, DbExpression.Constant(string.Empty));
-
-            DbOrElseExpression orElseExpression = DbExpression.OrElse(equalNullExpression, equalEmptyExpression);
-
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orElseExpression, DbConstantExpression.One);
-
-            List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
-            whenThenExps.Add(whenThenPair);
-
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.Zero, UtilConstants.TypeOfBoolean);
-
-            var eqExp = DbExpression.Equal(caseWhenExpression, DbConstantExpression.One);
-            eqExp.Accept(generator);
-        }
-
-        static void Method_Contains(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            MethodInfo method = exp.Method;
-
-            if (method.DeclaringType == UtilConstants.TypeOfString)
-            {
-                Method_String_Contains(exp, generator);
-                return;
-            }
-
-            List<DbExpression> exps = new List<DbExpression>();
-            IEnumerable values = null;
-            DbExpression arg = null;
-
-            var declaringType = method.DeclaringType;
-
-            if (typeof(IList).IsAssignableFrom(declaringType) || (declaringType.IsGenericType && typeof(ICollection<>).MakeGenericType(declaringType.GetGenericArguments()).IsAssignableFrom(declaringType)))
-            {
-                DbMemberExpression memberExp = exp.Object as DbMemberExpression;
-
-                if (memberExp == null || !memberExp.CanEvaluate())
-                    throw new NotSupportedException(exp.ToString());
-
-                values = DbExpressionExtensions.GetExpressionValue(memberExp) as IEnumerable; //Enumerable
-                arg = exp.Arguments.First();
-                goto constructInState;
-            }
-            if (method.IsStatic && declaringType == typeof(Enumerable) && exp.Arguments.Count == 2)
-            {
-                DbMemberExpression memberExp = exp.Arguments.First() as DbMemberExpression;
-
-                if (memberExp == null || !memberExp.CanEvaluate())
-                    throw new NotSupportedException(exp.ToString());
-
-                values = DbExpressionExtensions.GetExpressionValue(memberExp) as IEnumerable;
-                arg = exp.Arguments.Skip(1).First();
-                goto constructInState;
-            }
-
-            throw UtilExceptions.NotSupportedMethod(exp.Method);
-
-        constructInState:
-            foreach (object value in values)
-            {
-                if (value == null)
-                    exps.Add(DbExpression.Constant(null, arg.Type));
-                else
-                    exps.Add(DbExpression.Parameter(value));
-            }
-            In(generator, exps, arg);
-        }
-
-
-        static void In(SqlGenerator generator, List<DbExpression> elementExps, DbExpression arg)
-        {
-            if (elementExps.Count == 0)
-            {
-                generator._sqlBuilder.Append("1=0");
-                return;
-            }
-
-            arg.Accept(generator);
-            generator._sqlBuilder.Append(" IN (");
-
-            var first = true;
-            foreach (DbExpression ele in elementExps)
-            {
-                if (first)
-                    first = false;
-                else
-                    generator._sqlBuilder.Append(",");
-
-                ele.Accept(generator);
-            }
-
-            generator._sqlBuilder.Append(")");
-
-            return;
-        }
-
-        static void Method_Count(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            Func_Count(generator);
-        }
-        static void Method_LongCount(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            Func_LongCount(generator);
-        }
-        static void Method_Sum(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            Func_Sum(exp.Arguments.First(), generator);
-        }
-        static void Method_Max(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            Func_Max(exp.Arguments.First(), generator);
-        }
-        static void Method_Min(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            Func_Min(exp.Arguments.First(), generator);
-        }
-        static void Method_Average(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            string dbTypeString;
-            if (TryGetCastTargetDbTypeString(exp.Arguments.First().Type, exp.Type, out dbTypeString))
-            {
-                generator._sqlBuilder.Append("CAST(");
-                Func_Average(exp.Arguments.First(), generator);
-                generator._sqlBuilder.Append(" AS ", dbTypeString, ")");
-            }
-            else
-            {
-                Func_Average(exp.Arguments.First(), generator);
-            }
-        }
-
-
-        static void Method_DateTime_AddYears(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
-
-            DbFunction_DATEADD("YEAR", exp, generator);
-        }
-        static void Method_DateTime_AddMonths(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
-
-            DbFunction_DATEADD("MONTH", exp, generator);
-        }
-        static void Method_DateTime_AddDays(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
-
-            DbFunction_DATEADD("DAY", exp, generator);
-        }
-        static void Method_DateTime_AddHours(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
-
-            DbFunction_DATEADD("HOUR", exp, generator);
-        }
-        static void Method_DateTime_AddMinutes(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
-
-            DbFunction_DATEADD("MINUTE", exp, generator);
-        }
-        static void Method_DateTime_AddSeconds(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
-
-            DbFunction_DATEADD("SECOND", exp, generator);
-        }
-        static void Method_DateTime_AddMilliseconds(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
-
-            DbFunction_DATEADD("MILLISECOND", exp, generator);
-        }
-
-        static void Method_Parse(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            if (exp.Arguments.Count != 1)
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
-
-            DbExpression arg = exp.Arguments[0];
-            if (arg.Type != UtilConstants.TypeOfString)
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
-
-            Type retType = exp.Method.ReturnType;
-            EnsureMethodDeclaringType(exp, retType);
-
-            DbExpression e = DbExpression.Convert(arg, retType);
-            if (retType == UtilConstants.TypeOfBoolean)
-            {
-                e.Accept(generator);
-                generator._sqlBuilder.Append(" = ");
-                DbConstantExpression.True.Accept(generator);
-            }
-            else
-                e.Accept(generator);
-        }
-
-        static void Method_Guid_NewGuid(DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            EnsureMethod(exp, UtilConstants.MethodInfo_Guid_NewGuid);
-
-            generator._sqlBuilder.Append("NEWID()");
-        }
-
-        #endregion
-
-        #region FuncHandlers
-        static Dictionary<string, Action<DbFunctionExpression, SqlGenerator>> InitFuncHandlers()
-        {
-            var funcHandlers = new Dictionary<string, Action<DbFunctionExpression, SqlGenerator>>();
-            funcHandlers.Add("Count", Func_Count);
-            funcHandlers.Add("LongCount", Func_LongCount);
-            funcHandlers.Add("Sum", Func_Sum);
-            funcHandlers.Add("Max", Func_Max);
-            funcHandlers.Add("Min", Func_Min);
-            funcHandlers.Add("Average", Func_Average);
-
-            var ret = new Dictionary<string, Action<DbFunctionExpression, SqlGenerator>>(funcHandlers.Count, StringComparer.Ordinal);
-            foreach (var item in funcHandlers)
-            {
-                ret.Add(item.Key, item.Value);
-            }
-
-            return ret;
-        }
-
-        static void Func_Count(DbFunctionExpression exp, SqlGenerator generator)
-        {
-            Func_Count(generator);
-        }
-        static void Func_LongCount(DbFunctionExpression exp, SqlGenerator generator)
-        {
-            Func_LongCount(generator);
-        }
-        static void Func_Sum(DbFunctionExpression exp, SqlGenerator generator)
-        {
-            Func_Sum(exp.Parameters.First(), generator);
-        }
-        static void Func_Max(DbFunctionExpression exp, SqlGenerator generator)
-        {
-            Func_Max(exp.Parameters.First(), generator);
-        }
-        static void Func_Min(DbFunctionExpression exp, SqlGenerator generator)
-        {
-            Func_Min(exp.Parameters.First(), generator);
-        }
-        static void Func_Average(DbFunctionExpression exp, SqlGenerator generator)
-        {
-            string dbTypeString;
-            if (TryGetCastTargetDbTypeString(exp.Parameters.First().Type, exp.Type, out dbTypeString))
-            {
-                generator._sqlBuilder.Append("CAST(");
-                Func_Average(exp.Parameters.First(), generator);
-                generator._sqlBuilder.Append(" AS ", dbTypeString, ")");
-            }
-            else
-            {
-                Func_Average(exp.Parameters.First(), generator);
-            }
-        }
-
-        #endregion
-
-        #region AggregateFunction
-        static void Func_Count(SqlGenerator generator)
-        {
-            generator._sqlBuilder.Append("COUNT(1)");
-        }
-        static void Func_LongCount(SqlGenerator generator)
-        {
-            generator._sqlBuilder.Append("COUNT_BIG(1)");
-        }
-        static void Func_Sum(DbExpression exp, SqlGenerator generator)
-        {
-            generator._sqlBuilder.Append("SUM(");
-            exp.Accept(generator);
-            generator._sqlBuilder.Append(")");
-        }
-        static void Func_Max(DbExpression exp, SqlGenerator generator)
-        {
-            generator._sqlBuilder.Append("MAX(");
-            exp.Accept(generator);
-            generator._sqlBuilder.Append(")");
-        }
-        static void Func_Min(DbExpression exp, SqlGenerator generator)
-        {
-            generator._sqlBuilder.Append("MIN(");
-            exp.Accept(generator);
-            generator._sqlBuilder.Append(")");
-        }
-        static void Func_Average(DbExpression exp, SqlGenerator generator)
-        {
-            generator._sqlBuilder.Append("AVG(");
-            exp.Accept(generator);
-            generator._sqlBuilder.Append(")");
-        }
-        #endregion
-
-
-        static void DbFunction_DATEADD(string interval, DbMethodCallExpression exp, SqlGenerator generator)
-        {
-            generator._sqlBuilder.Append("DATEADD(");
-            generator._sqlBuilder.Append(interval);
-            generator._sqlBuilder.Append(",");
-            exp.Arguments[0].Accept(generator);
-            generator._sqlBuilder.Append(",");
-            exp.Object.Accept(generator);
-            generator._sqlBuilder.Append(")");
-        }
-        void DbFunction_DATEPART(string interval, DbExpression exp)
-        {
-            this._sqlBuilder.Append("DATEPART(");
-            this._sqlBuilder.Append(interval);
-            this._sqlBuilder.Append(",");
-            exp.Accept(this);
-            this._sqlBuilder.Append(")");
-        }
-        void DbFunction_DATEDIFF(string interval, DbExpression startDateTimeExp, DbExpression endDateTimeExp)
-        {
-            this._sqlBuilder.Append("DATEDIFF(");
-            this._sqlBuilder.Append(interval);
-            this._sqlBuilder.Append(",");
-            startDateTimeExp.Accept(this);
-            this._sqlBuilder.Append(",");
-            endDateTimeExp.Accept(this);
-            this._sqlBuilder.Append(")");
-        }
-
-        bool IsDbFunction_DATEPART(DbMemberExpression exp)
-        {
-            MemberInfo member = exp.Member;
-
-            if (member == UtilConstants.PropertyInfo_DateTime_Year)
-            {
-                this.DbFunction_DATEPART("YEAR", exp.Expression);
-                return true;
-            }
-
-            if (member == UtilConstants.PropertyInfo_DateTime_Month)
-            {
-                this.DbFunction_DATEPART("MONTH", exp.Expression);
-                return true;
-            }
-
-            if (member == UtilConstants.PropertyInfo_DateTime_Day)
-            {
-                this.DbFunction_DATEPART("DAY", exp.Expression);
-                return true;
-            }
-
-            if (member == UtilConstants.PropertyInfo_DateTime_Hour)
-            {
-                this.DbFunction_DATEPART("HOUR", exp.Expression);
-                return true;
-            }
-
-            if (member == UtilConstants.PropertyInfo_DateTime_Minute)
-            {
-                this.DbFunction_DATEPART("MINUTE", exp.Expression);
-                return true;
-            }
-
-            if (member == UtilConstants.PropertyInfo_DateTime_Second)
-            {
-                this.DbFunction_DATEPART("SECOND", exp.Expression);
-                return true;
-            }
-
-            if (member == UtilConstants.PropertyInfo_DateTime_Millisecond)
-            {
-                this.DbFunction_DATEPART("MILLISECOND", exp.Expression);
-                return true;
-            }
-
-            if (member == UtilConstants.PropertyInfo_DateTime_DayOfWeek)
-            {
-                this._sqlBuilder.Append("(");
-                this.DbFunction_DATEPART("WEEKDAY", exp.Expression);
-                this._sqlBuilder.Append(" - 1)");
-
-                return true;
-            }
-
-            return false;
-        }
-        bool IsDbFunction_DATEDIFF(DbMemberExpression exp)
-        {
-            MemberInfo member = exp.Member;
-
-            if (member.DeclaringType == UtilConstants.TypeOfTimeSpan)
-            {
-                if (exp.Expression.NodeType == DbExpressionType.Call)
-                {
-                    DbMethodCallExpression dbMethodExp = (DbMethodCallExpression)exp.Expression;
-                    if (dbMethodExp.Method == UtilConstants.MethodInfo_DateTime_Subtract_DateTime)
-                    {
-                        string interval = null;
-
-                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalDays)
-                        {
-                            interval = "DAY";
-                            goto appendDbFunction_DATEDIFF;
-                        }
-
-                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalHours)
-                        {
-                            interval = "HOUR";
-                            goto appendDbFunction_DATEDIFF;
-                        }
-
-                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalMinutes)
-                        {
-                            interval = "MINUTE";
-                            goto appendDbFunction_DATEDIFF;
-                        }
-
-                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalSeconds)
-                        {
-                            interval = "SECOND";
-                            goto appendDbFunction_DATEDIFF;
-                        }
-
-                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalMilliseconds)
-                        {
-                            interval = "MILLISECOND";
-                            goto appendDbFunction_DATEDIFF;
-                        }
-
-                        return false;
-
-                    appendDbFunction_DATEDIFF:
-                        this._sqlBuilder.Append("CAST(");
-                        this.DbFunction_DATEDIFF(interval, dbMethodExp.Arguments[0], dbMethodExp.Object);
-                        this._sqlBuilder.Append(" AS ");
-                        this._sqlBuilder.Append("FLOAT");
-                        this._sqlBuilder.Append(")");
-
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        static void EnsureTrimCharArgumentIsSpaces(DbExpression exp)
-        {
-            var m = exp as DbMemberExpression;
-            if (m == null)
-                throw new NotSupportedException();
-
-            DbParameterExpression p;
-            if (!DbExpressionExtensions.TryParseToParameterExpression(m, out p))
-            {
-                throw new NotSupportedException();
-            }
-
-            var arg = p.Value;
-
-            if (arg == null)
-                throw new NotSupportedException();
-
-            var chars = arg as char[];
-            if (chars.Length != 1 || chars[0] != ' ')
-            {
-                throw new NotSupportedException();
-            }
-        }
-        static bool TryGetCastTargetDbTypeString(Type sourceType, Type targetType, out string dbTypeString, bool throwNotSupportedException = true)
-        {
-            dbTypeString = null;
-
-            sourceType = Utils.GetUnderlyingType(sourceType);
-            targetType = Utils.GetUnderlyingType(targetType);
-
-            if (sourceType == targetType)
-                return false;
-
-            if (targetType == UtilConstants.TypeOfDecimal)
-            {
-                //Casting to Decimal is not supported when missing the precision and scale information.I have no idea to deal with this case now.
-                if (sourceType != UtilConstants.TypeOfInt16 && sourceType != UtilConstants.TypeOfInt32 && sourceType != UtilConstants.TypeOfInt64 && sourceType != UtilConstants.TypeOfByte)
-                {
-                    if (throwNotSupportedException)
-                        throw new NotSupportedException(AppendNotSupportedCastErrorMsg(sourceType, targetType));
-                    else
-                        return false;
-                }
-            }
-
-            if (CSharpType_DbType_Mappings.TryGetValue(targetType, out dbTypeString))
-            {
-                return true;
-            }
-
-            if (throwNotSupportedException)
-                throw new NotSupportedException(AppendNotSupportedCastErrorMsg(sourceType, targetType));
-            else
-                return false;
-        }
-        static string AppendNotSupportedCastErrorMsg(Type sourceType, Type targetType)
-        {
-            return string.Format("Does not support the type '{0}' converted to type '{1}'.", sourceType.FullName, targetType.FullName);
-        }
     }
 }

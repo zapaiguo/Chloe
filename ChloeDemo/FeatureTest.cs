@@ -127,11 +127,21 @@ namespace ChloeDemo
                 StartsWith = (bool?)a.Name.StartsWith("s"),
                 EndsWith = (bool?)a.Name.EndsWith("s"),
 
-                SubtractTotalDays = endTime.Subtract(startTime).TotalDays,
-                SubtractTotalHours = endTime.Subtract(startTime).TotalHours,
-                SubtractTotalMinutes = endTime.Subtract(startTime).TotalMinutes,
-                SubtractTotalSeconds = endTime.Subtract(startTime).TotalSeconds,
-                SubtractTotalMilliseconds = endTime.Subtract(startTime).TotalMilliseconds,
+                DiffYears = DbFunctions.DiffYears(startTime, endTime),
+                DiffMonths = DbFunctions.DiffMonths(startTime, endTime),
+                DiffDays = DbFunctions.DiffDays(startTime, endTime),
+                DiffHours = DbFunctions.DiffHours(startTime, endTime),
+                DiffMinutes = DbFunctions.DiffMinutes(startTime, endTime),
+                DiffSeconds = DbFunctions.DiffSeconds(startTime, endTime),
+                DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),
+                //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//Exception
+
+                /* No longer support method 'DateTime.Subtract(DateTime d)', instead of using 'DbFunctions.DiffXX' */
+                //SubtractTotalDays = endTime.Subtract(startTime).TotalDays,
+                //SubtractTotalHours = endTime.Subtract(startTime).TotalHours,
+                //SubtractTotalMinutes = endTime.Subtract(startTime).TotalMinutes,
+                //SubtractTotalSeconds = endTime.Subtract(startTime).TotalSeconds,
+                //SubtractTotalMilliseconds = endTime.Subtract(startTime).TotalMilliseconds,
 
                 Now = DateTime.Now,
                 UtcNow = DateTime.UtcNow,

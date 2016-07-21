@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+
 namespace Chloe
 {
     public static class AggregateFunctions
