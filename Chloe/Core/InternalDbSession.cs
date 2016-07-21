@@ -305,7 +305,7 @@ namespace Chloe.Core
                         parameterType = param.Value.GetType();
 
                         if (parameterType == typeof(string) || parameterType == typeof(DateTime))
-                            value = "\"" + value + "\"";
+                            value = "'" + value + "'";
                     }
 
                     if (parameterType != null)
