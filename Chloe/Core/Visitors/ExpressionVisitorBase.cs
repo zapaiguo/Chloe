@@ -38,7 +38,7 @@ namespace Chloe.Core.Visitors
                 throw new ArgumentException();
 
             if (!LL.Contains(boolExp.NodeType))
-                boolExp = Expression.Equal(boolExp, UtilConstants.Constant_True); ;
+                boolExp = Expression.Equal(boolExp, UtilConstants.Constant_True);
 
             return boolExp;
         }
