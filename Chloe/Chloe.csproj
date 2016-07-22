@@ -112,6 +112,7 @@
     <Compile Include="Descriptors\NavigationMemberDescriptor.cs" />
     <Compile Include="Descriptors\NavigationPropertyDescriptor.cs" />
     <Compile Include="Entity\AssociationAttribute.cs" />
+    <Compile Include="Entity\AutoIncrementAttribute.cs" />
     <Compile Include="Entity\ColumnAttribute.cs" />
     <Compile Include="Entity\NotMappedAttribute.cs" />
     <Compile Include="Entity\TableAttribute.cs" />

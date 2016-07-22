@@ -9,7 +9,7 @@ namespace ChloePerformanceTest
     public class TestEntity
     {
         [Chloe.Entity.Column(IsPrimaryKey = true)]
-        [Chloe.SqlServer.AutoIncrement]
+        [Chloe.Entity.AutoIncrement]
         public int Id { get; set; }
         public byte? F_Byte { get; set; }
         public Int16? F_Int16 { get; set; }

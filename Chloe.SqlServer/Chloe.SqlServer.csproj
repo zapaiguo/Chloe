@@ -42,7 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoIncrementAttribute.cs" />
     <Compile Include="DbColumnExpressionVisitor.cs" />
     <Compile Include="DbExpressionExtensions.cs" />
     <Compile Include="DbContextServiceProvider.cs" />

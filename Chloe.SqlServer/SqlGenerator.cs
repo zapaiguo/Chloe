@@ -216,7 +216,7 @@ namespace Chloe.SqlServer
                     return exp;
                 }
 
-                throw new NotSupportedException(string.Format("{0}.{1}", method.DeclaringType.FullName, exp.Method.Name));
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
             }
 
             Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
