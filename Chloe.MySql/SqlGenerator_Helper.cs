@@ -85,18 +85,6 @@ namespace Chloe.MySql
             if (sourceType == targetType)
                 return false;
 
-            if (targetType == UtilConstants.TypeOfDecimal)
-            {
-                //Casting to Decimal is not supported when missing the precision and scale information.I have no idea to deal with this case now.
-                if (sourceType != UtilConstants.TypeOfInt16 && sourceType != UtilConstants.TypeOfInt32 && sourceType != UtilConstants.TypeOfInt64 && sourceType != UtilConstants.TypeOfByte)
-                {
-                    if (throwNotSupportedException)
-                        throw new NotSupportedException(AppendNotSupportedCastErrorMsg(sourceType, targetType));
-                    else
-                        return false;
-                }
-            }
-
             if (CSharpType_DbType_Mappings.TryGetValue(targetType, out dbTypeString))
             {
                 return true;
