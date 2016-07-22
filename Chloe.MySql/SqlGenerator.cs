@@ -37,11 +37,18 @@ namespace Chloe.MySql
             SafeDbExpressionTypes = list.AsReadOnly();
 
 
-            Dictionary<Type, string> cSharpType_DbType_Mappings = new Dictionary<Type, string>(4);
+            Dictionary<Type, string> cSharpType_DbType_Mappings = new Dictionary<Type, string>(5);
             cSharpType_DbType_Mappings.Add(typeof(string), "CHAR");
+            cSharpType_DbType_Mappings.Add(typeof(byte), "UNSIGNED");
+            cSharpType_DbType_Mappings.Add(typeof(sbyte), "SIGNED");
+            cSharpType_DbType_Mappings.Add(typeof(Int16), "SIGNED");
+            cSharpType_DbType_Mappings.Add(typeof(UInt16), "UNSIGNED");
             cSharpType_DbType_Mappings.Add(typeof(int), "SIGNED");
             cSharpType_DbType_Mappings.Add(typeof(uint), "UNSIGNED");
+            cSharpType_DbType_Mappings.Add(typeof(long), "SIGNED");
+            cSharpType_DbType_Mappings.Add(typeof(ulong), "UNSIGNED");
             cSharpType_DbType_Mappings.Add(typeof(DateTime), "DATETIME");
+            cSharpType_DbType_Mappings.Add(typeof(bool), "SIGNED");
 
             CSharpType_DbType_Mappings = cSharpType_DbType_Mappings;
 

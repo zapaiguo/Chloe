@@ -40,6 +40,7 @@ namespace Chloe.SqlServer
 
             Dictionary<Type, string> cSharpType_DbType_Mappings = new Dictionary<Type, string>(10);
             cSharpType_DbType_Mappings.Add(typeof(string), "NVARCHAR(MAX)");
+            cSharpType_DbType_Mappings.Add(typeof(byte), "TINYINT");
             cSharpType_DbType_Mappings.Add(typeof(Int16), "SMALLINT");
             cSharpType_DbType_Mappings.Add(typeof(int), "INT");
             cSharpType_DbType_Mappings.Add(typeof(long), "BIGINT");

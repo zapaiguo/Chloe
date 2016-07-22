@@ -11,6 +11,7 @@ namespace ChloeDemo
         static void Main(string[] args)
         {
             FeatureTest.Test();
+            //MySqlDemo.Test();
         }
     }
 }
