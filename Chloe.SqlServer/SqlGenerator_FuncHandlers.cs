@@ -42,29 +42,19 @@ namespace Chloe.SqlServer
         }
         static void Func_Sum(DbFunctionExpression exp, SqlGenerator generator)
         {
-            Func_Sum(generator, exp.Parameters.First());
+            Func_Sum(generator, exp.Parameters.First(), exp.Method.ReturnType);
         }
         static void Func_Max(DbFunctionExpression exp, SqlGenerator generator)
         {
-            Func_Max(generator, exp.Parameters.First());
+            Func_Max(generator, exp.Parameters.First(), exp.Method.ReturnType);
         }
         static void Func_Min(DbFunctionExpression exp, SqlGenerator generator)
         {
-            Func_Min(generator, exp.Parameters.First());
+            Func_Min(generator, exp.Parameters.First(), exp.Method.ReturnType);
         }
         static void Func_Average(DbFunctionExpression exp, SqlGenerator generator)
         {
-            string dbTypeString;
-            if (TryGetCastTargetDbTypeString(exp.Parameters.First().Type, exp.Type, out dbTypeString))
-            {
-                generator._sqlBuilder.Append("CAST(");
-                Func_Average(generator, exp.Parameters.First());
-                generator._sqlBuilder.Append(" AS ", dbTypeString, ")");
-            }
-            else
-            {
-                Func_Average(generator, exp.Parameters.First());
-            }
+            Func_Average(generator, exp.Parameters.First(), exp.Method.ReturnType);
         }
     }
 }

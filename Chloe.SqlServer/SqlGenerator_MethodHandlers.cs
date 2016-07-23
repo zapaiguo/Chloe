@@ -258,37 +258,33 @@ namespace Chloe.SqlServer
 
         static void Method_Count(DbMethodCallExpression exp, SqlGenerator generator)
         {
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
             Func_Count(generator);
         }
         static void Method_LongCount(DbMethodCallExpression exp, SqlGenerator generator)
         {
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
             Func_LongCount(generator);
         }
         static void Method_Sum(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            Func_Sum(generator, exp.Arguments.First());
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
+            Func_Sum(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Method_Max(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            Func_Max(generator, exp.Arguments.First());
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
+            Func_Max(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Method_Min(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            Func_Min(generator, exp.Arguments.First());
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
+            Func_Min(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Method_Average(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            string dbTypeString;
-            if (TryGetCastTargetDbTypeString(exp.Arguments.First().Type, exp.Type, out dbTypeString))
-            {
-                generator._sqlBuilder.Append("CAST(");
-                Func_Average(generator, exp.Arguments.First());
-                generator._sqlBuilder.Append(" AS ", dbTypeString, ")");
-            }
-            else
-            {
-                Func_Average(generator, exp.Arguments.First());
-            }
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
+            Func_Average(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
 
 

@@ -189,29 +189,41 @@ namespace Chloe.SqlServer
         {
             generator._sqlBuilder.Append("COUNT_BIG(1)");
         }
-        static void Func_Sum(SqlGenerator generator, DbExpression exp)
+        static void Func_Sum(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            generator._sqlBuilder.Append("SUM(");
-            exp.Accept(generator);
-            generator._sqlBuilder.Append(")");
+            AppendAggregateFunctionWithCast(generator, exp, retType, "SUM");
         }
-        static void Func_Max(SqlGenerator generator, DbExpression exp)
+        static void Func_Max(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            generator._sqlBuilder.Append("MAX(");
-            exp.Accept(generator);
-            generator._sqlBuilder.Append(")");
+            AppendAggregateFunctionWithCast(generator, exp, retType, "MAX");
         }
-        static void Func_Min(SqlGenerator generator, DbExpression exp)
+        static void Func_Min(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            generator._sqlBuilder.Append("MIN(");
-            exp.Accept(generator);
-            generator._sqlBuilder.Append(")");
+            AppendAggregateFunctionWithCast(generator, exp, retType, "MIN");
         }
-        static void Func_Average(SqlGenerator generator, DbExpression exp)
+        static void Func_Average(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            generator._sqlBuilder.Append("AVG(");
+            AppendAggregateFunctionWithCast(generator, exp, retType, "AVG");
+        }
+
+        static void AppendAggregateFunctionWithCast(SqlGenerator generator, DbExpression exp, Type retType, string functionName)
+        {
+            Type unType = Utils.GetUnderlyingType(retType);
+
+            string dbTypeString = null;
+            if (unType != UtilConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise cause problems. */ && CSharpType_DbType_Mappings.TryGetValue(unType, out dbTypeString))
+            {
+                generator._sqlBuilder.Append("CAST(");
+            }
+
+            generator._sqlBuilder.Append(functionName, "(");
             exp.Accept(generator);
             generator._sqlBuilder.Append(")");
+
+            if (dbTypeString != null)
+            {
+                generator._sqlBuilder.Append(" AS ", dbTypeString, ")");
+            }
         }
         #endregion
 
