@@ -1,10 +1,11 @@
 ﻿using Chloe.Infrastructure;
-using MySql.Data.MySqlClient;
+//using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ChloeDemo
 {
@@ -17,8 +18,10 @@ namespace ChloeDemo
         }
         public IDbConnection CreateConnection()
         {
-            MySqlConnection conn = new MySqlConnection(this._connString);
-            return conn;
+            //MySqlConnection conn = new MySqlConnection(this._connString);
+            //return conn;
+
+            return null;
         }
     }
 }
