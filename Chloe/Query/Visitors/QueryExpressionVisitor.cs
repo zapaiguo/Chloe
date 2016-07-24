@@ -52,7 +52,7 @@ namespace Chloe.Query.Visitors
             IQueryState state = prevState.Accept(exp);
             return state;
         }
-        public override IQueryState Visit(FunctionExpression exp)
+        public override IQueryState Visit(AggregateQueryExpression exp)
         {
             IQueryState prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);

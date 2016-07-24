@@ -30,7 +30,7 @@ namespace Chloe.DbExpressions
         Parameter,
         FromTable,
         JoinTable,
-        Function,
+        Aggregate,
 
         SqlQuery,
         SubQuery,

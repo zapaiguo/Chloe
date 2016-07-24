@@ -18,7 +18,7 @@ namespace Chloe.MySql
         List<DbParam> _parameters = new List<DbParam>();
 
         static readonly Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>> MethodHandlers = InitMethodHandlers();
-        static readonly Dictionary<string, Action<DbFunctionExpression, SqlGenerator>> FuncHandlers = InitFuncHandlers();
+        static readonly Dictionary<string, Action<DbAggregateExpression, SqlGenerator>> AggregateHandlers = InitAggregateHandlers();
         static readonly Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
         static readonly Dictionary<Type, string> CSharpType_DbType_Mappings = null;
 
@@ -483,15 +483,15 @@ namespace Chloe.MySql
             return exp;
         }
 
-        public override DbExpression Visit(DbFunctionExpression exp)
+        public override DbExpression Visit(DbAggregateExpression exp)
         {
-            Action<DbFunctionExpression, SqlGenerator> funcHandler;
-            if (!FuncHandlers.TryGetValue(exp.Method.Name, out funcHandler))
+            Action<DbAggregateExpression, SqlGenerator> aggregateHandler;
+            if (!AggregateHandlers.TryGetValue(exp.Method.Name, out aggregateHandler))
             {
-                throw new NotSupportedException(exp.Method.Name);
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
             }
 
-            funcHandler(exp, this);
+            aggregateHandler(exp, this);
             return exp;
         }
 

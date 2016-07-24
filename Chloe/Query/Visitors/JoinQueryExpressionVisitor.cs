@@ -93,7 +93,7 @@ namespace Chloe.Query.Visitors
             JoinQueryResult ret = this.Visit(exp);
             return ret;
         }
-        public override JoinQueryResult Visit(FunctionExpression exp)
+        public override JoinQueryResult Visit(AggregateQueryExpression exp)
         {
             JoinQueryResult ret = this.Visit(exp);
             return ret;

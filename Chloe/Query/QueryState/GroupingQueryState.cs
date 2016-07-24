@@ -20,7 +20,7 @@ namespace Chloe.Query.QueryState
             IQueryState state = this.AsSubQueryState();
             return state.Accept(exp);
         }
-        public override IQueryState Accept(FunctionExpression exp)
+        public override IQueryState Accept(AggregateQueryExpression exp)
         {
             IQueryState state = this.AsSubQueryState();
             return state.Accept(exp);

@@ -78,7 +78,7 @@ namespace Chloe.Query.QueryState
             TakeQueryState state = new TakeQueryState(this.Result, exp.Count);
             return state;
         }
-        public virtual IQueryState Accept(FunctionExpression exp)
+        public virtual IQueryState Accept(AggregateQueryExpression exp)
         {
             List<DbExpression> dbParameters = new List<DbExpression>(exp.Parameters.Count);
             foreach (Expression pExp in exp.Parameters)
@@ -87,8 +87,8 @@ namespace Chloe.Query.QueryState
                 dbParameters.Add(dbExp);
             }
 
-            DbFunctionExpression dbFuncExp = new DbFunctionExpression(exp.ElementType, exp.Method, dbParameters);
-            MappingFieldExpression mfe = new MappingFieldExpression(exp.ElementType, dbFuncExp);
+            DbAggregateExpression dbAggregateExp = new DbAggregateExpression(exp.ElementType, exp.Method, dbParameters);
+            MappingFieldExpression mfe = new MappingFieldExpression(exp.ElementType, dbAggregateExp);
 
             ResultElement result = new ResultElement();
 

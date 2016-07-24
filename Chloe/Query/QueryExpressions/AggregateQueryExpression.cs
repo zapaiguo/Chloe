@@ -9,12 +9,12 @@ using System.Text;
 
 namespace Chloe.Query.QueryExpressions
 {
-    class FunctionExpression : QueryExpression
+    class AggregateQueryExpression : QueryExpression
     {
         MethodInfo _method;
         ReadOnlyCollection<Expression> _parameters;
 
-        public FunctionExpression(Type elementType, QueryExpression prevExpression, MethodInfo method, IList<Expression> parameters)
+        public AggregateQueryExpression(Type elementType, QueryExpression prevExpression, MethodInfo method, IList<Expression> parameters)
             : base(QueryExpressionType.Function, elementType, prevExpression)
         {
             this._method = method;

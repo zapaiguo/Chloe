@@ -7,12 +7,12 @@ using System.Text;
 
 namespace Chloe.DbExpressions
 {
-    public class DbFunctionExpression : DbExpression
+    public class DbAggregateExpression : DbExpression
     {
         MethodInfo _method;
         ReadOnlyCollection<DbExpression> _parameters;
-        public DbFunctionExpression(Type type, MethodInfo method, IList<DbExpression> parameters)
-            : base(DbExpressionType.Function, type)
+        public DbAggregateExpression(Type type, MethodInfo method, IList<DbExpression> parameters)
+            : base(DbExpressionType.Aggregate, type)
         {
             this._method = method;
             this._parameters = new ReadOnlyCollection<DbExpression>(parameters);

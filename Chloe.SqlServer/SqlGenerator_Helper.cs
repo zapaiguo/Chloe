@@ -181,27 +181,27 @@ namespace Chloe.SqlServer
         }
 
         #region AggregateFunction
-        static void Func_Count(SqlGenerator generator)
+        static void Aggregate_Count(SqlGenerator generator)
         {
             generator._sqlBuilder.Append("COUNT(1)");
         }
-        static void Func_LongCount(SqlGenerator generator)
+        static void Aggregate_LongCount(SqlGenerator generator)
         {
             generator._sqlBuilder.Append("COUNT_BIG(1)");
         }
-        static void Func_Sum(SqlGenerator generator, DbExpression exp, Type retType)
+        static void Aggregate_Sum(SqlGenerator generator, DbExpression exp, Type retType)
         {
             AppendAggregateFunctionWithCast(generator, exp, retType, "SUM");
         }
-        static void Func_Max(SqlGenerator generator, DbExpression exp, Type retType)
+        static void Aggregate_Max(SqlGenerator generator, DbExpression exp, Type retType)
         {
             AppendAggregateFunctionWithCast(generator, exp, retType, "MAX");
         }
-        static void Func_Min(SqlGenerator generator, DbExpression exp, Type retType)
+        static void Aggregate_Min(SqlGenerator generator, DbExpression exp, Type retType)
         {
             AppendAggregateFunctionWithCast(generator, exp, retType, "MIN");
         }
-        static void Func_Average(SqlGenerator generator, DbExpression exp, Type retType)
+        static void Aggregate_Average(SqlGenerator generator, DbExpression exp, Type retType)
         {
             AppendAggregateFunctionWithCast(generator, exp, retType, "AVG");
         }

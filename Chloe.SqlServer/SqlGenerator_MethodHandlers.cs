@@ -259,32 +259,32 @@ namespace Chloe.SqlServer
         static void Method_Count(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
-            Func_Count(generator);
+            Aggregate_Count(generator);
         }
         static void Method_LongCount(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
-            Func_LongCount(generator);
+            Aggregate_LongCount(generator);
         }
         static void Method_Sum(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
-            Func_Sum(generator, exp.Arguments.First(), exp.Method.ReturnType);
+            Aggregate_Sum(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Method_Max(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
-            Func_Max(generator, exp.Arguments.First(), exp.Method.ReturnType);
+            Aggregate_Max(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Method_Min(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
-            Func_Min(generator, exp.Arguments.First(), exp.Method.ReturnType);
+            Aggregate_Min(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Method_Average(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
-            Func_Average(generator, exp.Arguments.First(), exp.Method.ReturnType);
+            Aggregate_Average(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
 
 

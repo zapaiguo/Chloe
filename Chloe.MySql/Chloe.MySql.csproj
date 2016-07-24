@@ -48,7 +48,7 @@
     <Compile Include="MySqlContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlGenerator.cs" />
-    <Compile Include="SqlGenerator_FuncHandlers.cs" />
+    <Compile Include="SqlGenerator_AggregateHandlers.cs" />
     <Compile Include="SqlGenerator_Helper.cs" />
     <Compile Include="SqlGenerator_MethodHandlers.cs" />
     <Compile Include="UtilConstants.cs" />

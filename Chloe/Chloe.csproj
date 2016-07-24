@@ -75,7 +75,7 @@
     <Compile Include="DbExpressions\DbExpressionType.cs" />
     <Compile Include="DbExpressions\DbExpressionVisitor`.cs" />
     <Compile Include="DbExpressions\DbFromTableExpression.cs" />
-    <Compile Include="DbExpressions\DbFunctionExpression.cs" />
+    <Compile Include="DbExpressions\DbAggregateExpression.cs" />
     <Compile Include="DbExpressions\DbGreaterThanExpression.cs" />
     <Compile Include="DbExpressions\DbGreaterThanOrEqualExpression.cs" />
     <Compile Include="DbExpressions\DbInsertExpression.cs" />
@@ -160,7 +160,7 @@
     <Compile Include="Query\Mapping\MappingField.cs" />
     <Compile Include="Query\OrderedQuery`.cs" />
     <Compile Include="Query\QueryBase.cs" />
-    <Compile Include="Query\QueryExpressions\FunctionExpression.cs" />
+    <Compile Include="Query\QueryExpressions\AggregateQueryExpression.cs" />
     <Compile Include="Query\QueryExpressions\GroupingQueryExpression.cs" />
     <Compile Include="Query\QueryExpressions\JoinQueryExpression.cs" />
     <Compile Include="Query\QueryExpressions\OrderExpression.cs" />

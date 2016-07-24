@@ -32,7 +32,7 @@ namespace Chloe.Query.QueryExpressions
         {
             throw new NotImplementedException();
         }
-        public virtual T Visit(FunctionExpression exp)
+        public virtual T Visit(AggregateQueryExpression exp)
         {
             throw new NotImplementedException();
         }

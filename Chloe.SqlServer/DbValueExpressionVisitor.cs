@@ -149,7 +149,7 @@ namespace Chloe.SqlServer
         {
             return exp.Accept(this._generator);
         }
-        public override DbExpression Visit(DbFunctionExpression exp)
+        public override DbExpression Visit(DbAggregateExpression exp)
         {
             return exp.Accept(this._generator);
         }
