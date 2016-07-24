@@ -96,7 +96,7 @@ namespace Chloe.Query.QueryState
             result.FromTable = this._resultElement.FromTable;
             result.AppendCondition(this._resultElement.Condition);
 
-            FunctionQueryState state = new FunctionQueryState(result);
+            AggregateQueryState state = new AggregateQueryState(result);
             return state;
         }
         public virtual IQueryState Accept(GroupingQueryExpression exp)

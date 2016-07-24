@@ -172,7 +172,7 @@
     <Compile Include="Query\QueryExpressions\SkipExpression.cs" />
     <Compile Include="Query\QueryExpressions\TakeExpression.cs" />
     <Compile Include="Query\QueryExpressions\WhereExpression.cs" />
-    <Compile Include="Query\QueryState\FunctionQueryState.cs" />
+    <Compile Include="Query\QueryState\AggregateQueryState.cs" />
     <Compile Include="Query\QueryState\GeneralQueryState.cs" />
     <Compile Include="Query\QueryState\GroupingQueryState.cs" />
     <Compile Include="Query\QueryState\IQueryState.cs" />

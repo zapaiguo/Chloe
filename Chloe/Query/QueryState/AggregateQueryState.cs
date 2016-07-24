@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Chloe.Query.QueryState
 {
-    class FunctionQueryState : QueryStateBase, IQueryState
+    class AggregateQueryState : QueryStateBase, IQueryState
     {
-        public FunctionQueryState(ResultElement resultElement)
+        public AggregateQueryState(ResultElement resultElement)
             : base(resultElement)
         {
         }
