@@ -291,6 +291,7 @@ namespace Chloe.MySql
         }
         static void Method_Average(DbMethodCallExpression exp, SqlGenerator generator)
         {
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
             Func_Average(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
 
