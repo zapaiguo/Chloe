@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-
 namespace Chloe.SqlServer
 {
     partial class SqlGenerator : DbExpressionVisitor<DbExpression>
