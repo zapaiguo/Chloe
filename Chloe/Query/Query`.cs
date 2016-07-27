@@ -145,257 +145,175 @@ namespace Chloe.Query
 
         public int Count()
         {
-            IEnumerable<int> iterator = this.CreateAggregateQuery<int>((MethodInfo)MethodBase.GetCurrentMethod(), EmptyParameterList);
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<int>("Count", null, false);
         }
         public long LongCount()
         {
-            IEnumerable<long> iterator = this.CreateAggregateQuery<long>((MethodInfo)MethodBase.GetCurrentMethod(), EmptyParameterList);
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<long>("LongCount", null, false);
         }
 
         public int Sum(Expression<Func<T, int>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<int> iterator = this.CreateAggregateQuery<int>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<int>("Sum", selector);
         }
         public int? Sum(Expression<Func<T, int?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<int?> iterator = this.CreateAggregateQuery<int?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<int?>("Sum", selector);
         }
         public long Sum(Expression<Func<T, long>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<long> iterator = this.CreateAggregateQuery<long>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<long>("Sum", selector);
         }
         public long? Sum(Expression<Func<T, long?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<long?> iterator = this.CreateAggregateQuery<long?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<long?>("Sum", selector);
         }
         public decimal Sum(Expression<Func<T, decimal>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<decimal> iterator = this.CreateAggregateQuery<decimal>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<decimal>("Sum", selector);
         }
         public decimal? Sum(Expression<Func<T, decimal?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<decimal?> iterator = this.CreateAggregateQuery<decimal?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<decimal?>("Sum", selector);
         }
         public double Sum(Expression<Func<T, double>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double> iterator = this.CreateAggregateQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double>("Sum", selector);
         }
         public double? Sum(Expression<Func<T, double?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double?> iterator = this.CreateAggregateQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double?>("Sum", selector);
         }
         public float Sum(Expression<Func<T, float>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<float> iterator = this.CreateAggregateQuery<float>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<float>("Sum", selector);
         }
         public float? Sum(Expression<Func<T, float?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<float?> iterator = this.CreateAggregateQuery<float?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<float?>("Sum", selector);
         }
 
         public int Max(Expression<Func<T, int>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<int> iterator = this.CreateAggregateQuery<int>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<int>("Max", selector);
         }
         public int? Max(Expression<Func<T, int?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<int?> iterator = this.CreateAggregateQuery<int?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<int?>("Max", selector);
         }
         public long Max(Expression<Func<T, long>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<long> iterator = this.CreateAggregateQuery<long>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<long>("Max", selector);
         }
         public long? Max(Expression<Func<T, long?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<long?> iterator = this.CreateAggregateQuery<long?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<long?>("Max", selector);
         }
         public decimal Max(Expression<Func<T, decimal>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<decimal> iterator = this.CreateAggregateQuery<decimal>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<decimal>("Max", selector);
         }
         public decimal? Max(Expression<Func<T, decimal?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<decimal?> iterator = this.CreateAggregateQuery<decimal?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<decimal?>("Max", selector);
         }
         public double Max(Expression<Func<T, double>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double> iterator = this.CreateAggregateQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double>("Max", selector);
         }
         public double? Max(Expression<Func<T, double?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double?> iterator = this.CreateAggregateQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double?>("Max", selector);
         }
         public float Max(Expression<Func<T, float>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<float> iterator = this.CreateAggregateQuery<float>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<float>("Max", selector);
         }
         public float? Max(Expression<Func<T, float?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<float?> iterator = this.CreateAggregateQuery<float?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<float?>("Max", selector);
         }
 
         public int Min(Expression<Func<T, int>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<int> iterator = this.CreateAggregateQuery<int>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<int>("Min", selector);
         }
         public int? Min(Expression<Func<T, int?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<int?> iterator = this.CreateAggregateQuery<int?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<int?>("Min", selector);
         }
         public long Min(Expression<Func<T, long>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<long> iterator = this.CreateAggregateQuery<long>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<long>("Min", selector);
         }
         public long? Min(Expression<Func<T, long?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<long?> iterator = this.CreateAggregateQuery<long?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<long?>("Min", selector);
         }
         public decimal Min(Expression<Func<T, decimal>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<decimal> iterator = this.CreateAggregateQuery<decimal>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<decimal>("Min", selector);
         }
         public decimal? Min(Expression<Func<T, decimal?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<decimal?> iterator = this.CreateAggregateQuery<decimal?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<decimal?>("Min", selector);
         }
         public double Min(Expression<Func<T, double>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double> iterator = this.CreateAggregateQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double>("Min", selector);
         }
         public double? Min(Expression<Func<T, double?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double?> iterator = this.CreateAggregateQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double?>("Min", selector);
         }
         public float Min(Expression<Func<T, float>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<float> iterator = this.CreateAggregateQuery<float>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<float>("Min", selector);
         }
         public float? Min(Expression<Func<T, float?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<float?> iterator = this.CreateAggregateQuery<float?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<float?>("Min", selector);
         }
 
         public double Average(Expression<Func<T, int>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double> iterator = this.CreateAggregateQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double>("Average", selector);
         }
         public double? Average(Expression<Func<T, int?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double?> iterator = this.CreateAggregateQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double?>("Average", selector);
         }
         public double Average(Expression<Func<T, long>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double> iterator = this.CreateAggregateQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double>("Average", selector);
         }
         public double? Average(Expression<Func<T, long?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double?> iterator = this.CreateAggregateQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double?>("Average", selector);
         }
         public decimal Average(Expression<Func<T, decimal>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<decimal> iterator = this.CreateAggregateQuery<decimal>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<decimal>("Average", selector);
         }
         public decimal? Average(Expression<Func<T, decimal?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<decimal?> iterator = this.CreateAggregateQuery<decimal?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<decimal?>("Average", selector);
         }
         public double Average(Expression<Func<T, double>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double> iterator = this.CreateAggregateQuery<double>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double>("Average", selector);
         }
         public double? Average(Expression<Func<T, double?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<double?> iterator = this.CreateAggregateQuery<double?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<double?>("Average", selector);
         }
         public float Average(Expression<Func<T, float>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<float> iterator = this.CreateAggregateQuery<float>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<float>("Average", selector);
         }
         public float? Average(Expression<Func<T, float?>> selector)
         {
-            Utils.CheckNull(selector);
-            IEnumerable<float?> iterator = this.CreateAggregateQuery<float?>((MethodInfo)MethodBase.GetCurrentMethod(), new List<Expression>() { selector });
-            return iterator.Single();
+            return this.ExecuteAggregateQuery<float?>("Average", selector);
         }
 
         public override QueryExpression QueryExpression { get { return this._expression; } }
@@ -415,12 +333,44 @@ namespace Chloe.Query
             InternalQuery<T> internalQuery = new InternalQuery<T>(this);
             return internalQuery;
         }
-        InternalQuery<T1> CreateAggregateQuery<T1>(MethodInfo method, List<Expression> parameters)
+
+        TReturn ExecuteAggregateQuery<TReturn>(string methodName, Expression parameter, bool checkParameter = true)
         {
-            AggregateQueryExpression e = new AggregateQueryExpression(typeof(T1), this._expression, method, parameters);
-            var q = new Query<T1>(this._dbContext, e, false);
-            InternalQuery<T1> iterator = q.GenenateIterator();
+            if (checkParameter)
+                Utils.CheckNull(parameter);
+
+            List<Expression> parameters = parameter == null ? EmptyParameterList : new List<Expression>(1) { parameter };
+
+            IEnumerable<TReturn> iterator = this.CreateAggregateQuery<TReturn>(methodName, parameters);
+            return iterator.Single();
+        }
+        InternalQuery<TReturn> CreateAggregateQuery<TReturn>(string methodName, List<Expression> parameters)
+        {
+            MethodInfo method = this.GetCalledMethod(methodName, parameters);
+
+            AggregateQueryExpression e = new AggregateQueryExpression(method.ReturnType, this._expression, method, parameters);
+            var q = new Query<TReturn>(this._dbContext, e, false);
+            InternalQuery<TReturn> iterator = q.GenenateIterator();
             return iterator;
+        }
+        MethodInfo GetCalledMethod(string methodName, List<Expression> parameters)
+        {
+            Type thisType = typeof(IQuery<>).MakeGenericType(new Type[] { typeof(T) });
+
+            Type[] parameterTypes;
+            if (parameters.Count == 0)
+                parameterTypes = Type.EmptyTypes;
+            else
+            {
+                parameterTypes = new Type[parameters.Count];
+                for (int i = 0; i < parameters.Count; i++)
+                {
+                    parameterTypes[i] = parameters[i].GetType();
+                }
+            }
+
+            MethodInfo method = thisType.GetMethod(methodName, parameterTypes);
+            return method;
         }
 
         public override string ToString()
