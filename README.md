@@ -103,7 +103,7 @@ view.Where(a => a.User.Id == 1).Select(a => new { UserId = a.User.Id, CityName =
 
 /*
  * Chloe also supports left join,right join and full join query.
- * For details please see 'https://github.com/shuxinqin/Chloe/blob/master/Chloe/IQuery%60.cs'.
+ * For details please see 'https://github.com/shuxinqin/Chloe/blob/master/src/DotNet/Chloe/IQuery%60.cs'.
  */
 ```
 * Group Query
