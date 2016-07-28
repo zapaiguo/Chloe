@@ -22,21 +22,10 @@ namespace Chloe.MySql
         static readonly Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
         static readonly Dictionary<Type, string> CSharpType_DbType_Mappings = null;
 
-        public static readonly ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes = null;
-
         static readonly List<string> CacheParameterNames = null;
 
         static SqlGenerator()
         {
-            List<DbExpressionType> list = new List<DbExpressionType>();
-            list.Add(DbExpressionType.MemberAccess);
-            list.Add(DbExpressionType.ColumnAccess);
-            list.Add(DbExpressionType.Constant);
-            list.Add(DbExpressionType.Parameter);
-            list.Add(DbExpressionType.Convert);
-            SafeDbExpressionTypes = list.AsReadOnly();
-
-
             Dictionary<Type, string> cSharpType_DbType_Mappings = new Dictionary<Type, string>(5);
             cSharpType_DbType_Mappings.Add(typeof(string), "CHAR");
             cSharpType_DbType_Mappings.Add(typeof(byte), "UNSIGNED");
