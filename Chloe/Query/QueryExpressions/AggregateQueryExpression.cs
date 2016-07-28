@@ -14,8 +14,8 @@ namespace Chloe.Query.QueryExpressions
         MethodInfo _method;
         ReadOnlyCollection<Expression> _parameters;
 
-        public AggregateQueryExpression(Type elementType, QueryExpression prevExpression, MethodInfo method, IList<Expression> parameters)
-            : base(QueryExpressionType.Function, elementType, prevExpression)
+        public AggregateQueryExpression(QueryExpression prevExpression, MethodInfo method, IList<Expression> parameters)
+            : base(QueryExpressionType.Aggregate, method.ReturnType, prevExpression)
         {
             this._method = method;
             this._parameters = new ReadOnlyCollection<Expression>(parameters);

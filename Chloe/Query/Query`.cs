@@ -348,7 +348,7 @@ namespace Chloe.Query
         {
             MethodInfo method = this.GetCalledMethod(methodName, parameters);
 
-            AggregateQueryExpression e = new AggregateQueryExpression(method.ReturnType, this._expression, method, parameters);
+            AggregateQueryExpression e = new AggregateQueryExpression(this._expression, method, parameters);
             var q = new Query<TReturn>(this._dbContext, e, false);
             InternalQuery<TReturn> iterator = q.GenerateIterator();
             return iterator;
@@ -372,7 +372,7 @@ namespace Chloe.Query
             MethodInfo method = thisType.GetMethod(methodName, parameterTypes);
             return method;
         }
-        
+
         public override string ToString()
         {
             InternalQuery<T> internalQuery = this.GenerateIterator();

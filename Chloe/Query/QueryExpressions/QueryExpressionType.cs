@@ -13,7 +13,7 @@ namespace Chloe.Query.QueryExpressions
         ThenByDesc,
         Select,
         Include,
-        Function,
+        Aggregate,
         JoinQuery,
         GroupingQuery,
     }
