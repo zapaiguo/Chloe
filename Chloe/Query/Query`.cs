@@ -110,7 +110,7 @@ namespace Chloe.Query
         public T First()
         {
             var q = (Query<T>)this.Take(1);
-            IEnumerable<T> iterator = q.GenenateIterator();
+            IEnumerable<T> iterator = q.GenerateIterator();
             return iterator.First();
         }
         public T First(Expression<Func<T, bool>> predicate)
@@ -120,7 +120,7 @@ namespace Chloe.Query
         public T FirstOrDefault()
         {
             var q = (Query<T>)this.Take(1);
-            IEnumerable<T> iterator = q.GenenateIterator();
+            IEnumerable<T> iterator = q.GenerateIterator();
             return iterator.FirstOrDefault();
         }
         public T FirstOrDefault(Expression<Func<T, bool>> predicate)
@@ -129,14 +129,14 @@ namespace Chloe.Query
         }
         public List<T> ToList()
         {
-            IEnumerable<T> iterator = this.GenenateIterator();
+            IEnumerable<T> iterator = this.GenerateIterator();
             return iterator.ToList();
         }
 
         public bool Any()
         {
             var q = (Query<string>)this.Select(a => "1").Take(1);
-            return q.GenenateIterator().Any();
+            return q.GenerateIterator().Any();
         }
         public bool Any(Expression<Func<T, bool>> predicate)
         {
@@ -325,10 +325,10 @@ namespace Chloe.Query
         }
         public IEnumerable<T> AsEnumerable()
         {
-            return this.GenenateIterator();
+            return this.GenerateIterator();
         }
 
-        InternalQuery<T> GenenateIterator()
+        InternalQuery<T> GenerateIterator()
         {
             InternalQuery<T> internalQuery = new InternalQuery<T>(this);
             return internalQuery;
@@ -350,7 +350,7 @@ namespace Chloe.Query
 
             AggregateQueryExpression e = new AggregateQueryExpression(method.ReturnType, this._expression, method, parameters);
             var q = new Query<TReturn>(this._dbContext, e, false);
-            InternalQuery<TReturn> iterator = q.GenenateIterator();
+            InternalQuery<TReturn> iterator = q.GenerateIterator();
             return iterator;
         }
         MethodInfo GetCalledMethod(string methodName, List<Expression> parameters)
@@ -372,10 +372,10 @@ namespace Chloe.Query
             MethodInfo method = thisType.GetMethod(methodName, parameterTypes);
             return method;
         }
-
+        
         public override string ToString()
         {
-            InternalQuery<T> internalQuery = this.GenenateIterator();
+            InternalQuery<T> internalQuery = this.GenerateIterator();
             return internalQuery.ToString();
         }
     }
