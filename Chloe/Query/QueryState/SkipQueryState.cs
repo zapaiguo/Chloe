@@ -29,7 +29,7 @@ namespace Chloe.Query.QueryState
         {
             if (count < 0)
             {
-                throw new ArgumentException("count 小于 0");
+                throw new ArgumentException("The skip count could not less than 0.");
             }
         }
 

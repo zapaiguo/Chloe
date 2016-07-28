@@ -24,7 +24,7 @@ namespace Chloe.Query.QueryState
             }
             set
             {
-                this.CheckInputCount(value, "skipCount");
+                this.CheckInputCount(value, "skip");
                 this._skipCount = value;
             }
         }
@@ -36,15 +36,15 @@ namespace Chloe.Query.QueryState
             }
             set
             {
-                this.CheckInputCount(value, "takeCount");
+                this.CheckInputCount(value, "take");
                 this._takeCount = value;
             }
         }
-        void CheckInputCount(int count, string parameName)
+        void CheckInputCount(int count, string name)
         {
             if (count < 0)
             {
-                throw new ArgumentException(parameName + " 小于 0");
+                throw new ArgumentException(string.Format("The {0} count could not less than 0.", name));
             }
         }
 
