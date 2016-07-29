@@ -1,9 +1,9 @@
 ﻿{
   "version": "1.0.3-*",
-  "authors": [ "ShuxinQin" ],
+  "authors": [ "Chloe" ],
   "description": "A lightweight and high-performance Object/Relational Mapping(ORM) library.",
   "title": "Chloe.ORM",
-  "copyright": "2016 Shuxin Qin.",
+  "copyright": "Copyright 2016.",
 
   "dependencies": {
     "NETStandard.Library": "1.6.0",
