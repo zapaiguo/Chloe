@@ -2183,7 +2183,7 @@
           "lib/netstandard1.3/_._": {}
         }
       },
-      "Chloe/1.0.0": {
+      "Chloe/1.0.2": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -2200,11 +2200,11 @@
           "netstandard1.6/Chloe.dll": {}
         }
       },
-      "Chloe.MySql/1.0.0": {
+      "Chloe.MySql/1.0.2": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Chloe": "1.0.0",
+          "Chloe": "1.0.2",
           "NETStandard.Library": "1.6.0",
           "System.Data.Common": "4.1.0"
         },
@@ -2215,11 +2215,11 @@
           "netstandard1.6/Chloe.MySql.dll": {}
         }
       },
-      "Chloe.SqlServer/1.0.0": {
+      "Chloe.SqlServer/1.0.2": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Chloe": "1.0.0",
+          "Chloe": "1.0.2",
           "NETStandard.Library": "1.6.0",
           "System.Data.Common": "4.1.0",
           "System.Data.SqlClient": "4.1.0"
@@ -6990,17 +6990,17 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "Chloe/1.0.0": {
+    "Chloe/1.0.2": {
       "type": "project",
       "path": "../Chloe/project.json",
       "msbuildProject": "../Chloe/Chloe.xproj"
     },
-    "Chloe.MySql/1.0.0": {
+    "Chloe.MySql/1.0.2": {
       "type": "project",
       "path": "../Chloe.MySql/project.json",
       "msbuildProject": "../Chloe.MySql/Chloe.MySql.xproj"
     },
-    "Chloe.SqlServer/1.0.0": {
+    "Chloe.SqlServer/1.0.2": {
       "type": "project",
       "path": "../Chloe.SqlServer/project.json",
       "msbuildProject": "../Chloe.SqlServer/Chloe.SqlServer.xproj"
