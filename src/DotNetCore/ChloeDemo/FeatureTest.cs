@@ -300,12 +300,6 @@ namespace ChloeDemo
 
         public static void InsertTest()
         {
-            string name = "so88";
-            long longAge = 10;
-            int? age = 18;
-            name = null;
-            int r = -1;
-
             MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
             User user = new User();

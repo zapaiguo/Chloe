@@ -5,9 +5,9 @@
   },
 
   "dependencies": {
-    "Chloe": "1.0.0-*",
-    "Chloe.MySql": "1.0.0-*",
-    "Chloe.SqlServer": "1.0.0-*",
+    "Chloe": "1.0.3-*",
+    "Chloe.MySql": "1.0.3-*",
+    "Chloe.SqlServer": "1.0.3-*",
     "Microsoft.NETCore.App": {
       "type": "platform",
       "version": "1.0.0"

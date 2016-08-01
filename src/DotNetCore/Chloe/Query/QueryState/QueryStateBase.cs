@@ -49,17 +49,17 @@ namespace Chloe.Query.QueryState
         public virtual IQueryState Accept(OrderExpression exp)
         {
             if (exp.NodeType == QueryExpressionType.OrderBy || exp.NodeType == QueryExpressionType.OrderByDesc)
-                this._resultElement.OrderSegments.Clear();
+                this._resultElement.Orderings.Clear();
 
-            DbOrderSegment orderSeg = VisistOrderExpression(this.MoeList, exp);
+            DbOrdering ordering = VisistOrderExpression(this.MoeList, exp);
 
-            if (this._resultElement.IsOrderSegmentsFromSubQuery)
+            if (this._resultElement.OrderingsComeFromSubQuery)
             {
-                this._resultElement.OrderSegments.Clear();
-                this._resultElement.IsOrderSegmentsFromSubQuery = false;
+                this._resultElement.Orderings.Clear();
+                this._resultElement.OrderingsComeFromSubQuery = false;
             }
 
-            this._resultElement.OrderSegments.Add(orderSeg);
+            this._resultElement.Orderings.Add(ordering);
 
             return this;
         }
@@ -125,7 +125,7 @@ namespace Chloe.Query.QueryState
 
             IMappingObjectExpression r = SelectorExpressionVisitor.VisitSelectExpression(selector, this.MoeList);
             result.MappingObjectExpression = r;
-            result.OrderSegments.AddRange(this._resultElement.OrderSegments);
+            result.Orderings.AddRange(this._resultElement.Orderings);
             result.AppendCondition(this._resultElement.Condition);
 
             result.GroupSegments.AddRange(this._resultElement.GroupSegments);
@@ -172,16 +172,16 @@ namespace Chloe.Query.QueryState
 
             //得将 subQuery.SqlQuery.Orders 告诉 以下创建的 result
             //将 orderPart 传递下去
-            if (this.Result.OrderSegments.Count > 0)
+            if (this.Result.Orderings.Count > 0)
             {
-                for (int i = 0; i < this.Result.OrderSegments.Count; i++)
+                for (int i = 0; i < this.Result.Orderings.Count; i++)
                 {
-                    DbOrderSegment orderSeg = this.Result.OrderSegments[i];
-                    DbExpression orderExp = orderSeg.DbExpression;
+                    DbOrdering ordering = this.Result.Orderings[i];
+                    DbExpression orderingExp = ordering.DbExpression;
 
                     string alias = null;
 
-                    DbColumnSegment columnExpression = sqlQuery.ColumnSegments.Where(a => DbExpressionEqualityComparer.EqualsCompare(orderExp, a.Body)).FirstOrDefault();
+                    DbColumnSegment columnExpression = sqlQuery.ColumnSegments.Where(a => DbExpressionEqualityComparer.EqualsCompare(orderingExp, a.Body)).FirstOrDefault();
 
                     // 对于重复的则不需要往 sqlQuery.Columns 重复添加了
                     if (columnExpression != null)
@@ -191,16 +191,16 @@ namespace Chloe.Query.QueryState
                     else
                     {
                         alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
-                        DbColumnSegment columnSeg = new DbColumnSegment(orderExp, alias);
+                        DbColumnSegment columnSeg = new DbColumnSegment(orderingExp, alias);
                         sqlQuery.ColumnSegments.Add(columnSeg);
                     }
 
-                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(orderExp.Type, table, alias);
-                    result.OrderSegments.Add(new DbOrderSegment(columnAccessExpression, orderSeg.OrderType));
+                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(orderingExp.Type, table, alias);
+                    result.Orderings.Add(new DbOrdering(columnAccessExpression, ordering.OrderType));
                 }
             }
 
-            result.IsOrderSegmentsFromSubQuery = true;
+            result.OrderingsComeFromSubQuery = true;
 
             GeneralQueryState queryState = new GeneralQueryState(result);
             return queryState;
@@ -210,7 +210,7 @@ namespace Chloe.Query.QueryState
             DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
 
             sqlQuery.Table = this._resultElement.FromTable;
-            sqlQuery.OrderSegments.AddRange(this._resultElement.OrderSegments);
+            sqlQuery.Orderings.AddRange(this._resultElement.Orderings);
             sqlQuery.Condition = this._resultElement.Condition;
 
             sqlQuery.GroupSegments.AddRange(this._resultElement.GroupSegments);
@@ -219,7 +219,7 @@ namespace Chloe.Query.QueryState
             return sqlQuery;
         }
 
-        protected static DbOrderSegment VisistOrderExpression(List<IMappingObjectExpression> moeList, OrderExpression orderExp)
+        protected static DbOrdering VisistOrderExpression(List<IMappingObjectExpression> moeList, OrderExpression orderExp)
         {
             DbExpression dbExpression = GeneralExpressionVisitor.VisitPredicate(orderExp.Expression, moeList);
             OrderType orderType;
@@ -234,9 +234,9 @@ namespace Chloe.Query.QueryState
             else
                 throw new NotSupportedException(orderExp.NodeType.ToString());
 
-            DbOrderSegment orderSeg = new DbOrderSegment(dbExpression, orderType);
+            DbOrdering ordering = new DbOrdering(dbExpression, orderType);
 
-            return orderSeg;
+            return ordering;
         }
 
         public virtual FromQueryResult ToFromQueryResult()

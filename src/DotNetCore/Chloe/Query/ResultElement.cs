@@ -12,7 +12,7 @@ namespace Chloe.Query
     {
         public ResultElement()
         {
-            this.OrderSegments = new List<DbOrderSegment>();
+            this.Orderings = new List<DbOrdering>();
             this.GroupSegments = new List<DbExpression>();
         }
 
@@ -21,9 +21,9 @@ namespace Chloe.Query
         /// <summary>
         /// 表示当前 OrderParts 集合内的排序是否是从上个 query 继承来的
         /// </summary>
-        public bool IsOrderSegmentsFromSubQuery { get; set; }
+        public bool OrderingsComeFromSubQuery { get; set; }
 
-        public List<DbOrderSegment> OrderSegments { get; private set; }
+        public List<DbOrdering> Orderings { get; private set; }
         public List<DbExpression> GroupSegments { get; private set; }
 
         /// <summary>
