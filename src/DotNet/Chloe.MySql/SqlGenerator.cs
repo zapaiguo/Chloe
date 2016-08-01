@@ -569,22 +569,22 @@ namespace Chloe.MySql
             this._sqlBuilder.Append(" AS ");
             this.QuoteName(seg.Alias);
         }
-        void AppendOrderSegment(DbOrderSegment seg)
+        void AppendOrdering(DbOrdering ordering)
         {
-            if (seg.OrderType == OrderType.Asc)
+            if (ordering.OrderType == OrderType.Asc)
             {
-                seg.DbExpression.Accept(this);
+                ordering.DbExpression.Accept(this);
                 this._sqlBuilder.Append(" ASC");
                 return;
             }
-            else if (seg.OrderType == OrderType.Desc)
+            else if (ordering.OrderType == OrderType.Desc)
             {
-                seg.DbExpression.Accept(this);
+                ordering.DbExpression.Accept(this);
                 this._sqlBuilder.Append(" DESC");
                 return;
             }
 
-            throw new NotSupportedException("OrderType: " + seg.OrderType);
+            throw new NotSupportedException("OrderType: " + ordering.OrderType);
         }
 
         void VisitDbJoinTableExpressions(List<DbJoinTableExpression> tables)
@@ -612,7 +612,7 @@ namespace Chloe.MySql
             exp.Table.Accept(this);
             this.BuildWhereState(exp.Condition);
             this.BuildGroupState(exp);
-            this.BuildOrderState(exp.OrderSegments);
+            this.BuildOrderState(exp.Orderings);
 
             if (exp.SkipCount == null && exp.TakeCount == null)
                 return;
@@ -633,24 +633,24 @@ namespace Chloe.MySql
                 whereExpression.Accept(this);
             }
         }
-        void BuildOrderState(List<DbOrderSegment> orderSegments)
+        void BuildOrderState(List<DbOrdering> orderings)
         {
-            if (orderSegments.Count > 0)
+            if (orderings.Count > 0)
             {
                 this._sqlBuilder.Append(" ORDER BY ");
-                this.ConcatOrderSegments(orderSegments);
+                this.ConcatOrderings(orderings);
             }
         }
-        void ConcatOrderSegments(List<DbOrderSegment> orderSegments)
+        void ConcatOrderings(List<DbOrdering> orderings)
         {
-            for (int i = 0; i < orderSegments.Count; i++)
+            for (int i = 0; i < orderings.Count; i++)
             {
                 if (i > 0)
                 {
                     this._sqlBuilder.Append(",");
                 }
 
-                this.AppendOrderSegment(orderSegments[i]);
+                this.AppendOrdering(orderings[i]);
             }
         }
         void BuildGroupState(DbSqlQueryExpression exp)

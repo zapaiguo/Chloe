@@ -1,11 +1,11 @@
 ﻿
 namespace Chloe.DbExpressions
 {
-    public class DbOrderSegment
+    public class DbOrdering
     {
         OrderType _orderType;
         DbExpression _expression;
-        public DbOrderSegment(DbExpression expression, OrderType orderType)
+        public DbOrdering(DbExpression expression, OrderType orderType)
         {
             this._expression = expression;
             this._orderType = orderType;

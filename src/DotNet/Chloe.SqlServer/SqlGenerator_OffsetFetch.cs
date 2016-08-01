@@ -28,16 +28,16 @@ namespace Chloe.SqlServer
             this.BuildWhereState(exp.Condition);
             this.BuildGroupState(exp);
 
-            List<DbOrderSegment> orderSegs = exp.OrderSegments;
-            if (orderSegs.Count == 0)
+            List<DbOrdering> orderings = exp.Orderings;
+            if (orderings.Count == 0)
             {
-                DbExpression orderExp = DbExpression.Add(UtilConstants.DbParameter_1, DbConstantExpression.Zero, DbConstantExpression.Zero.Type, null);
-                DbOrderSegment orderSeg = new DbOrderSegment(orderExp, OrderType.Asc);
-                orderSegs = new List<DbOrderSegment>(1);
-                orderSegs.Add(orderSeg);
+                DbExpression orderingExp = DbExpression.Add(UtilConstants.DbParameter_1, DbConstantExpression.Zero, DbConstantExpression.Zero.Type, null);
+                DbOrdering ordering = new DbOrdering(orderingExp, OrderType.Asc);
+                orderings = new List<DbOrdering>(1);
+                orderings.Add(ordering);
             }
 
-            this.BuildOrderState(orderSegs);
+            this.BuildOrderState(orderings);
 
             this._sqlBuilder.Append(" OFFSET ", exp.SkipCount.Value.ToString(), " ROWS");
             if (exp.TakeCount != null)
