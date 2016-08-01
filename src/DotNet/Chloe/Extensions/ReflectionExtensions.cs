@@ -25,11 +25,6 @@ namespace Chloe.Extensions
             return null;
         }
 
-        /// <summary>
-        /// 获取属性或者字段的类型，如果 MemberInfo 非 PropertyInfo 或 FieldInfo 则引发 NotSupportedException
-        /// </summary>
-        /// <param name="propertyOrField"></param>
-        /// <returns></returns>
         public static Type GetPropertyOrFieldType(this MemberInfo propertyOrField)
         {
             if (propertyOrField.MemberType == MemberTypes.Property)
