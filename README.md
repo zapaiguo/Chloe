@@ -1,10 +1,12 @@
 # Chloe
 Chloe is a lightweight Object/Relational Mapping(ORM) library.
+
 # NuGet Install Command
-.Net: Install-Package Chloe.SqlServer
-.Net Core: Install-Package ChloeCore.SqlServer
+* .Net: **Install-Package Chloe.SqlServer**
+* .Net Core: **Install-Package ChloeCore.SqlServer**
+
 # Usage
-* Entity
+* **Entity**
 ```C#
 public enum Gender
 {
@@ -40,12 +42,12 @@ public class Province
     public string Name { get; set; }
 }
 ```
-* DbContext
+* **DbContext**
 ```C#
 IDbContext context = new MsSqlContext(DbHelper.ConnectionString);
 IQuery<User> q = context.Query<User>();
 ```
-* Query
+* **Query**
 ```C#
 IQuery<User> q = context.Query<User>();
 q.Where(a => a.Id > 0).FirstOrDefault();
@@ -65,9 +67,10 @@ q.Where(a => a.Id > 0).Where(a => a.Name.Contains("lu")).ToList();
  * WHERE ([Users].[Id] > 0 AND [Users].[Name] LIKE '%' + N'lu' + '%')
  */
 ```
-* Join Query
+* **Join Query**
 ```C#
 MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
+
 IQuery<User> users = context.Query<User>();
 IQuery<City> cities = context.Query<City>();
 IQuery<Province> provinces = context.Query<Province>();
@@ -109,7 +112,7 @@ view.Where(a => a.User.Id == 1).Select(a => new { UserId = a.User.Id, CityName =
  * For details please see 'https://github.com/shuxinqin/Chloe/blob/master/src/DotNet/Chloe/IQuery%60.cs'.
  */
 ```
-* Group Query
+* **Group Query**
 ```C#
 IQuery<User> q = context.Query<User>();
 
@@ -124,12 +127,12 @@ g.Select(a => new { a.Age, Count = AggregateFunctions.Count(), Sum = AggregateFu
  * GROUP BY [Users].[Age] HAVING ([Users].[Age] > 1 AND COUNT(1) > 0)
  */
 ```
-* Sql Query
+* **Sql Query**
 ```C#
 context.SqlQuery<User>("select Id,Name,Age from Users where Name=@name", DbParam.Create("@name", "lu")).ToList();
 context.SqlQuery<int>("select Id from Users").ToList();
 ```
-* Aggregate Function
+* **Aggregate Query**
 ```C#
 IQuery<User> q = context.Query<User>();
 
@@ -174,7 +177,7 @@ var avg = q.Average(a => a.Age);
  * SELECT CAST(AVG([Users].[Age]) AS FLOAT) AS [C] FROM [Users] AS [Users]
  */
 ```
-* Method
+* **Method**
 ```C#
 IQuery<User> q = context.Query<User>();
 
@@ -243,7 +246,7 @@ q.Select(a => new
     B = a.Age == null ? false : a.Age > 1,
 }).ToList();
 ```
-* Insert
+* **Insert**
 ```C#
 IDbContext context = new MsSqlContext(DbHelper.ConnectionString);
 
@@ -271,7 +274,7 @@ user = context.Insert(user);
    INSERT INTO [Users]([Name],[Gender],[Age],[CityId],[OpTime]) VALUES(@P_0,@P_1,@P_2,@P_3,@P_4);SELECT @@IDENTITY
  */
 ```
-* Update
+* **Update**
 ```C#
 MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
@@ -313,7 +316,7 @@ context.Update(user);//update the column 'Name' only
    UPDATE [Users] SET [Name]=@P_0 WHERE [Users].[Id] = @P_1
  */
 ```
-* Delete
+* **Delete**
 ```C#
 MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
