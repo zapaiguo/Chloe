@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>MySql database provider for Chloe Core.</description>
     <copyright>Copyright 2016</copyright>
-    <tags>Chloe,O/RM,Data,Core,MySql</tags>
+    <tags>Chloe,ORM,Data,Core,MySql</tags>
 	
 	<dependencies>
       <group targetFramework=".NETStandard1.6">

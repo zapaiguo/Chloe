@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>SQL Server database provider for Chloe Core.</description>
     <copyright>Copyright 2016</copyright>
-    <tags>Chloe,O/RM,Data,Core,SqlServer</tags>
+    <tags>Chloe,ORM,Data,Core,SqlServer</tags>
 	
 	<dependencies>
       <group targetFramework=".NETStandard1.6">

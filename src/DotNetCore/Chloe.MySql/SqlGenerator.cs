@@ -296,12 +296,12 @@ namespace Chloe.MySql
         public override DbExpression Visit(DbCaseWhenExpression exp)
         {
             this._sqlBuilder.Append("CASE");
-            foreach (var item in exp.WhenThenExps)
+            foreach (var whenThen in exp.WhenThenPairs)
             {
                 this._sqlBuilder.Append(" WHEN ");
-                item.When.Accept(this);
+                whenThen.When.Accept(this);
                 this._sqlBuilder.Append(" THEN ");
-                item.Then.Accept(this);
+                whenThen.Then.Accept(this);
             }
 
             this._sqlBuilder.Append(" ELSE ");
@@ -573,13 +573,13 @@ namespace Chloe.MySql
         {
             if (ordering.OrderType == OrderType.Asc)
             {
-                ordering.DbExpression.Accept(this);
+                ordering.Expression.Accept(this);
                 this._sqlBuilder.Append(" ASC");
                 return;
             }
             else if (ordering.OrderType == OrderType.Desc)
             {
-                ordering.DbExpression.Accept(this);
+                ordering.Expression.Accept(this);
                 this._sqlBuilder.Append(" DESC");
                 return;
             }
