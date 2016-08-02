@@ -1,8 +1,8 @@
 # Chloe
 Chloe is a lightweight Object/Relational Mapping(ORM) library.
 # NuGet Install Command
-* .Net: Install-Package Chloe.SqlServer
-* .Net Core: Install-Package ChloeCore.SqlServer
+.Net: Install-Package Chloe.SqlServer
+.Net Core: Install-Package ChloeCore.SqlServer
 # Usage
 * Entity
 ```C#
