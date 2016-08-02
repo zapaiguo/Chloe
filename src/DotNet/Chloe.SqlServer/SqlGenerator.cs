@@ -319,13 +319,13 @@ namespace Chloe.SqlServer
         public override DbExpression Visit(DbCaseWhenExpression exp)
         {
             this._sqlBuilder.Append("CASE");
-            foreach (var item in exp.WhenThenExps)
+            foreach (var whenThen in exp.WhenThenPairs)
             {
                 // then 部分得判断是否是诸如 a>1,a=b,in,like 等等的情况，如果是则将其构建成一个 case when 
                 this._sqlBuilder.Append(" WHEN ");
-                item.When.Accept(this);
+                whenThen.When.Accept(this);
                 this._sqlBuilder.Append(" THEN ");
-                EnsureDbExpressionReturnCSharpBoolean(item.Then).Accept(this);
+                EnsureDbExpressionReturnCSharpBoolean(whenThen.Then).Accept(this);
             }
 
             this._sqlBuilder.Append(" ELSE ");

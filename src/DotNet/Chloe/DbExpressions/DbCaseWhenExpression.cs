@@ -6,17 +6,17 @@ namespace Chloe.DbExpressions
 {
     public class DbCaseWhenExpression : DbExpression
     {
-        ReadOnlyCollection<WhenThenExpressionPair> _whenThenExps;
-        DbExpression _elseExp;
-        public DbCaseWhenExpression(Type type, IList<WhenThenExpressionPair> whenThenExps, DbExpression elseExp)
+        ReadOnlyCollection<WhenThenExpressionPair> _whenThenPairs;
+        DbExpression _else;
+        public DbCaseWhenExpression(Type type, IList<WhenThenExpressionPair> whenThenPairs, DbExpression @else)
             : base(DbExpressionType.CaseWhen, type)
         {
-            this._whenThenExps = new ReadOnlyCollection<WhenThenExpressionPair>(whenThenExps);
-            this._elseExp = elseExp;
+            this._whenThenPairs = new ReadOnlyCollection<WhenThenExpressionPair>(whenThenPairs);
+            this._else = @else;
         }
 
-        public ReadOnlyCollection<WhenThenExpressionPair> WhenThenExps { get { return this._whenThenExps; } }
-        public DbExpression Else { get { return this._elseExp; } }
+        public ReadOnlyCollection<WhenThenExpressionPair> WhenThenPairs { get { return this._whenThenPairs; } }
+        public DbExpression Else { get { return this._else; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {
