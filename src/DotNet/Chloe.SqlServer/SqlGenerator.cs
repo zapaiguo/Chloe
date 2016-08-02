@@ -616,13 +616,13 @@ namespace Chloe.SqlServer
         {
             if (ordering.OrderType == OrderType.Asc)
             {
-                ordering.DbExpression.Accept(this);
+                ordering.Expression.Accept(this);
                 this._sqlBuilder.Append(" ASC");
                 return;
             }
             else if (ordering.OrderType == OrderType.Desc)
             {
-                ordering.DbExpression.Accept(this);
+                ordering.Expression.Accept(this);
                 this._sqlBuilder.Append(" DESC");
                 return;
             }

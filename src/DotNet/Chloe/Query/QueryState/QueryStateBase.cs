@@ -177,7 +177,7 @@ namespace Chloe.Query.QueryState
                 for (int i = 0; i < this.Result.Orderings.Count; i++)
                 {
                     DbOrdering ordering = this.Result.Orderings[i];
-                    DbExpression orderingExp = ordering.DbExpression;
+                    DbExpression orderingExp = ordering.Expression;
 
                     string alias = null;
 

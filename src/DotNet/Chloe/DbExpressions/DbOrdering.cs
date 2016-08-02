@@ -10,7 +10,7 @@ namespace Chloe.DbExpressions
             this._expression = expression;
             this._orderType = orderType;
         }
-        public DbExpression DbExpression { get { return this._expression; } }
+        public DbExpression Expression { get { return this._expression; } }
         public OrderType OrderType { get { return this._orderType; } }
     }
 }
