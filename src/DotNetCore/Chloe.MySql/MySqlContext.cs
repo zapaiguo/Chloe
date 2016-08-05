@@ -21,7 +21,7 @@ namespace Chloe.MySql
         {
             Utils.CheckNull(dbConnectionFactory);
 
-            this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory, this);
+            this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory);
         }
 
         public override IDbContextServiceProvider DbContextServiceProvider

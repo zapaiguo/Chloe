@@ -12,13 +12,12 @@ namespace Chloe.MySql
     class DbContextServiceProvider : IDbContextServiceProvider
     {
         IDbConnectionFactory _dbConnectionFactory;
-        MySqlContext _msSqlContext;
 
-        public DbContextServiceProvider(IDbConnectionFactory dbConnectionFactory, MySqlContext msSqlContext)
+        public DbContextServiceProvider(IDbConnectionFactory dbConnectionFactory)
         {
             this._dbConnectionFactory = dbConnectionFactory;
-            this._msSqlContext = msSqlContext;
         }
+
         public IDbConnection CreateConnection()
         {
             return this._dbConnectionFactory.CreateConnection();
