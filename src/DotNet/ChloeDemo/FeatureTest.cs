@@ -309,7 +309,7 @@ namespace ChloeDemo
             user.Age = 21;
             user.Gender = Gender.Man;
 
-            var id = context.Insert<User>(() => new User() { Name = user.Name, NickName = user.Name, Age = user.Age, Gender = Gender.Man, OpTime = DateTime.Now });
+            var id = context.Insert<User>(() => new User() { Name = user.Name, Age = user.Age, Gender = Gender.Man, OpTime = DateTime.Now });
 
             //var id = context.Insert<User>(() => new User() { Name = "lu", NickName = "so", Age = 18, Gender = Gender.Man, OpTime = DateTime.Now });
 
@@ -317,11 +317,10 @@ namespace ChloeDemo
 
             //user = context.Query<User>().Where(a => a.Id == (int)id).First();
 
-            user.ByteArray = new byte[] { 1, 2, 3 };
             user.OpTime = DateTime.Now;
             var user1 = context.Insert(user);
 
-            context.Insert(new User() { Name = "lu", NickName = "so", Age = 18, Gender = Gender.Man, ByteArray = new byte[] { 1, 2 }, OpTime = DateTime.Now });
+            context.Insert(new User() { Name = "lu", Age = 18, Gender = Gender.Man, OpTime = DateTime.Now });
 
             ConsoleHelper.WriteLineAndReadKey();
         }
@@ -343,7 +342,7 @@ namespace ChloeDemo
             MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
             r = context.Update<User>(a => new User() { Name = a.Name, Age = a.Age + 100, Gender = Gender.Man, OpTime = DateTime.Now }, a => a.Name == name);
 
-            r = context.Update<User>(a => new User() { Name = stringNull, NickName = stringNull, Age = intNull, Gender = null, OpTime = dateTimeNull }, a => false);
+            r = context.Update<User>(a => new User() { Name = stringNull, Age = intNull, Gender = null, OpTime = dateTimeNull }, a => false);
 
             User user = new User() { Id = 1, Name = "lu", Age = 18, Gender = Gender.Man };
             user.Id = 2;
