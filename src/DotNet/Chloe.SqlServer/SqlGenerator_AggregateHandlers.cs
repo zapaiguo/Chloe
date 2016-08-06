@@ -22,12 +22,7 @@ namespace Chloe.SqlServer
             aggregateHandlers.Add("Min", Aggregate_Min);
             aggregateHandlers.Add("Average", Aggregate_Average);
 
-            var ret = new Dictionary<string, Action<DbAggregateExpression, SqlGenerator>>(aggregateHandlers.Count, StringComparer.Ordinal);
-            foreach (var item in aggregateHandlers)
-            {
-                ret.Add(item.Key, item.Value);
-            }
-
+            var ret = Utils.Clone(aggregateHandlers);
             return ret;
         }
 

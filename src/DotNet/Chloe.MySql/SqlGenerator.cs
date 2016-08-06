@@ -20,26 +20,26 @@ namespace Chloe.MySql
         static readonly Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>> MethodHandlers = InitMethodHandlers();
         static readonly Dictionary<string, Action<DbAggregateExpression, SqlGenerator>> AggregateHandlers = InitAggregateHandlers();
         static readonly Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
-        static readonly Dictionary<Type, string> CSharpType_DbType_Mappings = null;
+        static readonly Dictionary<Type, string> CastTypeMap = null;
 
         static readonly List<string> CacheParameterNames = null;
 
         static SqlGenerator()
         {
-            Dictionary<Type, string> cSharpType_DbType_Mappings = new Dictionary<Type, string>(5);
-            cSharpType_DbType_Mappings.Add(typeof(string), "CHAR");
-            cSharpType_DbType_Mappings.Add(typeof(byte), "UNSIGNED");
-            cSharpType_DbType_Mappings.Add(typeof(sbyte), "SIGNED");
-            cSharpType_DbType_Mappings.Add(typeof(Int16), "SIGNED");
-            cSharpType_DbType_Mappings.Add(typeof(UInt16), "UNSIGNED");
-            cSharpType_DbType_Mappings.Add(typeof(int), "SIGNED");
-            cSharpType_DbType_Mappings.Add(typeof(uint), "UNSIGNED");
-            cSharpType_DbType_Mappings.Add(typeof(long), "SIGNED");
-            cSharpType_DbType_Mappings.Add(typeof(ulong), "UNSIGNED");
-            cSharpType_DbType_Mappings.Add(typeof(DateTime), "DATETIME");
-            cSharpType_DbType_Mappings.Add(typeof(bool), "SIGNED");
+            Dictionary<Type, string> castTypeMap = new Dictionary<Type, string>();
+            castTypeMap.Add(typeof(string), "CHAR");
+            castTypeMap.Add(typeof(byte), "UNSIGNED");
+            castTypeMap.Add(typeof(sbyte), "SIGNED");
+            castTypeMap.Add(typeof(Int16), "SIGNED");
+            castTypeMap.Add(typeof(UInt16), "UNSIGNED");
+            castTypeMap.Add(typeof(int), "SIGNED");
+            castTypeMap.Add(typeof(uint), "UNSIGNED");
+            castTypeMap.Add(typeof(long), "SIGNED");
+            castTypeMap.Add(typeof(ulong), "UNSIGNED");
+            castTypeMap.Add(typeof(DateTime), "DATETIME");
+            castTypeMap.Add(typeof(bool), "SIGNED");
 
-            CSharpType_DbType_Mappings = cSharpType_DbType_Mappings;
+            CastTypeMap = Utils.Clone(castTypeMap);
 
 
             int cacheParameterNameCount = 2 * 12;
@@ -774,12 +774,7 @@ namespace Chloe.MySql
             binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_String_String, StringConcat);
             binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_Object_Object, StringConcat);
 
-            var ret = new Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>>(binaryWithMethodHandlers.Count);
-            foreach (var item in binaryWithMethodHandlers)
-            {
-                ret.Add(item.Key, item.Value);
-            }
-
+            var ret = Utils.Clone(binaryWithMethodHandlers);
             return ret;
         }
 

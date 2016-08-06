@@ -22,7 +22,7 @@ namespace Chloe.SqlServer
         static readonly Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>> MethodHandlers = InitMethodHandlers();
         static readonly Dictionary<string, Action<DbAggregateExpression, SqlGenerator>> AggregateHandlers = InitAggregateHandlers();
         static readonly Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
-        static readonly Dictionary<Type, string> CSharpType_DbType_Mappings = null;
+        static readonly Dictionary<Type, string> CastTypeMap = null;
 
         public static readonly ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes = null;
 
@@ -38,20 +38,20 @@ namespace Chloe.SqlServer
             list.Add(DbExpressionType.Convert);
             SafeDbExpressionTypes = list.AsReadOnly();
 
-            Dictionary<Type, string> cSharpType_DbType_Mappings = new Dictionary<Type, string>(10);
-            cSharpType_DbType_Mappings.Add(typeof(string), "NVARCHAR(MAX)");
-            cSharpType_DbType_Mappings.Add(typeof(byte), "TINYINT");
-            cSharpType_DbType_Mappings.Add(typeof(Int16), "SMALLINT");
-            cSharpType_DbType_Mappings.Add(typeof(int), "INT");
-            cSharpType_DbType_Mappings.Add(typeof(long), "BIGINT");
-            cSharpType_DbType_Mappings.Add(typeof(decimal), "DECIMAL(19,0)");//I think this will be a bug.
-            cSharpType_DbType_Mappings.Add(typeof(double), "FLOAT");
-            cSharpType_DbType_Mappings.Add(typeof(float), "REAL");
-            cSharpType_DbType_Mappings.Add(typeof(bool), "BIT");
-            cSharpType_DbType_Mappings.Add(typeof(DateTime), "DATETIME");
-            cSharpType_DbType_Mappings.Add(typeof(Guid), "UNIQUEIDENTIFIER");
+            Dictionary<Type, string> castTypeMap = new Dictionary<Type, string>();
+            castTypeMap.Add(typeof(string), "NVARCHAR(MAX)");
+            castTypeMap.Add(typeof(byte), "TINYINT");
+            castTypeMap.Add(typeof(Int16), "SMALLINT");
+            castTypeMap.Add(typeof(int), "INT");
+            castTypeMap.Add(typeof(long), "BIGINT");
+            castTypeMap.Add(typeof(decimal), "DECIMAL(19,0)");//I think this will be a bug.
+            castTypeMap.Add(typeof(double), "FLOAT");
+            castTypeMap.Add(typeof(float), "REAL");
+            castTypeMap.Add(typeof(bool), "BIT");
+            castTypeMap.Add(typeof(DateTime), "DATETIME");
+            castTypeMap.Add(typeof(Guid), "UNIQUEIDENTIFIER");
 
-            CSharpType_DbType_Mappings = cSharpType_DbType_Mappings;
+            CastTypeMap = Utils.Clone(castTypeMap);
 
             int cacheParameterNameCount = 2 * 12;
             List<string> cacheParameterNames = new List<string>(cacheParameterNameCount);
@@ -884,12 +884,7 @@ namespace Chloe.SqlServer
             binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_String_String, StringConcat);
             binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_Object_Object, StringConcat);
 
-            var ret = new Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>>(binaryWithMethodHandlers.Count);
-            foreach (var item in binaryWithMethodHandlers)
-            {
-                ret.Add(item.Key, item.Value);
-            }
-
+            var ret = Utils.Clone(binaryWithMethodHandlers);
             return ret;
         }
 
