@@ -52,6 +52,7 @@ namespace Chloe.MySql
             methodHandlers.Add("DiffHours", Method_DbFunctions_DiffHours);
             methodHandlers.Add("DiffMinutes", Method_DbFunctions_DiffMinutes);
             methodHandlers.Add("DiffSeconds", Method_DbFunctions_DiffSeconds);
+            methodHandlers.Add("DiffMilliseconds", Method_DbFunctions_DiffMilliseconds);
             methodHandlers.Add("DiffMicroseconds", Method_DbFunctions_DiffMicroseconds);
 
             var ret = Utils.Clone(methodHandlers);
@@ -387,6 +388,12 @@ namespace Chloe.MySql
             EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffSeconds);
 
             DbFunction_DATEDIFF(generator, "SECOND", exp.Arguments[0], exp.Arguments[1]);
+        }
+        static void Method_DbFunctions_DiffMilliseconds(DbMethodCallExpression exp, SqlGenerator generator)
+        {
+            EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffMilliseconds);
+
+            throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
         static void Method_DbFunctions_DiffMicroseconds(DbMethodCallExpression exp, SqlGenerator generator)
         {
