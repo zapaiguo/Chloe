@@ -554,8 +554,7 @@ namespace Chloe.SQLite
         }
         public override DbExpression Visit(DbDeleteExpression exp)
         {
-            this._sqlBuilder.Append("DELETE ");
-            this._sqlBuilder.Append(" FROM ");
+            this._sqlBuilder.Append("DELETE FROM ");
             this.QuoteName(exp.Table.Name);
             this.BuildWhereState(exp.Condition);
 

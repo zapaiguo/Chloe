@@ -23,7 +23,7 @@ namespace ChloeDemo
             //throw new NotImplementedException("You must add the System.Data.SQLite.dll and implement the method 'CreateConnection()'.");
 
             /*
-             * If there is an error cause because can not load the assembly 'SQLite.Interop.dll',the 'SQLite.Interop.dll' in the directories 'x64' and 'x86', you should copy them with folder to the directory 'bin\Debug' and try again.
+             * If there is an error caused because can not load the assembly 'SQLite.Interop.dll',the 'SQLite.Interop.dll' in the directories 'x64' and 'x86', you should copy them with folder to the directory 'bin\Debug' and try again.
              */
 
             SQLiteConnection conn = new SQLiteConnection(this._connString);
