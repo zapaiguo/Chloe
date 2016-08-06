@@ -136,7 +136,7 @@ namespace Chloe.SqlServer
                 }
             }
 
-            if (CSharpType_DbType_Mappings.TryGetValue(targetType, out dbTypeString))
+            if (CastTypeMap.TryGetValue(targetType, out dbTypeString))
             {
                 return true;
             }
@@ -211,7 +211,7 @@ namespace Chloe.SqlServer
             Type unType = Utils.GetUnderlyingType(retType);
 
             string dbTypeString = null;
-            if (unType != UtilConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise cause problems. */ && CSharpType_DbType_Mappings.TryGetValue(unType, out dbTypeString))
+            if (unType != UtilConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise cause problems. */ && CastTypeMap.TryGetValue(unType, out dbTypeString))
             {
                 generator._sqlBuilder.Append("CAST(");
             }
