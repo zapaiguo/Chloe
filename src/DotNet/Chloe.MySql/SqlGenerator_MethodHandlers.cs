@@ -54,12 +54,7 @@ namespace Chloe.MySql
             methodHandlers.Add("DiffSeconds", Method_DbFunctions_DiffSeconds);
             methodHandlers.Add("DiffMicroseconds", Method_DbFunctions_DiffMicroseconds);
 
-            var ret = new Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>>(methodHandlers.Count, StringComparer.Ordinal);
-            foreach (var item in methodHandlers)
-            {
-                ret.Add(item.Key, item.Value);
-            }
-
+            var ret = Utils.Clone(methodHandlers);
             return ret;
         }
 
