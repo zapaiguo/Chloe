@@ -293,7 +293,7 @@ namespace ChloeDemo
                 Double_Parse = double.Parse("3.1"),//CAST('3.1' AS REAL)
                 Float_Parse = float.Parse("4.1"),//CAST('4.1' AS REAL)
                 //Decimal_Parse = decimal.Parse("5"),//不支持
-                Guid_Parse = Guid.Parse("D544BC4C-739E-4CD3-A3D3-7BF803FCE179"),//'D544BC4C-739E-4CD3-A3D3-7BF803FCE179'
+                //Guid_Parse = Guid.Parse("D544BC4C-739E-4CD3-A3D3-7BF803FCE179"),//不支持 'D544BC4C-739E-4CD3-A3D3-7BF803FCE179'
 
                 Bool_Parse = bool.Parse("1"),//CAST('1' AS INTEGER)
                 DateTime_Parse = DateTime.Parse("2014-01-01"),//DATETIME('2014-01-01')
