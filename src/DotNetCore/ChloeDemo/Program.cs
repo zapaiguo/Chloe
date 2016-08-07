@@ -9,8 +9,11 @@ namespace ChloeDemo
     {
         public static void Main(string[] args)
         {
-            MsSqlTest.Test();
-            MySqlDemo.Test();
+            var xx = Guid.Parse("D544BC4C739E4CD3A3D37BF803FCE179");
+
+            SQLiteDemo.Test();
+            //MsSqlTest.Test();
+            //MySqlDemo.Test();
         }
     }
 }

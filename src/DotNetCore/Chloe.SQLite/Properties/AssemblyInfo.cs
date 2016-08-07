@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("A lightweight and high-performance Object/Relational Mapping(ORM) library.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Chloe.SqlServer")]
+[assembly: AssemblyProduct("Chloe.SQLite")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("a76eacb5-c6da-4cc2-8fe1-9edcc6bf7b46")]
+[assembly: Guid("9af052ae-3ede-4c54-860f-601b79d386bc")]
 
 [assembly: AssemblyVersion("1.0.4.0")]
 [assembly: AssemblyFileVersion("1.0.4.0")]

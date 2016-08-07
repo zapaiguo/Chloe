@@ -119,6 +119,27 @@
           "lib/netstandard1.3/_._": {}
         }
       },
+      "Microsoft.Data.Sqlite/1.0.0": {
+        "type": "package",
+        "dependencies": {
+          "SQLite": "3.12.2",
+          "System.AppContext": "4.1.0",
+          "System.Data.Common": "4.1.0",
+          "System.Diagnostics.Debug": "4.0.11",
+          "System.Linq": "4.1.0",
+          "System.Reflection.Extensions": "4.0.1",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime.Extensions": "4.1.0",
+          "System.Runtime.InteropServices": "4.1.0",
+          "System.Text.Encoding": "4.0.11"
+        },
+        "compile": {
+          "lib/netstandard1.3/Microsoft.Data.Sqlite.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/Microsoft.Data.Sqlite.dll": {}
+        }
+      },
       "Microsoft.NETCore.App/1.0.0": {
         "type": "package",
         "dependencies": {
@@ -411,6 +432,33 @@
         "type": "package",
         "runtimeTargets": {
           "runtimes/win7-x86/native/sni.dll": {
+            "assetType": "native",
+            "rid": "win7-x86"
+          }
+        }
+      },
+      "SQLite/3.12.2": {
+        "type": "package",
+        "dependencies": {
+          "SQLite.Native": "3.12.2"
+        }
+      },
+      "SQLite.Native/3.12.2": {
+        "type": "package",
+        "runtimeTargets": {
+          "runtimes/linux-x64/native/libsqlite3.so": {
+            "assetType": "native",
+            "rid": "linux-x64"
+          },
+          "runtimes/osx-x64/native/libsqlite3.dylib": {
+            "assetType": "native",
+            "rid": "osx-x64"
+          },
+          "runtimes/win7-x64/native/sqlite3.dll": {
+            "assetType": "native",
+            "rid": "win7-x64"
+          },
+          "runtimes/win7-x86/native/sqlite3.dll": {
             "assetType": "native",
             "rid": "win7-x86"
           }
@@ -2183,7 +2231,7 @@
           "lib/netstandard1.3/_._": {}
         }
       },
-      "Chloe/1.0.3": {
+      "Chloe/1.0.4": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -2200,11 +2248,11 @@
           "netstandard1.6/Chloe.dll": {}
         }
       },
-      "Chloe.MySql/1.0.3": {
+      "Chloe.MySql/1.0.4": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Chloe": "1.0.3",
+          "Chloe": "1.0.4",
           "NETStandard.Library": "1.6.0",
           "System.Data.Common": "4.1.0"
         },
@@ -2215,11 +2263,26 @@
           "netstandard1.6/Chloe.MySql.dll": {}
         }
       },
-      "Chloe.SqlServer/1.0.3": {
+      "Chloe.SQLite/1.0.4": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Chloe": "1.0.3",
+          "Chloe": "1.0.4",
+          "NETStandard.Library": "1.6.0",
+          "System.Data.Common": "4.1.0"
+        },
+        "compile": {
+          "netstandard1.6/Chloe.SQLite.dll": {}
+        },
+        "runtime": {
+          "netstandard1.6/Chloe.SQLite.dll": {}
+        }
+      },
+      "Chloe.SqlServer/1.0.4": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v1.6",
+        "dependencies": {
+          "Chloe": "1.0.4",
           "NETStandard.Library": "1.6.0",
           "System.Data.Common": "4.1.0",
           "System.Data.SqlClient": "4.1.0"
@@ -2371,6 +2434,19 @@
         "ref/xamarinmac20/_._",
         "ref/xamarintvos10/_._",
         "ref/xamarinwatchos10/_._"
+      ]
+    },
+    "Microsoft.Data.Sqlite/1.0.0": {
+      "sha512": "dezlCGK9zVrPNfoX1SL50GmWDdRQNcV1SBy3wuCn/a0g7Gc26PyvlA4BKapjnCK5N8LSQ2+1PdW2imiRr+YvxA==",
+      "type": "package",
+      "path": "Microsoft.Data.Sqlite/1.0.0",
+      "files": [
+        "Microsoft.Data.SQLite.1.0.0.nupkg.sha512",
+        "Microsoft.Data.SQLite.nuspec",
+        "lib/net451/Microsoft.Data.Sqlite.dll",
+        "lib/net451/Microsoft.Data.Sqlite.xml",
+        "lib/netstandard1.3/Microsoft.Data.Sqlite.dll",
+        "lib/netstandard1.3/Microsoft.Data.Sqlite.xml"
       ]
     },
     "Microsoft.NETCore.App/1.0.0": {
@@ -2694,6 +2770,29 @@
         "runtime.win7-x86.runtime.native.System.Data.SqlClient.sni.4.0.1.nupkg.sha512",
         "runtime.win7-x86.runtime.native.System.Data.SqlClient.sni.nuspec",
         "runtimes/win7-x86/native/sni.dll"
+      ]
+    },
+    "SQLite/3.12.2": {
+      "sha512": "XYNQJt2eFqGluWP+fDaiNrV1v3kA+VsU2ygUjLx7zqzhIZKlAjSYMZLldmbGNnlNC5rKR+0LTrN0IA9dZkDyFw==",
+      "type": "package",
+      "path": "SQLite/3.12.2",
+      "files": [
+        "SQLite.3.12.2.nupkg.sha512",
+        "SQLite.nuspec"
+      ]
+    },
+    "SQLite.Native/3.12.2": {
+      "sha512": "/5BdEFTaCziE6K5OG0bjSUhPo+LRmFcmyriFWEZNSuHaiqSp69sVngTb/Yo8mH6JykMA79BFdCBLMW+2E3pnuA==",
+      "type": "package",
+      "path": "SQLite.Native/3.12.2",
+      "files": [
+        "SQLite.Native.3.12.2.nupkg.sha512",
+        "SQLite.Native.nuspec",
+        "build/net45/SQLite.Native.props",
+        "runtimes/linux-x64/native/libsqlite3.so",
+        "runtimes/osx-x64/native/libsqlite3.dylib",
+        "runtimes/win7-x64/native/sqlite3.dll",
+        "runtimes/win7-x86/native/sqlite3.dll"
       ]
     },
     "System.AppContext/4.1.0": {
@@ -6990,17 +7089,22 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "Chloe/1.0.3": {
+    "Chloe/1.0.4": {
       "type": "project",
       "path": "../Chloe/project.json",
       "msbuildProject": "../Chloe/Chloe.xproj"
     },
-    "Chloe.MySql/1.0.3": {
+    "Chloe.MySql/1.0.4": {
       "type": "project",
       "path": "../Chloe.MySql/project.json",
       "msbuildProject": "../Chloe.MySql/Chloe.MySql.xproj"
     },
-    "Chloe.SqlServer/1.0.3": {
+    "Chloe.SQLite/1.0.4": {
+      "type": "project",
+      "path": "../Chloe.SQLite/project.json",
+      "msbuildProject": "../Chloe.SQLite/Chloe.SQLite.xproj"
+    },
+    "Chloe.SqlServer/1.0.4": {
       "type": "project",
       "path": "../Chloe.SqlServer/project.json",
       "msbuildProject": "../Chloe.SqlServer/Chloe.SqlServer.xproj"
@@ -7010,7 +7114,9 @@
     "": [
       "Chloe >= 1.0.3-*",
       "Chloe.MySql >= 1.0.3-*",
+      "Chloe.SQLite >= 1.0.3-*",
       "Chloe.SqlServer >= 1.0.3-*",
+      "Microsoft.Data.Sqlite >= 1.0.0",
       "Microsoft.NETCore.App >= 1.0.0"
     ],
     ".NETCoreApp,Version=v1.0": []
