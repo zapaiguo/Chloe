@@ -7112,10 +7112,10 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "Chloe >= 1.0.3-*",
-      "Chloe.MySql >= 1.0.3-*",
-      "Chloe.SQLite >= 1.0.3-*",
-      "Chloe.SqlServer >= 1.0.3-*",
+      "Chloe >= 1.0.4-*",
+      "Chloe.MySql >= 1.0.4-*",
+      "Chloe.SQLite >= 1.0.4-*",
+      "Chloe.SqlServer >= 1.0.4-*",
       "Microsoft.Data.Sqlite >= 1.0.0",
       "Microsoft.NETCore.App >= 1.0.0"
     ],
