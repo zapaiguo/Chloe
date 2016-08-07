@@ -9,8 +9,9 @@ namespace ChloeDemo
     {
         public static void Main(string[] args)
         {
-            MsSqlTest.Test();
-            MySqlDemo.Test();
+            SQLiteDemo.Test();
+            //MsSqlTest.Test();
+            //MySqlDemo.Test();
         }
     }
 }

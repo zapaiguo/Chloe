@@ -18,14 +18,23 @@ namespace ChloeDemo
         [Column(IsPrimaryKey = true)]
         [AutoIncrementAttribute]
         public int Id { get; set; }
-
         public string Name { get; set; }
-        public string NickName { get; set; }
-
         public Gender? Gender { get; set; }
-
         public int? Age { get; set; }
-
+        public int? CityId { get; set; }
         public DateTime? OpTime { get; set; }
+    }
+
+    public class City
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int ProvinceId { get; set; }
+    }
+
+    public class Province
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }
