@@ -14,14 +14,14 @@ namespace ChloeDemo
         static SQLiteContext context = new SQLiteContext(new SQLiteConnectionFactory("Data Source=..\\..\\..\\Chloe.db;"));
         public static void Test()
         {
-            BasicQuery();
+            //BasicQuery();
             //JoinQuery();
             //AggregateQuery();
             //GroupQuery();
             //Insert();
             //Update();
             //Delete();
-            //Method();
+            Method();
 
             ConsoleHelper.WriteLineAndReadKey();
         }
@@ -273,6 +273,15 @@ namespace ChloeDemo
                 //DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),//不支持 Millisecond
                 //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//不支持 Microseconds
 
+
+                AddYears = startTime.AddYears(1),//DATETIME(@P_0,'+1 years')
+                AddMonths = startTime.AddMonths(1),//DATETIME(@P_0,'+1 months')
+                AddDays = startTime.AddDays(1),//DATETIME(@P_0,'+1 days')
+                AddHours = startTime.AddHours(1),//DATETIME(@P_0,'+1 hours')
+                AddMinutes = startTime.AddMinutes(2),//DATETIME(@P_0,'+2 minutes')
+                AddSeconds = startTime.AddSeconds(120),//DATETIME(@P_0,'+120 seconds')
+                //AddMilliseconds = startTime.AddMilliseconds(2000),//不支持
+
                 Now = DateTime.Now,//DATETIME('NOW','LOCALTIME')
                 UtcNow = DateTime.UtcNow,//DATETIME()
                 Today = DateTime.Today,//DATE('NOW','LOCALTIME')
@@ -285,6 +294,7 @@ namespace ChloeDemo
                 Second = DateTime.Now.Second,//CAST(STRFTIME('%S',DATETIME('NOW','LOCALTIME')) AS INTEGER)
                 Millisecond = DateTime.Now.Millisecond,//@P_2 直接计算 DateTime.Now.Millisecond 的值 
                 DayOfWeek = DateTime.Now.DayOfWeek,//CAST(STRFTIME('%w',DATETIME('NOW','LOCALTIME')) AS INTEGER)
+
 
                 Byte_Parse = byte.Parse("1"),//CAST('1' AS INTEGER)
                 Int_Parse = int.Parse("1"),//CAST('1' AS INTEGER)
