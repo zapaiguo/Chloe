@@ -219,6 +219,14 @@ q.Select(a => new
     //SubtractTotalSeconds = endTime.Subtract(startTime).TotalSeconds,//CAST(DATEDIFF(SECOND,@P_0,@P_1)
     //SubtractTotalMilliseconds = endTime.Subtract(startTime).TotalMilliseconds,//CAST(DATEDIFF(MILLISECOND,@P_0,@P_1)
 
+	AddYears = startTime.AddYears(1),//DATEADD(YEAR,1,@P_0)
+	AddMonths = startTime.AddMonths(1),//DATEADD(MONTH,1,@P_0)
+	AddDays = startTime.AddDays(1),//DATEADD(DAY,1,@P_0)
+	AddHours = startTime.AddHours(1),//DATEADD(HOUR,1,@P_0)
+	AddMinutes = startTime.AddMinutes(2),//DATEADD(MINUTE,2,@P_0)
+	AddSeconds = startTime.AddSeconds(120),//DATEADD(SECOND,120,@P_0)
+	AddMilliseconds = startTime.AddMilliseconds(20000),//DATEADD(MILLISECOND,20000,@P_0)
+	
     Now = DateTime.Now,//GETDATE()
     UtcNow = DateTime.UtcNow,//GETUTCDATE()
     Today = DateTime.Today,//CAST(GETDATE() AS DATE)
