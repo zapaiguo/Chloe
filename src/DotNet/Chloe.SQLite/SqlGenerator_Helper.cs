@@ -102,14 +102,14 @@ namespace Chloe.SQLite
 
         static void DbFunction_DATEADD(SqlGenerator generator, string interval, DbMethodCallExpression exp)
         {
-            /* DATETIME(exp.Object,'+exp.Arguments[0] interval') */
+            /* DATETIME(@P_0,'+' || 1 || ' years') */
 
             generator._sqlBuilder.Append("DATETIME(");
             exp.Object.Accept(generator);
-            generator._sqlBuilder.Append(",'+");
+            generator._sqlBuilder.Append(",'+' || ");
             exp.Arguments[0].Accept(generator);
-            generator._sqlBuilder.Append(" ", interval);
-            generator._sqlBuilder.Append("')");
+            generator._sqlBuilder.Append(" || ' ", interval, "'");
+            generator._sqlBuilder.Append(")");
         }
         static void DbFunction_DATEPART(SqlGenerator generator, string interval, DbExpression exp)
         {
