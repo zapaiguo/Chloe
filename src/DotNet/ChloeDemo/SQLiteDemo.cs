@@ -14,14 +14,14 @@ namespace ChloeDemo
         static SQLiteContext context = new SQLiteContext(new SQLiteConnectionFactory("Data Source=..\\..\\Chloe.db;Version=3;Pooling=True;Max Pool Size=100;"));
         public static void Test()
         {
-            BasicQuery();
+            //BasicQuery();
             //JoinQuery();
             //AggregateQuery();
             //GroupQuery();
             //Insert();
             //Update();
             //Delete();
-            //Method();
+            Method();
 
             ConsoleHelper.WriteLineAndReadKey();
         }
@@ -272,6 +272,14 @@ namespace ChloeDemo
                 DiffSeconds = DbFunctions.DiffSeconds(startTime, endTime),//CAST((JULIANDAY(@P_0) - JULIANDAY(@P_1)) * 86400 AS INTEGER)
                 //DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),//不支持 Millisecond
                 //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//不支持 Microseconds
+
+                AddYears = startTime.AddYears(1),//DATETIME(@P_0,'+1 years')
+                AddMonths = startTime.AddMonths(1),//DATETIME(@P_0,'+1 months')
+                AddDays = startTime.AddDays(1),//DATETIME(@P_0,'+1 days')
+                AddHours = startTime.AddHours(1),//DATETIME(@P_0,'+1 hours')
+                AddMinutes = startTime.AddMinutes(2),//DATETIME(@P_0,'+2 minutes')
+                AddSeconds = startTime.AddSeconds(120),//DATETIME(@P_0,'+120 seconds')
+                //AddMilliseconds = startTime.AddMilliseconds(2000),//不支持
 
                 Now = DateTime.Now,//DATETIME('NOW','LOCALTIME')
                 UtcNow = DateTime.UtcNow,//DATETIME()

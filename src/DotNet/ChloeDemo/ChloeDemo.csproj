@@ -54,7 +54,7 @@
   <ItemGroup>
     <Compile Include="ConsoleHelper.cs" />
     <Compile Include="DbHelper.cs" />
-    <Compile Include="FeatureTest.cs" />
+    <Compile Include="MsSqlDemo.cs" />
     <Compile Include="MySqlConnectionFactory.cs" />
     <Compile Include="MySqlDemo.cs" />
     <Compile Include="Program.cs" />

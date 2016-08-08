@@ -14,14 +14,14 @@ namespace ChloeDemo
         static SQLiteContext context = new SQLiteContext(new SQLiteConnectionFactory("Data Source=..\\..\\..\\Chloe.db;"));
         public static void Test()
         {
-            //BasicQuery();
+            BasicQuery();
             //JoinQuery();
             //AggregateQuery();
             //GroupQuery();
             //Insert();
             //Update();
             //Delete();
-            Method();
+            //Method();
 
             ConsoleHelper.WriteLineAndReadKey();
         }
