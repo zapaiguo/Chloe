@@ -61,7 +61,7 @@ namespace ChloeDemo
             IJoiningQuery<User, City, Province> user_city_province = user_city.InnerJoin(provinces, (user, city, province) => city.ProvinceId == province.Id);
 
             //查出一个用户及其隶属的城市和省份的所有信息
-            var view = user_city_province.Select((user, city, province) => new { User = user, City = city, Province = province }).Where(a => a.User.Id == 1).ToList();
+            user_city_province.Select((user, city, province) => new { User = user, City = city, Province = province }).Where(a => a.User.Id == 1).ToList();
             /*
              * SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name],[Users].[Gender] AS [Gender],[Users].[Age] AS [Age],[Users].[CityId] AS [CityId],[Users].[OpTime] AS [OpTime],[City].[Id] AS [Id0],[City].[Name] AS [Name0],[City].[ProvinceId] AS [ProvinceId],[Province].[Id] AS [Id1],[Province].[Name] AS [Name1] FROM [Users] AS [Users] INNER JOIN [City] AS [City] ON [Users].[CityId] = [City].[Id] INNER JOIN [Province] AS [Province] ON [City].[ProvinceId] = [Province].[Id] WHERE [Users].[Id] = 1
              */
@@ -274,12 +274,12 @@ namespace ChloeDemo
                 //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//不支持 Microseconds
 
 
-                AddYears = startTime.AddYears(1),//DATETIME(@P_0,'+1 years')
-                AddMonths = startTime.AddMonths(1),//DATETIME(@P_0,'+1 months')
-                AddDays = startTime.AddDays(1),//DATETIME(@P_0,'+1 days')
-                AddHours = startTime.AddHours(1),//DATETIME(@P_0,'+1 hours')
-                AddMinutes = startTime.AddMinutes(2),//DATETIME(@P_0,'+2 minutes')
-                AddSeconds = startTime.AddSeconds(120),//DATETIME(@P_0,'+120 seconds')
+                AddYears = startTime.AddYears(1),//DATETIME(@P_0,'+' || 1 || ' years')
+                AddMonths = startTime.AddMonths(1),//DATETIME(@P_0,'+' || 1 || ' months')
+                AddDays = startTime.AddDays(1),//DATETIME(@P_0,'+' || 1 || ' days')
+                AddHours = startTime.AddHours(1),//DATETIME(@P_0,'+' || 1 || ' hours')
+                AddMinutes = startTime.AddMinutes(2),//DATETIME(@P_0,'+' || 2 || ' minutes')
+                AddSeconds = startTime.AddSeconds(120),//DATETIME(@P_0,'+' || 120 || ' seconds')
                 //AddMilliseconds = startTime.AddMilliseconds(2000),//不支持
 
                 Now = DateTime.Now,//DATETIME('NOW','LOCALTIME')
