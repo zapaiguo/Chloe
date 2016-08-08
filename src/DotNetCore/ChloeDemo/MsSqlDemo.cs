@@ -11,18 +11,18 @@ using System.Threading.Tasks;
 namespace ChloeDemo
 {
     //[TestClass]
-    public class FeatureTest
+    public class MsSqlDemo
     {
         static readonly int ID = 9999;
 
         public static void Test()
         {
-            //FeatureTest.QueryTest();
-            FeatureTest.MethodTest();
-            //FeatureTest.PredicateTest();
-            //FeatureTest.JoinQueryTest();
-            //FeatureTest.InsertTest();
-            //FeatureTest.UpdateTest();
+            //QueryTest();
+            //PredicateTest();
+            //JoinQueryTest();
+            //InsertTest();
+            //UpdateTest();
+            MsSqlDemo.MethodTest();
 
             ConsoleHelper.WriteLineAndReadKey();
         }
@@ -47,9 +47,9 @@ namespace ChloeDemo
 
 
             ret = q.Where(a => true).ToList();
-            ret = q.Where(a => a.Id == FeatureTest.ID).ToList();
-            ret = q.Where(a => a.Id == FeatureTest.ID || a.Id > 1).ToList();
-            ret = q.Where(a => a.Id == 1 && a.Name == name && a.Name == null && a.Name == nullString && a.Id == FeatureTest.ID).ToList();
+            ret = q.Where(a => a.Id == MsSqlDemo.ID).ToList();
+            ret = q.Where(a => a.Id == MsSqlDemo.ID || a.Id > 1).ToList();
+            ret = q.Where(a => a.Id == 1 && a.Name == name && a.Name == null && a.Name == nullString && a.Id == MsSqlDemo.ID).ToList();
             ret = q.Where(a => ids.Contains(a.Id)).ToList();
             ret = q.Where(a => !b == (a.Id > 0)).ToList();
 
@@ -142,11 +142,19 @@ namespace ChloeDemo
                 //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//Exception
 
                 /* No longer support method 'DateTime.Subtract(DateTime d)', instead of using 'DbFunctions.DiffXX' */
-                //SubtractTotalDays = endTime.Subtract(startTime).TotalDays,
-                //SubtractTotalHours = endTime.Subtract(startTime).TotalHours,
-                //SubtractTotalMinutes = endTime.Subtract(startTime).TotalMinutes,
-                //SubtractTotalSeconds = endTime.Subtract(startTime).TotalSeconds,
-                //SubtractTotalMilliseconds = endTime.Subtract(startTime).TotalMilliseconds,
+                SubtractTotalDays = endTime.Subtract(startTime).TotalDays,
+                SubtractTotalHours = endTime.Subtract(startTime).TotalHours,
+                SubtractTotalMinutes = endTime.Subtract(startTime).TotalMinutes,
+                SubtractTotalSeconds = endTime.Subtract(startTime).TotalSeconds,
+                SubtractTotalMilliseconds = endTime.Subtract(startTime).TotalMilliseconds,
+
+                AddYears = startTime.AddYears(1),//DATEADD(YEAR,1,@P_0)
+                AddMonths = startTime.AddMonths(1),//DATEADD(MONTH,1,@P_0)
+                AddDays = startTime.AddDays(1),//DATEADD(DAY,1,@P_0)
+                AddHours = startTime.AddHours(1),//DATEADD(HOUR,1,@P_0)
+                AddMinutes = startTime.AddMinutes(2),//DATEADD(MINUTE,2,@P_0)
+                AddSeconds = startTime.AddSeconds(120),//DATEADD(SECOND,120,@P_0)
+                AddMilliseconds = startTime.AddMilliseconds(20000),//DATEADD(MILLISECOND,20000,@P_0)
 
                 Now = DateTime.Now,
                 UtcNow = DateTime.UtcNow,
