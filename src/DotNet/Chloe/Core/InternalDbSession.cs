@@ -263,6 +263,15 @@ namespace Chloe.Core
                         parameterType = param.Value.GetType();
                     }
 
+                    if (param.Precision != null)
+                        parameter.Precision = param.Precision.Value;
+
+                    if (param.Scale != null)
+                        parameter.Scale = param.Scale.Value;
+
+                    if (param.Size != null)
+                        parameter.Size = param.Size.Value;
+
                     DbType? dbType = Utils.TryGetDbType(parameterType);
                     if (dbType != null)
                         parameter.DbType = dbType.Value;
