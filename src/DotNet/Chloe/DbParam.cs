@@ -22,6 +22,7 @@ namespace Chloe
             this.Value = value;
             this.Type = type;
         }
+
         public string Name { get { return this._name; } set { this._name = value; } }
         public object Value
         {
@@ -40,6 +41,7 @@ namespace Chloe
         public byte? Scale { get; set; }
         public int? Size { get; set; }
         public Type Type { get { return this._type; } set { this._type = value; } }
+
         public static DbParam Create<T>(string name, T value)
         {
             var param = new DbParam(name, value);

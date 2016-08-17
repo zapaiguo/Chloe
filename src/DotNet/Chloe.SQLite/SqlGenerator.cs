@@ -416,16 +416,7 @@ namespace Chloe.SQLite
 
             if (val.GetType() == UtilConstants.TypeOfString)
             {
-                int length = ((string)val).Length;
-                if (length <= 10)
-                    p.Size = 10;
-                else if (length <= 20)
-                    p.Size = 20;
-                else if (length <= 50)
-                    p.Size = 50;
-                else if (length <= 100)
-                    p.Size = 100;
-                else if (length <= 4000)
+                if (((string)val).Length <= 4000)
                     p.Size = 4000;
             }
 

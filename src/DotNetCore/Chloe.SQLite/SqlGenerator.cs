@@ -397,8 +397,6 @@ namespace Chloe.SQLite
             if (val == null)
                 val = DBNull.Value;
 
-            string paramName;
-
             DbParam p;
             if (val == DBNull.Value)
             {
@@ -413,8 +411,16 @@ namespace Chloe.SQLite
                 return exp;
             }
 
-            paramName = GenParameterName(this._parameters.Count);
-            this._parameters.Add(DbParam.Create(paramName, val, exp.Type));
+            string paramName = GenParameterName(this._parameters.Count);
+            p = DbParam.Create(paramName, val, exp.Type);
+
+            if (val.GetType() == UtilConstants.TypeOfString)
+            {
+                if (((string)val).Length <= 4000)
+                    p.Size = 4000;
+            }
+
+            this._parameters.Add(p);
             this._sqlBuilder.Append(paramName);
             return exp;
         }
