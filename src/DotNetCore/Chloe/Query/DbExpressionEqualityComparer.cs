@@ -86,8 +86,13 @@ namespace Chloe.Query
                 return false;
             if (exp1.Arguments.Count != exp2.Arguments.Count)
                 return false;
-            if (!EqualsCompare(exp1.Object, exp2.Object))
-                return false;
+
+            if (exp1.Object != null && exp2.Object != null)
+            {
+                /* instance method */
+                if (!EqualsCompare(exp1.Object, exp2.Object))
+                    return false;
+            }
 
             for (int i = 0; i < exp1.Arguments.Count; i++)
             {

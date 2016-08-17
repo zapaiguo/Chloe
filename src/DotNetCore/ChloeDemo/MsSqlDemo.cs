@@ -17,12 +17,13 @@ namespace ChloeDemo
 
         public static void Test()
         {
-            //QueryTest();
+            QueryTest();
             //PredicateTest();
             //JoinQueryTest();
             //InsertTest();
             //UpdateTest();
-            MsSqlDemo.MethodTest();
+            //MsSqlDemo.MethodTest();
+            //MsSqlDemo.AggregateFunctionTest();
 
             ConsoleHelper.WriteLineAndReadKey();
         }
@@ -303,7 +304,7 @@ namespace ChloeDemo
             var min = q.Min(a => a.Age);
             var avg = q.Average(a => a.Age);
 
-            Console.WriteLine(1);
+            ConsoleHelper.WriteLineAndReadKey();
         }
 
         public static void InsertTest()
