@@ -282,7 +282,7 @@ namespace ChloeDemo
                 //AddMilliseconds = startTime.AddMilliseconds(2000),//不支持
 
                 Now = DateTime.Now,//DATETIME('NOW','LOCALTIME')
-                UtcNow = DateTime.UtcNow,//DATETIME()This method can not pass parameters
+                UtcNow = DateTime.UtcNow,//DATETIME()
                 Today = DateTime.Today,//DATE('NOW','LOCALTIME')
                 Date = DateTime.Now.Date,//DATE('NOW','LOCALTIME')
                 Year = DateTime.Now.Year,//CAST(STRFTIME('%Y',DATETIME('NOW','LOCALTIME')) AS INTEGER)
