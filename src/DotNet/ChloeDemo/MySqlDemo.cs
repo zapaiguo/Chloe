@@ -16,14 +16,14 @@ namespace ChloeDemo
 
         public static void Test()
         {
-            //BasicQuery();
+            BasicQuery();
             //JoinQuery();
             //AggregateQuery();
             //GroupQuery();
             //Insert();
             //Update();
             //Delete();
-            Method();
+            //Method();
 
             ConsoleHelper.WriteLineAndReadKey();
         }
@@ -87,7 +87,7 @@ namespace ChloeDemo
 
             q.Select(a => new { Count = AggregateFunctions.Count(), LongCount = AggregateFunctions.LongCount(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Average = AggregateFunctions.Average(a.Age) }).First();
             /*
-             * SELECT COUNT(1) AS [Count],COUNT(1) AS [LongCount],CAST(SUM([Users].[Age]) AS INTEGER) AS [Sum],CAST(MAX([Users].[Age]) AS INTEGER) AS [Max],CAST(MIN([Users].[Age]) AS INTEGER) AS [Min],CAST(AVG([Users].[Age]) AS REAL) AS [Average] FROM [Users] AS [Users] LIMIT 1 OFFSET 0
+             * SELECT COUNT(1) AS [Count],COUNT(1) AS [LongCount],CAST(SUM([Users].[Age]) AS INTEGER) AS [Sum],MAX([Users].[Age]) AS [Max],MIN([Users].[Age]) AS [Min],CAST(AVG([Users].[Age]) AS REAL) AS [Average] FROM [Users] AS [Users] LIMIT 1 OFFSET 0
              */
 
             var count = q.Count();
@@ -107,12 +107,12 @@ namespace ChloeDemo
 
             var max = q.Max(a => a.Age);
             /*
-             * SELECT CAST(MAX([Users].[Age]) AS INTEGER) AS [C] FROM [Users] AS [Users]
+             * SELECT MAX([Users].[Age]) AS [C] FROM [Users] AS [Users]
              */
 
             var min = q.Min(a => a.Age);
             /*
-             * SELECT CAST(MIN([Users].[Age]) AS INTEGER) AS [C] FROM [Users] AS [Users]
+             * SELECT MIN([Users].[Age] AS [C] FROM [Users] AS [Users]
              */
 
             var avg = q.Average(a => a.Age);

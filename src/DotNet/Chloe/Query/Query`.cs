@@ -145,175 +145,102 @@ namespace Chloe.Query
 
         public int Count()
         {
-            return this.ExecuteAggregateQuery<int>("Count", null, false);
+            return this.ExecuteAggregateQuery<int>(GetCalledMethod(() => default(IQuery<T>).Count()), null, false);
         }
         public long LongCount()
         {
-            return this.ExecuteAggregateQuery<long>("LongCount", null, false);
+            return this.ExecuteAggregateQuery<long>(GetCalledMethod(() => default(IQuery<T>).LongCount()), null, false);
+        }
+
+        public TResult Max<TResult>(Expression<Func<T, TResult>> selector)
+        {
+            return this.ExecuteAggregateQuery<TResult>(GetCalledMethod(() => default(IQuery<T>).Max(default(Expression<Func<T, TResult>>))), selector);
+        }
+        public TResult Min<TResult>(Expression<Func<T, TResult>> selector)
+        {
+            return this.ExecuteAggregateQuery<TResult>(GetCalledMethod(() => default(IQuery<T>).Min(default(Expression<Func<T, TResult>>))), selector);
         }
 
         public int Sum(Expression<Func<T, int>> selector)
         {
-            return this.ExecuteAggregateQuery<int>("Sum", selector);
+            return this.ExecuteAggregateQuery<int>(GetCalledMethod(() => default(IQuery<T>).Sum(default(Expression<Func<T, int>>))), selector);
         }
         public int? Sum(Expression<Func<T, int?>> selector)
         {
-            return this.ExecuteAggregateQuery<int?>("Sum", selector);
+            return this.ExecuteAggregateQuery<int?>(GetCalledMethod(() => default(IQuery<T>).Sum(default(Expression<Func<T, int?>>))), selector);
         }
         public long Sum(Expression<Func<T, long>> selector)
         {
-            return this.ExecuteAggregateQuery<long>("Sum", selector);
+            return this.ExecuteAggregateQuery<long>(GetCalledMethod(() => default(IQuery<T>).Sum(default(Expression<Func<T, long>>))), selector);
         }
         public long? Sum(Expression<Func<T, long?>> selector)
         {
-            return this.ExecuteAggregateQuery<long?>("Sum", selector);
+            return this.ExecuteAggregateQuery<long?>(GetCalledMethod(() => default(IQuery<T>).Sum(default(Expression<Func<T, long?>>))), selector);
         }
         public decimal Sum(Expression<Func<T, decimal>> selector)
         {
-            return this.ExecuteAggregateQuery<decimal>("Sum", selector);
+            return this.ExecuteAggregateQuery<decimal>(GetCalledMethod(() => default(IQuery<T>).Sum(default(Expression<Func<T, decimal>>))), selector);
         }
         public decimal? Sum(Expression<Func<T, decimal?>> selector)
         {
-            return this.ExecuteAggregateQuery<decimal?>("Sum", selector);
+            return this.ExecuteAggregateQuery<decimal?>(GetCalledMethod(() => default(IQuery<T>).Sum(default(Expression<Func<T, decimal?>>))), selector);
         }
         public double Sum(Expression<Func<T, double>> selector)
         {
-            return this.ExecuteAggregateQuery<double>("Sum", selector);
+            return this.ExecuteAggregateQuery<double>(GetCalledMethod(() => default(IQuery<T>).Sum(default(Expression<Func<T, double>>))), selector);
         }
         public double? Sum(Expression<Func<T, double?>> selector)
         {
-            return this.ExecuteAggregateQuery<double?>("Sum", selector);
+            return this.ExecuteAggregateQuery<double?>(GetCalledMethod(() => default(IQuery<T>).Sum(default(Expression<Func<T, double?>>))), selector);
         }
         public float Sum(Expression<Func<T, float>> selector)
         {
-            return this.ExecuteAggregateQuery<float>("Sum", selector);
+            return this.ExecuteAggregateQuery<float>(GetCalledMethod(() => default(IQuery<T>).Sum(default(Expression<Func<T, float>>))), selector);
         }
         public float? Sum(Expression<Func<T, float?>> selector)
         {
-            return this.ExecuteAggregateQuery<float?>("Sum", selector);
-        }
-
-        public int Max(Expression<Func<T, int>> selector)
-        {
-            return this.ExecuteAggregateQuery<int>("Max", selector);
-        }
-        public int? Max(Expression<Func<T, int?>> selector)
-        {
-            return this.ExecuteAggregateQuery<int?>("Max", selector);
-        }
-        public long Max(Expression<Func<T, long>> selector)
-        {
-            return this.ExecuteAggregateQuery<long>("Max", selector);
-        }
-        public long? Max(Expression<Func<T, long?>> selector)
-        {
-            return this.ExecuteAggregateQuery<long?>("Max", selector);
-        }
-        public decimal Max(Expression<Func<T, decimal>> selector)
-        {
-            return this.ExecuteAggregateQuery<decimal>("Max", selector);
-        }
-        public decimal? Max(Expression<Func<T, decimal?>> selector)
-        {
-            return this.ExecuteAggregateQuery<decimal?>("Max", selector);
-        }
-        public double Max(Expression<Func<T, double>> selector)
-        {
-            return this.ExecuteAggregateQuery<double>("Max", selector);
-        }
-        public double? Max(Expression<Func<T, double?>> selector)
-        {
-            return this.ExecuteAggregateQuery<double?>("Max", selector);
-        }
-        public float Max(Expression<Func<T, float>> selector)
-        {
-            return this.ExecuteAggregateQuery<float>("Max", selector);
-        }
-        public float? Max(Expression<Func<T, float?>> selector)
-        {
-            return this.ExecuteAggregateQuery<float?>("Max", selector);
-        }
-
-        public int Min(Expression<Func<T, int>> selector)
-        {
-            return this.ExecuteAggregateQuery<int>("Min", selector);
-        }
-        public int? Min(Expression<Func<T, int?>> selector)
-        {
-            return this.ExecuteAggregateQuery<int?>("Min", selector);
-        }
-        public long Min(Expression<Func<T, long>> selector)
-        {
-            return this.ExecuteAggregateQuery<long>("Min", selector);
-        }
-        public long? Min(Expression<Func<T, long?>> selector)
-        {
-            return this.ExecuteAggregateQuery<long?>("Min", selector);
-        }
-        public decimal Min(Expression<Func<T, decimal>> selector)
-        {
-            return this.ExecuteAggregateQuery<decimal>("Min", selector);
-        }
-        public decimal? Min(Expression<Func<T, decimal?>> selector)
-        {
-            return this.ExecuteAggregateQuery<decimal?>("Min", selector);
-        }
-        public double Min(Expression<Func<T, double>> selector)
-        {
-            return this.ExecuteAggregateQuery<double>("Min", selector);
-        }
-        public double? Min(Expression<Func<T, double?>> selector)
-        {
-            return this.ExecuteAggregateQuery<double?>("Min", selector);
-        }
-        public float Min(Expression<Func<T, float>> selector)
-        {
-            return this.ExecuteAggregateQuery<float>("Min", selector);
-        }
-        public float? Min(Expression<Func<T, float?>> selector)
-        {
-            return this.ExecuteAggregateQuery<float?>("Min", selector);
+            return this.ExecuteAggregateQuery<float?>(GetCalledMethod(() => default(IQuery<T>).Sum(default(Expression<Func<T, float?>>))), selector);
         }
 
         public double Average(Expression<Func<T, int>> selector)
         {
-            return this.ExecuteAggregateQuery<double>("Average", selector);
+            return this.ExecuteAggregateQuery<double>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, int>>))), selector);
         }
         public double? Average(Expression<Func<T, int?>> selector)
         {
-            return this.ExecuteAggregateQuery<double?>("Average", selector);
+            return this.ExecuteAggregateQuery<double>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, int?>>))), selector);
         }
         public double Average(Expression<Func<T, long>> selector)
         {
-            return this.ExecuteAggregateQuery<double>("Average", selector);
+            return this.ExecuteAggregateQuery<double>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, long>>))), selector);
         }
         public double? Average(Expression<Func<T, long?>> selector)
         {
-            return this.ExecuteAggregateQuery<double?>("Average", selector);
+            return this.ExecuteAggregateQuery<double?>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, long?>>))), selector);
         }
         public decimal Average(Expression<Func<T, decimal>> selector)
         {
-            return this.ExecuteAggregateQuery<decimal>("Average", selector);
+            return this.ExecuteAggregateQuery<decimal>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, decimal>>))), selector);
         }
         public decimal? Average(Expression<Func<T, decimal?>> selector)
         {
-            return this.ExecuteAggregateQuery<decimal?>("Average", selector);
+            return this.ExecuteAggregateQuery<decimal?>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, decimal?>>))), selector);
         }
         public double Average(Expression<Func<T, double>> selector)
         {
-            return this.ExecuteAggregateQuery<double>("Average", selector);
+            return this.ExecuteAggregateQuery<double>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, double>>))), selector);
         }
         public double? Average(Expression<Func<T, double?>> selector)
         {
-            return this.ExecuteAggregateQuery<double?>("Average", selector);
+            return this.ExecuteAggregateQuery<double?>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, double?>>))), selector);
         }
         public float Average(Expression<Func<T, float>> selector)
         {
-            return this.ExecuteAggregateQuery<float>("Average", selector);
+            return this.ExecuteAggregateQuery<float>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, float>>))), selector);
         }
         public float? Average(Expression<Func<T, float?>> selector)
         {
-            return this.ExecuteAggregateQuery<float?>("Average", selector);
+            return this.ExecuteAggregateQuery<float?>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, float?>>))), selector);
         }
 
         public override QueryExpression QueryExpression { get { return this._expression; } }
@@ -334,44 +261,30 @@ namespace Chloe.Query
             return internalQuery;
         }
 
-        TReturn ExecuteAggregateQuery<TReturn>(string methodName, Expression parameter, bool checkParameter = true)
+
+        TResult ExecuteAggregateQuery<TResult>(MethodInfo method, Expression parameter, bool checkParameter = true)
         {
             if (checkParameter)
                 Utils.CheckNull(parameter);
 
             List<Expression> parameters = parameter == null ? EmptyParameterList : new List<Expression>(1) { parameter };
 
-            IEnumerable<TReturn> iterator = this.CreateAggregateQuery<TReturn>(methodName, parameters);
+            IEnumerable<TResult> iterator = this.CreateAggregateQuery<TResult>(method, parameters);
             return iterator.Single();
         }
-        InternalQuery<TReturn> CreateAggregateQuery<TReturn>(string methodName, List<Expression> parameters)
+        InternalQuery<TResult> CreateAggregateQuery<TResult>(MethodInfo method, List<Expression> parameters)
         {
-            MethodInfo method = this.GetCalledMethod(methodName, parameters);
-
             AggregateQueryExpression e = new AggregateQueryExpression(this._expression, method, parameters);
-            var q = new Query<TReturn>(this._dbContext, e, false);
-            InternalQuery<TReturn> iterator = q.GenerateIterator();
+            var q = new Query<TResult>(this._dbContext, e, false);
+            InternalQuery<TResult> iterator = q.GenerateIterator();
             return iterator;
         }
-        MethodInfo GetCalledMethod(string methodName, List<Expression> parameters)
+        MethodInfo GetCalledMethod<TResult>(Expression<Func<TResult>> exp)
         {
-            Type thisType = typeof(IQuery<>).MakeGenericType(new Type[] { typeof(T) });
-
-            Type[] parameterTypes;
-            if (parameters.Count == 0)
-                parameterTypes = Type.EmptyTypes;
-            else
-            {
-                parameterTypes = new Type[parameters.Count];
-                for (int i = 0; i < parameters.Count; i++)
-                {
-                    parameterTypes[i] = parameters[i].GetType();
-                }
-            }
-
-            MethodInfo method = thisType.GetMethod(methodName, parameterTypes);
-            return method;
+            var body = (MethodCallExpression)exp.Body;
+            return body.Method;
         }
+
 
         public override string ToString()
         {

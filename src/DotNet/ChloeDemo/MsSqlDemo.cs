@@ -19,6 +19,7 @@ namespace ChloeDemo
         {
             MsSqlDemo.PredicateTest();
             //MsSqlDemo.JoinQueryTest();
+            //MsSqlDemo.AggregateFunctionTest();
 
             ConsoleHelper.WriteLineAndReadKey();
         }

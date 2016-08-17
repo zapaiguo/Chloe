@@ -35,6 +35,9 @@ namespace Chloe
         int Count();
         long LongCount();
 
+        TResult Max<TResult>(Expression<Func<T, TResult>> selector);
+        TResult Min<TResult>(Expression<Func<T, TResult>> selector);
+
         int Sum(Expression<Func<T, int>> selector);
         int? Sum(Expression<Func<T, int?>> selector);
         long Sum(Expression<Func<T, long>> selector);
@@ -45,28 +48,6 @@ namespace Chloe
         double? Sum(Expression<Func<T, double?>> selector);
         float Sum(Expression<Func<T, float>> selector);
         float? Sum(Expression<Func<T, float?>> selector);
-
-        int Max(Expression<Func<T, int>> selector);
-        int? Max(Expression<Func<T, int?>> selector);
-        long Max(Expression<Func<T, long>> selector);
-        long? Max(Expression<Func<T, long?>> selector);
-        decimal Max(Expression<Func<T, decimal>> selector);
-        decimal? Max(Expression<Func<T, decimal?>> selector);
-        double Max(Expression<Func<T, double>> selector);
-        double? Max(Expression<Func<T, double?>> selector);
-        float Max(Expression<Func<T, float>> selector);
-        float? Max(Expression<Func<T, float?>> selector);
-
-        int Min(Expression<Func<T, int>> selector);
-        int? Min(Expression<Func<T, int?>> selector);
-        long Min(Expression<Func<T, long>> selector);
-        long? Min(Expression<Func<T, long?>> selector);
-        decimal Min(Expression<Func<T, decimal>> selector);
-        decimal? Min(Expression<Func<T, decimal?>> selector);
-        double Min(Expression<Func<T, double>> selector);
-        double? Min(Expression<Func<T, double?>> selector);
-        float Min(Expression<Func<T, float>> selector);
-        float? Min(Expression<Func<T, float?>> selector);
 
         double Average(Expression<Func<T, int>> selector);
         double? Average(Expression<Func<T, int?>> selector);

@@ -130,31 +130,33 @@ namespace Chloe.SQLite
         {
             generator._sqlBuilder.Append("COUNT(1)");
         }
-        static void Aggregate_Sum(SqlGenerator generator, DbExpression exp, Type retType)
-        {
-            AppendAggregateFunctionWithCast(generator, exp, retType, "SUM");
-        }
         static void Aggregate_Max(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            AppendAggregateFunctionWithCast(generator, exp, retType, "MAX");
+            AppendAggregateFunction(generator, exp, retType, "MAX", false);
         }
         static void Aggregate_Min(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            AppendAggregateFunctionWithCast(generator, exp, retType, "MIN");
+            AppendAggregateFunction(generator, exp, retType, "MIN", false);
+        }
+        static void Aggregate_Sum(SqlGenerator generator, DbExpression exp, Type retType)
+        {
+            AppendAggregateFunction(generator, exp, retType, "SUM", true);
         }
         static void Aggregate_Average(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            AppendAggregateFunctionWithCast(generator, exp, retType, "AVG");
+            AppendAggregateFunction(generator, exp, retType, "AVG", true);
         }
 
-        static void AppendAggregateFunctionWithCast(SqlGenerator generator, DbExpression exp, Type retType, string functionName)
+        static void AppendAggregateFunction(SqlGenerator generator, DbExpression exp, Type retType, string functionName, bool withCast)
         {
-            Type unType = Utils.GetUnderlyingType(retType);
-
             string dbTypeString = null;
-            if (unType != UtilConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise cause problems. */ && CastTypeMap.TryGetValue(unType, out dbTypeString))
+            if (withCast == true)
             {
-                generator._sqlBuilder.Append("CAST(");
+                Type unType = Utils.GetUnderlyingType(retType);
+                if (unType != UtilConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise cause problems. */ && CastTypeMap.TryGetValue(unType, out dbTypeString))
+                {
+                    generator._sqlBuilder.Append("CAST(");
+                }
             }
 
             generator._sqlBuilder.Append(functionName, "(");
