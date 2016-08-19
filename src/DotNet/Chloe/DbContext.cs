@@ -72,12 +72,14 @@ namespace Chloe
             Utils.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
-            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
+            EnsureEntityHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MemberInfo keyMember = typeDescriptor.PrimaryKey.MemberInfo;
 
             object keyValue = null;
+
+            MappingMemberDescriptor autoIncrementMemberDescriptor = typeDescriptor.AutoIncrement;
 
             Dictionary<MappingMemberDescriptor, DbExpression> insertColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
             foreach (var kv in typeDescriptor.MappingMemberDescriptors)
@@ -85,7 +87,10 @@ namespace Chloe
                 MemberInfo member = kv.Key;
                 MappingMemberDescriptor memberDescriptor = kv.Value;
 
-                var val = memberDescriptor.GetValue(entity);
+                if (memberDescriptor == autoIncrementMemberDescriptor)
+                    continue;
+
+                object val = memberDescriptor.GetValue(entity);
 
                 if (memberDescriptor == keyMemberDescriptor)
                 {
@@ -97,7 +102,7 @@ namespace Chloe
             }
 
             //主键为空并且主键又不是自增列
-            if (keyValue == null)
+            if (keyValue == null && keyMemberDescriptor != autoIncrementMemberDescriptor)
             {
                 throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
             }
@@ -109,7 +114,28 @@ namespace Chloe
                 e.InsertColumns.Add(kv.Key.Column, kv.Value);
             }
 
-            this.ExecuteSqlCommand(e);
+            if (autoIncrementMemberDescriptor == null)
+            {
+                this.ExecuteSqlCommand(e);
+                return entity;
+            }
+
+            IDbExpressionTranslator translator = this.DbContextServiceProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string sql = translator.Translate(e, out parameters);
+
+            sql = string.Concat(sql, ";", this.GetSelectLastInsertIdentityClause());
+
+            //SELECT @@IDENTITY 返回的是 decimal 类型
+            object retIdentity = this.CurrentSession.ExecuteScalar(sql, parameters.ToArray());
+
+            if (retIdentity == null || retIdentity == DBNull.Value)
+            {
+                throw new ChloeException("Unable to get the identity value.");
+            }
+
+            retIdentity = ConvertIdentityType(retIdentity, autoIncrementMemberDescriptor.MemberInfoType);
+            autoIncrementMemberDescriptor.SetValue(entity, retIdentity);
             return entity;
         }
         public virtual object Insert<T>(Expression<Func<T>> body)
@@ -117,9 +143,10 @@ namespace Chloe
             Utils.CheckNull(body);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
-            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
+            EnsureEntityHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
+            MappingMemberDescriptor autoIncrementMemberDescriptor = typeDescriptor.AutoIncrement;
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(body);
 
@@ -134,6 +161,9 @@ namespace Chloe
 
                 if (memberDescriptor == null)
                     throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
+
+                if (memberDescriptor == autoIncrementMemberDescriptor)
+                    throw new ChloeException(string.Format("Could not insert value into the identity column '{0}'.", memberDescriptor.Column.Name));
 
                 if (memberDescriptor.IsPrimaryKey)
                 {
@@ -151,14 +181,33 @@ namespace Chloe
                 e.InsertColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
             }
 
-            //主键为空
-            if (keyVal == null)
+            //主键为空并且主键又不是自增列
+            if (keyVal == null && keyMemberDescriptor != autoIncrementMemberDescriptor)
             {
                 throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
             }
 
-            this.ExecuteSqlCommand(e);
-            return keyVal;
+            if (keyMemberDescriptor != autoIncrementMemberDescriptor)
+            {
+                this.ExecuteSqlCommand(e);
+                return keyVal;
+            }
+
+            IDbExpressionTranslator translator = this.DbContextServiceProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string sql = translator.Translate(e, out parameters);
+            sql = string.Concat(sql, ";", this.GetSelectLastInsertIdentityClause());
+
+            //SELECT @@IDENTITY 返回的是 decimal 类型
+            object retIdentity = this.CurrentSession.ExecuteScalar(sql, parameters.ToArray());
+
+            if (retIdentity == null || retIdentity == DBNull.Value)
+            {
+                throw new ChloeException("Unable to get the identity value.");
+            }
+
+            retIdentity = ConvertIdentityType(retIdentity, autoIncrementMemberDescriptor.MemberInfoType);
+            return retIdentity;
         }
 
         public virtual int Update<T>(T entity)
@@ -166,7 +215,7 @@ namespace Chloe
             Utils.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
-            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
+            EnsureEntityHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MemberInfo keyMember = keyMemberDescriptor.MemberInfo;
@@ -186,6 +235,9 @@ namespace Chloe
                     keyMemberDescriptor = memberDescriptor;
                     continue;
                 }
+
+                if (memberDescriptor.IsAutoIncrement)
+                    continue;
 
                 var val = memberDescriptor.GetValue(entity);
 
@@ -241,6 +293,9 @@ namespace Chloe
                 if (memberDescriptor.IsPrimaryKey)
                     throw new ChloeException(string.Format("Could not update the primary key '{0}'.", memberDescriptor.Column.Name));
 
+                if (memberDescriptor.IsAutoIncrement)
+                    throw new ChloeException(string.Format("Could not update the identity column '{0}'.", memberDescriptor.Column.Name));
+
                 e.UpdateColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
             }
 
@@ -252,7 +307,7 @@ namespace Chloe
             Utils.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
-            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
+            EnsureEntityHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MemberInfo keyMember = typeDescriptor.PrimaryKey.MemberInfo;
@@ -304,6 +359,10 @@ namespace Chloe
             }
 
             collection.TryAddEntity(entity);
+        }
+        protected virtual string GetSelectLastInsertIdentityClause()
+        {
+            return "SELECT @@IDENTITY";
         }
         protected virtual IEntityState TryGetTrackedEntityState(object entity)
         {
@@ -357,10 +416,17 @@ namespace Chloe
             return r;
         }
 
-        static void EnsureMappingTypeHasPrimaryKey(TypeDescriptor typeDescriptor)
+        static void EnsureEntityHasPrimaryKey(TypeDescriptor typeDescriptor)
         {
             if (!typeDescriptor.HasPrimaryKey())
                 throw new ChloeException(string.Format("Mapping type '{0}' does not define a primary key.", typeDescriptor.EntityType.FullName));
+        }
+        static object ConvertIdentityType(object identity, Type conversionType)
+        {
+            if (identity.GetType() != conversionType)
+                return Convert.ChangeType(identity, conversionType);
+
+            return identity;
         }
 
 

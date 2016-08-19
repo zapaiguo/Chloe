@@ -13,6 +13,7 @@ namespace Chloe.Descriptors
         }
 
         public bool IsPrimaryKey { get; set; }
+        public bool IsAutoIncrement { get; set; }
 
         public abstract DbColumn Column { get; }
         public abstract object GetValue(object instance);

@@ -32,5 +32,10 @@ namespace Chloe.Descriptors
 
             return val;
         }
+        public bool IsDefined(Type attributeType)
+        {
+            return this.MemberInfo.IsDefined(attributeType, false);
+        }
+
     }
 }
