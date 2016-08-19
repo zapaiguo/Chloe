@@ -2231,7 +2231,7 @@
           "lib/netstandard1.3/_._": {}
         }
       },
-      "Chloe/1.0.4": {
+      "Chloe/2.0.0": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -2248,11 +2248,11 @@
           "netstandard1.6/Chloe.dll": {}
         }
       },
-      "Chloe.MySql/1.0.4": {
+      "Chloe.MySql/2.0.0": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Chloe": "1.0.4",
+          "Chloe": "2.0.0",
           "NETStandard.Library": "1.6.0",
           "System.Data.Common": "4.1.0"
         },
@@ -2263,11 +2263,11 @@
           "netstandard1.6/Chloe.MySql.dll": {}
         }
       },
-      "Chloe.SQLite/1.0.4": {
+      "Chloe.SQLite/2.0.0": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Chloe": "1.0.4",
+          "Chloe": "2.0.0",
           "NETStandard.Library": "1.6.0",
           "System.Data.Common": "4.1.0"
         },
@@ -2278,11 +2278,11 @@
           "netstandard1.6/Chloe.SQLite.dll": {}
         }
       },
-      "Chloe.SqlServer/1.0.4": {
+      "Chloe.SqlServer/2.0.0": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Chloe": "1.0.4",
+          "Chloe": "2.0.0",
           "NETStandard.Library": "1.6.0",
           "System.Data.Common": "4.1.0",
           "System.Data.SqlClient": "4.1.0"
@@ -7089,22 +7089,22 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "Chloe/1.0.4": {
+    "Chloe/2.0.0": {
       "type": "project",
       "path": "../Chloe/project.json",
       "msbuildProject": "../Chloe/Chloe.xproj"
     },
-    "Chloe.MySql/1.0.4": {
+    "Chloe.MySql/2.0.0": {
       "type": "project",
       "path": "../Chloe.MySql/project.json",
       "msbuildProject": "../Chloe.MySql/Chloe.MySql.xproj"
     },
-    "Chloe.SQLite/1.0.4": {
+    "Chloe.SQLite/2.0.0": {
       "type": "project",
       "path": "../Chloe.SQLite/project.json",
       "msbuildProject": "../Chloe.SQLite/Chloe.SQLite.xproj"
     },
-    "Chloe.SqlServer/1.0.4": {
+    "Chloe.SqlServer/2.0.0": {
       "type": "project",
       "path": "../Chloe.SqlServer/project.json",
       "msbuildProject": "../Chloe.SqlServer/Chloe.SqlServer.xproj"
@@ -7112,10 +7112,10 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "Chloe >= 1.0.4-*",
-      "Chloe.MySql >= 1.0.4-*",
-      "Chloe.SQLite >= 1.0.4-*",
-      "Chloe.SqlServer >= 1.0.4-*",
+      "Chloe >= 2.0.0-*",
+      "Chloe.MySql >= 2.0.0-*",
+      "Chloe.SQLite >= 2.0.0-*",
+      "Chloe.SqlServer >= 2.0.0-*",
       "Microsoft.Data.Sqlite >= 1.0.0",
       "Microsoft.NETCore.App >= 1.0.0"
     ],

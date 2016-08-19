@@ -36,6 +36,5 @@ namespace Chloe.Descriptors
         {
             return this.MemberInfo.IsDefined(attributeType, false);
         }
-
     }
 }
