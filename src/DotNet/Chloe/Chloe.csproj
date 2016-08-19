@@ -79,6 +79,7 @@
     <Compile Include="DbExpressions\DbJoinTableExpression.cs" />
     <Compile Include="DbExpressions\DbLessThanExpression.cs" />
     <Compile Include="DbExpressions\DbLessThanOrEqualExpression.cs" />
+    <Compile Include="DbExpressions\DbMainTableExpression.cs" />
     <Compile Include="DbExpressions\DbMemberExpression.cs" />
     <Compile Include="DbExpressions\DbMethodCallExpression.cs" />
     <Compile Include="DbExpressions\DbMultiplyExpression.cs" />

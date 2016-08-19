@@ -45,7 +45,6 @@ namespace Chloe.Query
                 this.HavingCondition = new DbAndAlsoExpression(this.HavingCondition, condition);
         }
 
-
         public string GenerateUniqueTableAlias(string prefix = UtilConstants.DefaultTableAlias)
         {
             if (this.FromTable == null)
@@ -63,27 +62,14 @@ namespace Chloe.Query
             return alias;
         }
 
-        static bool ExistTableAlias(DbFromTableExpression fromTable, string alias)
+        static bool ExistTableAlias(DbMainTableExpression mainTable, string alias)
         {
-            if (string.Equals(fromTable.Table.Alias, alias, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(mainTable.Table.Alias, alias, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            foreach (var item in fromTable.JoinTables)
+            foreach (DbJoinTableExpression joinTable in mainTable.JoinTables)
             {
-                if (ExistTableAlias(item, alias))
-                    return true;
-            }
-
-            return false;
-        }
-        static bool ExistTableAlias(DbJoinTableExpression joinTable, string alias)
-        {
-            if (string.Equals(joinTable.Table.Alias, alias, StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            foreach (var item in joinTable.JoinTables)
-            {
-                if (ExistTableAlias(item, alias))
+                if (ExistTableAlias(joinTable, alias))
                     return true;
             }
 
