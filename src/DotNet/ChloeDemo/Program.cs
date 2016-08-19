@@ -10,7 +10,7 @@ namespace ChloeDemo
     {
         static void Main(string[] args)
         {
-            //SQLiteDemo.Test();
+            SQLiteDemo.Test();
             //MsSqlDemo.Test();
             //MySqlDemo.Test();
         }
