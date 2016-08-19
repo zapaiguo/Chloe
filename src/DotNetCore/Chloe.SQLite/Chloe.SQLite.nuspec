@@ -13,16 +13,16 @@
     <description>SQLite database provider for Chloe Core.</description>
     <copyright>Copyright 2016</copyright>
     <tags>Chloe,ORM,Data,Core,SQLite</tags>
-	
-	<dependencies>
+
+    <dependencies>
       <group targetFramework=".NETStandard1.6">
-	   <dependency id="ChloeCore" version="2.0.0" />
-	   <dependency id="System.Data.Common" version="4.1.0" />
+        <dependency id="ChloeCore" version="2.0.0" />
+        <dependency id="System.Data.Common" version="4.1.0" />
       </group>
     </dependencies>
-	
+
   </metadata>
   <files>
-   <file src="D:\WorkSpace\Chloe\src\DotNetCore\Chloe.SQLite\bin\Release\netstandard1.6\Chloe.SQLite.dll" target="lib\netstandard1.6"></file>
+    <file src="D:\WorkSpace\Chloe\src\DotNetCore\Chloe.SQLite\bin\Release\netstandard1.6\Chloe.SQLite.dll" target="lib\netstandard1.6"></file>
   </files>
 </package>

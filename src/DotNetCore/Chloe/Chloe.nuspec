@@ -13,18 +13,18 @@
     <description>A lightweight and high-performance Object/Relational Mapping(ORM) library for .NET Core.</description>
     <copyright>Copyright 2016</copyright>
     <tags>Chloe,ORM,Data,Core</tags>
-	
-	<dependencies>
+
+    <dependencies>
       <group targetFramework=".NETStandard1.6">
-	   <dependency id="System.Data.Common" version="4.1.0" />
-       <dependency id="System.Reflection" version="4.1.0" />
-	   <dependency id="System.Reflection.Emit" version="4.0.1" />
-	   <dependency id="System.Reflection.TypeExtensions" version="4.1.0" />
+        <dependency id="System.Data.Common" version="4.1.0" />
+        <dependency id="System.Reflection" version="4.1.0" />
+        <dependency id="System.Reflection.Emit" version="4.0.1" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.1.0" />
       </group>
     </dependencies>
-	
+
   </metadata>
   <files>
-   <file src="D:\WorkSpace\Chloe\src\DotNetCore\Chloe\bin\Release\netstandard1.6\Chloe.dll" target="lib\netstandard1.6"></file>
+    <file src="D:\WorkSpace\Chloe\src\DotNetCore\Chloe\bin\Release\netstandard1.6\Chloe.dll" target="lib\netstandard1.6"></file>
   </files>
 </package>
