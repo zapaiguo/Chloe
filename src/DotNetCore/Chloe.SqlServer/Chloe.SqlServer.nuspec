@@ -24,6 +24,6 @@
 
   </metadata>
   <files>
-    <file src="D:\WorkSpace\Chloe\src\DotNetCore\Chloe.SqlServer\bin\Release\netstandard1.6\Chloe.SqlServer.dll" target="lib\netstandard1.6"></file>
+    <file src="bin\Release\netstandard1.6\Chloe.SqlServer.dll" target="lib\netstandard1.6"></file>
   </files>
 </package>

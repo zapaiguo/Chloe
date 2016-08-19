@@ -25,6 +25,6 @@
 
   </metadata>
   <files>
-    <file src="D:\WorkSpace\Chloe\src\DotNetCore\Chloe\bin\Release\netstandard1.6\Chloe.dll" target="lib\netstandard1.6"></file>
+    <file src="bin\Release\netstandard1.6\Chloe.dll" target="lib\netstandard1.6"></file>
   </files>
 </package>
