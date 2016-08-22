@@ -28,7 +28,7 @@ namespace Chloe.SQLite
         {
             get { return this._dbContextServiceProvider; }
         }
-        protected override string GetSelectLastInsertIdentityClause()
+        protected override string GetSelectLastInsertIdClause()
         {
             return "SELECT LAST_INSERT_ROWID()";
         }

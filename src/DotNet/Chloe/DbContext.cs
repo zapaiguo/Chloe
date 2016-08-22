@@ -124,7 +124,7 @@ namespace Chloe
             List<DbParam> parameters;
             string sql = translator.Translate(e, out parameters);
 
-            sql = string.Concat(sql, ";", this.GetSelectLastInsertIdentityClause());
+            sql = string.Concat(sql, ";", this.GetSelectLastInsertIdClause());
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
             object retIdentity = this.CurrentSession.ExecuteScalar(sql, parameters.ToArray());
@@ -196,7 +196,7 @@ namespace Chloe
             IDbExpressionTranslator translator = this.DbContextServiceProvider.CreateDbExpressionTranslator();
             List<DbParam> parameters;
             string sql = translator.Translate(e, out parameters);
-            sql = string.Concat(sql, ";", this.GetSelectLastInsertIdentityClause());
+            sql = string.Concat(sql, ";", this.GetSelectLastInsertIdClause());
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
             object retIdentity = this.CurrentSession.ExecuteScalar(sql, parameters.ToArray());
@@ -360,7 +360,7 @@ namespace Chloe
 
             collection.TryAddEntity(entity);
         }
-        protected virtual string GetSelectLastInsertIdentityClause()
+        protected virtual string GetSelectLastInsertIdClause()
         {
             return "SELECT @@IDENTITY";
         }
