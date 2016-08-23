@@ -108,6 +108,13 @@ namespace Chloe.Query
             {
                 MemberInfo member = memberExpression.Member;
 
+                if (moe == null && ret != null)
+                {
+                    /* a.F_DateTime.Value.Date */
+                    ret = DbExpression.MemberAccess(member, ret);
+                    continue;
+                }
+
                 DbExpression e = moe.GetMemberExpression(member);
                 if (e == null)
                 {

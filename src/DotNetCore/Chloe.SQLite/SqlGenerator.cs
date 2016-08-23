@@ -356,9 +356,17 @@ namespace Chloe.SQLite
                     return exp;
                 }
 
-                if (member == UtilConstants.PropertyInfo_DateTime_Today || member == UtilConstants.PropertyInfo_DateTime_Date)
+                if (member == UtilConstants.PropertyInfo_DateTime_Today)
                 {
                     this._sqlBuilder.Append("DATE('NOW','LOCALTIME')");
+                    return exp;
+                }
+
+                if (member == UtilConstants.PropertyInfo_DateTime_Date)
+                {
+                    this._sqlBuilder.Append("DATETIME(DATE(");
+                    exp.Expression.Accept(this);
+                    this._sqlBuilder.Append("))");
                     return exp;
                 }
 
