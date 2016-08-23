@@ -345,9 +345,17 @@ namespace Chloe.MySql
                     return exp;
                 }
 
-                if (member == UtilConstants.PropertyInfo_DateTime_Today || member == UtilConstants.PropertyInfo_DateTime_Date)
+                if (member == UtilConstants.PropertyInfo_DateTime_Today)
                 {
                     this._sqlBuilder.Append("CURDATE()");
+                    return exp;
+                }
+
+                if (member == UtilConstants.PropertyInfo_DateTime_Date)
+                {
+                    this._sqlBuilder.Append("DATE(");
+                    exp.Expression.Accept(this);
+                    this._sqlBuilder.Append(")");
                     return exp;
                 }
 

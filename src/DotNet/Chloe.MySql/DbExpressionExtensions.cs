@@ -52,8 +52,13 @@ namespace Chloe.MySql
 
             if (tempExp.NodeType == DbExpressionType.MemberAccess)
             {
+                DbMemberExpression dbMemberExp = (DbMemberExpression)tempExp;
+
+                if (ExistDateTime_NowOrDateTime_UtcNow(dbMemberExp))
+                    return stripedExp;
+
                 DbParameterExpression val;
-                if (DbExpressionExtensions.TryParseToParameterExpression((DbMemberExpression)tempExp, out val))
+                if (DbExpressionExtensions.TryParseToParameterExpression(dbMemberExp, out val))
                 {
                     if (cList != null)
                     {
@@ -193,6 +198,20 @@ namespace Chloe.MySql
             }
 
             throw new NotSupportedException();
+        }
+        public static bool ExistDateTime_NowOrDateTime_UtcNow(this DbMemberExpression exp)
+        {
+            while (exp != null)
+            {
+                if (exp.Member == UtilConstants.PropertyInfo_DateTime_Now || exp.Member == UtilConstants.PropertyInfo_DateTime_UtcNow)
+                {
+                    return true;
+                }
+
+                exp = exp.Expression as DbMemberExpression;
+            }
+
+            return false;
         }
     }
 }
