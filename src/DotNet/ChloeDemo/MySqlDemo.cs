@@ -1,19 +1,15 @@
 ﻿using Chloe;
 using Chloe.MySql;
-using Chloe.SQLite;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ChloeDemo
 {
     class MySqlDemo
     {
-        static MySqlContext context = new MySqlContext(new MySqlConnectionFactory("Database='Chloe';Data Source=localhost;User ID=root;Password=sasa;CharSet=utf8;"));
-
+        static MySqlContext context = new MySqlContext(new MySqlConnectionFactory("Database='Chloe';Data Source=localhost;User ID=root;Password=sasa;CharSet=utf8;SslMode=None"));
         public static void Test()
         {
             BasicQuery();
@@ -35,19 +31,19 @@ namespace ChloeDemo
 
             q.Where(a => a.Id == 1).FirstOrDefault();
             /*
-             * SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name],[Users].[Gender] AS [Gender],[Users].[Age] AS [Age],[Users].[CityId] AS [CityId],[Users].[OpTime] AS [OpTime] FROM [Users] AS [Users] WHERE [Users].[Id] = 1 LIMIT 1 OFFSET 0
+             * SELECT `Users`.`Id` AS `Id`,`Users`.`Name` AS `Name`,`Users`.`Gender` AS `Gender`,`Users`.`Age` AS `Age`,`Users`.`CityId` AS `CityId`,`Users`.`OpTime` AS `OpTime` FROM `Users` AS `Users` WHERE `Users`.`Id` = 1 LIMIT 0,1
              */
 
             //可以选取指定的字段
             q.Where(a => a.Id == 1).Select(a => new { a.Id, a.Name }).FirstOrDefault();
             /*
-             * SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name] FROM [Users] AS [Users] WHERE [Users].[Id] = 1 LIMIT 1 OFFSET 0
+             * SELECT `Users`.`Id` AS `Id`,`Users`.`Name` AS `Name` FROM `Users` AS `Users` WHERE `Users`.`Id` = 1 LIMIT 0,1
              */
 
             //分页
             q.Where(a => a.Id > 0).OrderBy(a => a.Age).Skip(1).Take(999).ToList();
             /*
-             * SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name],[Users].[Gender] AS [Gender],[Users].[Age] AS [Age],[Users].[CityId] AS [CityId],[Users].[OpTime] AS [OpTime] FROM [Users] AS [Users] WHERE [Users].[Id] > 0 ORDER BY [Users].[Age] ASC LIMIT 999 OFFSET 1
+             * SELECT `Users`.`Id` AS `Id`,`Users`.`Name` AS `Name`,`Users`.`Gender` AS `Gender`,`Users`.`Age` AS `Age`,`Users`.`CityId` AS `CityId`,`Users`.`OpTime` AS `OpTime` FROM `Users` AS `Users` WHERE `Users`.`Id` > 0 ORDER BY `Users`.`Age` ASC LIMIT 1,999
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -65,13 +61,13 @@ namespace ChloeDemo
             //查出一个用户及其隶属的城市和省份的所有信息
             var view = user_city_province.Select((user, city, province) => new { User = user, City = city, Province = province }).Where(a => a.User.Id == 1).ToList();
             /*
-             * SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name],[Users].[Gender] AS [Gender],[Users].[Age] AS [Age],[Users].[CityId] AS [CityId],[Users].[OpTime] AS [OpTime],[City].[Id] AS [Id0],[City].[Name] AS [Name0],[City].[ProvinceId] AS [ProvinceId],[Province].[Id] AS [Id1],[Province].[Name] AS [Name1] FROM [Users] AS [Users] INNER JOIN [City] AS [City] ON [Users].[CityId] = [City].[Id] INNER JOIN [Province] AS [Province] ON [City].[ProvinceId] = [Province].[Id] WHERE [Users].[Id] = 1
+             * SELECT `Users`.`Id` AS `Id`,`Users`.`Name` AS `Name`,`Users`.`Gender` AS `Gender`,`Users`.`Age` AS `Age`,`Users`.`CityId` AS `CityId`,`Users`.`OpTime` AS `OpTime`,`City`.`Id` AS `Id0`,`City`.`Name` AS `Name0`,`City`.`ProvinceId` AS `ProvinceId`,`Province`.`Id` AS `Id1`,`Province`.`Name` AS `Name1` FROM `Users` AS `Users` INNER JOIN `City` AS `City` ON `Users`.`CityId` = `City`.`Id` INNER JOIN `Province` AS `Province` ON `City`.`ProvinceId` = `Province`.`Id` WHERE `Users`.`Id` = 1
              */
 
             //也可以只获取指定的字段信息：UserId,UserName,CityName,ProvinceName
             user_city_province.Select((user, city, province) => new { UserId = user.Id, UserName = user.Name, CityName = city.Name, ProvinceName = province.Name }).Where(a => a.UserId == 1).ToList();
             /*
-             * SELECT [Users].[Id] AS [UserId],[Users].[Name] AS [UserName],[City].[Name] AS [CityName],[Province].[Name] AS [ProvinceName] FROM [Users] AS [Users] INNER JOIN [City] AS [City] ON [Users].[CityId] = [City].[Id] INNER JOIN [Province] AS [Province] ON [City].[ProvinceId] = [Province].[Id] WHERE [Users].[Id] = 1
+             * SELECT `Users`.`Id` AS `UserId`,`Users`.`Name` AS `UserName`,`City`.`Name` AS `CityName`,`Province`.`Name` AS `ProvinceName` FROM `Users` AS `Users` INNER JOIN `City` AS `City` ON `Users`.`CityId` = `City`.`Id` INNER JOIN `Province` AS `Province` ON `City`.`ProvinceId` = `Province`.`Id` WHERE `Users`.`Id` = 1
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -82,42 +78,42 @@ namespace ChloeDemo
 
             q.Select(a => AggregateFunctions.Count()).First();
             /*
-             * SELECT COUNT(1) AS [C] FROM [Users] AS [Users] LIMIT 1 OFFSET 0
+             * SELECT COUNT(1) AS `C` FROM `Users` AS `Users` LIMIT 0,1
              */
 
             q.Select(a => new { Count = AggregateFunctions.Count(), LongCount = AggregateFunctions.LongCount(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Average = AggregateFunctions.Average(a.Age) }).First();
             /*
-             * SELECT COUNT(1) AS [Count],COUNT(1) AS [LongCount],CAST(SUM([Users].[Age]) AS INTEGER) AS [Sum],MAX([Users].[Age]) AS [Max],MIN([Users].[Age]) AS [Min],CAST(AVG([Users].[Age]) AS REAL) AS [Average] FROM [Users] AS [Users] LIMIT 1 OFFSET 0
+             * SELECT COUNT(1) AS `Count`,COUNT(1) AS `LongCount`,CAST(SUM(`Users`.`Age`) AS SIGNED) AS `Sum`,MAX(`Users`.`Age`) AS `Max`,MIN(`Users`.`Age`) AS `Min`,AVG(`Users`.`Age`) AS `Average` FROM `Users` AS `Users` LIMIT 0,1
              */
 
             var count = q.Count();
             /*
-             * SELECT COUNT(1) AS [C] FROM [Users] AS [Users]
+             * SELECT COUNT(1) AS `C` FROM `Users` AS `Users`
              */
 
             var longCount = q.LongCount();
             /*
-             * SELECT COUNT(1) AS [C] FROM [Users] AS [Users]
+             * SELECT COUNT(1) AS `C` FROM `Users` AS `Users`
              */
 
             var sum = q.Sum(a => a.Age);
             /*
-             * SELECT CAST(SUM([Users].[Age]) AS INTEGER) AS [C] FROM [Users] AS [Users]
+             * SELECT CAST(SUM(`Users`.`Age`) AS SIGNED) AS `C` FROM `Users` AS `Users`
              */
 
             var max = q.Max(a => a.Age);
             /*
-             * SELECT MAX([Users].[Age]) AS [C] FROM [Users] AS [Users]
+             * SELECT MAX(`Users`.`Age`) AS `C` FROM `Users` AS `Users`
              */
 
             var min = q.Min(a => a.Age);
             /*
-             * SELECT MIN([Users].[Age] AS [C] FROM [Users] AS [Users]
+             * SELECT MIN(`Users`.`Age`) AS `C` FROM `Users` AS `Users`
              */
 
             var avg = q.Average(a => a.Age);
             /*
-             * SELECT CAST(AVG([Users].[Age]) AS REAL) AS [C] FROM [Users] AS [Users]
+             * SELECT AVG(`Users`.`Age`) AS `C` FROM `Users` AS `Users`
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -132,7 +128,7 @@ namespace ChloeDemo
 
             g.Select(a => new { a.Age, Count = AggregateFunctions.Count(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Avg = AggregateFunctions.Average(a.Age) }).ToList();
             /*
-             * SELECT [Users].[Age] AS [Age],COUNT(1) AS [Count],CAST(SUM([Users].[Age]) AS INTEGER) AS [Sum],CAST(MAX([Users].[Age]) AS INTEGER) AS [Max],CAST(MIN([Users].[Age]) AS INTEGER) AS [Min],CAST(AVG([Users].[Age]) AS REAL) AS [Avg] FROM [Users] AS [Users] WHERE [Users].[Id] > 0 GROUP BY [Users].[Age] HAVING ([Users].[Age] > 1 AND COUNT(1) > 0)
+             * SELECT `Users`.`Age` AS `Age`,COUNT(1) AS `Count`,CAST(SUM(`Users`.`Age`) AS SIGNED) AS `Sum`,MAX(`Users`.`Age`) AS `Max`,MIN(`Users`.`Age`) AS `Min`,AVG(`Users`.`Age`) AS `Avg` FROM `Users` AS `Users` WHERE `Users`.`Id` > 0 GROUP BY `Users`.`Age` HAVING (`Users`.`Age` > 1 AND COUNT(1) > 0)
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -143,7 +139,7 @@ namespace ChloeDemo
             //返回主键 Id
             int id = (int)context.Insert<User>(() => new User() { Name = "lu", Age = 18, Gender = Gender.Man, CityId = 1, OpTime = DateTime.Now });
             /*
-             * INSERT INTO [Users]([Name],[Age],[Gender],[CityId],[OpTime]) VALUES('lu',18,1,1,DATETIME('NOW','LOCALTIME'));SELECT LAST_INSERT_ROWID()
+             * INSERT INTO `Users`(`Name`,`Age`,`Gender`,`CityId`,`OpTime`) VALUES(N'lu',18,1,1,NOW());SELECT @@IDENTITY
              */
 
             User user = new User();
@@ -156,12 +152,12 @@ namespace ChloeDemo
             //会自动将自增 Id 设置到 user 的 Id 属性上
             user = context.Insert(user);
             /*
-             * String @P_0 = 'lu';
-               Gender @P_1 = Man;
-               Int32 @P_2 = 18;
-               Int32 @P_3 = 1;
-               DateTime @P_4 = '2016/8/6 22:03:42';
-               INSERT INTO [Users]([Name],[Gender],[Age],[CityId],[OpTime]) VALUES(@P_0,@P_1,@P_2,@P_3,@P_4);SELECT LAST_INSERT_ROWID()
+             * String ?P_0 = 'lu';
+               Gender ?P_1 = Man;
+               Int32 ?P_2 = 18;
+               Int32 ?P_3 = 1;
+               DateTime ?P_4 = '2016/8/26 18:11:26';
+               INSERT INTO `Users`(`Name`,`Gender`,`Age`,`CityId`,`OpTime`) VALUES(?P_0,?P_1,?P_2,?P_3,?P_4);SELECT @@IDENTITY
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -170,14 +166,14 @@ namespace ChloeDemo
         {
             context.Update<User>(a => new User() { Name = a.Name, Age = a.Age + 100, Gender = Gender.Man, OpTime = DateTime.Now }, a => a.Id == 1);
             /*
-             * UPDATE [Users] SET [Name]=[Users].[Name],[Age]=([Users].[Age] + 100),[Gender]=1,[OpTime]=DATETIME('NOW','LOCALTIME') WHERE [Users].[Id] = 1
+             * UPDATE `Users` SET `Name`=`Users`.`Name`,`Age`=(`Users`.`Age` + 100),`Gender`=1,`OpTime`=NOW() WHERE `Users`.`Id` = 1
              */
 
             //批量更新
             //给所有女性年轻 10 岁
             context.Update<User>(a => new User() { Age = a.Age - 10, OpTime = DateTime.Now }, a => a.Gender == Gender.Woman);
             /*
-             * UPDATE [Users] SET [Age]=([Users].[Age] - 10),[OpTime]=DATETIME('NOW','LOCALTIME') WHERE [Users].[Gender] = 2
+             * UPDATE `Users` SET `Age`=(`Users`.`Age` - 10),`OpTime`=NOW() WHERE `Users`.`Gender` = 2
              */
 
             User user = new User();
@@ -189,13 +185,13 @@ namespace ChloeDemo
 
             context.Update(user); //会更新所有映射的字段
             /*
-             * String @P_0 = 'lu';
-               Gender @P_1 = Man;
-               Int32 @P_2 = 28;
-               Nullable<Int32> @P_3 = NULL;
-               DateTime @P_4 = '2016/8/6 22:05:02';
-               Int32 @P_5 = 1;
-               UPDATE [Users] SET [Name]=@P_0,[Gender]=@P_1,[Age]=@P_2,[CityId]=@P_3,[OpTime]=@P_4 WHERE [Users].[Id] = @P_5
+             * String ?P_0 = 'lu';
+               Gender ?P_1 = Man;
+               Int32 ?P_2 = 28;
+               Nullable<Int32> ?P_3 = NULL;
+               DateTime ?P_4 = '2016/8/26 18:18:36';
+               Int32 ?P_5 = 1;
+               UPDATE `Users` SET `Name`=?P_0,`Gender`=?P_1,`Age`=?P_2,`CityId`=?P_3,`OpTime`=?P_4 WHERE `Users`.`Id` = ?P_5
              */
 
 
@@ -207,9 +203,9 @@ namespace ChloeDemo
             user.Name = user.Name + "1";
             context.Update(user);//这时只会更新被修改的字段
             /*
-             * String @P_0 = 'lu1';
-               Int32 @P_1 = 1;
-               UPDATE [Users] SET [Name]=@P_0 WHERE [Users].[Id] = @P_1
+             * String ?P_0 = 'lu1';
+               Int32 ?P_1 = 1;
+               UPDATE `Users` SET `Name`=?P_0 WHERE `Users`.`Id` = ?P_1
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -218,14 +214,14 @@ namespace ChloeDemo
         {
             context.Delete<User>(a => a.Id == 1);
             /*
-             * DELETE FROM [Users] WHERE [Users].[Id] = 1
+             * DELETE `Users` FROM `Users` WHERE `Users`.`Id` = 1
              */
 
             //批量删除
             //删除所有不男不女的用户
             context.Delete<User>(a => a.Gender == null);
             /*
-             * DELETE FROM [Users] WHERE [Users].[Gender] IS NULL
+             * DELETE `Users` FROM `Users` WHERE `Users`.`Gender` IS NULL
              */
 
             User user = new User();
@@ -233,7 +229,7 @@ namespace ChloeDemo
             context.Delete(user);
             /*
              * Int32 @P_0 = 1;
-               DELETE FROM [Users] WHERE [Users].[Id] = @P_0
+               DELETE `Users` FROM `Users` WHERE `Users`.`Id` = ?P_0
              */
 
             ConsoleHelper.WriteLineAndReadKey(1);
@@ -275,18 +271,10 @@ namespace ChloeDemo
                 //DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),//MySql 不支持 Millisecond
                 //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//ex
 
-                AddYears = startTime.AddYears(1),//DATE_ADD(?P_0,INTERVAL 1 YEAR)
-                AddMonths = startTime.AddMonths(1),//DATE_ADD(?P_0,INTERVAL 1 MONTH)
-                AddDays = startTime.AddDays(1),//DATE_ADD(?P_0,INTERVAL 1 DAY)
-                AddHours = startTime.AddHours(1),//DATE_ADD(?P_0,INTERVAL 1 HOUR)
-                AddMinutes = startTime.AddMinutes(2),//DATE_ADD(?P_0,INTERVAL 2 MINUTE)
-                AddSeconds = startTime.AddSeconds(120),//DATE_ADD(?P_0,INTERVAL 120 SECOND)
-                //AddMilliseconds = startTime.AddMilliseconds(2000),//不支持
-
                 Now = DateTime.Now,//NOW()
                 UtcNow = DateTime.UtcNow,//UTC_TIMESTAMP()
                 Today = DateTime.Today,//CURDATE()
-                Date = DateTime.Now.Date,//CURDATE()
+                Date = DateTime.Now.Date,//DATE(NOW())
                 Year = DateTime.Now.Year,//YEAR(NOW())
                 Month = DateTime.Now.Month,//MONTH(NOW())
                 Day = DateTime.Now.Day,//DAY(NOW())
@@ -311,6 +299,5 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
-
     }
 }

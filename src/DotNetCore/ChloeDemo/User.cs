@@ -16,7 +16,7 @@ namespace ChloeDemo
     public class User
     {
         [Column(IsPrimaryKey = true)]
-        [AutoIncrementAttribute]
+        [AutoIncrement]
         public int Id { get; set; }
         public string Name { get; set; }
         public Gender? Gender { get; set; }
