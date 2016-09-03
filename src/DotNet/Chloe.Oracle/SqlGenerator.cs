@@ -540,7 +540,7 @@ namespace Chloe.Oracle
             {
                 if (member == UtilConstants.PropertyInfo_DateTime_Now)
                 {
-                    this._sqlBuilder.Append("SYSDATE");
+                    this._sqlBuilder.Append("SYSTIMESTAMP");
                     return exp;
                 }
 
@@ -822,6 +822,11 @@ namespace Chloe.Oracle
                 this._sqlBuilder.Append("EXTRACT(YEAR FROM ");
                 exp.Expression.Accept(this);
                 this._sqlBuilder.Append(")");
+
+                //this._sqlBuilder.Append("CAST(TO_CHAR(");
+                //exp.Expression.Accept(this);
+                //this._sqlBuilder.Append(",'yyyy') AS NUMBER)");
+
                 return true;
             }
 
