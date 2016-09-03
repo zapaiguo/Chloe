@@ -160,39 +160,6 @@ namespace Chloe.SQLite
             return exp;
         }
 
-        public override DbExpression Visit(DbConvertExpression exp)
-        {
-            DbExpression stripedExp = DbExpressionHelper.StripInvalidConvert(exp);
-
-            if (stripedExp.NodeType != DbExpressionType.Convert)
-            {
-                stripedExp.Accept(this);
-                return exp;
-            }
-
-            exp = (DbConvertExpression)stripedExp;
-
-            string dbTypeString;
-            if (TryGetCastTargetDbTypeString(exp.Operand.Type, exp.Type, out dbTypeString, false))
-            {
-                this.BuildCastState(exp.Operand, dbTypeString);
-            }
-            else
-            {
-                Type targetUnType = Utils.GetUnderlyingType(exp.Type);
-                if (targetUnType == UtilConstants.TypeOfDateTime)
-                {
-                    /* DATETIME('2016-08-06 09:01:24') */
-                    this._sqlBuilder.Append("DATETIME(");
-                    exp.Operand.Accept(this);
-                    this._sqlBuilder.Append(")");
-                }
-                else
-                    exp.Operand.Accept(this);
-            }
-
-            return exp;
-        }
         // +
         public override DbExpression Visit(DbAddExpression exp)
         {
@@ -275,52 +242,19 @@ namespace Chloe.SQLite
             return exp;
         }
 
-        public override DbExpression Visit(DbConstantExpression exp)
+
+        public override DbExpression Visit(DbAggregateExpression exp)
         {
-            if (exp.Value == null || exp.Value == DBNull.Value)
+            Action<DbAggregateExpression, SqlGenerator> aggregateHandler;
+            if (!AggregateHandlers.TryGetValue(exp.Method.Name, out aggregateHandler))
             {
-                this._sqlBuilder.Append("NULL");
-                return exp;
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
             }
 
-            var objType = exp.Value.GetType();
-            if (objType == UtilConstants.TypeOfBoolean)
-            {
-                this._sqlBuilder.Append(((bool)exp.Value) ? "1" : "0");
-                return exp;
-            }
-            else if (objType == UtilConstants.TypeOfString)
-            {
-                this._sqlBuilder.Append("'", exp.Value, "'");
-                return exp;
-            }
-            else if (objType.GetTypeInfo().IsEnum)
-            {
-                this._sqlBuilder.Append(((int)exp.Value).ToString());
-                return exp;
-            }
-
-            this._sqlBuilder.Append(exp.Value);
+            aggregateHandler(exp, this);
             return exp;
         }
 
-        public override DbExpression Visit(DbCaseWhenExpression exp)
-        {
-            this._sqlBuilder.Append("CASE");
-            foreach (var whenThen in exp.WhenThenPairs)
-            {
-                this._sqlBuilder.Append(" WHEN ");
-                whenThen.When.Accept(this);
-                this._sqlBuilder.Append(" THEN ");
-                whenThen.Then.Accept(this);
-            }
-
-            this._sqlBuilder.Append(" ELSE ");
-            exp.Else.Accept(this);
-            this._sqlBuilder.Append(" END");
-
-            return exp;
-        }
 
         public override DbExpression Visit(DbTableExpression exp)
         {
@@ -328,7 +262,6 @@ namespace Chloe.SQLite
 
             return exp;
         }
-
         public override DbExpression Visit(DbColumnAccessExpression exp)
         {
             this.QuoteName(exp.Table.Name);
@@ -337,139 +270,6 @@ namespace Chloe.SQLite
 
             return exp;
         }
-
-        public override DbExpression Visit(DbMemberExpression exp)
-        {
-            MemberInfo member = exp.Member;
-
-            if (member.DeclaringType == UtilConstants.TypeOfDateTime)
-            {
-                if (member == UtilConstants.PropertyInfo_DateTime_Now)
-                {
-                    this._sqlBuilder.Append("DATETIME('NOW','LOCALTIME')");
-                    return exp;
-                }
-
-                if (member == UtilConstants.PropertyInfo_DateTime_UtcNow)
-                {
-                    this._sqlBuilder.Append("DATETIME()");
-                    return exp;
-                }
-
-                if (member == UtilConstants.PropertyInfo_DateTime_Today)
-                {
-                    this._sqlBuilder.Append("DATE('NOW','LOCALTIME')");
-                    return exp;
-                }
-
-                if (member == UtilConstants.PropertyInfo_DateTime_Date)
-                {
-                    this._sqlBuilder.Append("DATETIME(DATE(");
-                    exp.Expression.Accept(this);
-                    this._sqlBuilder.Append("))");
-                    return exp;
-                }
-
-                if (IsDbFunction_DATEPART(exp))
-                {
-                    return exp;
-                }
-            }
-
-
-            DbParameterExpression newExp;
-            if (DbExpressionExtensions.TryParseToParameterExpression(exp, out newExp))
-            {
-                return newExp.Accept(this);
-            }
-
-            if (member.Name == "Length" && member.DeclaringType == UtilConstants.TypeOfString)
-            {
-                this._sqlBuilder.Append("LENGTH(");
-                exp.Expression.Accept(this);
-                this._sqlBuilder.Append(")");
-
-                return exp;
-            }
-            else if (member.Name == "Value" && Utils.IsNullable(exp.Expression.Type))
-            {
-                exp.Expression.Accept(this);
-                return exp;
-            }
-
-            throw new NotSupportedException(string.Format("'{0}.{1}' is not supported.", member.DeclaringType.FullName, member.Name));
-        }
-        public override DbExpression Visit(DbParameterExpression exp)
-        {
-            object paramValue = exp.Value;
-            Type paramType = exp.Type;
-
-            if (paramType.IsEnum)
-            {
-                paramType = UtilConstants.TypeOfInt32;
-                if (paramValue != null)
-                {
-                    paramValue = (int)paramValue;
-                }
-            }
-
-            if (paramValue == null)
-                paramValue = DBNull.Value;
-
-            DbParam p;
-            if (paramValue == DBNull.Value)
-            {
-                p = this._parameters.Where(a => Utils.AreEqual(a.Value, paramValue) && a.Type == paramType).FirstOrDefault();
-            }
-            else
-                p = this._parameters.Where(a => Utils.AreEqual(a.Value, paramValue)).FirstOrDefault();
-
-            if (p != null)
-            {
-                this._sqlBuilder.Append(p.Name);
-                return exp;
-            }
-
-            string paramName = GenParameterName(this._parameters.Count);
-            p = DbParam.Create(paramName, paramValue, paramType);
-
-            if (paramValue.GetType() == UtilConstants.TypeOfString)
-            {
-                if (((string)paramValue).Length <= 4000)
-                    p.Size = 4000;
-            }
-
-            this._parameters.Add(p);
-            this._sqlBuilder.Append(paramName);
-            return exp;
-        }
-
-        public override DbExpression Visit(DbSubQueryExpression exp)
-        {
-            this._sqlBuilder.Append("(");
-            exp.SqlQuery.Accept(this);
-            this._sqlBuilder.Append(")");
-
-            return exp;
-        }
-        public override DbExpression Visit(DbSqlQueryExpression exp)
-        {
-            this.BuildGeneralSql(exp);
-            return exp;
-        }
-
-        public override DbExpression Visit(DbMethodCallExpression exp)
-        {
-            Action<DbMethodCallExpression, SqlGenerator> methodHandler;
-            if (!MethodHandlers.TryGetValue(exp.Method.Name, out methodHandler))
-            {
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
-            }
-
-            methodHandler(exp, this);
-            return exp;
-        }
-
         public override DbExpression Visit(DbFromTableExpression exp)
         {
             this.AppendTableSegment(exp.Table);
@@ -477,7 +277,6 @@ namespace Chloe.SQLite
 
             return exp;
         }
-
         public override DbExpression Visit(DbJoinTableExpression exp)
         {
             DbJoinTableExpression joinTablePart = exp;
@@ -503,18 +302,20 @@ namespace Chloe.SQLite
             return exp;
         }
 
-        public override DbExpression Visit(DbAggregateExpression exp)
-        {
-            Action<DbAggregateExpression, SqlGenerator> aggregateHandler;
-            if (!AggregateHandlers.TryGetValue(exp.Method.Name, out aggregateHandler))
-            {
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
-            }
 
-            aggregateHandler(exp, this);
+        public override DbExpression Visit(DbSubQueryExpression exp)
+        {
+            this._sqlBuilder.Append("(");
+            exp.SqlQuery.Accept(this);
+            this._sqlBuilder.Append(")");
+
             return exp;
         }
-
+        public override DbExpression Visit(DbSqlQueryExpression exp)
+        {
+            this.BuildGeneralSql(exp);
+            return exp;
+        }
         public override DbExpression Visit(DbInsertExpression exp)
         {
             this._sqlBuilder.Append("INSERT INTO ");
@@ -585,6 +386,206 @@ namespace Chloe.SQLite
 
             return exp;
         }
+
+
+        public override DbExpression Visit(DbCaseWhenExpression exp)
+        {
+            this._sqlBuilder.Append("CASE");
+            foreach (var whenThen in exp.WhenThenPairs)
+            {
+                this._sqlBuilder.Append(" WHEN ");
+                whenThen.When.Accept(this);
+                this._sqlBuilder.Append(" THEN ");
+                whenThen.Then.Accept(this);
+            }
+
+            this._sqlBuilder.Append(" ELSE ");
+            exp.Else.Accept(this);
+            this._sqlBuilder.Append(" END");
+
+            return exp;
+        }
+        public override DbExpression Visit(DbConvertExpression exp)
+        {
+            DbExpression stripedExp = DbExpressionHelper.StripInvalidConvert(exp);
+
+            if (stripedExp.NodeType != DbExpressionType.Convert)
+            {
+                stripedExp.Accept(this);
+                return exp;
+            }
+
+            exp = (DbConvertExpression)stripedExp;
+
+            string dbTypeString;
+            if (TryGetCastTargetDbTypeString(exp.Operand.Type, exp.Type, out dbTypeString, false))
+            {
+                this.BuildCastState(exp.Operand, dbTypeString);
+            }
+            else
+            {
+                Type targetUnType = Utils.GetUnderlyingType(exp.Type);
+                if (targetUnType == UtilConstants.TypeOfDateTime)
+                {
+                    /* DATETIME('2016-08-06 09:01:24') */
+                    this._sqlBuilder.Append("DATETIME(");
+                    exp.Operand.Accept(this);
+                    this._sqlBuilder.Append(")");
+                }
+                else
+                    exp.Operand.Accept(this);
+            }
+
+            return exp;
+        }
+
+
+        public override DbExpression Visit(DbMethodCallExpression exp)
+        {
+            Action<DbMethodCallExpression, SqlGenerator> methodHandler;
+            if (!MethodHandlers.TryGetValue(exp.Method.Name, out methodHandler))
+            {
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
+            }
+
+            methodHandler(exp, this);
+            return exp;
+        }
+        public override DbExpression Visit(DbMemberExpression exp)
+        {
+            MemberInfo member = exp.Member;
+
+            if (member.DeclaringType == UtilConstants.TypeOfDateTime)
+            {
+                if (member == UtilConstants.PropertyInfo_DateTime_Now)
+                {
+                    this._sqlBuilder.Append("DATETIME('NOW','LOCALTIME')");
+                    return exp;
+                }
+
+                if (member == UtilConstants.PropertyInfo_DateTime_UtcNow)
+                {
+                    this._sqlBuilder.Append("DATETIME()");
+                    return exp;
+                }
+
+                if (member == UtilConstants.PropertyInfo_DateTime_Today)
+                {
+                    this._sqlBuilder.Append("DATE('NOW','LOCALTIME')");
+                    return exp;
+                }
+
+                if (member == UtilConstants.PropertyInfo_DateTime_Date)
+                {
+                    this._sqlBuilder.Append("DATETIME(DATE(");
+                    exp.Expression.Accept(this);
+                    this._sqlBuilder.Append("))");
+                    return exp;
+                }
+
+                if (IsDbFunction_DATEPART(exp))
+                {
+                    return exp;
+                }
+            }
+
+
+            DbParameterExpression newExp;
+            if (DbExpressionExtensions.TryParseToParameterExpression(exp, out newExp))
+            {
+                return newExp.Accept(this);
+            }
+
+            if (member.Name == "Length" && member.DeclaringType == UtilConstants.TypeOfString)
+            {
+                this._sqlBuilder.Append("LENGTH(");
+                exp.Expression.Accept(this);
+                this._sqlBuilder.Append(")");
+
+                return exp;
+            }
+            else if (member.Name == "Value" && Utils.IsNullable(exp.Expression.Type))
+            {
+                exp.Expression.Accept(this);
+                return exp;
+            }
+
+            throw new NotSupportedException(string.Format("'{0}.{1}' is not supported.", member.DeclaringType.FullName, member.Name));
+        }
+        public override DbExpression Visit(DbConstantExpression exp)
+        {
+            if (exp.Value == null || exp.Value == DBNull.Value)
+            {
+                this._sqlBuilder.Append("NULL");
+                return exp;
+            }
+
+            var objType = exp.Value.GetType();
+            if (objType == UtilConstants.TypeOfBoolean)
+            {
+                this._sqlBuilder.Append(((bool)exp.Value) ? "1" : "0");
+                return exp;
+            }
+            else if (objType == UtilConstants.TypeOfString)
+            {
+                this._sqlBuilder.Append("'", exp.Value, "'");
+                return exp;
+            }
+            else if (objType.GetTypeInfo().IsEnum)
+            {
+                this._sqlBuilder.Append(((int)exp.Value).ToString());
+                return exp;
+            }
+
+            this._sqlBuilder.Append(exp.Value);
+            return exp;
+        }
+        public override DbExpression Visit(DbParameterExpression exp)
+        {
+            object paramValue = exp.Value;
+            Type paramType = exp.Type;
+
+            if (paramType.GetTypeInfo().IsEnum)
+            {
+                paramType = UtilConstants.TypeOfInt32;
+                if (paramValue != null)
+                {
+                    paramValue = (int)paramValue;
+                }
+            }
+
+            if (paramValue == null)
+                paramValue = DBNull.Value;
+
+            DbParam p;
+            if (paramValue == DBNull.Value)
+            {
+                p = this._parameters.Where(a => Utils.AreEqual(a.Value, paramValue) && a.Type == paramType).FirstOrDefault();
+            }
+            else
+                p = this._parameters.Where(a => Utils.AreEqual(a.Value, paramValue)).FirstOrDefault();
+
+            if (p != null)
+            {
+                this._sqlBuilder.Append(p.Name);
+                return exp;
+            }
+
+            string paramName = GenParameterName(this._parameters.Count);
+            p = DbParam.Create(paramName, paramValue, paramType);
+
+            if (paramValue.GetType() == UtilConstants.TypeOfString)
+            {
+                if (((string)paramValue).Length <= 4000)
+                    p.Size = 4000;
+            }
+
+            this._parameters.Add(p);
+            this._sqlBuilder.Append(paramName);
+            return exp;
+        }
+
+
 
         void AppendTableSegment(DbTableSegment seg)
         {
