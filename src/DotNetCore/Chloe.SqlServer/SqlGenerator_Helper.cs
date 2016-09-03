@@ -21,7 +21,7 @@ namespace Chloe.SqlServer
 
             return ParameterPrefix + ordinal.ToString();
         }
-        static string CreateRowNumberName(List<DbColumnSegment> columns)
+        static string GenRowNumberName(List<DbColumnSegment> columns)
         {
             int ROW_NUMBER_INDEX = 1;
             string row_numberName = "ROW_NUMBER_0";

@@ -721,7 +721,7 @@ namespace Chloe.SqlServer
                 orderings.Add(ordering);
             }
 
-            string row_numberName = CreateRowNumberName(columns);
+            string row_numberName = GenRowNumberName(columns);
             this._sqlBuilder.Append(",ROW_NUMBER() OVER(ORDER BY ");
             this.ConcatOrderings(orderings);
             this._sqlBuilder.Append(") AS ");
