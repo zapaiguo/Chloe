@@ -390,17 +390,28 @@ namespace Chloe.MySql
         }
         public override DbExpression Visit(DbParameterExpression exp)
         {
-            object val = exp.Value;
-            if (val == null)
-                val = DBNull.Value;
+            object paramValue = exp.Value;
+            Type paramType = exp.Type;
+
+            if (paramType.IsEnum)
+            {
+                paramType = UtilConstants.TypeOfInt32;
+                if (paramValue != null)
+                {
+                    paramValue = (int)paramValue;
+                }
+            }
+
+            if (paramValue == null)
+                paramValue = DBNull.Value;
 
             DbParam p;
-            if (val == DBNull.Value)
+            if (paramValue == DBNull.Value)
             {
-                p = this._parameters.Where(a => Utils.AreEqual(a.Value, val) && a.Type == exp.Type).FirstOrDefault();
+                p = this._parameters.Where(a => Utils.AreEqual(a.Value, paramValue) && a.Type == paramType).FirstOrDefault();
             }
             else
-                p = this._parameters.Where(a => Utils.AreEqual(a.Value, val)).FirstOrDefault();
+                p = this._parameters.Where(a => Utils.AreEqual(a.Value, paramValue)).FirstOrDefault();
 
             if (p != null)
             {
@@ -409,11 +420,11 @@ namespace Chloe.MySql
             }
 
             string paramName = GenParameterName(this._parameters.Count);
-            p = DbParam.Create(paramName, val, exp.Type);
+            p = DbParam.Create(paramName, paramValue, paramType);
 
-            if (val.GetType() == UtilConstants.TypeOfString)
+            if (paramValue.GetType() == UtilConstants.TypeOfString)
             {
-                if (((string)val).Length <= 4000)
+                if (((string)paramValue).Length <= 4000)
                     p.Size = 4000;
             }
 

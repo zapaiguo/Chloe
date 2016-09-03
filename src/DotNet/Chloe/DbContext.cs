@@ -239,7 +239,7 @@ namespace Chloe
                 if (memberDescriptor.IsAutoIncrement)
                     continue;
 
-                var val = memberDescriptor.GetValue(entity);
+                object val = memberDescriptor.GetValue(entity);
 
                 if (entityState != null && !entityState.HasChanged(memberDescriptor, val))
                     continue;
@@ -298,6 +298,9 @@ namespace Chloe
 
                 e.UpdateColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
             }
+
+            if (e.UpdateColumns.Count == 0)
+                return 0;
 
             return this.ExecuteSqlCommand(e);
         }

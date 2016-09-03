@@ -299,6 +299,9 @@ namespace Chloe
                 e.UpdateColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
             }
 
+            if (e.UpdateColumns.Count == 0)
+                return 0;
+
             return this.ExecuteSqlCommand(e);
         }
 
