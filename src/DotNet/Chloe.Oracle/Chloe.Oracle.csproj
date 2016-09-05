@@ -33,8 +33,12 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChloeOracleCommand.cs" />
+    <Compile Include="ChloeOracleConnection.cs" />
+    <Compile Include="ChloeOracleDataReader.cs" />
     <Compile Include="DbContextServiceProvider.cs" />
     <Compile Include="DbExpressionExtensions.cs" />
     <Compile Include="DbExpressionHelper.cs" />

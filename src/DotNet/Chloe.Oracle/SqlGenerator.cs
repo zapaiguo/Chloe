@@ -13,6 +13,8 @@ namespace Chloe.Oracle
     partial class SqlGenerator : DbExpressionVisitor<DbExpression>
     {
         public const string ParameterPrefix = ":P_";
+        static readonly object Boxed_1 = 1;
+        static readonly object Boxed_0 = 0;
 
         internal ISqlBuilder _sqlBuilder = new SqlBuilder();
         List<DbParam> _parameters = new List<DbParam>();
@@ -49,7 +51,7 @@ namespace Chloe.Oracle
             castTypeMap.Add(typeof(float), "BINARY_FLOAT");
             castTypeMap.Add(typeof(bool), "NUMBER");
             //castTypeMap.Add(typeof(DateTime), "DATE"); // instead of using to_date(exp) 
-            //castTypeMap.Add(typeof(Guid), "UNIQUEIDENTIFIER");
+            //castTypeMap.Add(typeof(Guid), "BLOB");
 
             CastTypeMap = Utils.Clone(castTypeMap);
 
@@ -343,22 +345,17 @@ namespace Chloe.Oracle
         }
         public override DbExpression Visit(DbSqlQueryExpression exp)
         {
-            if (exp.TakeCount != null && exp.SkipCount != null)
-            {
-                DbSqlQueryExpression newSqlQuery = CloneWithoutLimitInfo(exp, "TSKIPTAKE");
-
-                AppendLimitCondition(newSqlQuery, exp.TakeCount.Value + exp.SkipCount.Value);
-
-                newSqlQuery.SkipCount = exp.SkipCount.Value;
-
-                newSqlQuery.Accept(this);
-                return exp;
-            }
-            else if (exp.TakeCount != null)
+            if (exp.TakeCount != null)
             {
                 DbSqlQueryExpression newSqlQuery = CloneWithoutLimitInfo(exp, "TTAKE");
 
-                AppendLimitCondition(newSqlQuery, exp.TakeCount.Value);
+                if (exp.SkipCount == null)
+                    AppendLimitCondition(newSqlQuery, exp.TakeCount.Value);
+                else
+                {
+                    AppendLimitCondition(newSqlQuery, exp.TakeCount.Value + exp.SkipCount.Value);
+                    newSqlQuery.SkipCount = exp.SkipCount.Value;
+                }
 
                 newSqlQuery.Accept(this);
                 return exp;
@@ -564,7 +561,7 @@ namespace Chloe.Oracle
                     return exp;
                 }
 
-                if (IsDbFunction_DATEPART(exp))
+                if (IsDatePart(exp))
                 {
                     return exp;
                 }
@@ -632,6 +629,14 @@ namespace Chloe.Oracle
                 if (paramValue != null)
                 {
                     paramValue = (int)paramValue;
+                }
+            }
+            else if (paramType == UtilConstants.TypeOfBoolean)
+            {
+                paramType = UtilConstants.TypeOfInt32;
+                if (paramValue != null)
+                {
+                    paramValue = (bool)paramValue ? Boxed_1 : Boxed_0;
                 }
             }
 
@@ -813,77 +818,64 @@ namespace Chloe.Oracle
             this._sqlBuilder.Append(" AS ", targetDbTypeString, ")");
         }
 
-        bool IsDbFunction_DATEPART(DbMemberExpression exp)
+        bool IsDatePart(DbMemberExpression exp)
         {
             MemberInfo member = exp.Member;
 
             if (member == UtilConstants.PropertyInfo_DateTime_Year)
             {
-                this._sqlBuilder.Append("EXTRACT(YEAR FROM ");
-                exp.Expression.Accept(this);
-                this._sqlBuilder.Append(")");
-
-                //this._sqlBuilder.Append("CAST(TO_CHAR(");
+                //this._sqlBuilder.Append("EXTRACT(YEAR FROM ");
                 //exp.Expression.Accept(this);
-                //this._sqlBuilder.Append(",'yyyy') AS NUMBER)");
+                //this._sqlBuilder.Append(")");
 
+                DbFunction_DATEPART(this, "yyyy", exp.Expression);
                 return true;
             }
 
             if (member == UtilConstants.PropertyInfo_DateTime_Month)
             {
-                this._sqlBuilder.Append("EXTRACT(MONTH FROM ");
-                exp.Expression.Accept(this);
-                this._sqlBuilder.Append(")");
+                DbFunction_DATEPART(this, "mm", exp.Expression);
                 return true;
             }
 
             if (member == UtilConstants.PropertyInfo_DateTime_Day)
             {
-                this._sqlBuilder.Append("EXTRACT(DAY FROM ");
-                exp.Expression.Accept(this);
-                this._sqlBuilder.Append(")");
+                DbFunction_DATEPART(this, "dd", exp.Expression);
                 return true;
             }
 
             if (member == UtilConstants.PropertyInfo_DateTime_Hour)
             {
-                //cast(to_char(sysdate,'hh24') as number)
-                this._sqlBuilder.Append("CAST(TO_CHAR(");
-                exp.Expression.Accept(this);
-                this._sqlBuilder.Append(",'hh24') AS NUMBER)");
+                DbFunction_DATEPART(this, "hh24", exp.Expression);
                 return true;
             }
 
             if (member == UtilConstants.PropertyInfo_DateTime_Minute)
             {
-                this._sqlBuilder.Append("CAST(TO_CHAR(");
-                exp.Expression.Accept(this);
-                this._sqlBuilder.Append(",'mi') AS NUMBER)");
+                DbFunction_DATEPART(this, "mi", exp.Expression);
                 return true;
             }
 
             if (member == UtilConstants.PropertyInfo_DateTime_Second)
             {
-                this._sqlBuilder.Append("CAST(TO_CHAR(");
-                exp.Expression.Accept(this);
-                this._sqlBuilder.Append(",'ss') AS NUMBER)");
+                DbFunction_DATEPART(this, "ss", exp.Expression);
                 return true;
             }
 
             if (member == UtilConstants.PropertyInfo_DateTime_Millisecond)
             {
-                /* I do not know how to get the millisecond of one datetime yet.If you know,could you tell me? Thanks! */
-
-                throw new NotSupportedException("I do not know how to get the millisecond of one datetime yet.If you know,could you tell me? Thanks!");
+                /* exp.Expression must be TIMESTAMP,otherwise there will be an error occurred. */
+                DbFunction_DATEPART(this, "ff3", exp.Expression);
+                return true;
             }
 
             if (member == UtilConstants.PropertyInfo_DateTime_DayOfWeek)
             {
                 // CAST(TO_CHAR(SYSDATE,'D') AS NUMBER) - 1
-                this._sqlBuilder.Append("CAST(TO_CHAR(");
-                exp.Expression.Accept(this);
-                this._sqlBuilder.Append(",'D') AS NUMBER) - 1");
+                this._sqlBuilder.Append("(");
+                DbFunction_DATEPART(this, "D", exp.Expression);
+                this._sqlBuilder.Append(" - 1");
+                this._sqlBuilder.Append(")");
 
                 return true;
             }

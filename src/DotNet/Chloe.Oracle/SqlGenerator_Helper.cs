@@ -141,24 +141,34 @@ namespace Chloe.Oracle
 
         static void DbFunction_DATEADD(SqlGenerator generator, string interval, DbMethodCallExpression exp)
         {
-            generator._sqlBuilder.Append("DATEADD(");
-            generator._sqlBuilder.Append(interval);
-            generator._sqlBuilder.Append(",");
-            exp.Arguments[0].Accept(generator);
-            generator._sqlBuilder.Append(",");
+            /*
+             * Just support hour/minute/second
+             * systimestamp + numtodsinterval(1,'HOUR')
+             * sysdate + numtodsinterval(50,'MINUTE')
+             * sysdate + numtodsinterval(45,'SECOND')
+             */
+            generator._sqlBuilder.Append("(");
             exp.Object.Accept(generator);
+            generator._sqlBuilder.Append(" + ");
+            generator._sqlBuilder.Append("NUMTODSINTERVAL(");
+            exp.Arguments[0].Accept(generator);
+            generator._sqlBuilder.Append(",'");
+            generator._sqlBuilder.Append(interval);
+            generator._sqlBuilder.Append("')");
             generator._sqlBuilder.Append(")");
         }
         static void DbFunction_DATEPART(SqlGenerator generator, string interval, DbExpression exp)
         {
-            generator._sqlBuilder.Append("DATEPART(");
-            generator._sqlBuilder.Append(interval);
-            generator._sqlBuilder.Append(",");
+            /* cast(to_char(sysdate,'yyyy') as number) */
+            generator._sqlBuilder.Append("CAST(TO_CHAR(");
             exp.Accept(generator);
-            generator._sqlBuilder.Append(")");
+            generator._sqlBuilder.Append(",'");
+            generator._sqlBuilder.Append(interval);
+            generator._sqlBuilder.Append("') AS NUMBER)");
         }
         static void DbFunction_DATEDIFF(SqlGenerator generator, string interval, DbExpression startDateTimeExp, DbExpression endDateTimeExp)
         {
+            throw new NotSupportedException("DATEDIFF is not supported now.");
             generator._sqlBuilder.Append("DATEDIFF(");
             generator._sqlBuilder.Append(interval);
             generator._sqlBuilder.Append(",");
@@ -175,7 +185,7 @@ namespace Chloe.Oracle
         }
         static void Aggregate_LongCount(SqlGenerator generator)
         {
-            generator._sqlBuilder.Append("COUNT_BIG(1)");
+            generator._sqlBuilder.Append("COUNT(1)");
         }
         static void Aggregate_Max(SqlGenerator generator, DbExpression exp, Type retType)
         {
@@ -261,8 +271,8 @@ namespace Chloe.Oracle
         static DbSqlQueryExpression CloneWithoutLimitInfo(DbSqlQueryExpression sqlQuery, string wraperTableName = "T")
         {
             DbSqlQueryExpression newSqlQuery = new DbSqlQueryExpression();
-            newSqlQuery.ColumnSegments.AddRange(sqlQuery.ColumnSegments);
             newSqlQuery.Table = sqlQuery.Table;
+            newSqlQuery.ColumnSegments.AddRange(sqlQuery.ColumnSegments);
             newSqlQuery.Condition = sqlQuery.Condition;
 
             newSqlQuery.GroupSegments.AddRange(sqlQuery.GroupSegments);

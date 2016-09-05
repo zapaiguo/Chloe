@@ -1,4 +1,5 @@
 ﻿using Chloe.Entity;
+using Chloe.Oracle;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace ChloeDemo
     {
         [Column(IsPrimaryKey = true)]
         [AutoIncrement]
+        [Sequence("USERS_AUTOID")]//For oracle
         public int Id { get; set; }
         public string Name { get; set; }
         public Gender? Gender { get; set; }

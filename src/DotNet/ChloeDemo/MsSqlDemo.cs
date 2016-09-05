@@ -226,7 +226,7 @@ namespace ChloeDemo
             //删除所有不男不女的用户
             context.Delete<User>(a => a.Gender == null);
             /*
-             * DELETE `Users` FROM `Users` WHERE `Users`.`Gender` IS NULL
+             * DELETE [Users] FROM [Users] WHERE [Users].[Gender] IS NULL
              */
 
             User user = new User();

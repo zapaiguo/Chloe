@@ -287,19 +287,34 @@ namespace Chloe.Oracle
         {
             EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
 
-            DbFunction_DATEADD(generator, "YEAR", exp);
+            /* add_months(systimestamp,12 * 2) */
+            generator._sqlBuilder.Append("ADD_MONTHS(");
+            exp.Object.Accept(generator);
+            generator._sqlBuilder.Append(",12 * ");
+            exp.Arguments[0].Accept(generator);
+            generator._sqlBuilder.Append(")");
         }
         static void Method_DateTime_AddMonths(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
 
-            DbFunction_DATEADD(generator, "MONTH", exp);
+            /* add_months(systimestamp,2) */
+            generator._sqlBuilder.Append("ADD_MONTHS(");
+            exp.Object.Accept(generator);
+            generator._sqlBuilder.Append(",");
+            exp.Arguments[0].Accept(generator);
+            generator._sqlBuilder.Append(")");
         }
         static void Method_DateTime_AddDays(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
 
-            DbFunction_DATEADD(generator, "DAY", exp);
+            /* (systimestamp + 3) */
+            generator._sqlBuilder.Append("(");
+            exp.Object.Accept(generator);
+            generator._sqlBuilder.Append(" + ");
+            exp.Arguments[0].Accept(generator);
+            generator._sqlBuilder.Append(")");
         }
         static void Method_DateTime_AddHours(DbMethodCallExpression exp, SqlGenerator generator)
         {
@@ -323,7 +338,7 @@ namespace Chloe.Oracle
         {
             EnsureMethodDeclaringType(exp, UtilConstants.TypeOfDateTime);
 
-            DbFunction_DATEADD(generator, "MILLISECOND", exp);
+            throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
 
         static void Method_Parse(DbMethodCallExpression exp, SqlGenerator generator)
@@ -352,6 +367,8 @@ namespace Chloe.Oracle
         static void Method_Guid_NewGuid(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethod(exp, UtilConstants.MethodInfo_Guid_NewGuid);
+
+            throw UtilExceptions.NotSupportedMethod(exp.Method);
 
             //返回的是一个长度为 16 的 byte[]
             generator._sqlBuilder.Append("SYS_GUID()");
