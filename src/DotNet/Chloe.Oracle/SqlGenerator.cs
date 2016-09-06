@@ -903,74 +903,12 @@ namespace Chloe.Oracle
 
         static void StringConcat(DbBinaryExpression exp, SqlGenerator generator)
         {
-            MethodInfo method = exp.Method;
-
-            List<DbExpression> operands = new List<DbExpression>();
-            operands.Add(exp.Right);
-
-            DbExpression left = exp.Left;
-            DbAddExpression e = null;
-            while ((e = (left as DbAddExpression)) != null && (e.Method == UtilConstants.MethodInfo_String_Concat_String_String || e.Method == UtilConstants.MethodInfo_String_Concat_Object_Object))
-            {
-                operands.Add(e.Right);
-                left = e.Left;
-            }
-
-            operands.Add(left);
-
-            DbExpression whenExp = null;
-            List<DbExpression> operandExps = new List<DbExpression>(operands.Count);
-            for (int i = operands.Count - 1; i >= 0; i--)
-            {
-                DbExpression operand = operands[i];
-                DbExpression opBody = operand;
-                if (opBody.Type != UtilConstants.TypeOfString)
-                {
-                    // 需要 cast type
-                    opBody = DbExpression.Convert(opBody, UtilConstants.TypeOfString);
-                }
-
-                DbExpression equalNullExp = DbExpression.Equal(opBody, UtilConstants.DbConstant_Null_String);
-
-                if (whenExp == null)
-                    whenExp = equalNullExp;
-                else
-                    whenExp = DbExpression.AndAlso(whenExp, equalNullExp);
-
-                DbExpression thenExp = DbConstantExpression.StringEmpty;
-                DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(equalNullExp, thenExp);
-
-                List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
-                whenThenExps.Add(whenThenPair);
-
-                DbExpression elseExp = opBody;
-
-                DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, elseExp, UtilConstants.TypeOfString);
-
-                operandExps.Add(caseWhenExpression);
-            }
-
-            generator._sqlBuilder.Append("CASE", " WHEN ");
-            whenExp.Accept(generator);
-            generator._sqlBuilder.Append(" THEN ");
-            DbConstantExpression.Null.Accept(generator);
-            generator._sqlBuilder.Append(" ELSE ");
-
-            generator._sqlBuilder.Append("(");
-
-            for (int i = 0; i < operandExps.Count; i++)
-            {
-                if (i > 0)
-                    generator._sqlBuilder.Append(" || ");
-
-                operandExps[i].Accept(generator);
-            }
-
+            generator._sqlBuilder.Append("CONCAT(");
+            exp.Left.Accept(generator);
+            generator._sqlBuilder.Append(",");
+            exp.Right.Accept(generator);
             generator._sqlBuilder.Append(")");
-
-            generator._sqlBuilder.Append(" END");
         }
-
         #endregion
     }
 }
