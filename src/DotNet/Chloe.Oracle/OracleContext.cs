@@ -277,7 +277,7 @@ namespace Chloe.Oracle
 
             if (ret == null || ret == DBNull.Value)
             {
-                throw new ChloeException(string.Format("Unable to get the sequence '{0}' next_val.", sequenceName));
+                throw new ChloeException(string.Format("Unable to get the sequence '{0}' next value.", sequenceName));
             }
 
             return ret;

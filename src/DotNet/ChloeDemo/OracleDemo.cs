@@ -285,8 +285,8 @@ namespace ChloeDemo
 
                      Now = DateTime.Now,//SYSTIMESTAMP
                      UtcNow = DateTime.UtcNow,//SYS_EXTRACT_UTC(SYSTIMESTAMP)
-                     Today = DateTime.Today,//TO_DATE(TO_CHAR(SYSDATE,'yyyy-mm-dd'),'yyyy-mm-dd')
-                     Date = DateTime.Now.Date,//TO_DATE(TO_CHAR(SYSTIMESTAMP,'yyyy-mm-dd'),'yyyy-mm-dd')
+                     Today = DateTime.Today,//TRUNC(SYSDATE,'DD')
+                     Date = DateTime.Now.Date,//TRUNC(SYSTIMESTAMP,'DD')
                      Year = DateTime.Now.Year,//CAST(TO_CHAR(SYSTIMESTAMP,'yyyy') AS NUMBER)
                      Month = DateTime.Now.Month,//CAST(TO_CHAR(SYSTIMESTAMP,'mm') AS NUMBER)
                      Day = DateTime.Now.Day,//CAST(TO_CHAR(SYSTIMESTAMP,'dd') AS NUMBER)

@@ -549,15 +549,19 @@ namespace Chloe.Oracle
 
                 if (member == UtilConstants.PropertyInfo_DateTime_Today)
                 {
-                    this._sqlBuilder.Append("TO_DATE(TO_CHAR(SYSDATE,'yyyy-mm-dd'),'yyyy-mm-dd')");
+                    //this._sqlBuilder.Append("TO_DATE(TO_CHAR(SYSDATE,'yyyy-mm-dd'),'yyyy-mm-dd')");
+                    this._sqlBuilder.Append("TRUNC(SYSDATE,'DD')");
                     return exp;
                 }
 
                 if (member == UtilConstants.PropertyInfo_DateTime_Date)
                 {
-                    this._sqlBuilder.Append("TO_DATE(TO_CHAR(");
+                    //this._sqlBuilder.Append("TO_DATE(TO_CHAR(");
+                    //exp.Expression.Accept(this);
+                    //this._sqlBuilder.Append(",'yyyy-mm-dd'),'yyyy-mm-dd')");
+                    this._sqlBuilder.Append("TRUNC(");
                     exp.Expression.Accept(this);
-                    this._sqlBuilder.Append(",'yyyy-mm-dd'),'yyyy-mm-dd')");
+                    this._sqlBuilder.Append(",'DD')");
                     return exp;
                 }
 
