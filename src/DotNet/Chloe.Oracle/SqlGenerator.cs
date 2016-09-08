@@ -982,7 +982,7 @@ namespace Chloe.Oracle
         {
             /*
              * 计算去掉毫秒部分后两个日期相差的毫秒数：
-             * (cast(dateTime1 as date)-cast(dateTime2 as date)) * 24 * 60 * 1000 
+             * (cast(dateTime1 as date)-cast(dateTime2 as date)) * 24 * 60 * 60 * 1000 
              */
             this.LeftBracket();
             this.BuildCastState(dateTime1, "DATE");
