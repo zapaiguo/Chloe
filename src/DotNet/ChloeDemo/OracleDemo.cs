@@ -246,7 +246,7 @@ namespace ChloeDemo
             var space = new char[] { ' ' };
 
             DateTime startTime = DateTime.Now;
-            DateTime endTime = DateTime.Now.AddDays(1);
+            DateTime endTime = startTime.AddDays(1);
             var ret = q.Select(a => new
                  {
                      Id = a.Id,
@@ -265,15 +265,22 @@ namespace ChloeDemo
                      StartsWith = (bool?)a.Name.StartsWith("s"),//
                      EndsWith = (bool?)a.Name.EndsWith("s"),//
 
-                     /* 未实现 */
-                     //DiffYears = DbFunctions.DiffYears(startTime, endTime),//DATEDIFF(YEAR,@P_0,@P_1)
-                     //DiffMonths = DbFunctions.DiffMonths(startTime, endTime),//DATEDIFF(MONTH,@P_0,@P_1)
-                     //DiffDays = DbFunctions.DiffDays(startTime, endTime),//DATEDIFF(DAY,@P_0,@P_1)
-                     //DiffHours = DbFunctions.DiffHours(startTime, endTime),//DATEDIFF(HOUR,@P_0,@P_1)
-                     //DiffMinutes = DbFunctions.DiffMinutes(startTime, endTime),//DATEDIFF(MINUTE,@P_0,@P_1)
-                     //DiffSeconds = DbFunctions.DiffSeconds(startTime, endTime),//DATEDIFF(SECOND,@P_0,@P_1)
-                     //DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),//DATEDIFF(MILLISECOND,@P_0,@P_1)
-                     ////DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//DATEDIFF(MICROSECOND,@P_0,@P_1)  Exception
+                     /* oracle is not supported DbFunctions.Diffxx. */
+                     //DiffYears = DbFunctions.DiffYears(startTime, endTime),//
+                     //DiffMonths = DbFunctions.DiffMonths(startTime, endTime),//
+                     //DiffDays = DbFunctions.DiffDays(startTime, endTime),//
+                     //DiffHours = DbFunctions.DiffHours(startTime, endTime),//
+                     //DiffMinutes = DbFunctions.DiffMinutes(startTime, endTime),//
+                     //DiffSeconds = DbFunctions.DiffSeconds(startTime, endTime),//
+                     //DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),//
+                     //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//
+
+                     /* ((CAST(:P_0 AS DATE)-CAST(:P_1 AS DATE)) * 86400000 + CAST(TO_CHAR(CAST(:P_0 AS TIMESTAMP),'ff3') AS NUMBER) - CAST(TO_CHAR(CAST(:P_1 AS TIMESTAMP),'ff3') AS NUMBER)) / 86400000 */
+                     SubtractTotalDays = endTime.Subtract(startTime).TotalDays,//
+                     SubtractTotalHours = endTime.Subtract(startTime).TotalHours,//...
+                     SubtractTotalMinutes = endTime.Subtract(startTime).TotalMinutes,//...
+                     SubtractTotalSeconds = endTime.Subtract(startTime).TotalSeconds,//...
+                     SubtractTotalMilliseconds = endTime.Subtract(startTime).TotalMilliseconds,//...
 
                      AddYears = startTime.AddYears(1),//ADD_MONTHS(:P_0,12 * 1)
                      AddMonths = startTime.AddMonths(1),//ADD_MONTHS(:P_0,1)
@@ -313,5 +320,4 @@ namespace ChloeDemo
             ConsoleHelper.WriteLineAndReadKey();
         }
     }
-
 }

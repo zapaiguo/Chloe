@@ -12,6 +12,15 @@ namespace Chloe.Oracle
 {
     partial class SqlGenerator : DbExpressionVisitor<DbExpression>
     {
+        void LeftBracket()
+        {
+            this._sqlBuilder.Append("(");
+        }
+        void RightBracket()
+        {
+            this._sqlBuilder.Append(")");
+        }
+
         static string GenParameterName(int ordinal)
         {
             if (ordinal < CacheParameterNames.Count)
@@ -157,25 +166,23 @@ namespace Chloe.Oracle
             generator._sqlBuilder.Append("')");
             generator._sqlBuilder.Append(")");
         }
-        static void DbFunction_DATEPART(SqlGenerator generator, string interval, DbExpression exp)
+        static void DbFunction_DATEPART(SqlGenerator generator, string interval, DbExpression exp, bool castToTimestamp = false)
         {
             /* cast(to_char(sysdate,'yyyy') as number) */
             generator._sqlBuilder.Append("CAST(TO_CHAR(");
-            exp.Accept(generator);
+            if (castToTimestamp)
+            {
+                generator.BuildCastState(exp, "TIMESTAMP");
+            }
+            else
+                exp.Accept(generator);
             generator._sqlBuilder.Append(",'");
             generator._sqlBuilder.Append(interval);
             generator._sqlBuilder.Append("') AS NUMBER)");
         }
         static void DbFunction_DATEDIFF(SqlGenerator generator, string interval, DbExpression startDateTimeExp, DbExpression endDateTimeExp)
         {
-            throw new NotSupportedException("DATEDIFF is not supported now.");
-            generator._sqlBuilder.Append("DATEDIFF(");
-            generator._sqlBuilder.Append(interval);
-            generator._sqlBuilder.Append(",");
-            startDateTimeExp.Accept(generator);
-            generator._sqlBuilder.Append(",");
-            endDateTimeExp.Accept(generator);
-            generator._sqlBuilder.Append(")");
+            throw new NotSupportedException("DATEDIFF is not supported.");
         }
 
         #region AggregateFunction

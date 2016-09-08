@@ -549,16 +549,13 @@ namespace Chloe.Oracle
 
                 if (member == UtilConstants.PropertyInfo_DateTime_Today)
                 {
-                    //this._sqlBuilder.Append("TO_DATE(TO_CHAR(SYSDATE,'yyyy-mm-dd'),'yyyy-mm-dd')");
+                    //other way: this._sqlBuilder.Append("TO_DATE(TO_CHAR(SYSDATE,'yyyy-mm-dd'),'yyyy-mm-dd')");
                     this._sqlBuilder.Append("TRUNC(SYSDATE,'DD')");
                     return exp;
                 }
 
                 if (member == UtilConstants.PropertyInfo_DateTime_Date)
                 {
-                    //this._sqlBuilder.Append("TO_DATE(TO_CHAR(");
-                    //exp.Expression.Accept(this);
-                    //this._sqlBuilder.Append(",'yyyy-mm-dd'),'yyyy-mm-dd')");
                     this._sqlBuilder.Append("TRUNC(");
                     exp.Expression.Accept(this);
                     this._sqlBuilder.Append(",'DD')");
@@ -571,6 +568,10 @@ namespace Chloe.Oracle
                 }
             }
 
+            if (IsDateSubtract(exp))
+            {
+                return exp;
+            }
 
             DbParameterExpression newExp;
             if (DbExpressionExtensions.TryParseToParameterExpression(exp, out newExp))
@@ -738,7 +739,7 @@ namespace Chloe.Oracle
         }
 
 
-        internal void BuildWhereState(DbExpression whereExpression)
+        void BuildWhereState(DbExpression whereExpression)
         {
             if (whereExpression != null)
             {
@@ -746,7 +747,7 @@ namespace Chloe.Oracle
                 whereExpression.Accept(this);
             }
         }
-        internal void BuildOrderState(List<DbOrdering> orderings)
+        void BuildOrderState(List<DbOrdering> orderings)
         {
             if (orderings.Count > 0)
             {
@@ -788,6 +789,13 @@ namespace Chloe.Oracle
             }
         }
 
+        protected virtual void QuoteName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentException("name");
+
+            this._sqlBuilder.Append("\"", name, "\"");
+        }
         void ConcatOperands(IEnumerable<DbExpression> operands, string connector)
         {
             this._sqlBuilder.Append("(");
@@ -806,15 +814,6 @@ namespace Chloe.Oracle
             this._sqlBuilder.Append(")");
             return;
         }
-
-        protected virtual void QuoteName(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentException("name");
-
-            this._sqlBuilder.Append("\"", name, "\"");
-        }
-
         void BuildCastState(DbExpression castExp, string targetDbTypeString)
         {
             this._sqlBuilder.Append("CAST(");
@@ -822,16 +821,13 @@ namespace Chloe.Oracle
             this._sqlBuilder.Append(" AS ", targetDbTypeString, ")");
         }
 
+
         bool IsDatePart(DbMemberExpression exp)
         {
             MemberInfo member = exp.Member;
 
             if (member == UtilConstants.PropertyInfo_DateTime_Year)
             {
-                //this._sqlBuilder.Append("EXTRACT(YEAR FROM ");
-                //exp.Expression.Accept(this);
-                //this._sqlBuilder.Append(")");
-
                 DbFunction_DATEPART(this, "yyyy", exp.Expression);
                 return true;
             }
@@ -869,7 +865,7 @@ namespace Chloe.Oracle
             if (member == UtilConstants.PropertyInfo_DateTime_Millisecond)
             {
                 /* exp.Expression must be TIMESTAMP,otherwise there will be an error occurred. */
-                DbFunction_DATEPART(this, "ff3", exp.Expression);
+                DbFunction_DATEPART(this, "ff3", exp.Expression, true);
                 return true;
             }
 
@@ -886,29 +882,129 @@ namespace Chloe.Oracle
 
             return false;
         }
-
-
-
-        #region BinaryWithMethodHandlers
-
-        static Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> InitBinaryWithMethodHandlers()
+        bool IsDateSubtract(DbMemberExpression exp)
         {
-            var binaryWithMethodHandlers = new Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>>();
-            binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_String_String, StringConcat);
-            binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_Object_Object, StringConcat);
+            MemberInfo member = exp.Member;
 
-            var ret = Utils.Clone(binaryWithMethodHandlers);
-            return ret;
+            if (member.DeclaringType == UtilConstants.TypeOfTimeSpan)
+            {
+                if (exp.Expression.NodeType == DbExpressionType.Call)
+                {
+                    DbMethodCallExpression dbMethodExp = (DbMethodCallExpression)exp.Expression;
+                    if (dbMethodExp.Method == UtilConstants.MethodInfo_DateTime_Subtract_DateTime)
+                    {
+                        int? intervalDivisor = null;
+
+                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalDays)
+                        {
+                            intervalDivisor = 24 * 60 * 60 * 1000;
+                            goto appendIntervalTime;
+                        }
+                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalHours)
+                        {
+                            intervalDivisor = 60 * 60 * 1000;
+                            goto appendIntervalTime;
+                        }
+                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalMinutes)
+                        {
+                            intervalDivisor = 60 * 1000;
+                            goto appendIntervalTime;
+                        }
+                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalSeconds)
+                        {
+                            intervalDivisor = 1000;
+                            goto appendIntervalTime;
+                        }
+                        if (member == UtilConstants.PropertyInfo_TimeSpan_TotalMilliseconds)
+                        {
+                            intervalDivisor = 1;
+                            goto appendIntervalTime;
+                        }
+
+                        return false;
+
+                    appendIntervalTime:
+                        this.CalcDateDiffPrecise(dbMethodExp.Object, dbMethodExp.Arguments[0], intervalDivisor.Value);
+                        return true;
+                    }
+                }
+                else
+                {
+                    DbSubtractExpression dbSubtractExp = exp.Expression as DbSubtractExpression;
+                    if (dbSubtractExp != null && dbSubtractExp.Left.Type == UtilConstants.TypeOfDateTime && dbSubtractExp.Right.Type == UtilConstants.TypeOfDateTime)
+                    {
+                        DbMethodCallExpression dbMethodExp = new DbMethodCallExpression(dbSubtractExp.Left, UtilConstants.MethodInfo_DateTime_Subtract_DateTime, new List<DbExpression>(1) { dbSubtractExp.Right });
+                        DbMemberExpression dbMemberExp = DbExpression.MemberAccess(member, dbMethodExp);
+                        dbMemberExp.Accept(this);
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
-        static void StringConcat(DbBinaryExpression exp, SqlGenerator generator)
+        void CalcDateDiffPrecise(DbExpression dateTime1, DbExpression dateTime2, int divisor)
         {
-            generator._sqlBuilder.Append("CONCAT(");
-            exp.Left.Accept(generator);
-            generator._sqlBuilder.Append(",");
-            exp.Right.Accept(generator);
-            generator._sqlBuilder.Append(")");
+            if (divisor == 1)
+            {
+                this.CalcDateDiffMillisecond(dateTime1, dateTime2);
+                return;
+            }
+
+            this.LeftBracket();
+            this.CalcDateDiffMillisecond(dateTime1, dateTime2);
+            this._sqlBuilder.Append(" / ");
+            this._sqlBuilder.Append(divisor.ToString());
+            this.RightBracket();
         }
-        #endregion
+        void CalcDateDiffMillisecond(DbExpression dateTime1, DbExpression dateTime2)
+        {
+            /*
+             * 计算两个日期相差的毫秒数：
+             * (cast(dateTime1 as date)-cast(dateTime2 as date)) * 24 * 60 * 1000
+             * +
+             * cast(to_char(cast(dateTime1 as timestamp),'ff3') as number)
+             * -
+             * cast(to_char(cast(dateTime2 as timestamp),'ff3') as number) 
+             */
+
+            this.LeftBracket();
+            this.CalcDateDiffMillisecondSketchy(dateTime1, dateTime2);
+            this._sqlBuilder.Append(" + ");
+            this.ExtractMillisecondPart(dateTime1);
+            this._sqlBuilder.Append(" - ");
+            this.ExtractMillisecondPart(dateTime2);
+            this.RightBracket();
+        }
+        void CalcDateDiffMillisecondSketchy(DbExpression dateTime1, DbExpression dateTime2)
+        {
+            /*
+             * 计算去掉毫秒部分后两个日期相差的毫秒数：
+             * (cast(dateTime1 as date)-cast(dateTime2 as date)) * 24 * 60 * 1000 
+             */
+            this.LeftBracket();
+            this.BuildCastState(dateTime1, "DATE");
+            this._sqlBuilder.Append("-");
+            this.BuildCastState(dateTime2, "DATE");
+            this.RightBracket();
+
+            this._sqlBuilder.Append(" * ");
+            this._sqlBuilder.Append((24 * 60 * 60 * 1000).ToString());
+        }
+        void ExtractMillisecondPart(DbExpression dateTime)
+        {
+            /* 提取一个日期的毫秒部分：
+             * cast(to_char(cast(dateTime as timestamp),'ff3') as number) 
+             */
+            this._sqlBuilder.Append("CAST(");
+
+            this._sqlBuilder.Append("TO_CHAR(");
+            this.BuildCastState(dateTime, "TIMESTAMP");
+            this._sqlBuilder.Append(",'ff3')");
+
+            this._sqlBuilder.Append(" AS NUMBER)");
+        }
     }
 }

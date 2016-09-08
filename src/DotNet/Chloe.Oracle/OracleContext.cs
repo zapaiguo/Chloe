@@ -14,10 +14,6 @@ using System.Text;
 
 namespace Chloe.Oracle
 {
-    /*
-     * 有待实现：
-     * 1.DbFunctions.Diffxx 函数
-     */
     public class OracleContext : DbContext
     {
         DbContextServiceProvider _dbContextServiceProvider;

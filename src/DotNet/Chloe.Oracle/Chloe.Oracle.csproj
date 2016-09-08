@@ -51,6 +51,7 @@
     <Compile Include="SequenceAttribute.cs" />
     <Compile Include="SqlGenerator.cs" />
     <Compile Include="SqlGenerator_AggregateHandlers.cs" />
+    <Compile Include="SqlGenerator_BinaryWithMethodHandlers.cs" />
     <Compile Include="SqlGenerator_ConvertToUppercase.cs" />
     <Compile Include="SqlGenerator_Helper.cs" />
     <Compile Include="SqlGenerator_MethodHandlers.cs" />

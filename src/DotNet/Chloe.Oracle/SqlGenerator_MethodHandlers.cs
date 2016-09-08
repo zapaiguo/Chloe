@@ -379,49 +379,54 @@ namespace Chloe.Oracle
         {
             EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffYears);
 
-            DbFunction_DATEDIFF(generator, "YEAR", exp.Arguments[0], exp.Arguments[1]);
+            throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
         static void Method_DbFunctions_DiffMonths(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffMonths);
 
-            DbFunction_DATEDIFF(generator, "MONTH", exp.Arguments[0], exp.Arguments[1]);
+            throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
         static void Method_DbFunctions_DiffDays(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffDays);
 
-            DbFunction_DATEDIFF(generator, "DAY", exp.Arguments[0], exp.Arguments[1]);
+            throw new NotSupportedException(AppendNotSupportedDbFunctionsMsg(exp.Method, "TotalDays"));
         }
         static void Method_DbFunctions_DiffHours(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffHours);
 
-            DbFunction_DATEDIFF(generator, "HOUR", exp.Arguments[0], exp.Arguments[1]);
+            throw new NotSupportedException(AppendNotSupportedDbFunctionsMsg(exp.Method, "TotalHours"));
         }
         static void Method_DbFunctions_DiffMinutes(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffMinutes);
 
-            DbFunction_DATEDIFF(generator, "MINUTE", exp.Arguments[0], exp.Arguments[1]);
+            throw new NotSupportedException(AppendNotSupportedDbFunctionsMsg(exp.Method, "TotalMinutes"));
         }
         static void Method_DbFunctions_DiffSeconds(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffSeconds);
 
-            DbFunction_DATEDIFF(generator, "SECOND", exp.Arguments[0], exp.Arguments[1]);
+            throw new NotSupportedException(AppendNotSupportedDbFunctionsMsg(exp.Method, "TotalSeconds"));
         }
         static void Method_DbFunctions_DiffMilliseconds(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffMilliseconds);
 
-            DbFunction_DATEDIFF(generator, "MILLISECOND", exp.Arguments[0], exp.Arguments[1]);
+            throw new NotSupportedException(AppendNotSupportedDbFunctionsMsg(exp.Method, "TotalMilliseconds"));
         }
         static void Method_DbFunctions_DiffMicroseconds(DbMethodCallExpression exp, SqlGenerator generator)
         {
             EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffMicroseconds);
 
-            DbFunction_DATEDIFF(generator, "MICROSECOND", exp.Arguments[0], exp.Arguments[1]);
+            throw UtilExceptions.NotSupportedMethod(exp.Method);
+        }
+
+        static string AppendNotSupportedDbFunctionsMsg(MethodInfo method, string insteadProperty)
+        {
+            return string.Format("'{0}' is not supported.Instead of using '{1}.{2}'.", Utils.ToMethodString(method), Utils.ToMethodString(UtilConstants.MethodInfo_DateTime_Subtract_DateTime), insteadProperty);
         }
     }
 }
