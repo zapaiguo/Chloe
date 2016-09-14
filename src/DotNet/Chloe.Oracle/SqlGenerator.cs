@@ -562,13 +562,13 @@ namespace Chloe.Oracle
                     return exp;
                 }
 
-                if (IsDatePart(exp))
+                if (this.IsDatePart(exp))
                 {
                     return exp;
                 }
             }
 
-            if (IsDateSubtract(exp))
+            if (this.IsDateSubtract(exp))
             {
                 return exp;
             }
@@ -923,7 +923,7 @@ namespace Chloe.Oracle
 
                         return false;
 
-                    appendIntervalTime:
+                        appendIntervalTime:
                         this.CalcDateDiffPrecise(dbMethodExp.Object, dbMethodExp.Arguments[0], intervalDivisor.Value);
                         return true;
                     }

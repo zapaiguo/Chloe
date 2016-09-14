@@ -6,8 +6,8 @@ namespace Chloe.Core
 {
     class InternalDataReader : IDataReader, IDisposable, IDataRecord
     {
-        private InternalDbSession _dbSession;
-        private IDataReader _reader;
+        InternalDbSession _dbSession;
+        IDataReader _reader;
 
         public InternalDataReader(InternalDbSession dbSession, IDataReader reader)
         {

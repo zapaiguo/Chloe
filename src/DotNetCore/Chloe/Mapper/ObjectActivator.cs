@@ -91,16 +91,16 @@ namespace Chloe.Mapper
         public static string AppendErrorMsg(IDataReader reader, int ordinal, Exception ex)
         {
             string msg = null;
-            if (ex is InvalidCastException)
-            {
-                msg = string.Format("Please make sure that the member of the column '{0}'({1},{2},{3}) map is the correct type.", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
-            }
-            else if (reader.IsDBNull(ordinal))
+            if (reader.IsDBNull(ordinal))
             {
                 msg = string.Format("Please make sure that the member of the column '{0}'({1},{2},{3}) map is nullable.", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
             }
+            else if (ex is InvalidCastException)
+            {
+                msg = string.Format("Please make sure that the member of the column '{0}'({1},{2},{3}) map is the correct type.", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
+            }
             else
-                msg = string.Format("Error: {0}({1},{2},{3})", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
+                msg = string.Format("An error occurred when mapping the column '{0}'({1},{2},{3}).For details please see inner exception.", reader.GetName(ordinal), ordinal.ToString(), reader.GetDataTypeName(ordinal), reader.GetFieldType(ordinal).FullName);
             return msg;
         }
     }

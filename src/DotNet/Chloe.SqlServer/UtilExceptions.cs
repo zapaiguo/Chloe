@@ -27,7 +27,7 @@ namespace Chloe.SqlServer
                 sb.AppendFormat("{0}{1} {2}", s, p.ParameterType.Name, p.Name);
             }
 
-            return new NotSupportedException(string.Format("Does not support method '{0}.{1}({2})'", method.DeclaringType.Name, method.Name, sb.ToString()));
+            return new NotSupportedException(string.Format("Does not support method '{0}.{1}({2})'.", method.DeclaringType.Name, method.Name, sb.ToString()));
         }
     }
 }

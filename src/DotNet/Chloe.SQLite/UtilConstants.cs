@@ -37,6 +37,7 @@ namespace Chloe.SQLite
 
         public static readonly PropertyInfo PropertyInfo_String_Length = typeof(string).GetProperty("Length");
 
+        /* DateTime */
         public static readonly PropertyInfo PropertyInfo_DateTime_Now = typeof(DateTime).GetProperty("Now");
         public static readonly PropertyInfo PropertyInfo_DateTime_UtcNow = typeof(DateTime).GetProperty("UtcNow");
         public static readonly PropertyInfo PropertyInfo_DateTime_Today = typeof(DateTime).GetProperty("Today");
@@ -51,6 +52,7 @@ namespace Chloe.SQLite
         public static readonly PropertyInfo PropertyInfo_DateTime_DayOfWeek = typeof(DateTime).GetProperty("DayOfWeek");
 
 
+        /* String */
         public static readonly MethodInfo MethodInfo_String_Concat_String_String = typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) });
         public static readonly MethodInfo MethodInfo_String_Concat_Object_Object = typeof(string).GetMethod("Concat", new Type[] { typeof(object), typeof(object) });
         public static readonly MethodInfo MethodInfo_String_Trim = typeof(string).GetMethod("Trim", Type.EmptyTypes);
@@ -67,6 +69,7 @@ namespace Chloe.SQLite
 
         public static readonly MethodInfo MethodInfo_Guid_NewGuid = typeof(Guid).GetMethod("NewGuid");
 
+        /* DbFunctions */
         public static readonly MethodInfo MethodInfo_DbFunctions_DiffYears = typeof(DbFunctions).GetMethod("DiffYears");
         public static readonly MethodInfo MethodInfo_DbFunctions_DiffMonths = typeof(DbFunctions).GetMethod("DiffMonths");
         public static readonly MethodInfo MethodInfo_DbFunctions_DiffDays = typeof(DbFunctions).GetMethod("DiffDays");
