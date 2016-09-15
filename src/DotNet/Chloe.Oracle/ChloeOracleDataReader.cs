@@ -52,10 +52,11 @@ namespace Chloe.Oracle
         public bool GetBoolean(int i)
         {
             Type fieldType = this._reader.GetFieldType(i);
-            if (fieldType == UtilConstants.TypeOfDecimal)
-                return Convert.ToBoolean(this._reader.GetDecimal(i));
+
             if (fieldType == UtilConstants.TypeOfInt32)
                 return Convert.ToBoolean(this._reader.GetInt32(i));
+            if (fieldType == UtilConstants.TypeOfDecimal)
+                return Convert.ToBoolean(this._reader.GetDecimal(i));
 
             return this._reader.GetBoolean(i);
         }
