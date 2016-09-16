@@ -312,7 +312,7 @@ namespace ChloeDemo
                      //Guid_Parse = Guid.Parse("D544BC4C-739E-4CD3-A3D3-7BF803FCE179"),//不支持
 
                      Bool_Parse = bool.Parse("1"),//
-                     DateTime_Parse = DateTime.Parse("1992-1-16"),//TO_DATE(N'1992-1-16','yyyy-mm-dd hh24:mi:ss')
+                     DateTime_Parse = DateTime.Parse("1992-1-16"),//TO_TIMESTAMP(N'1992-1-16','yyyy-mm-dd hh24:mi:ssxff')
 
                      B = a.Age == null ? false : a.Age > 1,
                  }).ToList();

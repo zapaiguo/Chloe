@@ -50,7 +50,7 @@ namespace Chloe.Oracle
             castTypeMap.Add(typeof(double), "BINARY_DOUBLE");
             castTypeMap.Add(typeof(float), "BINARY_FLOAT");
             castTypeMap.Add(typeof(bool), "NUMBER(9,0)");
-            //castTypeMap.Add(typeof(DateTime), "DATE"); // instead of using to_date(exp) 
+            //castTypeMap.Add(typeof(DateTime), "DATE"); // instead of using TO_TIMESTAMP(exp) 
             //castTypeMap.Add(typeof(Guid), "BLOB");
 
             CastTypeMap = Utils.Clone(castTypeMap);
@@ -494,9 +494,9 @@ namespace Chloe.Oracle
 
             if (exp.Type == UtilConstants.TypeOfDateTime)
             {
-                this._sqlBuilder.Append("TO_DATE(");
+                this._sqlBuilder.Append("TO_TIMESTAMP(");
                 exp.Operand.Accept(this);
-                this._sqlBuilder.Append(",'yyyy-mm-dd hh24:mi:ss')");
+                this._sqlBuilder.Append(",'yyyy-mm-dd hh24:mi:ssxff')");
                 return exp;
             }
 
@@ -923,7 +923,7 @@ namespace Chloe.Oracle
 
                         return false;
 
-                        appendIntervalTime:
+                    appendIntervalTime:
                         this.CalcDateDiffPrecise(dbMethodExp.Object, dbMethodExp.Arguments[0], intervalDivisor.Value);
                         return true;
                     }
