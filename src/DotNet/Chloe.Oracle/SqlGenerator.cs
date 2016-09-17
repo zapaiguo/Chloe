@@ -963,7 +963,7 @@ namespace Chloe.Oracle
         {
             /*
              * 计算两个日期相差的毫秒数：
-             * (cast(dateTime1 as date)-cast(dateTime2 as date)) * 24 * 60 * 1000
+             * (cast(dateTime1 as date)-cast(dateTime2 as date)) * 24 * 60 * 60 * 1000 
              * +
              * cast(to_char(cast(dateTime1 as timestamp),'ff3') as number)
              * -
