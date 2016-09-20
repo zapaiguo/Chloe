@@ -111,7 +111,7 @@
     <Compile Include="Descriptors\NavigationPropertyDescriptor.cs" />
     <Compile Include="Entity\AutoIncrementAttribute.cs" />
     <Compile Include="Entity\ColumnAttribute.cs" />
-    <Compile Include="Entity\NotAutoIncrementAttribute.cs" />
+    <Compile Include="Entity\NonAutoIncrementAttribute.cs" />
     <Compile Include="Entity\NotMappedAttribute.cs" />
     <Compile Include="Entity\TableAttribute.cs" />
     <Compile Include="Exceptions\ChloeException.cs" />

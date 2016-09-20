@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Chloe.SQLite</id>
+    <id>Chloe.Oracle</id>
     <version>2.1.0</version>
-    <title>Chloe.SQLite</title>
+    <title>Chloe.Oracle</title>
     <authors>Shuxin Qin</authors>
     <owners>Shuxin Qin</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -18,11 +18,11 @@ Requires:
 - Chloe(>=2.1.0)
     </description>
     <copyright>Copyright 2016</copyright>
-    <tags>Chloe,ORM,Data,SQLite</tags>
+    <tags>Chloe,ORM,Data,Oracle</tags>
   </metadata>
 
   <files>
     <file src="bin\Release\Chloe.dll" target="lib\net40" />
-    <file src="bin\Release\Chloe.SQLite.dll" target="lib\net40" />
+    <file src="bin\Release\Chloe.Oracle.dll" target="lib\net40" />
   </files>
 </package>

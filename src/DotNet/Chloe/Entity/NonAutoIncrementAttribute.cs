@@ -6,7 +6,7 @@ using System.Text;
 namespace Chloe.Entity
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public class NotAutoIncrementAttribute : Attribute
+    public class NonAutoIncrementAttribute : Attribute
     {
     }
 }

@@ -83,7 +83,7 @@ namespace Chloe.Descriptors
             else if (autoIncrementMemberDescriptors.Count == 1)
             {
                 MappingMemberDescriptor autoIncrementMemberDescriptor = autoIncrementMemberDescriptors[0];
-                if (autoIncrementMemberDescriptor.IsDefined(typeof(NotAutoIncrementAttribute)))
+                if (autoIncrementMemberDescriptor.IsDefined(typeof(NonAutoIncrementAttribute)))
                 {
                     throw new ChloeException(string.Format("Can't define both 'AutoIncrementAttribute' and 'NotAutoIncrementAttribute' on the same mapping member '{0}'.", autoIncrementMemberDescriptor.MemberInfo.Name));
                 }
@@ -98,7 +98,7 @@ namespace Chloe.Descriptors
             }
             else
             {
-                MappingMemberDescriptor defaultAutoIncrementMemberDescriptor = mappingMemberDescriptors.Where(a => a.IsPrimaryKey && IsAutoIncrementType(a.MemberInfoType) && !a.IsDefined(typeof(NotAutoIncrementAttribute))).FirstOrDefault();
+                MappingMemberDescriptor defaultAutoIncrementMemberDescriptor = mappingMemberDescriptors.Where(a => a.IsPrimaryKey && IsAutoIncrementType(a.MemberInfoType) && !a.IsDefined(typeof(NonAutoIncrementAttribute))).FirstOrDefault();
                 if (defaultAutoIncrementMemberDescriptor != null)
                 {
                     defaultAutoIncrementMemberDescriptor.IsAutoIncrement = true;

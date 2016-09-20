@@ -53,10 +53,10 @@ namespace Chloe.Query.QueryState
 
             DbOrdering ordering = VisistOrderExpression(this.MoeList, exp);
 
-            if (this._resultElement.OrderingsComeFromSubQuery)
+            if (this._resultElement.InheritOrderings)
             {
                 this._resultElement.Orderings.Clear();
-                this._resultElement.OrderingsComeFromSubQuery = false;
+                this._resultElement.InheritOrderings = false;
             }
 
             this._resultElement.Orderings.Add(ordering);
@@ -200,7 +200,7 @@ namespace Chloe.Query.QueryState
                 }
             }
 
-            result.OrderingsComeFromSubQuery = true;
+            result.InheritOrderings = true;
 
             GeneralQueryState queryState = new GeneralQueryState(result);
             return queryState;

@@ -18,7 +18,7 @@ namespace Chloe.Query
 
         public IMappingObjectExpression MappingObjectExpression { get; set; }
 
-        public bool OrderingsComeFromSubQuery { get; set; }
+        public bool InheritOrderings { get; set; }
 
         public List<DbOrdering> Orderings { get; private set; }
         public List<DbExpression> GroupSegments { get; private set; }
