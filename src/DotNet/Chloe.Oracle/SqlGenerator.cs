@@ -456,6 +456,8 @@ namespace Chloe.Oracle
         // then 部分必须返回 C# type，所以得判断是否是诸如 a>1,a=b,in,like 等等的情况，如果是则将其构建成一个 case when 
         public override DbExpression Visit(DbCaseWhenExpression exp)
         {
+            this.LeftBracket();
+
             this._sqlBuilder.Append("CASE");
             foreach (var whenThen in exp.WhenThenPairs)
             {
@@ -469,6 +471,8 @@ namespace Chloe.Oracle
             this._sqlBuilder.Append(" ELSE ");
             EnsureDbExpressionReturnCSharpBoolean(exp.Else).Accept(this);
             this._sqlBuilder.Append(" END");
+
+            this.RightBracket();
 
             return exp;
         }
