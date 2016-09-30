@@ -56,6 +56,8 @@ namespace Chloe.SqlServer
             methodHandlers.Add("DiffMilliseconds", Method_DbFunctions_DiffMilliseconds);
             methodHandlers.Add("DiffMicroseconds", Method_DbFunctions_DiffMicroseconds);
 
+            methodHandlers.Add("Abs", Method_Math_Abs);
+
             var ret = Utils.Clone(methodHandlers);
             return ret;
         }
@@ -404,6 +406,15 @@ namespace Chloe.SqlServer
             EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffMicroseconds);
 
             DbFunction_DATEDIFF(generator, "MICROSECOND", exp.Arguments[0], exp.Arguments[1]);
+        }
+
+        static void Method_Math_Abs(DbMethodCallExpression exp, SqlGenerator generator)
+        {
+            EnsureMethodDeclaringType(exp, UtilConstants.TypeOfMath);
+
+            generator._sqlBuilder.Append("ABS(");
+            exp.Arguments[0].Accept(generator);
+            generator._sqlBuilder.Append(")");
         }
     }
 }
