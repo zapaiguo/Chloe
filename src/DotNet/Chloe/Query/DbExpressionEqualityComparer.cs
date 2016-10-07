@@ -37,8 +37,8 @@ namespace Chloe.Query
                 case DbExpressionType.Subtract:
                 case DbExpressionType.Multiply:
                 case DbExpressionType.Divide:
-                case DbExpressionType.And:
-                case DbExpressionType.Or:
+                case DbExpressionType.BitAnd:
+                case DbExpressionType.BitOr:
                 case DbExpressionType.Equal:
                 case DbExpressionType.NotEqual:
                 case DbExpressionType.LessThan:

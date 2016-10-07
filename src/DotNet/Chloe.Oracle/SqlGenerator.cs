@@ -155,7 +155,7 @@ namespace Chloe.Oracle
             return exp;
         }
 
-        public override DbExpression Visit(DbAndExpression exp)
+        public override DbExpression Visit(DbBitAndExpression exp)
         {
             this._sqlBuilder.Append("BITAND(");
             exp.Left.Accept(this);
@@ -165,18 +165,18 @@ namespace Chloe.Oracle
 
             return exp;
         }
-        public override DbExpression Visit(DbAndAlsoExpression exp)
+        public override DbExpression Visit(DbAndExpression exp)
         {
             Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
             this.ConcatOperands(operands, " AND ");
 
             return exp;
         }
-        public override DbExpression Visit(DbOrExpression exp)
+        public override DbExpression Visit(DbBitOrExpression exp)
         {
             throw new NotSupportedException("'|' operator is not supported.");
         }
-        public override DbExpression Visit(DbOrElseExpression exp)
+        public override DbExpression Visit(DbOrExpression exp)
         {
             Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
             this.ConcatOperands(operands, " OR ");

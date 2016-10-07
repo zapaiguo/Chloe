@@ -131,28 +131,28 @@ namespace Chloe.SQLite
             return exp;
         }
 
-        public override DbExpression Visit(DbAndExpression exp)
+        public override DbExpression Visit(DbBitAndExpression exp)
         {
             Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
             this.ConcatOperands(operands, " & ");
 
             return exp;
         }
-        public override DbExpression Visit(DbAndAlsoExpression exp)
+        public override DbExpression Visit(DbAndExpression exp)
         {
             Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
             this.ConcatOperands(operands, " AND ");
 
             return exp;
         }
-        public override DbExpression Visit(DbOrExpression exp)
+        public override DbExpression Visit(DbBitOrExpression exp)
         {
             Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
             this.ConcatOperands(operands, " | ");
 
             return exp;
         }
-        public override DbExpression Visit(DbOrElseExpression exp)
+        public override DbExpression Visit(DbOrExpression exp)
         {
             Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
             this.ConcatOperands(operands, " OR ");

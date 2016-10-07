@@ -1,16 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Chloe.Utility;
+using System.Reflection;
 
 namespace Chloe.DbExpressions
 {
     public class DbAndExpression : DbBinaryExpression
     {
-        public DbAndExpression(Type type, DbExpression left, DbExpression right)
-            : base(DbExpressionType.And, type, left, right)
+        public DbAndExpression(DbExpression left, DbExpression right)
+            : this(left, right, null)
         {
+
+        }
+        public DbAndExpression(DbExpression left, DbExpression right, MethodInfo method)
+            : base(DbExpressionType.And, UtilConstants.TypeOfBoolean, left, right, method)
+        {
+
         }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
@@ -18,4 +21,5 @@ namespace Chloe.DbExpressions
             return visitor.Visit(this);
         }
     }
+
 }

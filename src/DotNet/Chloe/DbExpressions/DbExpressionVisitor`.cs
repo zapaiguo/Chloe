@@ -21,10 +21,10 @@ namespace Chloe.DbExpressions
         public abstract T Visit(DbGreaterThanExpression exp);
         // >=
         public abstract T Visit(DbGreaterThanOrEqualExpression exp);
+        public abstract T Visit(DbBitAndExpression exp);
         public abstract T Visit(DbAndExpression exp);
-        public abstract T Visit(DbAndAlsoExpression exp);
+        public abstract T Visit(DbBitOrExpression exp);
         public abstract T Visit(DbOrExpression exp);
-        public abstract T Visit(DbOrElseExpression exp);
         public abstract T Visit(DbConstantExpression exp);
         public abstract T Visit(DbMemberExpression exp);
         public abstract T Visit(DbNotExpression exp);
