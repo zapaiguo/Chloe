@@ -109,7 +109,7 @@ namespace Chloe.Core.Visitors
                 {
                     // (a.ID==1)==true
                     //dbExp = new DbEqualExpression(this.Visit(exp.Left), new DbConstantExpression(true));
-                    dbExp = DbExpression.Equal(this.Visit(exp.Left), DbConstantExpression.True);
+                    dbExp = this.Visit(Expression.Equal(exp.Left, UtilConstants.Constant_True));
                     return dbExp;
                 }
                 else
@@ -127,7 +127,7 @@ namespace Chloe.Core.Visitors
                 if ((bool)c.Value == true)
                 {
                     // (a.ID==1)==true
-                    dbExp = DbExpression.Equal(this.Visit(exp.Right), DbConstantExpression.True);
+                    dbExp = this.Visit(Expression.Equal(exp.Right, UtilConstants.Constant_True));
                     return dbExp;
                 }
                 else
@@ -145,9 +145,7 @@ namespace Chloe.Core.Visitors
             // right==true
             var newRight = Expression.Equal(right, UtilConstants.Constant_True);
 
-            //dbExp = new DbAndExpression(this.Visit(newLeft), this.Visit(newRight));
             dbExp = DbExpression.AndAlso(this.Visit(newLeft), this.Visit(newRight));
-
             return dbExp;
         }
         // |
@@ -170,7 +168,7 @@ namespace Chloe.Core.Visitors
                 if ((bool)c.Value == false)
                 {
                     // (a.ID==1)==true
-                    dbExp = DbExpression.Equal(this.Visit(exp.Left), DbConstantExpression.True);
+                    dbExp = this.Visit(Expression.Equal(exp.Left, UtilConstants.Constant_True));
                     return dbExp;
                 }
                 else
@@ -181,18 +179,18 @@ namespace Chloe.Core.Visitors
             }
 
             c = left as ConstantExpression;
-            // true && a.ID == 1  
+            // true || a.ID == 1  
             if (c != null)
             {
                 if ((bool)c.Value == false)
                 {
                     // (a.ID==1)==true
-                    dbExp = DbExpression.Equal(this.Visit(exp.Right), DbConstantExpression.True);
+                    dbExp = this.Visit(Expression.Equal(exp.Right, UtilConstants.Constant_True));
                     return dbExp;
                 }
                 else
                 {
-                    // 直接 (1=0)
+                    // 直接 (1=1)
                     dbExp = DbEqualExpression.True;
                     return dbExp;
                 }
