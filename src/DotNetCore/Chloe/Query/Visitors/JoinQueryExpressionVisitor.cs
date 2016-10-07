@@ -15,12 +15,12 @@ namespace Chloe.Query.Visitors
     class JoinQueryExpressionVisitor : QueryExpressionVisitor<JoinQueryResult>
     {
         ResultElement _resultElement;
-        JoinType _joinType;
+        DbJoinType _joinType;
 
         LambdaExpression _conditionExpression;
         List<IMappingObjectExpression> _moeList;
 
-        JoinQueryExpressionVisitor(ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, List<IMappingObjectExpression> moeList)
+        JoinQueryExpressionVisitor(ResultElement resultElement, DbJoinType joinType, LambdaExpression conditionExpression, List<IMappingObjectExpression> moeList)
         {
             this._resultElement = resultElement;
             this._joinType = joinType;
@@ -28,7 +28,7 @@ namespace Chloe.Query.Visitors
             this._moeList = moeList;
         }
 
-        public static JoinQueryResult VisitQueryExpression(QueryExpression queryExpression, ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, List<IMappingObjectExpression> moeList)
+        public static JoinQueryResult VisitQueryExpression(QueryExpression queryExpression, ResultElement resultElement, DbJoinType joinType, LambdaExpression conditionExpression, List<IMappingObjectExpression> moeList)
         {
             JoinQueryExpressionVisitor visitor = new JoinQueryExpressionVisitor(resultElement, joinType, conditionExpression, moeList);
             return queryExpression.Accept(visitor);

@@ -32,7 +32,7 @@ namespace Chloe.SqlServer
             if (orderings.Count == 0)
             {
                 DbExpression orderingExp = DbExpression.Add(UtilConstants.DbParameter_1, DbConstantExpression.Zero, DbConstantExpression.Zero.Type, null);
-                DbOrdering ordering = new DbOrdering(orderingExp, OrderType.Asc);
+                DbOrdering ordering = new DbOrdering(orderingExp, DbOrderType.Asc);
                 orderings = new List<DbOrdering>(1);
                 orderings.Add(ordering);
             }

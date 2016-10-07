@@ -1,7 +1,7 @@
 ﻿
 namespace Chloe.DbExpressions
 {
-    public enum JoinType
+    public enum DbJoinType
     {
         InnerJoin,
         LeftJoin,

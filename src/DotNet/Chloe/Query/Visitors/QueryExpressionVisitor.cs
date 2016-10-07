@@ -77,18 +77,18 @@ namespace Chloe.Query.Visitors
 
                 var nullChecking = DbExpression.CaseWhen(new DbCaseWhenExpression.WhenThenExpressionPair(joinQueryResult.JoinTable.Condition, DbConstantExpression.One), DbConstantExpression.Null, DbConstantExpression.One.Type);
 
-                if (joiningQueryInfo.JoinType == JoinType.LeftJoin)
+                if (joiningQueryInfo.JoinType == DbJoinType.LeftJoin)
                 {
                     joinQueryResult.MappingObjectExpression.SetNullChecking(nullChecking);
                 }
-                else if (joiningQueryInfo.JoinType == JoinType.RightJoin)
+                else if (joiningQueryInfo.JoinType == DbJoinType.RightJoin)
                 {
                     foreach (IMappingObjectExpression item in moeList)
                     {
                         item.SetNullChecking(nullChecking);
                     }
                 }
-                else if (joiningQueryInfo.JoinType == JoinType.FullJoin)
+                else if (joiningQueryInfo.JoinType == DbJoinType.FullJoin)
                 {
                     joinQueryResult.MappingObjectExpression.SetNullChecking(nullChecking);
                     foreach (IMappingObjectExpression item in moeList)

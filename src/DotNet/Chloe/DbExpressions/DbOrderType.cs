@@ -1,7 +1,7 @@
 ﻿
 namespace Chloe.DbExpressions
 {
-    public enum OrderType
+    public enum DbOrderType
     {
         Asc,
         Desc

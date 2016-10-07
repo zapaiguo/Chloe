@@ -96,8 +96,8 @@
     <Compile Include="DbExpressions\DbTableExpression.cs" />
     <Compile Include="DbExpressions\DbTableSegment.cs" />
     <Compile Include="DbExpressions\DbUpdateExpression.cs" />
-    <Compile Include="DbExpressions\JoinType.cs" />
-    <Compile Include="DbExpressions\OrderType.cs" />
+    <Compile Include="DbExpressions\DbJoinType.cs" />
+    <Compile Include="DbExpressions\DbOrderType.cs" />
     <Compile Include="DbFunctions.cs" />
     <Compile Include="DbParam.cs" />
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />

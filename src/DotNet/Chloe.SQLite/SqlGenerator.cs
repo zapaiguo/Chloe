@@ -282,11 +282,11 @@ namespace Chloe.SQLite
             DbJoinTableExpression joinTablePart = exp;
             string joinString = null;
 
-            if (joinTablePart.JoinType == JoinType.InnerJoin)
+            if (joinTablePart.JoinType == DbJoinType.InnerJoin)
             {
                 joinString = " INNER JOIN ";
             }
-            else if (joinTablePart.JoinType == JoinType.LeftJoin)
+            else if (joinTablePart.JoinType == DbJoinType.LeftJoin)
             {
                 joinString = " LEFT JOIN ";
             }
@@ -600,13 +600,13 @@ namespace Chloe.SQLite
         }
         void AppendOrdering(DbOrdering ordering)
         {
-            if (ordering.OrderType == OrderType.Asc)
+            if (ordering.OrderType == DbOrderType.Asc)
             {
                 ordering.Expression.Accept(this);
                 this._sqlBuilder.Append(" ASC");
                 return;
             }
-            else if (ordering.OrderType == OrderType.Desc)
+            else if (ordering.OrderType == DbOrderType.Desc)
             {
                 ordering.Expression.Accept(this);
                 this._sqlBuilder.Append(" DESC");

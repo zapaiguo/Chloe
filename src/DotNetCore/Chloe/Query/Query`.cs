@@ -86,25 +86,25 @@ namespace Chloe.Query
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, JoinType.InnerJoin, on);
+            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, DbJoinType.InnerJoin, on);
         }
         public IJoiningQuery<T, TSource> LeftJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, JoinType.LeftJoin, on);
+            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, DbJoinType.LeftJoin, on);
         }
         public IJoiningQuery<T, TSource> RightJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, JoinType.RightJoin, on);
+            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, DbJoinType.RightJoin, on);
         }
         public IJoiningQuery<T, TSource> FullJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, JoinType.FullJoin, on);
+            return new JoiningQuery<T, TSource>(this, (Query<TSource>)q, DbJoinType.FullJoin, on);
         }
 
         public T First()

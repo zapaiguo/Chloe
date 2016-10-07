@@ -222,14 +222,14 @@ namespace Chloe.Query.QueryState
         protected static DbOrdering VisistOrderExpression(List<IMappingObjectExpression> moeList, OrderExpression orderExp)
         {
             DbExpression dbExpression = GeneralExpressionVisitor.VisitPredicate(orderExp.Expression, moeList);
-            OrderType orderType;
+            DbOrderType orderType;
             if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.ThenBy)
             {
-                orderType = OrderType.Asc;
+                orderType = DbOrderType.Asc;
             }
             else if (orderExp.NodeType == QueryExpressionType.OrderByDesc || orderExp.NodeType == QueryExpressionType.ThenByDesc)
             {
-                orderType = OrderType.Desc;
+                orderType = DbOrderType.Desc;
             }
             else
                 throw new NotSupportedException(orderExp.NodeType.ToString());
@@ -256,7 +256,7 @@ namespace Chloe.Query.QueryState
             return result;
         }
 
-        public virtual JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, DbFromTableExpression fromTable, List<IMappingObjectExpression> moeList, string tableAlias)
+        public virtual JoinQueryResult ToJoinQueryResult(DbJoinType joinType, LambdaExpression conditionExpression, DbFromTableExpression fromTable, List<IMappingObjectExpression> moeList, string tableAlias)
         {
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
