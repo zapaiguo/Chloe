@@ -26,6 +26,8 @@ namespace Chloe.SqlServer
         public static readonly Type TypeOfObject = typeof(Object);
         public static readonly Type TypeOfTimeSpan = typeof(TimeSpan);
 
+        public static readonly Type TypeOfMath = typeof(Math);
+
         #region DbExpression constants
 
         public static readonly DbParameterExpression DbParameter_1 = DbExpression.Parameter(1);
