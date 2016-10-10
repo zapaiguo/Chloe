@@ -58,7 +58,7 @@ namespace Chloe.Descriptors
 
             int primaryKeyCount = mappingMemberDescriptors.Where(a => a.IsPrimaryKey).Count();
             if (primaryKeyCount > 1)
-                throw new NotSupportedException(string.Format("Mapping type '{0}' can't define multiple primary keys.", this.EntityType.FullName));
+                throw new NotSupportedException(string.Format("The entity type '{0}' can't define multiple primary keys.", this.EntityType.FullName));
             else if (primaryKeyCount == 1)
             {
                 this._primaryKey = mappingMemberDescriptors.Where(a => a.IsPrimaryKey).First();
@@ -78,7 +78,7 @@ namespace Chloe.Descriptors
             List<MappingMemberDescriptor> autoIncrementMemberDescriptors = mappingMemberDescriptors.Where(a => a.IsDefined(typeof(AutoIncrementAttribute))).ToList();
             if (autoIncrementMemberDescriptors.Count > 1)
             {
-                throw new NotSupportedException(string.Format("Mapping type '{0}' can not define multiple autoIncrement members.", this.EntityType.FullName));
+                throw new NotSupportedException(string.Format("The entity type '{0}' can not define multiple autoIncrement members.", this.EntityType.FullName));
             }
             else if (autoIncrementMemberDescriptors.Count == 1)
             {

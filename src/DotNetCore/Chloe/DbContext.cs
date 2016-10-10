@@ -422,7 +422,7 @@ namespace Chloe
         static void EnsureEntityHasPrimaryKey(TypeDescriptor typeDescriptor)
         {
             if (!typeDescriptor.HasPrimaryKey())
-                throw new ChloeException(string.Format("Mapping type '{0}' does not define a primary key.", typeDescriptor.EntityType.FullName));
+                throw new ChloeException(string.Format("The entity type '{0}' does not define a primary key.", typeDescriptor.EntityType.FullName));
         }
         static object ConvertIdentityType(object identity, Type conversionType)
         {
