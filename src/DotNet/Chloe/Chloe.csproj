@@ -100,6 +100,7 @@
     <Compile Include="DbExpressions\DbOrderType.cs" />
     <Compile Include="DbFunctions.cs" />
     <Compile Include="DbParam.cs" />
+    <Compile Include="DbParamList.cs" />
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
     <Compile Include="Descriptors\FieldDescriptor.cs" />
     <Compile Include="Descriptors\MappingMemberDescriptor.cs" />
