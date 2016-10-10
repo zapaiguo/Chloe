@@ -15,6 +15,8 @@ namespace Chloe
         IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate);
         IQuery<T> Skip(int count);
         IQuery<T> Take(int count);
+        IQuery<T> TakePage(int pageNumber, int pageSize);
+
 
         IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate);
 

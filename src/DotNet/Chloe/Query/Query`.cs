@@ -75,6 +75,14 @@ namespace Chloe.Query
             TakeExpression e = new TakeExpression(typeof(T), this._expression, count);
             return new Query<T>(this._dbContext, e, this._trackEntity);
         }
+        public IQuery<T> TakePage(int pageNumber, int pageSize)
+        {
+            int skipCount = (pageNumber - 1) * pageSize;
+            int takeCount = pageSize;
+
+            IQuery<T> q = this.Skip(skipCount).Take(takeCount);
+            return q;
+        }
 
         public IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate)
         {
