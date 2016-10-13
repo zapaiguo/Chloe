@@ -14,22 +14,38 @@ namespace Chloe.Core
         {
             this._dbContext = dbContext;
         }
+
         public IDbContext DbContext { get { return this._dbContext; } }
         public bool IsInTransaction { get { return this._dbContext.InnerDbSession.IsInTransaction; } }
+
         public int ExecuteNonQuery(string sql, params DbParam[] parameters)
         {
-            Utils.CheckNull(sql, "sql");
-            return this._dbContext.InnerDbSession.ExecuteNonQuery(sql, parameters);
+            return this.ExecuteNonQuery(sql, CommandType.Text, parameters);
         }
+        public int ExecuteNonQuery(string sql, CommandType cmdType, params DbParam[] parameters)
+        {
+            Utils.CheckNull(sql, "sql");
+            return this._dbContext.InnerDbSession.ExecuteNonQuery(sql, parameters, cmdType);
+        }
+
         public object ExecuteScalar(string sql, params DbParam[] parameters)
         {
-            Utils.CheckNull(sql, "sql");
-            return this._dbContext.InnerDbSession.ExecuteScalar(sql, parameters);
+            return this.ExecuteScalar(sql, CommandType.Text, parameters);
         }
-        public IDataReader ExecuteReader(string sql, params DbParam[] parameters)
+        public object ExecuteScalar(string sql, CommandType cmdType, params DbParam[] parameters)
         {
             Utils.CheckNull(sql, "sql");
-            return this._dbContext.InnerDbSession.ExecuteInternalReader(sql, parameters, CommandType.Text);
+            return this._dbContext.InnerDbSession.ExecuteScalar(sql, parameters, cmdType);
+        }
+
+        public IDataReader ExecuteReader(string sql, params DbParam[] parameters)
+        {
+            return this.ExecuteReader(sql, CommandType.Text, parameters);
+        }
+        public IDataReader ExecuteReader(string sql, CommandType cmdType, params DbParam[] parameters)
+        {
+            Utils.CheckNull(sql, "sql");
+            return this._dbContext.InnerDbSession.ExecuteInternalReader(sql, parameters, cmdType);
         }
 
         public void BeginTransaction()

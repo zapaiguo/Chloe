@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq.Expressions;
 
 namespace Chloe
@@ -10,6 +11,7 @@ namespace Chloe
 
         IQuery<T> Query<T>() where T : new();
         IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters) where T : new();
+        IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters) where T : new();
 
         T Insert<T>(T entity);
         /// <summary>

@@ -19,12 +19,14 @@ namespace Chloe.Query.Internals
     {
         DbContext _dbContext;
         string _sql;
+        CommandType _cmdType;
         DbParam[] _parameters;
 
-        public InternalSqlQuery(DbContext dbContext, string sql, DbParam[] parameters)
+        public InternalSqlQuery(DbContext dbContext, string sql, CommandType cmdType, DbParam[] parameters)
         {
             this._dbContext = dbContext;
             this._sql = sql;
+            this._cmdType = cmdType;
             this._parameters = parameters;
         }
 
@@ -124,12 +126,17 @@ namespace Chloe.Query.Internals
                 {
                     MappingField mf = new MappingField(type, 0);
                     this._objectActivator = mf.CreateObjectActivator();
-                    this._reader = this._internalSqlQuery._dbContext.InnerDbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, CommandType.Text);
+                    this._reader = this.ExecuteReader();
                     return;
                 }
 
-                this._reader = this._internalSqlQuery._dbContext.InnerDbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, CommandType.Text);
+                this._reader = this.ExecuteReader();
                 this._objectActivator = GetObjectActivator(type, this._reader);
+            }
+            IDataReader ExecuteReader()
+            {
+                IDataReader reader = this._internalSqlQuery._dbContext.InnerDbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, this._internalSqlQuery._cmdType);
+                return reader;
             }
 
             static ObjectActivator GetObjectActivator(Type type, IDataReader reader)

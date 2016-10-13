@@ -11,6 +11,7 @@ using Chloe.DbExpressions;
 using Chloe.Query.Internals;
 using Chloe.Core.Visitors;
 using Chloe.Exceptions;
+using System.Data;
 
 namespace Chloe
 {
@@ -62,9 +63,12 @@ namespace Chloe
 
         public virtual IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters) where T : new()
         {
+            return this.SqlQuery<T>(sql, CommandType.Text, parameters);
+        }
+        public virtual IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters) where T : new()
+        {
             Utils.CheckNull(sql, "sql");
-
-            return new InternalSqlQuery<T>(this, sql, parameters);
+            return new InternalSqlQuery<T>(this, sql, cmdType, parameters);
         }
 
         public virtual T Insert<T>(T entity)
