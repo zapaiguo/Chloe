@@ -256,7 +256,7 @@ namespace Chloe.Oracle
 
             DbExpression condition = lessThanExp;
             if (sqlQuery.Condition != null)
-                condition = DbExpression.AndAlso(sqlQuery.Condition, condition);
+                condition = DbExpression.And(sqlQuery.Condition, condition);
 
             sqlQuery.Condition = condition;
         }

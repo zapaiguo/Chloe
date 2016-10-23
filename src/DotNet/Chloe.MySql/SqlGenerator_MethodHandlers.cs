@@ -167,7 +167,7 @@ namespace Chloe.MySql
             DbEqualExpression equalNullExpression = DbExpression.Equal(e, DbExpression.Constant(null, UtilConstants.TypeOfString));
             DbEqualExpression equalEmptyExpression = DbExpression.Equal(e, DbExpression.Constant(string.Empty));
 
-            DbOrExpression orElseExpression = DbExpression.OrElse(equalNullExpression, equalEmptyExpression);
+            DbOrExpression orElseExpression = DbExpression.Or(equalNullExpression, equalEmptyExpression);
 
             DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orElseExpression, DbConstantExpression.One);
 

@@ -51,7 +51,7 @@ namespace Chloe.MySql
                 if (whenExp == null)
                     whenExp = equalNullExp;
                 else
-                    whenExp = DbExpression.AndAlso(whenExp, equalNullExp);
+                    whenExp = DbExpression.And(whenExp, equalNullExp);
 
                 DbExpression thenExp = DbConstantExpression.StringEmpty;
                 DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(equalNullExp, thenExp);

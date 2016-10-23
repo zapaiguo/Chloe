@@ -50,22 +50,24 @@ namespace Chloe.DbExpressions
             return new DbDivideExpression(returnType, left, right);
         }
 
-        public static DbBitAndExpression And(Type type, DbExpression left, DbExpression right)
+        public static DbBitAndExpression BitAnd(Type type, DbExpression left, DbExpression right)
         {
             return new DbBitAndExpression(type, left, right);
         }
-        public static DbAndExpression AndAlso(DbExpression left, DbExpression right)
-        {
-            return new DbAndExpression(left, right);
-        }
-        public static DbBitOrExpression Or(Type type, DbExpression left, DbExpression right)
+        public static DbBitOrExpression BitOr(Type type, DbExpression left, DbExpression right)
         {
             return new DbBitOrExpression(type, left, right);
         }
-        public static DbOrExpression OrElse(DbExpression left, DbExpression right)
+
+        public static DbAndExpression And(DbExpression left, DbExpression right)
+        {
+            return new DbAndExpression(left, right);
+        }
+        public static DbOrExpression Or(DbExpression left, DbExpression right)
         {
             return new DbOrExpression(left, right);
         }
+
         public static DbEqualExpression Equal(DbExpression left, DbExpression right)
         {
             return new DbEqualExpression(left, right);
