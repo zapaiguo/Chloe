@@ -19,7 +19,7 @@ namespace Chloe
     {
         bool _disposed = false;
         InternalDbSession _innerDbSession;
-        DbSession _currentSession;
+        DbSession _session;
 
         Dictionary<Type, TrackEntityCollection> _trackingEntityContainer;
 
@@ -50,10 +50,12 @@ namespace Chloe
 
         protected DbContext()
         {
-            this._currentSession = new DbSession(this);
+            this._session = new DbSession(this);
         }
 
-        public IDbSession CurrentSession { get { return this._currentSession; } }
+        public IDbSession Session { get { return this._session; } }
+        [Obsolete("CurrentSession will be removed in future releases.Instead of using Session property.")]
+        public IDbSession CurrentSession { get { return this.Session; } }
 
 
         public virtual IQuery<T> Query<T>() where T : new()
@@ -131,7 +133,7 @@ namespace Chloe
             sql = string.Concat(sql, ";", this.GetSelectLastInsertIdClause());
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
-            object retIdentity = this.CurrentSession.ExecuteScalar(sql, parameters.ToArray());
+            object retIdentity = this.Session.ExecuteScalar(sql, parameters.ToArray());
 
             if (retIdentity == null || retIdentity == DBNull.Value)
             {
@@ -203,7 +205,7 @@ namespace Chloe
             sql = string.Concat(sql, ";", this.GetSelectLastInsertIdClause());
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
-            object retIdentity = this.CurrentSession.ExecuteScalar(sql, parameters.ToArray());
+            object retIdentity = this.Session.ExecuteScalar(sql, parameters.ToArray());
 
             if (retIdentity == null || retIdentity == DBNull.Value)
             {

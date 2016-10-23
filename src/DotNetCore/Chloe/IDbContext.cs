@@ -7,6 +7,8 @@ namespace Chloe
 {
     public interface IDbContext : IDisposable
     {
+        IDbSession Session { get; }
+        [Obsolete("CurrentSession will be removed in future releases.Instead of using Session property.")]
         IDbSession CurrentSession { get; }
 
         IQuery<T> Query<T>() where T : new();

@@ -261,7 +261,7 @@ namespace Chloe.Oracle
             List<DbParam> parameters;
             string cmdText = translator.Translate(e, out parameters);
 
-            int r = this.CurrentSession.ExecuteNonQuery(cmdText, parameters.ToArray());
+            int r = this.Session.ExecuteNonQuery(cmdText, parameters.ToArray());
             return r;
         }
         object GetSequenceNextValue(string sequenceName)
@@ -269,7 +269,7 @@ namespace Chloe.Oracle
             if (this.ConvertToUppercase)
                 sequenceName = sequenceName.ToUpper();
 
-            object ret = this.CurrentSession.ExecuteScalar(string.Concat("SELECT \"", sequenceName, "\".\"NEXTVAL\" FROM \"DUAL\""));
+            object ret = this.Session.ExecuteScalar(string.Concat("SELECT \"", sequenceName, "\".\"NEXTVAL\" FROM \"DUAL\""));
 
             if (ret == null || ret == DBNull.Value)
             {
