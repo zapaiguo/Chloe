@@ -8,14 +8,14 @@ namespace Chloe
         IDbContext DbContext { get; }
         bool IsInTransaction { get; }
 
-        int ExecuteNonQuery(string sql, params DbParam[] parameters);
-        int ExecuteNonQuery(string sql, CommandType cmdType, params DbParam[] parameters);
+        int ExecuteNonQuery(string cmdText, params DbParam[] parameters);
+        int ExecuteNonQuery(string cmdText, CommandType cmdType, params DbParam[] parameters);
 
-        object ExecuteScalar(string sql, params DbParam[] parameters);
-        object ExecuteScalar(string sql, CommandType cmdType, params DbParam[] parameters);
+        object ExecuteScalar(string cmdText, params DbParam[] parameters);
+        object ExecuteScalar(string cmdText, CommandType cmdType, params DbParam[] parameters);
 
-        IDataReader ExecuteReader(string sql, params DbParam[] parameters);
-        IDataReader ExecuteReader(string sql, CommandType cmdType, params DbParam[] parameters);
+        IDataReader ExecuteReader(string cmdText, params DbParam[] parameters);
+        IDataReader ExecuteReader(string cmdText, CommandType cmdType, params DbParam[] parameters);
 
         void BeginTransaction();
         void BeginTransaction(IsolationLevel il);

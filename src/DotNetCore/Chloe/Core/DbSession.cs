@@ -18,34 +18,34 @@ namespace Chloe.Core
         public IDbContext DbContext { get { return this._dbContext; } }
         public bool IsInTransaction { get { return this._dbContext.InnerDbSession.IsInTransaction; } }
 
-        public int ExecuteNonQuery(string sql, params DbParam[] parameters)
+        public int ExecuteNonQuery(string cmdText, params DbParam[] parameters)
         {
-            return this.ExecuteNonQuery(sql, CommandType.Text, parameters);
+            return this.ExecuteNonQuery(cmdText, CommandType.Text, parameters);
         }
-        public int ExecuteNonQuery(string sql, CommandType cmdType, params DbParam[] parameters)
+        public int ExecuteNonQuery(string cmdText, CommandType cmdType, params DbParam[] parameters)
         {
-            Utils.CheckNull(sql, "sql");
-            return this._dbContext.InnerDbSession.ExecuteNonQuery(sql, parameters, cmdType);
-        }
-
-        public object ExecuteScalar(string sql, params DbParam[] parameters)
-        {
-            return this.ExecuteScalar(sql, CommandType.Text, parameters);
-        }
-        public object ExecuteScalar(string sql, CommandType cmdType, params DbParam[] parameters)
-        {
-            Utils.CheckNull(sql, "sql");
-            return this._dbContext.InnerDbSession.ExecuteScalar(sql, parameters, cmdType);
+            Utils.CheckNull(cmdText, "cmdText");
+            return this._dbContext.InnerDbSession.ExecuteNonQuery(cmdText, parameters, cmdType);
         }
 
-        public IDataReader ExecuteReader(string sql, params DbParam[] parameters)
+        public object ExecuteScalar(string cmdText, params DbParam[] parameters)
         {
-            return this.ExecuteReader(sql, CommandType.Text, parameters);
+            return this.ExecuteScalar(cmdText, CommandType.Text, parameters);
         }
-        public IDataReader ExecuteReader(string sql, CommandType cmdType, params DbParam[] parameters)
+        public object ExecuteScalar(string cmdText, CommandType cmdType, params DbParam[] parameters)
         {
-            Utils.CheckNull(sql, "sql");
-            return this._dbContext.InnerDbSession.ExecuteInternalReader(sql, parameters, cmdType);
+            Utils.CheckNull(cmdText, "cmdText");
+            return this._dbContext.InnerDbSession.ExecuteScalar(cmdText, parameters, cmdType);
+        }
+
+        public IDataReader ExecuteReader(string cmdText, params DbParam[] parameters)
+        {
+            return this.ExecuteReader(cmdText, CommandType.Text, parameters);
+        }
+        public IDataReader ExecuteReader(string cmdText, CommandType cmdType, params DbParam[] parameters)
+        {
+            Utils.CheckNull(cmdText, "cmdText");
+            return this._dbContext.InnerDbSession.ExecuteInternalReader(cmdText, parameters, cmdType);
         }
 
         public void BeginTransaction()
