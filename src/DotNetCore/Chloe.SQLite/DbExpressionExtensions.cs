@@ -193,7 +193,18 @@ namespace Chloe.SQLite
                 DbMemberExpression m = (DbMemberExpression)exp;
                 object instance = null;
                 if (m.Expression != null)
+                {
                     instance = DbExpressionExtensions.GetExpressionValue(m.Expression);
+
+                    /* 非静态成员，需要检查是否为空引用。Nullable<T>.HasValue 的情况比较特俗，暂不考虑 */
+                    TypeInfo declaringTypeInfo = m.Member.DeclaringType.GetTypeInfo();
+                    if (declaringTypeInfo.IsClass || declaringTypeInfo.IsInterface)
+                    {
+                        if (instance == null)
+                            throw new NullReferenceException(string.Format("There is an object reference not set to an instance of an object in expression tree.The type of null object is '{0}'.", declaringTypeInfo.FullName));
+                    }
+                }
+
                 return GetMemberAccessExpressionValue(m, instance);
             }
 
