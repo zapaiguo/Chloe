@@ -33,16 +33,14 @@ namespace Chloe.Core.Visitors
             {
                 Stack<MemberExpression> reversedExps = ExpressionExtensions.Reverse(exp);
 
-                Dictionary<MemberInfo, DbColumnAccessExpression> memberColumnMap = this._typeDescriptor.MemberColumnMap;
-
                 DbExpression dbExp = null;
                 bool first = true;
                 foreach (var me in reversedExps)
                 {
                     if (first)
                     {
-                        DbColumnAccessExpression dbColumnAccessExpression;
-                        if (!memberColumnMap.TryGetValue(me.Member, out dbColumnAccessExpression))
+                        DbColumnAccessExpression dbColumnAccessExpression = this._typeDescriptor.TryGetColumnAccessExpression(me.Member);
+                        if (dbColumnAccessExpression == null)
                         {
                             throw new ChloeException(string.Format("The member '{0}' does not map any column.", me.Member.Name));
                         }

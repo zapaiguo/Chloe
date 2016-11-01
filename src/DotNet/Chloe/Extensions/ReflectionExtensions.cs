@@ -54,5 +54,27 @@ namespace Chloe.Extensions
 
             throw new ArgumentException();
         }
+
+        public static MemberInfo FindReflectedMember(this Type type, MemberInfo memberInfo)
+        {
+            if (memberInfo.ReflectedType != type)
+            {
+                MemberInfo tempMember = null;
+                if (memberInfo.MemberType == MemberTypes.Property)
+                {
+                    tempMember = type.GetProperty(memberInfo.Name);
+                }
+                else if (memberInfo.MemberType == MemberTypes.Field)
+                {
+                    tempMember = type.GetField(memberInfo.Name);
+                }
+
+                if (tempMember != null)
+                    memberInfo = tempMember;
+            }
+
+            return memberInfo;
+        }
+
     }
 }

@@ -61,6 +61,7 @@ namespace Chloe.Query
         /// <returns></returns>
         public DbExpression GetMemberExpression(MemberInfo memberInfo)
         {
+            memberInfo = this.ConstructorDescriptor.ConstructorInfo.DeclaringType.FindReflectedMember(memberInfo);
             DbExpression ret = null;
             if (!this.SelectedMembers.TryGetValue(memberInfo, out ret))
             {
@@ -80,6 +81,7 @@ namespace Chloe.Query
         }
         public IMappingObjectExpression GetNavMemberExpression(MemberInfo memberInfo)
         {
+            memberInfo = this.ConstructorDescriptor.ConstructorInfo.DeclaringType.FindReflectedMember(memberInfo);
             IMappingObjectExpression ret = null;
             if (!this.SubResultEntities.TryGetValue(memberInfo, out ret))
             {

@@ -38,6 +38,7 @@ namespace Chloe.Extensions
 
         public static bool IsDerivedFromParameter(this MemberExpression exp, out ParameterExpression p)
         {
+            p = null;
             Expression prevExp = exp.Expression;
             MemberExpression memberExp = prevExp as MemberExpression;
             while (memberExp != null)
@@ -46,12 +47,24 @@ namespace Chloe.Extensions
                 memberExp = prevExp as MemberExpression;
             }
 
-            p = prevExp as ParameterExpression;
-
-            if (p != null)
+            if (prevExp.NodeType == ExpressionType.Parameter)
+            {
+                p = (ParameterExpression)prevExp;
                 return true;
-            else
-                return false;
+            }
+
+            /* 当实体继承于某个接口或类时，会有这种情况 */
+            if (prevExp.NodeType == ExpressionType.Convert)
+            {
+                prevExp = ((UnaryExpression)prevExp).Operand;
+                if (prevExp.NodeType == ExpressionType.Parameter)
+                {
+                    p = (ParameterExpression)prevExp;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static Expression StripQuotes(this Expression exp)

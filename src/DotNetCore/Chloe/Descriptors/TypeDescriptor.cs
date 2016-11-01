@@ -2,6 +2,7 @@
 using Chloe.DbExpressions;
 using Chloe.Entity;
 using Chloe.Exceptions;
+using Chloe.Extensions;
 using Chloe.Query.Visitors;
 using Chloe.Utility;
 using System;
@@ -220,7 +221,6 @@ namespace Chloe.Descriptors
         }
 
         public Dictionary<MemberInfo, MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors; } }
-        public Dictionary<MemberInfo, DbColumnAccessExpression> MemberColumnMap { get { return this._memberColumnMap; } }
 
         public bool HasPrimaryKey()
         {
@@ -228,13 +228,17 @@ namespace Chloe.Descriptors
         }
         public MappingMemberDescriptor TryGetMappingMemberDescriptor(MemberInfo memberInfo)
         {
+            memberInfo = this.EntityType.FindReflectedMember(memberInfo);
             MappingMemberDescriptor memberDescriptor;
-            if (!this._mappingMemberDescriptors.TryGetValue(memberInfo, out memberDescriptor))
-            {
-                return null;
-            }
-
+            this._mappingMemberDescriptors.TryGetValue(memberInfo, out memberDescriptor);
             return memberDescriptor;
+        }
+        public DbColumnAccessExpression TryGetColumnAccessExpression(MemberInfo memberInfo)
+        {
+            memberInfo = this.EntityType.FindReflectedMember(memberInfo);
+            DbColumnAccessExpression dbColumnAccessExpression;
+            this._memberColumnMap.TryGetValue(memberInfo, out dbColumnAccessExpression);
+            return dbColumnAccessExpression;
         }
 
         static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, TypeDescriptor> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, TypeDescriptor>();
