@@ -54,7 +54,7 @@ namespace Chloe
         }
 
         public IDbSession Session { get { return this._session; } }
-        [Obsolete("CurrentSession will be removed in future releases.Instead of using Session property.")]
+        [Obsolete("'CurrentSession' will be removed in future releases.Instead of using 'Session' property.")]
         public IDbSession CurrentSession { get { return this.Session; } }
 
 
