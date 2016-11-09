@@ -25,6 +25,8 @@ namespace Chloe
         object Insert<T>(Expression<Func<T>> body);
 
         int Update<T>(T entity);
+        int Update<T>(Expression<Func<T, bool>> condition, Expression<Func<T, T>> body);
+        [Obsolete("Current method will be removed in future releases.Instead of using 'Update<T>(Expression<Func<T, bool>> condition, Expression<Func<T, T>> body)'.")]
         int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> condition);
 
         int Delete<T>(T entity);

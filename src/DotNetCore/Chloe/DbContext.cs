@@ -276,10 +276,10 @@ namespace Chloe
                 entityState.Refresh();
             return ret;
         }
-        public virtual int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> condition)
+        public virtual int Update<T>(Expression<Func<T, bool>> condition, Expression<Func<T, T>> body)
         {
-            Utils.CheckNull(body);
             Utils.CheckNull(condition);
+            Utils.CheckNull(body);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
 
@@ -309,6 +309,11 @@ namespace Chloe
                 return 0;
 
             return this.ExecuteSqlCommand(e);
+        }
+        [Obsolete("Current method will be removed in future releases.Instead of using 'Update<T>(Expression<Func<T, bool>> condition, Expression<Func<T, T>> body)'.")]
+        public int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> condition)
+        {
+            return this.Update(condition, body);
         }
 
         public virtual int Delete<T>(T entity)

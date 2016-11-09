@@ -99,7 +99,7 @@ namespace ChloeDemo
         {
             object ret = null;
 
-            ret = context.Update<TestEntity>((a) => new TestEntity()
+            ret = context.Update<TestEntity>(a => a.Id == 1, a => new TestEntity()
             {
                 F_Byte = 1
                  ,
@@ -122,7 +122,7 @@ namespace ChloeDemo
                 F_Guid = Guid.NewGuid()
                 ,
                 F_String = "12345"
-            }, (a) => a.Id == 1);
+            });
 
             Console.WriteLine(ret);
 

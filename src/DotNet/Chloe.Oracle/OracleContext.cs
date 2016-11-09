@@ -218,10 +218,10 @@ namespace Chloe.Oracle
                 entityState.Refresh();
             return ret;
         }
-        public override int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> condition)
+        public override int Update<T>(Expression<Func<T, bool>> condition, Expression<Func<T, T>> body)
         {
-            Utils.CheckNull(body);
             Utils.CheckNull(condition);
+            Utils.CheckNull(body);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
 
@@ -253,7 +253,6 @@ namespace Chloe.Oracle
 
             return this.ExecuteSqlCommand(e);
         }
-
 
         int ExecuteSqlCommand(DbExpression e)
         {
