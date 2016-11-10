@@ -228,14 +228,14 @@ namespace Chloe.Descriptors
         }
         public MappingMemberDescriptor TryGetMappingMemberDescriptor(MemberInfo memberInfo)
         {
-            memberInfo = this.EntityType.FindReflectedMember(memberInfo);
+            memberInfo = memberInfo.AsReflectedMemberOf(this.EntityType);
             MappingMemberDescriptor memberDescriptor;
             this._mappingMemberDescriptors.TryGetValue(memberInfo, out memberDescriptor);
             return memberDescriptor;
         }
         public DbColumnAccessExpression TryGetColumnAccessExpression(MemberInfo memberInfo)
         {
-            memberInfo = this.EntityType.FindReflectedMember(memberInfo);
+            memberInfo = memberInfo.AsReflectedMemberOf(this.EntityType);
             DbColumnAccessExpression dbColumnAccessExpression;
             this._memberColumnMap.TryGetValue(memberInfo, out dbColumnAccessExpression);
             return dbColumnAccessExpression;

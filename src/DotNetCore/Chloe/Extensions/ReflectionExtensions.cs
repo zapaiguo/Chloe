@@ -55,7 +55,7 @@ namespace Chloe.Extensions
             throw new ArgumentException();
         }
 
-        public static MemberInfo FindReflectedMember(this Type type, MemberInfo memberInfo)
+        public static MemberInfo AsReflectedMemberOf(this MemberInfo memberInfo, Type type)
         {
             if (memberInfo.DeclaringType != type)/* 最佳实现应该是用 memberInfo.ReflectedType，但 .net core 的 MemberInfo 暂没发现 ReflectedType，所以将就这样先 */
             {
