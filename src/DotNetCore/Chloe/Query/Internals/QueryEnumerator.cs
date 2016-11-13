@@ -51,7 +51,7 @@ namespace Chloe.Query.Internals
                 if (this._reader == null)
                 {
                     //TODO 执行 sql 语句，获取 DataReader
-                    this._reader = this._dbSession.ExecuteReader(this._commandFactor.CommandText, this._commandFactor.Parameters, CommandBehavior.Default, CommandType.Text);
+                    this._reader = this._dbSession.ExecuteReader(this._commandFactor.CommandText, this._commandFactor.Parameters, CommandType.Text, null);
                 }
 
                 if (this._reader.Read())

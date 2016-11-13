@@ -427,7 +427,7 @@ namespace Chloe
             List<DbParam> parameters;
             string cmdText = translator.Translate(e, out parameters);
 
-            int r = this.InnerDbSession.ExecuteNonQuery(cmdText, parameters.ToArray());
+            int r = this.InnerDbSession.ExecuteNonQuery(cmdText, parameters.ToArray(), CommandType.Text, null);
             return r;
         }
 

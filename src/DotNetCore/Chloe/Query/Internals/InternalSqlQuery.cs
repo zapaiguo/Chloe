@@ -135,7 +135,7 @@ namespace Chloe.Query.Internals
             }
             IDataReader ExecuteReader()
             {
-                IDataReader reader = this._internalSqlQuery._dbContext.InnerDbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, CommandBehavior.Default, this._internalSqlQuery._cmdType);
+                IDataReader reader = this._internalSqlQuery._dbContext.InnerDbSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, this._internalSqlQuery._cmdType, null);
                 return reader;
             }
 

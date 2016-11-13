@@ -20,32 +20,32 @@ namespace Chloe.Core
 
         public int ExecuteNonQuery(string cmdText, params DbParam[] parameters)
         {
-            return this.ExecuteNonQuery(cmdText, CommandType.Text, parameters);
+            return this.ExecuteNonQuery(cmdText, CommandType.Text, null, parameters);
         }
-        public int ExecuteNonQuery(string cmdText, CommandType cmdType, params DbParam[] parameters)
+        public int ExecuteNonQuery(string cmdText, CommandType cmdType, int? cmdTimeout, params DbParam[] parameters)
         {
             Utils.CheckNull(cmdText, "cmdText");
-            return this._dbContext.InnerDbSession.ExecuteNonQuery(cmdText, parameters, cmdType);
+            return this._dbContext.InnerDbSession.ExecuteNonQuery(cmdText, parameters, cmdType, cmdTimeout);
         }
 
         public object ExecuteScalar(string cmdText, params DbParam[] parameters)
         {
-            return this.ExecuteScalar(cmdText, CommandType.Text, parameters);
+            return this.ExecuteScalar(cmdText, CommandType.Text, null, parameters);
         }
-        public object ExecuteScalar(string cmdText, CommandType cmdType, params DbParam[] parameters)
+        public object ExecuteScalar(string cmdText, CommandType cmdType, int? cmdTimeout, params DbParam[] parameters)
         {
             Utils.CheckNull(cmdText, "cmdText");
-            return this._dbContext.InnerDbSession.ExecuteScalar(cmdText, parameters, cmdType);
+            return this._dbContext.InnerDbSession.ExecuteScalar(cmdText, parameters, cmdType, cmdTimeout);
         }
 
         public IDataReader ExecuteReader(string cmdText, params DbParam[] parameters)
         {
-            return this.ExecuteReader(cmdText, CommandType.Text, parameters);
+            return this.ExecuteReader(cmdText, CommandType.Text, null, parameters);
         }
-        public IDataReader ExecuteReader(string cmdText, CommandType cmdType, params DbParam[] parameters)
+        public IDataReader ExecuteReader(string cmdText, CommandType cmdType, int? cmdTimeout, params DbParam[] parameters)
         {
             Utils.CheckNull(cmdText, "cmdText");
-            return this._dbContext.InnerDbSession.ExecuteInternalReader(cmdText, parameters, cmdType);
+            return this._dbContext.InnerDbSession.ExecuteInternalReader(cmdText, parameters, cmdType, cmdTimeout);
         }
 
         public void BeginTransaction()
