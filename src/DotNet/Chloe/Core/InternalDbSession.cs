@@ -15,6 +15,7 @@ namespace Chloe.Core
         IDbTransaction _dbTransaction;
         IDbCommand _dbCommand;
         bool _isInTransaction;
+        int _commandTimeout = 30;/* seconds */
         bool _disposed = false;
 
         public InternalDbSession(IDbConnection conn)
@@ -32,10 +33,8 @@ namespace Chloe.Core
                 return this._dbCommand;
             }
         }
-        public bool IsInTransaction
-        {
-            get { return this._isInTransaction; }
-        }
+        public bool IsInTransaction { get { return this._isInTransaction; } }
+        public int CommandTimeout { get { return this._commandTimeout; } set { this._commandTimeout = value; } }
 
         void Activate()
         {
@@ -101,11 +100,11 @@ namespace Chloe.Core
             this.Complete();
         }
 
-        public IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType, int? cmdTimeout)
+        public IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
-            return this.ExecuteReader(cmdText, parameters, cmdType, cmdTimeout, CommandBehavior.Default);
+            return this.ExecuteReader(cmdText, parameters, cmdType, CommandBehavior.Default);
         }
-        public IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType, int? cmdTimeout, CommandBehavior behavior)
+        public IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType, CommandBehavior behavior)
         {
             this.CheckDisposed();
 
@@ -115,7 +114,7 @@ namespace Chloe.Core
 
             IDbCommand cmd = this.DbCommand;
 
-            this.PrepareCommand(cmd, cmdText, parameters, cmdType, cmdTimeout);
+            this.PrepareCommand(cmd, cmdText, parameters, cmdType);
 
             this.Activate();
 
@@ -123,7 +122,7 @@ namespace Chloe.Core
             cmd.Parameters.Clear();
             return reader;
         }
-        public int ExecuteNonQuery(string cmdText, DbParam[] parameters, CommandType cmdType, int? cmdTimeout)
+        public int ExecuteNonQuery(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             this.CheckDisposed();
 
@@ -135,7 +134,7 @@ namespace Chloe.Core
             {
                 IDbCommand cmd = this.DbCommand;
 
-                this.PrepareCommand(cmd, cmdText, parameters, cmdType, cmdTimeout);
+                this.PrepareCommand(cmd, cmdText, parameters, cmdType);
 
                 this.Activate();
                 int r = cmd.ExecuteNonQuery();
@@ -147,7 +146,7 @@ namespace Chloe.Core
                 this.Complete();
             }
         }
-        public object ExecuteScalar(string cmdText, DbParam[] parameters, CommandType cmdType, int? cmdTimeout)
+        public object ExecuteScalar(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             this.CheckDisposed();
 
@@ -159,7 +158,7 @@ namespace Chloe.Core
             {
                 IDbCommand cmd = this.DbCommand;
 
-                this.PrepareCommand(cmd, cmdText, parameters, cmdType, cmdTimeout);
+                this.PrepareCommand(cmd, cmdText, parameters, cmdType);
 
                 this.Activate();
                 object r = cmd.ExecuteScalar();
@@ -172,9 +171,9 @@ namespace Chloe.Core
             }
         }
 
-        internal InternalDataReader ExecuteInternalReader(string cmdText, DbParam[] parameters, CommandType cmdType, int? cmdTimeout)
+        internal InternalDataReader ExecuteInternalReader(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
-            IDataReader reader = this.ExecuteReader(cmdText, parameters, cmdType, cmdTimeout);
+            IDataReader reader = this.ExecuteReader(cmdText, parameters, cmdType);
             return new InternalDataReader(this, reader);
         }
         public void Dispose()
@@ -214,12 +213,11 @@ namespace Chloe.Core
             this._disposed = true;
         }
 
-        void PrepareCommand(IDbCommand cmd, string cmdText, DbParam[] parameters, CommandType cmdType, int? cmdTimeout)
+        void PrepareCommand(IDbCommand cmd, string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             cmd.CommandText = cmdText;
             cmd.CommandType = cmdType;
-            if (cmdTimeout != null)
-                cmd.CommandTimeout = cmdTimeout.Value;
+            cmd.CommandTimeout = this._commandTimeout;
 
             if (this.IsInTransaction)
                 cmd.Transaction = this._dbTransaction;
