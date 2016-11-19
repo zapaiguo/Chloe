@@ -20,8 +20,7 @@ namespace ChloeDemo
         public IDbConnection CreateConnection()
         {
             OracleConnection oracleConnection = new OracleConnection(this._connString);
-            OracleConnectionDecorator oracleConnectionDecorator = new OracleConnectionDecorator(oracleConnection);
-            ChloeOracleConnection conn = new ChloeOracleConnection(oracleConnectionDecorator);
+            OracleConnectionDecorator conn = new OracleConnectionDecorator(oracleConnection);
             return conn;
         }
     }
