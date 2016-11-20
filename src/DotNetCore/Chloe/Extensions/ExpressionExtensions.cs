@@ -47,6 +47,9 @@ namespace Chloe.Extensions
                 memberExp = prevExp as MemberExpression;
             }
 
+            if (prevExp == null)/* 静态属性访问 */
+                return false;
+
             if (prevExp.NodeType == ExpressionType.Parameter)
             {
                 p = (ParameterExpression)prevExp;
