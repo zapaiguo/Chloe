@@ -58,9 +58,9 @@ namespace Chloe
         public IDbSession CurrentSession { get { return this.Session; } }
 
 
-        public virtual IQuery<T> Query<T>() where T : new()
+        public virtual IQuery<TEntity> Query<TEntity>() where TEntity : new()
         {
-            return new Query<T>(this);
+            return new Query<TEntity>(this);
         }
 
         public virtual IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters) where T : new()
@@ -73,7 +73,7 @@ namespace Chloe
             return new InternalSqlQuery<T>(this, sql, cmdType, parameters);
         }
 
-        public virtual T Insert<T>(T entity)
+        public virtual TEntity Insert<TEntity>(TEntity entity)
         {
             Utils.CheckNull(entity);
 
@@ -144,11 +144,11 @@ namespace Chloe
             autoIncrementMemberDescriptor.SetValue(entity, retIdentity);
             return entity;
         }
-        public virtual object Insert<T>(Expression<Func<T>> body)
+        public virtual object Insert<TEntity>(Expression<Func<TEntity>> body)
         {
             Utils.CheckNull(body);
 
-            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
             EnsureEntityHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
@@ -216,7 +216,7 @@ namespace Chloe
             return retIdentity;
         }
 
-        public virtual int Update<T>(T entity)
+        public virtual int Update<TEntity>(TEntity entity)
         {
             Utils.CheckNull(entity);
 
@@ -276,12 +276,12 @@ namespace Chloe
                 entityState.Refresh();
             return ret;
         }
-        public virtual int Update<T>(Expression<Func<T, bool>> condition, Expression<Func<T, T>> body)
+        public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body)
         {
             Utils.CheckNull(condition);
             Utils.CheckNull(body);
 
-            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
 
             Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(body);
             DbExpression conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
@@ -311,13 +311,13 @@ namespace Chloe
             return this.ExecuteSqlCommand(e);
 
         }
-        [Obsolete("Current method will be removed in future releases.Instead of using 'Update<T>(Expression<Func<T, bool>> condition, Expression<Func<T, T>> body)'.")]
-        public int Update<T>(Expression<Func<T, T>> body, Expression<Func<T, bool>> condition)
+        [Obsolete("Current method will be removed in future releases.Instead of using 'Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body)'.")]
+        public int Update<TEntity>(Expression<Func<TEntity, TEntity>> body, Expression<Func<TEntity, bool>> condition)
         {
             return this.Update(condition, body);
         }
 
-        public virtual int Delete<T>(T entity)
+        public virtual int Delete<TEntity>(TEntity entity)
         {
             Utils.CheckNull(entity);
 
@@ -339,11 +339,11 @@ namespace Chloe
             DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
             return this.ExecuteSqlCommand(e);
         }
-        public virtual int Delete<T>(Expression<Func<T, bool>> condition)
+        public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition)
         {
             Utils.CheckNull(condition);
 
-            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
             DbExpression conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
             DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);

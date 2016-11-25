@@ -31,7 +31,7 @@ namespace Chloe.Oracle
             get { return this._dbContextServiceProvider; }
         }
 
-        public override T Insert<T>(T entity)
+        public override TEntity Insert<TEntity>(TEntity entity)
         {
             Utils.CheckNull(entity);
 
@@ -94,11 +94,11 @@ namespace Chloe.Oracle
 
             return entity;
         }
-        public override object Insert<T>(Expression<Func<T>> body)
+        public override object Insert<TEntity>(Expression<Func<TEntity>> body)
         {
             Utils.CheckNull(body);
 
-            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
@@ -157,7 +157,7 @@ namespace Chloe.Oracle
             return keyVal;
         }
 
-        public override int Update<T>(T entity)
+        public override int Update<TEntity>(TEntity entity)
         {
             Utils.CheckNull(entity);
 
@@ -218,12 +218,12 @@ namespace Chloe.Oracle
                 entityState.Refresh();
             return ret;
         }
-        public override int Update<T>(Expression<Func<T, bool>> condition, Expression<Func<T, T>> body)
+        public override int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body)
         {
             Utils.CheckNull(condition);
             Utils.CheckNull(body);
 
-            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(T));
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
 
             Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(body);
             DbExpression conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
