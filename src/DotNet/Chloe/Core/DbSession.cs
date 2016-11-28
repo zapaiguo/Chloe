@@ -46,7 +46,7 @@ namespace Chloe.Core
         public IDataReader ExecuteReader(string cmdText, CommandType cmdType, params DbParam[] parameters)
         {
             Utils.CheckNull(cmdText, "cmdText");
-            return this._dbContext.InnerDbSession.ExecuteInternalReader(cmdText, parameters, cmdType);
+            return this._dbContext.InnerDbSession.ExecuteReader(cmdText, parameters, cmdType);
         }
 
         public void BeginTransaction()

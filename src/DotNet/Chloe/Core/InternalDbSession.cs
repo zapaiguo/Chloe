@@ -85,6 +85,8 @@ namespace Chloe.Core
             }
             this._dbTransaction.Commit();
             this._dbTransaction.Dispose();
+            if (this._dbCommand != null)
+                this._dbCommand.Transaction = null;
             this._isInTransaction = false;
             this.Complete();
         }
@@ -96,6 +98,8 @@ namespace Chloe.Core
             }
             this._dbTransaction.Rollback();
             this._dbTransaction.Dispose();
+            if (this._dbCommand != null)
+                this._dbCommand.Transaction = null;
             this._isInTransaction = false;
             this.Complete();
         }
@@ -114,12 +118,11 @@ namespace Chloe.Core
 
             IDbCommand cmd = this.DbCommand;
 
-            this.PrepareCommand(cmd, cmdText, parameters, cmdType);
+            List<OutputParameter> outputParameters = this.PrepareCommand(cmd, cmdText, parameters, cmdType);
 
             this.Activate();
 
-            IDataReader reader = cmd.ExecuteReader(behavior);
-            cmd.Parameters.Clear();
+            IDataReader reader = new InternalDataReader(this, cmd.ExecuteReader(behavior), cmd, outputParameters);
             return reader;
         }
         public int ExecuteNonQuery(string cmdText, DbParam[] parameters, CommandType cmdType)
@@ -134,10 +137,11 @@ namespace Chloe.Core
             {
                 IDbCommand cmd = this.DbCommand;
 
-                this.PrepareCommand(cmd, cmdText, parameters, cmdType);
+                List<OutputParameter> outputParameters = this.PrepareCommand(cmd, cmdText, parameters, cmdType);
 
                 this.Activate();
                 int r = cmd.ExecuteNonQuery();
+                OutputParameter.CallMapValue(outputParameters);
                 cmd.Parameters.Clear();
                 return r;
             }
@@ -158,10 +162,11 @@ namespace Chloe.Core
             {
                 IDbCommand cmd = this.DbCommand;
 
-                this.PrepareCommand(cmd, cmdText, parameters, cmdType);
+                List<OutputParameter> outputParameters = this.PrepareCommand(cmd, cmdText, parameters, cmdType);
 
                 this.Activate();
                 object r = cmd.ExecuteScalar();
+                OutputParameter.CallMapValue(outputParameters);
                 cmd.Parameters.Clear();
                 return r;
             }
@@ -171,11 +176,7 @@ namespace Chloe.Core
             }
         }
 
-        internal InternalDataReader ExecuteInternalReader(string cmdText, DbParam[] parameters, CommandType cmdType)
-        {
-            IDataReader reader = this.ExecuteReader(cmdText, parameters, cmdType);
-            return new InternalDataReader(this, reader);
-        }
+
         public void Dispose()
         {
             if (this._disposed)
@@ -213,14 +214,14 @@ namespace Chloe.Core
             this._disposed = true;
         }
 
-        void PrepareCommand(IDbCommand cmd, string cmdText, DbParam[] parameters, CommandType cmdType)
+        List<OutputParameter> PrepareCommand(IDbCommand cmd, string cmdText, DbParam[] parameters, CommandType cmdType)
         {
+            List<OutputParameter> outputParameters = null;
+
             cmd.CommandText = cmdText;
             cmd.CommandType = cmdType;
             cmd.CommandTimeout = this._commandTimeout;
-
-            if (this.IsInTransaction)
-                cmd.Transaction = this._dbTransaction;
+            cmd.Transaction = this.IsInTransaction ? this._dbTransaction : null;
 
             if (parameters != null)
             {
@@ -230,7 +231,7 @@ namespace Chloe.Core
                     if (param == null)
                         continue;
 
-                    var parameter = cmd.CreateParameter();
+                    IDbDataParameter parameter = cmd.CreateParameter();
                     parameter.ParameterName = param.Name;
 
                     Type parameterType;
@@ -258,9 +259,45 @@ namespace Chloe.Core
                     if (dbType != null)
                         parameter.DbType = dbType.Value;
 
+                    OutputParameter outputParameter = null;
+                    if (param.Direction == ParamDirection.Input)
+                    {
+                        parameter.Direction = ParameterDirection.Input;
+                    }
+                    else if (param.Direction == ParamDirection.Output)
+                    {
+                        parameter.Direction = ParameterDirection.Output;
+                        param.Value = null;
+                        if (param.Size == null && param.Type == UtilConstants.TypeOfString)
+                        {
+                            parameter.Size = int.MaxValue;/* 对于非 string 类型，需要自行设置 param.Size 大小 */
+                        }
+                        outputParameter = new OutputParameter(param, parameter);
+                    }
+                    else if (param.Direction == ParamDirection.InputOutput)
+                    {
+                        parameter.Direction = ParameterDirection.InputOutput;
+                        if (param.Size == null && param.Type == UtilConstants.TypeOfString)
+                        {
+                            parameter.Size = int.MaxValue;
+                        }
+                        outputParameter = new OutputParameter(param, parameter);
+                    }
+                    else
+                        throw new NotSupportedException(string.Format("ParamDirection '{0}' is not supported.", param.Direction));
+
                     cmd.Parameters.Add(parameter);
+
+                    if (outputParameter != null)
+                    {
+                        if (outputParameters == null)
+                            outputParameters = new List<OutputParameter>();
+                        outputParameters.Add(outputParameter);
+                    }
                 }
             }
+
+            return outputParameters;
         }
 
         void CheckDisposed()

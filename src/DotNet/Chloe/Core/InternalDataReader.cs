@@ -1,5 +1,6 @@
 ﻿using Chloe.Utility;
 using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace Chloe.Core
@@ -8,14 +9,20 @@ namespace Chloe.Core
     {
         InternalDbSession _dbSession;
         IDataReader _reader;
+        IDbCommand _cmd;
+        List<OutputParameter> _outputParameters;
+        bool _disposed = false;
 
-        public InternalDataReader(InternalDbSession dbSession, IDataReader reader)
+
+        public InternalDataReader(InternalDbSession dbSession, IDataReader reader, IDbCommand cmd, List<OutputParameter> outputParameters)
         {
             Utils.CheckNull(dbSession);
             Utils.CheckNull(reader);
 
             this._dbSession = dbSession;
             this._reader = reader;
+            this._cmd = cmd;
+            this._outputParameters = outputParameters;
         }
 
         #region IDataReader
@@ -25,9 +32,19 @@ namespace Chloe.Core
 
         public void Close()
         {
-            if (this._reader != null && !this._reader.IsClosed)
+            if (!this._reader.IsClosed)
+            {
                 this._reader.Close();
-            this._dbSession.Complete();
+                try
+                {
+                    OutputParameter.CallMapValue(this._outputParameters);
+                    this._cmd.Parameters.Clear();
+                }
+                finally
+                {
+                    this._dbSession.Complete();
+                }
+            }
         }
         public DataTable GetSchemaTable()
         {
@@ -44,13 +61,13 @@ namespace Chloe.Core
 
         public void Dispose()
         {
-            if (this._reader != null)
-            {
-                if (!this._reader.IsClosed)
-                    this._reader.Close();
-                this._reader.Dispose();
-            }
-            this._dbSession.Complete();
+            if (this._disposed)
+                return;
+
+            this.Close();
+            this._reader.Dispose();
+
+            this._disposed = true;
         }
         #endregion
 

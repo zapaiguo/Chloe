@@ -83,7 +83,6 @@ namespace Chloe.Query.Internals
                 else
                 {
                     this._reader.Close();
-                    this._internalSqlQuery._dbContext.InnerDbSession.Complete();
                     this._current = default(T);
                     this._hasFinished = true;
                     return false;
@@ -105,7 +104,6 @@ namespace Chloe.Query.Internals
 
                 if (!this._hasFinished)
                 {
-                    this._internalSqlQuery._dbContext.InnerDbSession.Complete();
                     this._hasFinished = true;
                 }
 

@@ -48,6 +48,7 @@
     <Compile Include="Core\IEntityState.cs" />
     <Compile Include="Core\InternalDataReader.cs" />
     <Compile Include="Core\InternalDbSession.cs" />
+    <Compile Include="Core\OutputParameter.cs" />
     <Compile Include="Core\Visitors\DefaultExpressionVisitor.cs" />
     <Compile Include="Core\Visitors\ExpressionEvaluator.cs" />
     <Compile Include="Core\Visitors\ExpressionVisitor.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="Mapper\MappingTypeConstructor.cs" />
     <Compile Include="Mapper\NavigationMemberBinder.cs" />
     <Compile Include="Mapper\ObjectActivator.cs" />
+    <Compile Include="ParamDirection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\DbExpressionEqualityComparer.cs" />
     <Compile Include="Query\FromQueryResult.cs" />

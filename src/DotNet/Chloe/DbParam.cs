@@ -7,6 +7,7 @@ namespace Chloe
         string _name;
         object _value;
         Type _type;
+        ParamDirection _direction =  ParamDirection.Input;
 
         public DbParam()
         {
@@ -41,6 +42,7 @@ namespace Chloe
         public byte? Scale { get; set; }
         public int? Size { get; set; }
         public Type Type { get { return this._type; } set { this._type = value; } }
+        public ParamDirection Direction { get { return this._direction; } set { this._direction = value; } }
 
         public static DbParam Create<T>(string name, T value)
         {
