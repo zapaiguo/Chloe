@@ -84,11 +84,7 @@ namespace Chloe.Core
                 throw new ChloeException("Current session does not open a transaction.");
             }
             this._dbTransaction.Commit();
-            this._dbTransaction.Dispose();
-            if (this._dbCommand != null)
-                this._dbCommand.Transaction = null;
-            this._isInTransaction = false;
-            this.Complete();
+            this.EndTransaction();
         }
         public void RollbackTransaction()
         {
@@ -97,11 +93,7 @@ namespace Chloe.Core
                 throw new ChloeException("Current session does not open a transaction.");
             }
             this._dbTransaction.Rollback();
-            this._dbTransaction.Dispose();
-            if (this._dbCommand != null)
-                this._dbCommand.Transaction = null;
-            this._isInTransaction = false;
-            this.Complete();
+            this.EndTransaction();
         }
 
         public IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType)
@@ -231,6 +223,12 @@ namespace Chloe.Core
                     if (param == null)
                         continue;
 
+                    if (param.ExplicitParameter != null)/* 如果存在创建好了的 IDbDataParameter，则直接用它。同时也忽视了 DbParam 的其他属性 */
+                    {
+                        cmd.Parameters.Add(param.ExplicitParameter);
+                        continue;
+                    }
+
                     IDbDataParameter parameter = cmd.CreateParameter();
                     parameter.ParameterName = param.Name;
 
@@ -259,6 +257,8 @@ namespace Chloe.Core
                     if (dbType != null)
                         parameter.DbType = dbType.Value;
 
+                    const int defaultSizeOfStringOutputParameter = 8000;/* 当一个 string 类型输出参数未显示指定 Size 时使用的默认大小。如果有需要更大或者该值不足以满足需求，需显示指定 DbParam.Size 值 */
+
                     OutputParameter outputParameter = null;
                     if (param.Direction == ParamDirection.Input)
                     {
@@ -270,7 +270,7 @@ namespace Chloe.Core
                         param.Value = null;
                         if (param.Size == null && param.Type == UtilConstants.TypeOfString)
                         {
-                            parameter.Size = int.MaxValue;/* 对于非 string 类型，需要自行设置 param.Size 大小 */
+                            parameter.Size = defaultSizeOfStringOutputParameter;
                         }
                         outputParameter = new OutputParameter(param, parameter);
                     }
@@ -279,7 +279,7 @@ namespace Chloe.Core
                         parameter.Direction = ParameterDirection.InputOutput;
                         if (param.Size == null && param.Type == UtilConstants.TypeOfString)
                         {
-                            parameter.Size = int.MaxValue;
+                            parameter.Size = defaultSizeOfStringOutputParameter;
                         }
                         outputParameter = new OutputParameter(param, parameter);
                     }
@@ -298,6 +298,14 @@ namespace Chloe.Core
             }
 
             return outputParameters;
+        }
+        void EndTransaction()
+        {
+            this._dbTransaction.Dispose();
+            if (this._dbCommand != null)
+                this._dbCommand.Transaction = null;
+            this._isInTransaction = false;
+            this.Complete();
         }
 
         void CheckDisposed()

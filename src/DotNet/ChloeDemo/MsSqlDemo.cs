@@ -190,12 +190,12 @@ namespace ChloeDemo
 
             context.Update(user); //会更新所有映射的字段
             /*
-             * String ?P_0 = 'lu';
-               Gender ?P_1 = Man;
-               Int32 ?P_2 = 28;
-               Nullable<Int32> ?P_3 = NULL;
-               DateTime ?P_4 = '2016/8/26 18:18:36';
-               Int32 ?P_5 = 1;
+             * String @P_0 = 'lu';
+               Gender @P_1 = Man;
+               Int32 @P_2 = 28;
+               Nullable<Int32> @P_3 = NULL;
+               DateTime @P_4 = '2016/8/26 18:18:36';
+               Int32 @P_5 = 1;
                UPDATE [Users] SET [Name]=@P_0,[Gender]=@P_1,[Age]=@P_2,[CityId]=@P_3,[OpTime]=@P_4 WHERE [Users].[Id] = @P_5
              */
 
@@ -208,8 +208,8 @@ namespace ChloeDemo
             user.Name = user.Name + "1";
             context.Update(user);//这时只会更新被修改的字段
             /*
-             * String ?P_0 = 'lu1';
-               Int32 ?P_1 = 1;
+             * String @P_0 = 'lu1';
+               Int32 @P_1 = 1;
                UPDATE [Users] SET [Name]=@P_0 WHERE [Users].[Id] = @P_1
              */
 
