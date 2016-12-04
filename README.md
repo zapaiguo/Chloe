@@ -2,7 +2,7 @@
 Chloe is a lightweight Object/Relational Mapping(ORM) library.
 The query interface is similar to LINQ.You can query data like LINQ and do any things(Join Query | Group Query | Aggregate Query | Insert | Batch Update | Batch Delete) by lambda with Chloe.ORM.
 
-**Documentation**: [http://www.52chloe.com](http://www.52chloe.com "http://www.52chloe.com")
+**Documentation**: [http://www.52chloe.com/Wiki/Document](http://www.52chloe.com/Wiki/Document "http://www.52chloe.com/Wiki/Document")
 .NET交流群：325936847，只要您**愿意**，即可加入
 
 # NuGet Install Command
