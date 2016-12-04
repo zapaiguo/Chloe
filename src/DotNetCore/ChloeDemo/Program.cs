@@ -7,6 +7,7 @@ namespace ChloeDemo
 {
     public class Program
     {
+        /* documentation：http://www.52chloe.com/Wiki/Document */
         public static void Main(string[] args)
         {
             SQLiteDemo.Test();
