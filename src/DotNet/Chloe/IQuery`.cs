@@ -11,14 +11,14 @@ namespace Chloe
         IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector);
 
         IQuery<T> Where(Expression<Func<T, bool>> predicate);
-        IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> predicate);
-        IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate);
+        IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> keySelector);
+        IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> keySelector);
         IQuery<T> Skip(int count);
         IQuery<T> Take(int count);
         IQuery<T> TakePage(int pageNumber, int pageSize);
 
 
-        IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate);
+        IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> keySelector);
 
         IJoiningQuery<T, TSource> InnerJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
         IJoiningQuery<T, TSource> LeftJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on);
