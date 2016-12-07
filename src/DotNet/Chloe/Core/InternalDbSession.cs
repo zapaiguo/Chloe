@@ -210,6 +210,11 @@ namespace Chloe.Core
         {
             List<OutputParameter> outputParameters = null;
 
+            if (cmd.Parameters.Count > 0)
+            {
+                cmd.Parameters.Clear();/* 目前的设计 IDbCommand 在当前 InternalDbSession 中是单例可重用的，所以，每次装载 IDbCommand 得保证清掉上次执行的 Parameters（主要防止以下特俗情况：当执行 sql 过程出现异常，会来不及调用 cmd.Parameters.Clear()，就会出现残留的 Parameters，为了保证每次使用 IDbCommand 不受上次使用结果的影响，所以得 Clear 下，否则会成为bug！）  */
+            }
+
             cmd.CommandText = cmdText;
             cmd.CommandType = cmdType;
             cmd.CommandTimeout = this._commandTimeout;
