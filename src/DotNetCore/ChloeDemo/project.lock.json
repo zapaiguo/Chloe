@@ -451,7 +451,7 @@
           }
         }
       },
-      "MySql.Data.Core/7.0.4-IR-191": {
+      "MySql.Data.Core/7.0.4-ir-191": {
         "type": "package",
         "dependencies": {
           "Google.Protobuf": "3.0.0-beta4",
@@ -2606,7 +2606,7 @@
           "lib/netstandard1.3/_._": {}
         }
       },
-      "Chloe/2.1.0": {
+      "Chloe/2.1.1": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -2623,11 +2623,11 @@
           "netstandard1.6/Chloe.dll": {}
         }
       },
-      "Chloe.MySql/2.1.0": {
+      "Chloe.MySql/2.1.1": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Chloe": "2.1.0",
+          "Chloe": "2.1.1",
           "NETStandard.Library": "1.6.0",
           "System.Data.Common": "4.1.0"
         },
@@ -2638,11 +2638,11 @@
           "netstandard1.6/Chloe.MySql.dll": {}
         }
       },
-      "Chloe.SQLite/2.1.0": {
+      "Chloe.SQLite/2.1.1": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Chloe": "2.1.0",
+          "Chloe": "2.1.1",
           "NETStandard.Library": "1.6.0",
           "System.Data.Common": "4.1.0"
         },
@@ -2653,11 +2653,11 @@
           "netstandard1.6/Chloe.SQLite.dll": {}
         }
       },
-      "Chloe.SqlServer/2.1.0": {
+      "Chloe.SqlServer/2.1.1": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "Chloe": "2.1.0",
+          "Chloe": "2.1.1",
           "NETStandard.Library": "1.6.0",
           "System.Data.Common": "4.1.0",
           "System.Data.SqlClient": "4.1.0"
@@ -3150,13 +3150,13 @@
         "runtimes/win/lib/netstandard1.3/Microsoft.Win32.Registry.dll"
       ]
     },
-    "MySql.Data.Core/7.0.4-IR-191": {
-      "sha512": "+motbJL/HNhErU6x9MGVpMfBUClc/XYIGrbxIfMhP6oqCq3sud9A4n2HunvJQIuv9eM9852v83m2H1EUr9RLdw==",
+    "MySql.Data.Core/7.0.4-ir-191": {
+      "sha512": "pVCkGOAqfUXl8Spf96vOSN8N+lweEyj0S4+YJJGj/8YCF8QocwmgeSdYRXG35rO7Pz1qQZlO0dlRYoTWwU5K0g==",
       "type": "package",
-      "path": "MySql.Data.Core/7.0.4-IR-191",
+      "path": "MySql.Data.Core/7.0.4-ir-191",
       "files": [
         "Content/ReleaseNotes.txt",
-        "MySql.Data.Core.7.0.4-IR-191.nupkg.sha512",
+        "MySql.Data.Core.7.0.4-ir-191.nupkg.sha512",
         "MySql.Data.Core.nuspec",
         "README",
         "lib/netstandard1.6/MySql.Data.Core.dll"
@@ -7918,22 +7918,22 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "Chloe/2.1.0": {
+    "Chloe/2.1.1": {
       "type": "project",
       "path": "../Chloe/project.json",
       "msbuildProject": "../Chloe/Chloe.xproj"
     },
-    "Chloe.MySql/2.1.0": {
+    "Chloe.MySql/2.1.1": {
       "type": "project",
       "path": "../Chloe.MySql/project.json",
       "msbuildProject": "../Chloe.MySql/Chloe.MySql.xproj"
     },
-    "Chloe.SQLite/2.1.0": {
+    "Chloe.SQLite/2.1.1": {
       "type": "project",
       "path": "../Chloe.SQLite/project.json",
       "msbuildProject": "../Chloe.SQLite/Chloe.SQLite.xproj"
     },
-    "Chloe.SqlServer/2.1.0": {
+    "Chloe.SqlServer/2.1.1": {
       "type": "project",
       "path": "../Chloe.SqlServer/project.json",
       "msbuildProject": "../Chloe.SqlServer/Chloe.SqlServer.xproj"
@@ -7941,10 +7941,10 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "Chloe >= 2.1.0-*",
-      "Chloe.MySql >= 2.1.0-*",
-      "Chloe.SQLite >= 2.1.0-*",
-      "Chloe.SqlServer >= 2.1.0-*",
+      "Chloe >= 2.1.1-*",
+      "Chloe.MySql >= 2.1.1-*",
+      "Chloe.SQLite >= 2.1.1-*",
+      "Chloe.SqlServer >= 2.1.1-*",
       "Microsoft.Data.Sqlite >= 1.0.0",
       "Microsoft.NETCore.App >= 1.0.0",
       "MySql.Data.Core >= 7.0.4-IR-191"

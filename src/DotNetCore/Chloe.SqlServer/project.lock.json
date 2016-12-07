@@ -1433,7 +1433,7 @@
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
       },
-      "Chloe/2.1.0": {
+      "Chloe/2.1.1": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -4915,7 +4915,7 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "Chloe/2.1.0": {
+    "Chloe/2.1.1": {
       "type": "project",
       "path": "../Chloe/project.json",
       "msbuildProject": "../Chloe/Chloe.xproj"
@@ -4923,7 +4923,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "Chloe >= 2.1.0-*",
+      "Chloe >= 2.1.1-*",
       "NETStandard.Library >= 1.6.0",
       "System.Data.Common >= 4.1.0",
       "System.Data.SqlClient >= 4.1.0"
