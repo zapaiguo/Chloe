@@ -13,6 +13,7 @@ namespace ChloeDemo
     //[TestClass]
     public class MsSqlDemo
     {
+        /* DbContext 是非线程安全的，正式使用不能设置为 static */
         static MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
         public static void Test()

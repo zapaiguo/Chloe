@@ -4107,7 +4107,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "Chloe >= 2.1.1-*",
+      "Chloe >= 2.1.2-*",
       "NETStandard.Library >= 1.6.0",
       "System.Data.Common >= 4.1.0"
     ],

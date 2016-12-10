@@ -10,6 +10,7 @@ namespace ChloeDemo
 {
     public class OracleDemo
     {
+        /* DbContext 是非线程安全的，正式使用不能设置为 static */
         static OracleContext context = new OracleContext(new OracleConnectionFactory("Data Source=localhost/orcl;User ID=system;Password=sa;"));
 
         public static void Test()

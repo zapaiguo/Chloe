@@ -5,10 +5,10 @@
   },
 
   "dependencies": {
-    "Chloe": "2.1.1-*",
-    "Chloe.MySql": "2.1.1-*",
-    "Chloe.SQLite": "2.1.1-*",
-    "Chloe.SqlServer": "2.1.1-*",
+    "Chloe": "2.1.2-*",
+    "Chloe.MySql": "2.1.2-*",
+    "Chloe.SQLite": "2.1.2-*",
+    "Chloe.SqlServer": "2.1.2-*",
     "Microsoft.Data.Sqlite": "1.0.0",
     "Microsoft.NETCore.App": {
       "type": "platform",

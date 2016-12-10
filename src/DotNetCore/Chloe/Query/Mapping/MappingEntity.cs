@@ -36,14 +36,14 @@ namespace Chloe.Query.Mapping
             List<IValueSetter> memberSetters = new List<IValueSetter>(this.Members.Count + this.EntityMembers.Count);
             foreach (var kv in this.Members)
             {
-                IMRM mMapper = mapper.GetMemberMapper(kv.Key);
+                IMRM mMapper = mapper.TryGetMemberMapper(kv.Key);
                 MappingMemberBinder binder = new MappingMemberBinder(mMapper, kv.Value);
                 memberSetters.Add(binder);
             }
 
             foreach (var kv in this.EntityMembers)
             {
-                Action<object, object> del = mapper.GetNavigationMemberSetter(kv.Key);
+                Action<object, object> del = mapper.TryGetNavigationMemberSetter(kv.Key);
                 IObjectActivator memberActivtor = kv.Value.CreateObjectActivator();
                 NavigationMemberBinder binder = new NavigationMemberBinder(del, memberActivtor);
                 memberSetters.Add(binder);

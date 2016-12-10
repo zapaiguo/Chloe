@@ -2,6 +2,7 @@
 using Chloe.Core.Emit;
 using Chloe.Query.Mapping;
 using Chloe.Utility;
+using Chloe.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -79,14 +80,16 @@ namespace Chloe.Mapper
 
         public Type Type { get; private set; }
 
-        public IMRM GetMemberMapper(MemberInfo memberInfo)
+        public IMRM TryGetMemberMapper(MemberInfo memberInfo)
         {
+            memberInfo = memberInfo.AsReflectedMemberOf(this.Type);
             IMRM mapper = null;
             this._mappingMemberMRMContainer.TryGetValue(memberInfo, out mapper);
             return mapper;
         }
-        public Action<object, object> GetNavigationMemberSetter(MemberInfo memberInfo)
+        public Action<object, object> TryGetNavigationMemberSetter(MemberInfo memberInfo)
         {
+            memberInfo = memberInfo.AsReflectedMemberOf(this.Type);
             Action<object, object> valueSetter = null;
             this._navigationMemberSetters.TryGetValue(memberInfo, out valueSetter);
             return valueSetter;

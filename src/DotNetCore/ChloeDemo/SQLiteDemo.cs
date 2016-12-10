@@ -11,6 +11,7 @@ namespace ChloeDemo
 {
     class SQLiteDemo
     {
+        /* DbContext 是非线程安全的，正式使用不能设置为 static */
         static SQLiteContext context = new SQLiteContext(new SQLiteConnectionFactory("Data Source=..\\..\\..\\Chloe.db;"));
         public static void Test()
         {
