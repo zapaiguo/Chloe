@@ -118,9 +118,9 @@
     <Compile Include="Entity\TableAttribute.cs" />
     <Compile Include="Exceptions\ChloeException.cs" />
     <Compile Include="Extensions\DataReaderConstant.cs" />
-    <Compile Include="Extensions\DataReaderExtensions.cs" />
-    <Compile Include="Extensions\ExpressionExtensions.cs" />
-    <Compile Include="Extensions\ReflectionExtensions.cs" />
+    <Compile Include="Extensions\DataReaderExtension.cs" />
+    <Compile Include="Extensions\ExpressionExtension.cs" />
+    <Compile Include="Extensions\ReflectionExtension.cs" />
     <Compile Include="IDbContext.cs" />
     <Compile Include="IDbSession.cs" />
     <Compile Include="IGroupingQuery.cs" />

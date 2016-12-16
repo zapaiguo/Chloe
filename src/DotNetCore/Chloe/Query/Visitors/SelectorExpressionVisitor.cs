@@ -43,7 +43,7 @@ namespace Chloe.Query
         IMappingObjectExpression VisitNavigationMember(MemberExpression exp)
         {
             ParameterExpression p;
-            if (ExpressionExtensions.IsDerivedFromParameter(exp, out p))
+            if (ExpressionExtension.IsDerivedFromParameter(exp, out p))
             {
                 int idx = this.FindParameterIndex(p);
                 IMappingObjectExpression moe = this._moeList[idx];

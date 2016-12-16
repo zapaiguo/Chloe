@@ -57,7 +57,7 @@ namespace Chloe.Core.Emit
             il.Emit(OpCodes.Ldarg_S, parameStartIndex);//将第一个参数 object 对象加载到栈顶
             il.Emit(OpCodes.Castclass, member.DeclaringType);//将 object 对象转换为强类型对象 此时栈顶为强类型的对象
 
-            var readerMethod = DataReaderConstant.GetReaderMethod(ReflectionExtensions.GetPropertyOrFieldType(member));
+            var readerMethod = DataReaderConstant.GetReaderMethod(ReflectionExtension.GetPropertyOrFieldType(member));
 
             //ordinal
             il.Emit(OpCodes.Ldarg_S, parameStartIndex + 1);    //加载参数DataReader

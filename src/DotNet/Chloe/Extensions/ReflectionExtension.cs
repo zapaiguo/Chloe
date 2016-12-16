@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Chloe.Extensions
 {
-    internal static class ReflectionExtensions
+    internal static class ReflectionExtension
     {
         public static Type GetMemberInfoType(this MemberInfo member)
         {
@@ -20,7 +20,7 @@ namespace Chloe.Extensions
             if (member is MethodInfo)
                 return ((MethodInfo)member).ReturnType;
             if (member is ConstructorInfo)
-                return ((ConstructorInfo)member).DeclaringType;
+                return ((ConstructorInfo)member).ReflectedType;
 
             return null;
         }
@@ -57,7 +57,7 @@ namespace Chloe.Extensions
 
         public static MemberInfo AsReflectedMemberOf(this MemberInfo memberInfo, Type type)
         {
-            if (memberInfo.DeclaringType != type)/* 最佳实现应该是用 memberInfo.ReflectedType，但 .net core 的 MemberInfo 暂没发现 ReflectedType，所以将就这样先 */
+            if (memberInfo.ReflectedType != type)
             {
                 MemberInfo tempMember = null;
                 if (memberInfo.MemberType == MemberTypes.Property)

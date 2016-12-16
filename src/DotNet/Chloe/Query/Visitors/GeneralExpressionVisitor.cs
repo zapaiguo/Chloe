@@ -50,7 +50,7 @@ namespace Chloe.Query.Visitors
         protected override DbExpression VisitMemberAccess(MemberExpression exp)
         {
             ParameterExpression p;
-            if (ExpressionExtensions.IsDerivedFromParameter(exp, out p))
+            if (ExpressionExtension.IsDerivedFromParameter(exp, out p))
             {
                 int idx = this.FindParameterIndex(p);
 

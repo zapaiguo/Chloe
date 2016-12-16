@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using Chloe.Utility;
 
 namespace Chloe.Extensions
 {
-    public static class DataReaderExtensions
+    public static class DataReaderExtension
     {
         public static short GetInt16(IDataReader reader, int ordinal)
         {

@@ -102,7 +102,7 @@ namespace Chloe.Query
         }
         public DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter)
         {
-            Stack<MemberExpression> memberExpressions = ExpressionExtensions.Reverse(memberExpressionDeriveParameter);
+            Stack<MemberExpression> memberExpressions = ExpressionExtension.Reverse(memberExpressionDeriveParameter);
 
             DbExpression ret = null;
             IMappingObjectExpression moe = this;
@@ -153,7 +153,7 @@ namespace Chloe.Query
         }
         public IMappingObjectExpression GetNavMemberExpression(MemberExpression memberExpressionDeriveParameter)
         {
-            Stack<MemberExpression> memberExpressions = ExpressionExtensions.Reverse(memberExpressionDeriveParameter);
+            Stack<MemberExpression> memberExpressions = ExpressionExtension.Reverse(memberExpressionDeriveParameter);
 
             if (memberExpressions.Count == 0)
                 throw new Exception();

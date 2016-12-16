@@ -62,6 +62,17 @@ namespace Chloe
         {
             return new Query<TEntity>(this);
         }
+        public TEntity QueryByKey<TEntity>(object key, bool tracking = false) where TEntity : new()
+        {
+            Expression<Func<TEntity, bool>> predicate = BuildPredicate<TEntity>(key);
+            var q = this.Query<TEntity>().Where(predicate);
+
+            if (tracking)
+                q = q.AsTracking();
+
+            TEntity entity = q.FirstOrDefault();
+            return entity;
+        }
 
         public virtual IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters) where T : new()
         {
@@ -350,6 +361,12 @@ namespace Chloe
 
             return this.ExecuteSqlCommand(e);
         }
+        public int DeleteByKey<TEntity>(object key)
+        {
+            Expression<Func<TEntity, bool>> predicate = BuildPredicate<TEntity>(key);
+            return this.Delete<TEntity>(predicate);
+        }
+
 
         public virtual void TrackEntity(object entity)
         {
@@ -431,6 +448,23 @@ namespace Chloe
             return r;
         }
 
+        static Expression<Func<TEntity, bool>> BuildPredicate<TEntity>(object key)
+        {
+            Utils.CheckNull(key);
+
+            Type entityType = typeof(TEntity);
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entityType);
+            EnsureEntityHasPrimaryKey(typeDescriptor);
+
+            ParameterExpression parameter = Expression.Parameter(entityType, "a");
+            Expression propOrField = Expression.PropertyOrField(parameter, typeDescriptor.PrimaryKey.MemberInfo.Name);
+            Expression keyValue = Chloe.Extensions.ExpressionExtension.MakeWrapperAccess(key, typeDescriptor.PrimaryKey.MemberInfoType);
+            Expression lambdaBody = Expression.Equal(propOrField, keyValue);
+
+            Expression<Func<TEntity, bool>> predicate = Expression.Lambda<Func<TEntity, bool>>(lambdaBody, parameter);
+
+            return predicate;
+        }
         static void EnsureEntityHasPrimaryKey(TypeDescriptor typeDescriptor)
         {
             if (!typeDescriptor.HasPrimaryKey())

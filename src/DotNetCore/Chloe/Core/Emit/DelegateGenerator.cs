@@ -27,7 +27,7 @@ namespace Chloe.Core.Emit
 
             var getValue = Expression.Call(null, readerMethod, reader, ordinal);
 
-            var assign = ExpressionExtensions.Assign(member, instance, getValue);
+            var assign = ExpressionExtension.Assign(member, instance, getValue);
 
             var lambda = Expression.Lambda<Action<object, IDataReader, int>>(assign, p, reader, ordinal);
             del = lambda.Compile();
@@ -141,7 +141,7 @@ namespace Chloe.Core.Emit
             var instance = Expression.Convert(p, member.DeclaringType);
             var memberAccess = Expression.MakeMemberAccess(instance, member);
 
-            Type type = ReflectionExtensions.GetMemberInfoType(member);
+            Type type = ReflectionExtension.GetMemberInfoType(member);
 
             Expression body = memberAccess;
             if (type.GetTypeInfo().IsValueType)

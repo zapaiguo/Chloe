@@ -12,6 +12,8 @@ namespace Chloe
         IDbSession CurrentSession { get; }
 
         IQuery<TEntity> Query<TEntity>() where TEntity : new();
+        TEntity QueryByKey<TEntity>(object key, bool tracking = false) where TEntity : new();
+
         IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters) where T : new();
         IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters) where T : new();
 
@@ -31,6 +33,7 @@ namespace Chloe
 
         int Delete<TEntity>(TEntity entity);
         int Delete<TEntity>(Expression<Func<TEntity, bool>> condition);
+        int DeleteByKey<TEntity>(object key);
 
         void TrackEntity(object entity);
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace Chloe.Extensions
 {
-    internal static class ExpressionExtensions
+    internal static class ExpressionExtension
     {
         public static BinaryExpression Assign(MemberInfo propertyOrField, Expression instance, Expression value)
         {
@@ -89,5 +90,61 @@ namespace Chloe.Extensions
             }
             return stack;
         }
+
+        public static Expression MakeWrapperAccess(object value, Type targetType)
+        {
+            if (value == null)
+            {
+                if (targetType != null)
+                    return Expression.Constant(value, targetType);
+                else
+                    return Expression.Constant(value, typeof(object));
+            }
+
+            object wrapper = WrapValue(value);
+            ConstantExpression wrapperConstantExp = Expression.Constant(wrapper);
+            Expression ret = Expression.MakeMemberAccess(wrapperConstantExp, wrapper.GetType().GetProperty("Value"));
+
+            if (ret.Type != targetType)
+            {
+                ret = Expression.Convert(ret, targetType);
+            }
+
+            return ret;
+        }
+
+        static object WrapValue(object value)
+        {
+            Type valueType = value.GetType();
+
+            if (valueType == UtilConstants.TypeOfString)
+            {
+                return new ConstantWrapper<string>((string)value);
+            }
+            else if (valueType == UtilConstants.TypeOfInt32)
+            {
+                return new ConstantWrapper<int>((int)value);
+            }
+            else if (valueType == UtilConstants.TypeOfInt64)
+            {
+                return new ConstantWrapper<long>((long)value);
+            }
+            else if (valueType == UtilConstants.TypeOfGuid)
+            {
+                return new ConstantWrapper<Guid>((Guid)value);
+            }
+
+            Type wrapperType = typeof(ConstantWrapper<>).MakeGenericType(valueType);
+            ConstructorInfo constructor = wrapperType.GetConstructor(new Type[] { valueType });
+            return constructor.Invoke(new object[] { value });
+        }
+    }
+    internal class ConstantWrapper<T>
+    {
+        public ConstantWrapper(T value)
+        {
+            this.Value = value;
+        }
+        public T Value { get; private set; }
     }
 }
