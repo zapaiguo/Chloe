@@ -70,8 +70,7 @@ namespace Chloe
             if (tracking)
                 q = q.AsTracking();
 
-            TEntity entity = q.FirstOrDefault();
-            return entity;
+            return q.FirstOrDefault();
         }
 
         public virtual IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters) where T : new()
