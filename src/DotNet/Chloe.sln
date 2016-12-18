@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chloe", "Chloe\Chloe.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChloeDemo", "ChloeDemo\ChloeDemo.csproj", "{539C4F77-3868-4C18-A78E-75B7F45841B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chloe.Extension", "Chloe.Extension\Chloe.Extension.csproj", "{D86E8BA3-41DB-4CDD-A84B-B3919974FDAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{539C4F77-3868-4C18-A78E-75B7F45841B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{539C4F77-3868-4C18-A78E-75B7F45841B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{539C4F77-3868-4C18-A78E-75B7F45841B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D86E8BA3-41DB-4CDD-A84B-B3919974FDAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D86E8BA3-41DB-4CDD-A84B-B3919974FDAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D86E8BA3-41DB-4CDD-A84B-B3919974FDAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D86E8BA3-41DB-4CDD-A84B-B3919974FDAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
