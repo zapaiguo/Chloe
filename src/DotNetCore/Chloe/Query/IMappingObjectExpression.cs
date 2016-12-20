@@ -17,8 +17,8 @@ namespace Chloe.Query
         IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTable table);
         void AddConstructorParameter(ParameterInfo p, DbExpression exp);
         void AddConstructorEntityParameter(ParameterInfo p, IMappingObjectExpression exp);
-        void AddMemberExpression(MemberInfo p, DbExpression exp);
-        void AddNavMemberExpression(MemberInfo p, IMappingObjectExpression exp);
+        void AddMemberExpression(MemberInfo memberInfo, DbExpression exp);
+        void AddNavMemberExpression(MemberInfo memberInfo, IMappingObjectExpression moe);
         DbExpression GetMemberExpression(MemberInfo memberInfo);
         IMappingObjectExpression GetNavMemberExpression(MemberInfo memberInfo);
         DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter);

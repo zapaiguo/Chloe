@@ -46,13 +46,15 @@ namespace Chloe.Query
         {
             this.ConstructorEntityParameters.Add(p, exp);
         }
-        public void AddMemberExpression(MemberInfo m, DbExpression exp)
+        public void AddMemberExpression(MemberInfo memberInfo, DbExpression exp)
         {
-            this.SelectedMembers.Add(m, exp);
+            memberInfo = memberInfo.AsReflectedMemberOf(this.ConstructorDescriptor.ConstructorInfo.DeclaringType);
+            this.SelectedMembers.Add(memberInfo, exp);
         }
-        public void AddNavMemberExpression(MemberInfo p, IMappingObjectExpression exp)
+        public void AddNavMemberExpression(MemberInfo memberInfo, IMappingObjectExpression moe)
         {
-            this.SubResultEntities.Add(p, exp);
+            memberInfo = memberInfo.AsReflectedMemberOf(this.ConstructorDescriptor.ConstructorInfo.DeclaringType);
+            this.SubResultEntities.Add(memberInfo, moe);
         }
         /// <summary>
         /// 考虑匿名函数构造函数参数和其只读属性的对应
