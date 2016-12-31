@@ -25,15 +25,5 @@ namespace Chloe.Core.Emit
             else
                 throw new NotSupportedException();
         }
-        public static void SetValueIL(ILGenerator il, PropertyInfo property)
-        {
-            MethodInfo setter = property.GetSetMethod();
-            il.EmitCall(OpCodes.Callvirt, setter, null);//给属性赋值
-        }
-        public static void SetValueIL(ILGenerator il, FieldInfo field)
-        {
-            il.Emit(OpCodes.Stfld, field);//给字段赋值
-        }
-
     }
 }
