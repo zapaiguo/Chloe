@@ -18,6 +18,7 @@ namespace Chloe.Core
         {
             Utils.CheckNull(dbSession);
             Utils.CheckNull(reader);
+            Utils.CheckNull(cmd);
 
             this._dbSession = dbSession;
             this._reader = reader;
@@ -34,11 +35,11 @@ namespace Chloe.Core
         {
             if (!this._reader.IsClosed)
             {
-                this._reader.Close();
                 try
                 {
+                    this._reader.Close();
+                    this._reader.Dispose();/* Tips：.NET Core 的 SqlServer 驱动 System.Data.SqlClient(4.1.0) 中，调用 DataReader.Dispose() 方法后才能拿到 Output 参数值。为了与 ChloeCore 版本的代码统一，也在这执行 DataReader.Dispose() 吧 */
                     OutputParameter.CallMapValue(this._outputParameters);
-                    this._cmd.Parameters.Clear();
                 }
                 finally
                 {
@@ -65,7 +66,7 @@ namespace Chloe.Core
                 return;
 
             this.Close();
-            this._reader.Dispose();
+            this._cmd.Dispose();
 
             this._disposed = true;
         }

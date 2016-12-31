@@ -125,9 +125,12 @@
     <Compile Include="IDbSession.cs" />
     <Compile Include="IGroupingQuery.cs" />
     <Compile Include="IJoiningQuery`.cs" />
+    <Compile Include="Infrastructure\Interception\DbCommandInterceptionContext`.cs" />
     <Compile Include="Infrastructure\IDbConnectionFactory.cs" />
     <Compile Include="Infrastructure\IDbContextServiceProvider.cs" />
     <Compile Include="Infrastructure\IDbExpressionTranslator.cs" />
+    <Compile Include="Infrastructure\Interception\DbInterception.cs" />
+    <Compile Include="Infrastructure\Interception\IDbCommandInterceptor.cs" />
     <Compile Include="IOrderedQuery`.cs" />
     <Compile Include="IQuery`.cs" />
     <Compile Include="Mapper\EntityConstructor.cs" />

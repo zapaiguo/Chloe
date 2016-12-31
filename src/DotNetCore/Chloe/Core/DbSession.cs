@@ -1,4 +1,5 @@
-﻿using Chloe.Utility;
+﻿using Chloe.Infrastructure.Interception;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -64,6 +65,17 @@ namespace Chloe.Core
         public void RollbackTransaction()
         {
             this._dbContext.InnerDbSession.RollbackTransaction();
+        }
+
+        public void AddDbCommandInterceptor(IDbCommandInterceptor interceptor)
+        {
+            Utils.CheckNull(interceptor, "interceptor");
+            this._dbContext.InnerDbSession.DbCommandInterceptors.Add(interceptor);
+        }
+        public void RemoveDbCommandInterceptor(IDbCommandInterceptor interceptor)
+        {
+            Utils.CheckNull(interceptor, "interceptor");
+            this._dbContext.InnerDbSession.DbCommandInterceptors.Remove(interceptor);
         }
 
         public void Dispose()

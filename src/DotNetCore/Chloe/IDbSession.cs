@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Infrastructure.Interception;
+using System;
 using System.Data;
 
 namespace Chloe
@@ -22,5 +23,8 @@ namespace Chloe
         void BeginTransaction(IsolationLevel il);
         void CommitTransaction();
         void RollbackTransaction();
+
+        void AddDbCommandInterceptor(IDbCommandInterceptor interceptor);
+        void RemoveDbCommandInterceptor(IDbCommandInterceptor interceptor);
     }
 }
