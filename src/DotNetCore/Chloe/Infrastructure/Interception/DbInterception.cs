@@ -35,9 +35,9 @@ namespace Chloe.Infrastructure.Interception
             }
         }
 
-        public static IEnumerator<IDbCommandInterceptor> GetEnumerator()
+        public static IDbCommandInterceptor[] GetInterceptors()
         {
-            return _interceptors.GetEnumerator();
+            return _interceptors.ToArray();
         }
     }
 }

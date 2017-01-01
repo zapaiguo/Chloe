@@ -54,12 +54,10 @@ namespace Chloe.Core
                 this._dbConnection.Open();
             }
         }
-        /// <summary>
-        /// 表示一次查询完成。在事务中的话不关闭连接，交给 CommitTransaction() 或者 RollbackTransaction() 控制，否则调用 IDbConnection.Close() 关闭连接
-        /// </summary>
+
+        /* 表示一次查询完成。在事务中的话不关闭连接，交给 CommitTransaction() 或者 RollbackTransaction() 控制，否则调用 IDbConnection.Close() 关闭连接 */
         public void Complete()
         {
-            //在事务中的话不关闭连接  交给CommitTransaction()或者RollbackTransaction()
             if (!this._isInTransaction)
             {
                 if (this._dbConnection.State == ConnectionState.Open)
@@ -116,8 +114,10 @@ namespace Chloe.Core
             IDbCommand cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
             DbCommandInterceptionContext<IDataReader> dbCommandInterceptionContext = new DbCommandInterceptionContext<IDataReader>();
 
+            IDbCommandInterceptor[] globalInterceptors = DbInterception.GetInterceptors();
+
             this.Activate();
-            this.OnReaderExecuting(cmd, dbCommandInterceptionContext);
+            this.OnReaderExecuting(cmd, dbCommandInterceptionContext, globalInterceptors);
 
             IDataReader reader;
             try
@@ -127,13 +127,13 @@ namespace Chloe.Core
             catch (Exception ex)
             {
                 dbCommandInterceptionContext.Exception = ex;
-                this.OnReaderExecuted(cmd, dbCommandInterceptionContext);
+                this.OnReaderExecuted(cmd, dbCommandInterceptionContext, globalInterceptors);
 
                 throw WrapException(ex);
             }
 
             dbCommandInterceptionContext.Result = reader;
-            this.OnReaderExecuted(cmd, dbCommandInterceptionContext);
+            this.OnReaderExecuted(cmd, dbCommandInterceptionContext, globalInterceptors);
 
             return reader;
         }
@@ -152,8 +152,10 @@ namespace Chloe.Core
                 cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
                 DbCommandInterceptionContext<int> dbCommandInterceptionContext = new DbCommandInterceptionContext<int>();
 
+                IDbCommandInterceptor[] globalInterceptors = DbInterception.GetInterceptors();
+
                 this.Activate();
-                this.OnNonQueryExecuting(cmd, dbCommandInterceptionContext);
+                this.OnNonQueryExecuting(cmd, dbCommandInterceptionContext, globalInterceptors);
 
                 int affectedRows;
                 try
@@ -163,13 +165,13 @@ namespace Chloe.Core
                 catch (Exception ex)
                 {
                     dbCommandInterceptionContext.Exception = ex;
-                    this.OnNonQueryExecuted(cmd, dbCommandInterceptionContext);
+                    this.OnNonQueryExecuted(cmd, dbCommandInterceptionContext, globalInterceptors);
 
                     throw WrapException(ex);
                 }
 
                 dbCommandInterceptionContext.Result = affectedRows;
-                this.OnNonQueryExecuted(cmd, dbCommandInterceptionContext);
+                this.OnNonQueryExecuted(cmd, dbCommandInterceptionContext, globalInterceptors);
                 OutputParameter.CallMapValue(outputParameters);
 
                 return affectedRows;
@@ -196,8 +198,10 @@ namespace Chloe.Core
                 cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
                 DbCommandInterceptionContext<object> dbCommandInterceptionContext = new DbCommandInterceptionContext<object>();
 
+                IDbCommandInterceptor[] globalInterceptors = DbInterception.GetInterceptors();
+
                 this.Activate();
-                this.OnScalarExecuting(cmd, dbCommandInterceptionContext);
+                this.OnScalarExecuting(cmd, dbCommandInterceptionContext, globalInterceptors);
 
                 object ret;
                 try
@@ -207,13 +211,13 @@ namespace Chloe.Core
                 catch (Exception ex)
                 {
                     dbCommandInterceptionContext.Exception = ex;
-                    this.OnScalarExecuted(cmd, dbCommandInterceptionContext);
+                    this.OnScalarExecuted(cmd, dbCommandInterceptionContext, globalInterceptors);
 
                     throw WrapException(ex);
                 }
 
                 dbCommandInterceptionContext.Result = ret;
-                this.OnScalarExecuted(cmd, dbCommandInterceptionContext);
+                this.OnScalarExecuted(cmd, dbCommandInterceptionContext, globalInterceptors);
                 OutputParameter.CallMapValue(outputParameters);
 
                 return ret;
@@ -357,55 +361,54 @@ namespace Chloe.Core
 
 
         #region DbInterception
-        void OnReaderExecuting(IDbCommand cmd, DbCommandInterceptionContext<IDataReader> dbCommandInterceptionContext)
+        void OnReaderExecuting(IDbCommand cmd, DbCommandInterceptionContext<IDataReader> dbCommandInterceptionContext, IDbCommandInterceptor[] globalInterceptors)
         {
             this.ExecuteDbCommandInterceptors((dbCommandInterceptor) =>
             {
                 dbCommandInterceptor.ReaderExecuting(cmd, dbCommandInterceptionContext);
-            });
+            }, globalInterceptors);
         }
-        void OnReaderExecuted(IDbCommand cmd, DbCommandInterceptionContext<IDataReader> dbCommandInterceptionContext)
+        void OnReaderExecuted(IDbCommand cmd, DbCommandInterceptionContext<IDataReader> dbCommandInterceptionContext, IDbCommandInterceptor[] globalInterceptors)
         {
             this.ExecuteDbCommandInterceptors((dbCommandInterceptor) =>
             {
                 dbCommandInterceptor.ReaderExecuted(cmd, dbCommandInterceptionContext);
-            });
+            }, globalInterceptors);
         }
-        void OnNonQueryExecuting(IDbCommand cmd, DbCommandInterceptionContext<int> dbCommandInterceptionContext)
+        void OnNonQueryExecuting(IDbCommand cmd, DbCommandInterceptionContext<int> dbCommandInterceptionContext, IDbCommandInterceptor[] globalInterceptors)
         {
             this.ExecuteDbCommandInterceptors((dbCommandInterceptor) =>
             {
                 dbCommandInterceptor.NonQueryExecuting(cmd, dbCommandInterceptionContext);
-            });
+            }, globalInterceptors);
         }
-        void OnNonQueryExecuted(IDbCommand cmd, DbCommandInterceptionContext<int> dbCommandInterceptionContext)
+        void OnNonQueryExecuted(IDbCommand cmd, DbCommandInterceptionContext<int> dbCommandInterceptionContext, IDbCommandInterceptor[] globalInterceptors)
         {
             this.ExecuteDbCommandInterceptors((dbCommandInterceptor) =>
             {
                 dbCommandInterceptor.NonQueryExecuted(cmd, dbCommandInterceptionContext);
-            });
+            }, globalInterceptors);
         }
-        void OnScalarExecuting(IDbCommand cmd, DbCommandInterceptionContext<object> dbCommandInterceptionContext)
+        void OnScalarExecuting(IDbCommand cmd, DbCommandInterceptionContext<object> dbCommandInterceptionContext, IDbCommandInterceptor[] globalInterceptors)
         {
             this.ExecuteDbCommandInterceptors((dbCommandInterceptor) =>
             {
                 dbCommandInterceptor.ScalarExecuting(cmd, dbCommandInterceptionContext);
-            });
+            }, globalInterceptors);
         }
-        void OnScalarExecuted(IDbCommand cmd, DbCommandInterceptionContext<object> dbCommandInterceptionContext)
+        void OnScalarExecuted(IDbCommand cmd, DbCommandInterceptionContext<object> dbCommandInterceptionContext, IDbCommandInterceptor[] globalInterceptors)
         {
             this.ExecuteDbCommandInterceptors((dbCommandInterceptor) =>
             {
                 dbCommandInterceptor.ScalarExecuted(cmd, dbCommandInterceptionContext);
-            });
+            }, globalInterceptors);
         }
 
-        void ExecuteDbCommandInterceptors(Action<IDbCommandInterceptor> act)
+        void ExecuteDbCommandInterceptors(Action<IDbCommandInterceptor> act, IDbCommandInterceptor[] globalInterceptors)
         {
-            var globalInterceptorEnumerator = DbInterception.GetEnumerator();
-            while (globalInterceptorEnumerator.MoveNext())
+            for (int i = 0; i < globalInterceptors.Length; i++)
             {
-                act(globalInterceptorEnumerator.Current);
+                act(globalInterceptors[i]);
             }
 
             if (this._dbCommandInterceptors != null)

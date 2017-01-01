@@ -67,12 +67,12 @@ namespace Chloe.Core
             this._dbContext.InnerDbSession.RollbackTransaction();
         }
 
-        public void AddDbCommandInterceptor(IDbCommandInterceptor interceptor)
+        public void AddInterceptor(IDbCommandInterceptor interceptor)
         {
             Utils.CheckNull(interceptor, "interceptor");
             this._dbContext.InnerDbSession.DbCommandInterceptors.Add(interceptor);
         }
-        public void RemoveDbCommandInterceptor(IDbCommandInterceptor interceptor)
+        public void RemoveInterceptor(IDbCommandInterceptor interceptor)
         {
             Utils.CheckNull(interceptor, "interceptor");
             this._dbContext.InnerDbSession.DbCommandInterceptors.Remove(interceptor);

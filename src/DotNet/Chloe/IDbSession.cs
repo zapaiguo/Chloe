@@ -24,7 +24,7 @@ namespace Chloe
         void CommitTransaction();
         void RollbackTransaction();
 
-        void AddDbCommandInterceptor(IDbCommandInterceptor interceptor);
-        void RemoveDbCommandInterceptor(IDbCommandInterceptor interceptor);
+        void AddInterceptor(IDbCommandInterceptor interceptor);
+        void RemoveInterceptor(IDbCommandInterceptor interceptor);
     }
 }
