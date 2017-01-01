@@ -50,9 +50,10 @@ namespace Chloe.Core
             return this._dbContext.InnerDbSession.ExecuteReader(cmdText, parameters, cmdType);
         }
 
+        /* Using IsolationLevel.ReadCommitted level.  */
         public void BeginTransaction()
         {
-            this._dbContext.InnerDbSession.BeginTransaction();
+            this.BeginTransaction(IsolationLevel.ReadCommitted);
         }
         public void BeginTransaction(IsolationLevel il)
         {

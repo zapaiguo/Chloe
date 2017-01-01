@@ -67,12 +67,6 @@ namespace Chloe.Core
             }
         }
 
-        public void BeginTransaction()
-        {
-            this.Activate();
-            this._dbTransaction = _dbConnection.BeginTransaction();
-            this._isInTransaction = true;
-        }
         public void BeginTransaction(IsolationLevel il)
         {
             this.Activate();
