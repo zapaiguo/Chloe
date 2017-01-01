@@ -80,7 +80,8 @@ namespace Chloe.Core
                 throw new ChloeException("Current session does not open a transaction.");
             }
             this._dbTransaction.Commit();
-            this.EndTransaction();
+            this.ReleaseTransaction();
+            this.Complete();
         }
         public void RollbackTransaction()
         {
@@ -89,7 +90,8 @@ namespace Chloe.Core
                 throw new ChloeException("Current session does not open a transaction.");
             }
             this._dbTransaction.Rollback();
-            this.EndTransaction();
+            this.ReleaseTransaction();
+            this.Complete();
         }
 
         public IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType)
@@ -243,9 +245,7 @@ namespace Chloe.Core
                     }
                 }
 
-                this._dbTransaction.Dispose();
-                this._dbTransaction = null;
-                this._isInTransaction = false;
+                this.ReleaseTransaction();
             }
 
             if (this._dbConnection != null)
@@ -416,11 +416,11 @@ namespace Chloe.Core
         #endregion
 
 
-        void EndTransaction()
+        void ReleaseTransaction()
         {
             this._dbTransaction.Dispose();
+            this._dbTransaction = null;
             this._isInTransaction = false;
-            this.Complete();
         }
 
 
