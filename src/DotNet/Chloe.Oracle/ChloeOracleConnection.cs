@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Chloe.Oracle
 {
-    public class ChloeOracleConnection : IDbConnection, IDisposable
+    public class ChloeOracleConnection : IDbConnection, IDisposable, ICloneable
     {
         IDbConnection _dbConnection;
         public ChloeOracleConnection(IDbConnection dbConnection)
@@ -61,6 +61,15 @@ namespace Chloe.Oracle
         public void Dispose()
         {
             this._dbConnection.Dispose();
+        }
+        public object Clone()
+        {
+            if (this._dbConnection is ICloneable)
+            {
+                return new ChloeOracleConnection((IDbConnection)((ICloneable)this._dbConnection).Clone());
+            }
+
+            throw new NotSupportedException();
         }
     }
 }
