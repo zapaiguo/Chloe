@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleHelper.cs" />
+    <Compile Include="DbCommandInterceptor.cs" />
     <Compile Include="DbHelper.cs" />
     <Compile Include="MsSqlDemo.cs" />
     <Compile Include="MySqlConnectionFactory.cs" />
