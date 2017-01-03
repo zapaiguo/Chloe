@@ -26,7 +26,7 @@ namespace Chloe.Core
                 this._param.Value = val;
         }
 
-        /* 只有在 DataReader.Close() 后和 DbCommand.Parameters.Clear() 前才能取得 output 的值 */
+        /* 只有在 DataReader.Close() 后（有些驱动还需要DataReader.Dispose()后）才能取得 output 的值 */
         public static void CallMapValue(List<OutputParameter> outputParameters)
         {
             if (outputParameters != null)

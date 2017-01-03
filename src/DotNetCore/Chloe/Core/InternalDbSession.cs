@@ -153,10 +153,10 @@ namespace Chloe.Core
                 this.Activate();
                 this.OnNonQueryExecuting(cmd, dbCommandInterceptionContext, globalInterceptors);
 
-                int affectedRows;
+                int rowsAffected;
                 try
                 {
-                    affectedRows = cmd.ExecuteNonQuery();
+                    rowsAffected = cmd.ExecuteNonQuery();
                 }
                 catch (Exception ex)
                 {
@@ -166,11 +166,11 @@ namespace Chloe.Core
                     throw WrapException(ex);
                 }
 
-                dbCommandInterceptionContext.Result = affectedRows;
+                dbCommandInterceptionContext.Result = rowsAffected;
                 this.OnNonQueryExecuted(cmd, dbCommandInterceptionContext, globalInterceptors);
                 OutputParameter.CallMapValue(outputParameters);
 
-                return affectedRows;
+                return rowsAffected;
             }
             finally
             {
