@@ -16,7 +16,7 @@ namespace Chloe.Infrastructure.Interception
 
             lock (_lockObject)
             {
-                var newList = _interceptors.ToList();
+                List<IDbCommandInterceptor> newList = _interceptors.ToList();
                 newList.Add(interceptor);
                 newList.TrimExcess();
                 _interceptors = newList;
@@ -28,7 +28,7 @@ namespace Chloe.Infrastructure.Interception
 
             lock (_lockObject)
             {
-                var newList = _interceptors.ToList();
+                List<IDbCommandInterceptor> newList = _interceptors.ToList();
                 newList.Remove(interceptor);
                 newList.TrimExcess();
                 _interceptors = newList;

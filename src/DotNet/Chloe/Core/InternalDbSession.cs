@@ -272,7 +272,7 @@ namespace Chloe.Core
             {
                 for (int i = 0; i < parameters.Length; i++)
                 {
-                    var param = parameters[i];
+                    DbParam param = parameters[i];
                     if (param == null)
                         continue;
 
