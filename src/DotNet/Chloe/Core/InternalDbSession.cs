@@ -102,14 +102,10 @@ namespace Chloe.Core
         {
             this.CheckDisposed();
 
-#if DEBUG
-            System.Diagnostics.Debug.WriteLine(AppendDbCommandInfo(cmdText, parameters));
-#endif
-
             List<OutputParameter> outputParameters;
             IDbCommand cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
-            DbCommandInterceptionContext<IDataReader> dbCommandInterceptionContext = new DbCommandInterceptionContext<IDataReader>();
 
+            DbCommandInterceptionContext<IDataReader> dbCommandInterceptionContext = new DbCommandInterceptionContext<IDataReader>();
             IDbCommandInterceptor[] globalInterceptors = DbInterception.GetInterceptors();
 
             this.Activate();
@@ -137,17 +133,13 @@ namespace Chloe.Core
         {
             this.CheckDisposed();
 
-#if DEBUG
-            System.Diagnostics.Debug.WriteLine(AppendDbCommandInfo(cmdText, parameters));
-#endif
-
             IDbCommand cmd = null;
             try
             {
                 List<OutputParameter> outputParameters;
                 cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
-                DbCommandInterceptionContext<int> dbCommandInterceptionContext = new DbCommandInterceptionContext<int>();
 
+                DbCommandInterceptionContext<int> dbCommandInterceptionContext = new DbCommandInterceptionContext<int>();
                 IDbCommandInterceptor[] globalInterceptors = DbInterception.GetInterceptors();
 
                 this.Activate();
@@ -183,17 +175,13 @@ namespace Chloe.Core
         {
             this.CheckDisposed();
 
-#if DEBUG
-            System.Diagnostics.Debug.WriteLine(AppendDbCommandInfo(cmdText, parameters));
-#endif
-
             IDbCommand cmd = null;
             try
             {
                 List<OutputParameter> outputParameters;
                 cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
-                DbCommandInterceptionContext<object> dbCommandInterceptionContext = new DbCommandInterceptionContext<object>();
 
+                DbCommandInterceptionContext<object> dbCommandInterceptionContext = new DbCommandInterceptionContext<object>();
                 IDbCommandInterceptor[] globalInterceptors = DbInterception.GetInterceptors();
 
                 this.Activate();
@@ -438,7 +426,7 @@ namespace Chloe.Core
             StringBuilder sb = new StringBuilder();
             if (parameters != null)
             {
-                foreach (var param in parameters)
+                foreach (DbParam param in parameters)
                 {
                     if (param == null)
                         continue;
