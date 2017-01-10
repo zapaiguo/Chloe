@@ -8,7 +8,7 @@ namespace Chloe.Infrastructure.Interception
 {
     public static class DbInterception
     {
-        static List<IDbCommandInterceptor> _interceptors = new List<IDbCommandInterceptor>();
+        static volatile List<IDbCommandInterceptor> _interceptors = new List<IDbCommandInterceptor>();
         static readonly object _lockObject = new object();
         public static void Add(IDbCommandInterceptor interceptor)
         {
