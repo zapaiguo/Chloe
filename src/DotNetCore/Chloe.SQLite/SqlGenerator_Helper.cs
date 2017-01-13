@@ -153,7 +153,7 @@ namespace Chloe.SQLite
             if (withCast == true)
             {
                 Type unType = Utils.GetUnderlyingType(retType);
-                if (unType != UtilConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise cause problems. */ && CastTypeMap.TryGetValue(unType, out dbTypeString))
+                if (unType != UtilConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise maybe cause problems. */ && CastTypeMap.TryGetValue(unType, out dbTypeString))
                 {
                     generator._sqlBuilder.Append("CAST(");
                 }

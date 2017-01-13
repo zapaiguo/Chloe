@@ -157,9 +157,9 @@ namespace Chloe.SQLite
             DbEqualExpression equalNullExpression = DbExpression.Equal(e, DbExpression.Constant(null, UtilConstants.TypeOfString));
             DbEqualExpression equalEmptyExpression = DbExpression.Equal(e, DbExpression.Constant(string.Empty));
 
-            DbOrExpression orElseExpression = DbExpression.Or(equalNullExpression, equalEmptyExpression);
+            DbOrExpression orExpression = DbExpression.Or(equalNullExpression, equalEmptyExpression);
 
-            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orElseExpression, DbConstantExpression.One);
+            DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(orExpression, DbConstantExpression.One);
 
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
@@ -182,9 +182,9 @@ namespace Chloe.SQLite
 
             List<DbExpression> exps = new List<DbExpression>();
             IEnumerable values = null;
-            DbExpression arg = null;
+            DbExpression operand = null;
 
-            var declaringType = method.DeclaringType;
+            Type declaringType = method.DeclaringType;
 
             if (typeof(IList).IsAssignableFrom(declaringType) || (declaringType.IsGenericType && typeof(ICollection<>).MakeGenericType(declaringType.GetGenericArguments()).IsAssignableFrom(declaringType)))
             {
@@ -194,18 +194,18 @@ namespace Chloe.SQLite
                     throw new NotSupportedException(exp.ToString());
 
                 values = DbExpressionExtensions.GetExpressionValue(memberExp) as IEnumerable; //Enumerable
-                arg = exp.Arguments.First();
+                operand = exp.Arguments[0];
                 goto constructInState;
             }
             if (method.IsStatic && declaringType == typeof(Enumerable) && exp.Arguments.Count == 2)
             {
-                DbMemberExpression memberExp = exp.Arguments.First() as DbMemberExpression;
+                DbMemberExpression memberExp = exp.Arguments[0] as DbMemberExpression;
 
                 if (memberExp == null || !memberExp.CanEvaluate())
                     throw new NotSupportedException(exp.ToString());
 
                 values = DbExpressionExtensions.GetExpressionValue(memberExp) as IEnumerable;
-                arg = exp.Arguments.Skip(1).First();
+                operand = exp.Arguments[1];
                 goto constructInState;
             }
 
@@ -215,15 +215,15 @@ namespace Chloe.SQLite
             foreach (object value in values)
             {
                 if (value == null)
-                    exps.Add(DbExpression.Constant(null, arg.Type));
+                    exps.Add(DbExpression.Constant(null, operand.Type));
                 else
                     exps.Add(DbExpression.Parameter(value));
             }
-            In(generator, exps, arg);
+            In(generator, exps, operand);
         }
 
 
-        static void In(SqlGenerator generator, List<DbExpression> elementExps, DbExpression arg)
+        static void In(SqlGenerator generator, List<DbExpression> elementExps, DbExpression operand)
         {
             if (elementExps.Count == 0)
             {
@@ -231,18 +231,15 @@ namespace Chloe.SQLite
                 return;
             }
 
-            arg.Accept(generator);
+            operand.Accept(generator);
             generator._sqlBuilder.Append(" IN (");
 
-            var first = true;
-            foreach (DbExpression ele in elementExps)
+            for (int i = 0; i < elementExps.Count; i++)
             {
-                if (first)
-                    first = false;
-                else
+                if (i > 0)
                     generator._sqlBuilder.Append(",");
 
-                ele.Accept(generator);
+                elementExps[i].Accept(generator);
             }
 
             generator._sqlBuilder.Append(")");
