@@ -53,16 +53,16 @@ namespace Chloe.Query
             WhereExpression e = new WhereExpression(_expression, typeof(T), predicate);
             return new Query<T>(this._dbContext, e, this._trackEntity);
         }
-        public IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> predicate)
+        public IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> keySelector)
         {
-            Utils.CheckNull(predicate);
-            OrderExpression e = new OrderExpression(QueryExpressionType.OrderBy, typeof(T), this._expression, predicate);
+            Utils.CheckNull(keySelector);
+            OrderExpression e = new OrderExpression(QueryExpressionType.OrderBy, typeof(T), this._expression, keySelector);
             return new OrderedQuery<T>(this._dbContext, e, this._trackEntity);
         }
-        public IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> predicate)
+        public IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> keySelector)
         {
-            Utils.CheckNull(predicate);
-            OrderExpression e = new OrderExpression(QueryExpressionType.OrderByDesc, typeof(T), this._expression, predicate);
+            Utils.CheckNull(keySelector);
+            OrderExpression e = new OrderExpression(QueryExpressionType.OrderByDesc, typeof(T), this._expression, keySelector);
             return new OrderedQuery<T>(this._dbContext, e, this._trackEntity);
         }
         public IQuery<T> Skip(int count)
@@ -84,10 +84,10 @@ namespace Chloe.Query
             return q;
         }
 
-        public IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> predicate)
+        public IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> keySelector)
         {
-            Utils.CheckNull(predicate);
-            return new GroupingQuery<T>(this, predicate);
+            Utils.CheckNull(keySelector);
+            return new GroupingQuery<T>(this, keySelector);
         }
 
         public IJoiningQuery<T, TSource> InnerJoin<TSource>(IQuery<TSource> q, Expression<Func<T, TSource, bool>> on)

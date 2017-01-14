@@ -11,50 +11,50 @@ namespace Chloe.Query
     class GroupingQuery<T> : IGroupingQuery<T>
     {
         Query<T> _fromQuery;
-        List<LambdaExpression> _groupPredicates;
+        List<LambdaExpression> _groupKeySelectors;
         List<LambdaExpression> _havingPredicates;
 
-        public GroupingQuery(Query<T> fromQuery, LambdaExpression predicate)
+        public GroupingQuery(Query<T> fromQuery, LambdaExpression keySelector)
         {
             this._fromQuery = fromQuery;
-            this._groupPredicates = new List<LambdaExpression>(1);
+            this._groupKeySelectors = new List<LambdaExpression>(1);
             this._havingPredicates = new List<LambdaExpression>();
 
-            this._groupPredicates.Add(predicate);
+            this._groupKeySelectors.Add(keySelector);
         }
-        public GroupingQuery(Query<T> fromQuery, List<LambdaExpression> groupPredicates, List<LambdaExpression> havingPredicates)
+        public GroupingQuery(Query<T> fromQuery, List<LambdaExpression> groupKeySelectors, List<LambdaExpression> havingPredicates)
         {
             this._fromQuery = fromQuery;
-            this._groupPredicates = groupPredicates;
+            this._groupKeySelectors = groupKeySelectors;
             this._havingPredicates = havingPredicates;
         }
 
-        public IGroupingQuery<T> ThenBy<K>(Expression<Func<T, K>> predicate)
+        public IGroupingQuery<T> ThenBy<K>(Expression<Func<T, K>> keySelector)
         {
-            List<LambdaExpression> groupPredicates = new List<LambdaExpression>(this._groupPredicates.Count + 1);
-            groupPredicates.AddRange(this._groupPredicates);
-            groupPredicates.Add(predicate);
+            List<LambdaExpression> groupKeySelectors = new List<LambdaExpression>(this._groupKeySelectors.Count + 1);
+            groupKeySelectors.AddRange(this._groupKeySelectors);
+            groupKeySelectors.Add(keySelector);
 
             List<LambdaExpression> havingPredicates = new List<LambdaExpression>(this._havingPredicates.Count);
             havingPredicates.AddRange(this._havingPredicates);
 
-            return new GroupingQuery<T>(this._fromQuery, groupPredicates, havingPredicates);
+            return new GroupingQuery<T>(this._fromQuery, groupKeySelectors, havingPredicates);
         }
         public IGroupingQuery<T> Having(Expression<Func<T, bool>> predicate)
         {
-            List<LambdaExpression> groupPredicates = new List<LambdaExpression>(this._groupPredicates.Count);
-            groupPredicates.AddRange(this._groupPredicates);
+            List<LambdaExpression> groupKeySelectors = new List<LambdaExpression>(this._groupKeySelectors.Count);
+            groupKeySelectors.AddRange(this._groupKeySelectors);
 
             List<LambdaExpression> havingPredicates = new List<LambdaExpression>(this._havingPredicates.Count + 1);
             havingPredicates.AddRange(this._havingPredicates);
             havingPredicates.Add(predicate);
 
-            return new GroupingQuery<T>(this._fromQuery, groupPredicates, havingPredicates);
+            return new GroupingQuery<T>(this._fromQuery, groupKeySelectors, havingPredicates);
         }
         public IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector)
         {
             var e = new GroupingQueryExpression(typeof(TResult), this._fromQuery.QueryExpression, selector);
-            e.GroupPredicates.AddRange(this._groupPredicates);
+            e.GroupKeySelectors.AddRange(this._groupKeySelectors);
             e.HavingPredicates.AddRange(this._havingPredicates);
             return new Query<TResult>(this._fromQuery.DbContext, e, this._fromQuery._trackEntity);
         }

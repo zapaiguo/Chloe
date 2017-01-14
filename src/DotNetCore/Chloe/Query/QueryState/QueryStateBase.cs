@@ -102,13 +102,13 @@ namespace Chloe.Query.QueryState
         public virtual IQueryState Accept(GroupingQueryExpression exp)
         {
             List<IMappingObjectExpression> moeList = this.MoeList;
-            foreach (var item in exp.GroupPredicates)
+            foreach (LambdaExpression item in exp.GroupKeySelectors)
             {
                 var dbExp = GeneralExpressionVisitor.VisitPredicate(item, moeList);
                 this._resultElement.GroupSegments.Add(dbExp);
             }
 
-            foreach (var item in exp.HavingPredicates)
+            foreach (LambdaExpression item in exp.HavingPredicates)
             {
                 var dbExp = GeneralExpressionVisitor.VisitPredicate(item, moeList);
                 this._resultElement.AppendHavingCondition(dbExp);
@@ -221,7 +221,7 @@ namespace Chloe.Query.QueryState
 
         protected static DbOrdering VisistOrderExpression(List<IMappingObjectExpression> moeList, OrderExpression orderExp)
         {
-            DbExpression dbExpression = GeneralExpressionVisitor.VisitPredicate(orderExp.Expression, moeList);
+            DbExpression dbExpression = GeneralExpressionVisitor.VisitPredicate(orderExp.KeySelector, moeList);
             DbOrderType orderType;
             if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.ThenBy)
             {

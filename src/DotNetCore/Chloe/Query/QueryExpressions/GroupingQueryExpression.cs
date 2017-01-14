@@ -8,7 +8,7 @@ namespace Chloe.Query.QueryExpressions
 {
     class GroupingQueryExpression : QueryExpression
     {
-        List<LambdaExpression> _groupPredicates = new List<LambdaExpression>();
+        List<LambdaExpression> _groupKeySelectors = new List<LambdaExpression>();
         List<LambdaExpression> _havingPredicates = new List<LambdaExpression>();
         LambdaExpression _selector;
         public GroupingQueryExpression(Type elementType, QueryExpression prevExpression, LambdaExpression selector)
@@ -17,7 +17,7 @@ namespace Chloe.Query.QueryExpressions
             this._selector = selector;
         }
 
-        public List<LambdaExpression> GroupPredicates { get { return this._groupPredicates; } }
+        public List<LambdaExpression> GroupKeySelectors { get { return this._groupKeySelectors; } }
         public List<LambdaExpression> HavingPredicates { get { return this._havingPredicates; } }
         public LambdaExpression Selector { get { return this._selector; } }
 

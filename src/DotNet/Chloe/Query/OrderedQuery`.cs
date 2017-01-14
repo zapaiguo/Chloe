@@ -16,14 +16,14 @@ namespace Chloe.Query
         {
 
         }
-        public IOrderedQuery<T> ThenBy<K>(Expression<Func<T, K>> predicate)
+        public IOrderedQuery<T> ThenBy<K>(Expression<Func<T, K>> keySelector)
         {
-            OrderExpression e = new OrderExpression(QueryExpressionType.ThenBy, typeof(T), this.QueryExpression, predicate);
+            OrderExpression e = new OrderExpression(QueryExpressionType.ThenBy, typeof(T), this.QueryExpression, keySelector);
             return new OrderedQuery<T>(this.DbContext, e, this._trackEntity);
         }
-        public IOrderedQuery<T> ThenByDesc<K>(Expression<Func<T, K>> predicate)
+        public IOrderedQuery<T> ThenByDesc<K>(Expression<Func<T, K>> keySelector)
         {
-            OrderExpression e = new OrderExpression(QueryExpressionType.ThenByDesc, typeof(T), this.QueryExpression, predicate);
+            OrderExpression e = new OrderExpression(QueryExpressionType.ThenByDesc, typeof(T), this.QueryExpression, keySelector);
             return new OrderedQuery<T>(this.DbContext, e, this._trackEntity);
         }
     }
