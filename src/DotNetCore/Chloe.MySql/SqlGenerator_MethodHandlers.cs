@@ -16,6 +16,9 @@ namespace Chloe.MySql
         static Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>> InitMethodHandlers()
         {
             var methodHandlers = new Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>>();
+
+            methodHandlers.Add("Equals", Method_Equals);
+
             methodHandlers.Add("Trim", Method_Trim);
             methodHandlers.Add("TrimStart", Method_TrimStart);
             methodHandlers.Add("TrimEnd", Method_TrimEnd);
@@ -56,6 +59,20 @@ namespace Chloe.MySql
 
             var ret = Utils.Clone(methodHandlers, StringComparer.Ordinal);
             return ret;
+        }
+
+        static void Method_Equals(DbMethodCallExpression exp, SqlGenerator generator)
+        {
+            if (exp.Method.ReturnType != UtilConstants.TypeOfBoolean || exp.Method.IsStatic || exp.Method.GetParameters().Length != 1)
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
+
+            DbExpression right = exp.Arguments[0];
+            if (right.Type != exp.Object.Type)
+            {
+                right = DbExpression.Convert(right, exp.Object.Type);
+            }
+
+            DbExpression.Equal(exp.Object, right).Accept(generator);
         }
 
         static void Method_Trim(DbMethodCallExpression exp, SqlGenerator generator)
