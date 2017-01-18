@@ -437,10 +437,27 @@ namespace Chloe.Core.Visitors
             {
                 // 如果是 MemberAccess 则转成 case <MemberExpression> when 1 then 1 else 0 end = 1 ==>  等价于 a.B=1 ?
                 // 可能出现 true==true 情况 如 a.B>1 ? true : false 三元表达式会转成 a.B>1 ? true==true : false==true 又如 Convert(true)==true
-                if (exp.NodeType == ExpressionType.MemberAccess || exp.NodeType == ExpressionType.Constant)
+
+                if (exp.NodeType == ExpressionType.MemberAccess)
                 {
-                    var nExp = this.Visit(exp);
-                    return DbExpression.Equal(nExp, DbExpression.Constant(trueOrFalse));
+                    MemberExpression memberExpression = (MemberExpression)exp;
+                    if (memberExpression.Member.Name == "HasValue" && Utils.IsNullable(memberExpression.Member.DeclaringType))
+                    {
+                        var nullRight = Expression.Constant(null, memberExpression.Expression.Type);
+                        if (trueOrFalse)
+                            return this.Visit(Expression.NotEqual(memberExpression.Expression, nullRight));
+                        else
+                            return this.Visit(Expression.Equal(memberExpression.Expression, nullRight));
+                    }
+                    else
+                    {
+                        return DbExpression.Equal(this.Visit(exp), DbExpression.Constant(trueOrFalse));
+                    }
+                }
+
+                if (exp.NodeType == ExpressionType.Constant)
+                {
+                    return DbExpression.Equal(this.Visit(exp), DbExpression.Constant(trueOrFalse));
                 }
 
 
