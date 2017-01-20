@@ -176,7 +176,6 @@ namespace Chloe.Query
         }
         public IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery)
         {
-            List<DbColumnSegment> columnList = sqlQuery.ColumnSegments;
             MappingEntity mappingEntity = new MappingEntity(this.ConstructorDescriptor);
             MappingObjectExpression mappingMembers = this;
 
@@ -234,7 +233,6 @@ namespace Chloe.Query
 
         public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTable table)
         {
-            List<DbColumnSegment> columnList = sqlQuery.ColumnSegments;
             MappingObjectExpression moe = new MappingObjectExpression(this.ConstructorDescriptor);
             MappingObjectExpression mappingMembers = this;
 

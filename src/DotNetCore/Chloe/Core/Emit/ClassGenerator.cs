@@ -45,7 +45,7 @@ namespace Chloe.Core.Emit
             }
 
             TypeAttributes typeAttributes = TypeAttributes.Class | TypeAttributes.NotPublic | TypeAttributes.Sealed;
-            TypeBuilder tb = moduleBuilder.DefineType(string.Format("Chloe.Core.Mapper.MRMs.{0}_{1}_{2}", entityType.Name, member.Name, Guid.NewGuid().ToString("N") + System.Threading.Interlocked.Increment(ref _sequenceNumber).ToString()), typeAttributes, null, new Type[] { typeof(IMRM) });
+            TypeBuilder tb = moduleBuilder.DefineType(string.Format("Chloe.Core.Mapper.MRMs.{0}_{1}_{2}", entityType.Name, member.Name, Guid.NewGuid().ToString("N").Substring(0, 5) + System.Threading.Interlocked.Increment(ref _sequenceNumber).ToString()), typeAttributes, null, new Type[] { typeof(IMRM) });
 
             tb.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName);
 
