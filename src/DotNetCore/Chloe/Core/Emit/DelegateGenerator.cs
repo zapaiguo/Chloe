@@ -37,6 +37,8 @@ namespace Chloe.Core.Emit
 
         public static Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> CreateObjectGenerator(ConstructorInfo constructor)
         {
+            Utils.CheckNull(constructor);
+
             Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> ret = null;
 
             var pExp_reader = Expression.Parameter(typeof(IDataReader), "reader");

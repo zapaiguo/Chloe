@@ -11,8 +11,8 @@ namespace Chloe
         [Obsolete("'CurrentSession' will be removed in future releases.Instead of using 'Session' property.")]
         IDbSession CurrentSession { get; }
 
-        IQuery<TEntity> Query<TEntity>() where TEntity : new();
-        TEntity QueryByKey<TEntity>(object key, bool tracking = false) where TEntity : new();
+        IQuery<TEntity> Query<TEntity>();
+        TEntity QueryByKey<TEntity>(object key, bool tracking = false);
 
         IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters) where T : new();
         IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters) where T : new();

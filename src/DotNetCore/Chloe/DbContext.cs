@@ -58,11 +58,11 @@ namespace Chloe
         public IDbSession CurrentSession { get { return this.Session; } }
 
 
-        public virtual IQuery<TEntity> Query<TEntity>() where TEntity : new()
+        public virtual IQuery<TEntity> Query<TEntity>()
         {
             return new Query<TEntity>(this);
         }
-        public TEntity QueryByKey<TEntity>(object key, bool tracking = false) where TEntity : new()
+        public TEntity QueryByKey<TEntity>(object key, bool tracking = false)
         {
             Expression<Func<TEntity, bool>> predicate = BuildPredicate<TEntity>(key);
             var q = this.Query<TEntity>().Where(predicate);

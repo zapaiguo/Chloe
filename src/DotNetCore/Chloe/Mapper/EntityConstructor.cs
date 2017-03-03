@@ -1,5 +1,6 @@
 ﻿using Chloe.Core;
 using Chloe.Core.Emit;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,6 +14,9 @@ namespace Chloe.Mapper
     {
         EntityConstructor(ConstructorInfo constructorInfo)
         {
+            if (constructorInfo.DeclaringType.GetTypeInfo().IsAbstract)
+                throw new ArgumentException("The type can not be abstract class.");
+
             this.ConstructorInfo = constructorInfo;
             this.Init();
         }

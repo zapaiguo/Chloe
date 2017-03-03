@@ -30,6 +30,10 @@ namespace Chloe.Query.QueryState
 
         static ResultElement CreateResultElement(Type type)
         {
+            TypeInfo typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsAbstract || typeInfo.IsInterface)
+                throw new ArgumentException("The type of input can not be abstract class or interface.");
+
             //TODO init _resultElement
             ResultElement resultElement = new ResultElement();
 
@@ -38,7 +42,12 @@ namespace Chloe.Query.QueryState
             string alias = resultElement.GenerateUniqueTableAlias(typeDescriptor.Table.Name);
 
             resultElement.FromTable = CreateRootTable(typeDescriptor.Table, alias);
-            MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetTypeInfo().GetConstructor(Type.EmptyTypes));
+
+            ConstructorInfo constructor = typeDescriptor.EntityType.GetConstructor(Type.EmptyTypes);
+            if (constructor == null)
+                throw new ArgumentException(string.Format("The type of '{0}' does't define a none parameter constructor.", type.FullName));
+
+            MappingObjectExpression moe = new MappingObjectExpression(constructor);
 
             DbTableSegment tableExp = resultElement.FromTable.Table;
             DbTable table = new DbTable(alias);
