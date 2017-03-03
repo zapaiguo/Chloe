@@ -357,3 +357,7 @@ context.Delete(user);
    DELETE [Users] WHERE [Users].[Id] = @P_0
  */
 ```
+# License
+[MIT](http://opensource.org/licenses/MIT) License
+
+notes：早期使用 apache 2.0 开源协议，从 2017-3-3 起切换至更宽松的 MIT 协议
