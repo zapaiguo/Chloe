@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Chloe.SQLite</id>
-    <version>2.4.0</version>
+    <version>2.5.0</version>
     <title>Chloe.SQLite</title>
     <authors>Shuxin Qin</authors>
     <owners>Shuxin Qin</owners>
@@ -15,7 +15,7 @@ A lightweight and high-performance Object/Relational Mapping(ORM) library.
 
 Requires:
 - .NET Framework(>=4.0)
-- Chloe(>=2.4.0)
+- Chloe(>=2.5.0)
     </description>
     <copyright>Copyright 2016</copyright>
     <tags>Chloe,ORM,Data,SQLite</tags>
