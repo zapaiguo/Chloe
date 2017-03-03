@@ -54,8 +54,6 @@ namespace Chloe
         }
 
         public IDbSession Session { get { return this._session; } }
-        [Obsolete("'CurrentSession' will be removed in future releases.Instead of using 'Session' property.")]
-        public IDbSession CurrentSession { get { return this.Session; } }
 
 
         public virtual IQuery<TEntity> Query<TEntity>()
@@ -320,11 +318,6 @@ namespace Chloe
 
             return this.ExecuteSqlCommand(e);
 
-        }
-        [Obsolete("Current method will be removed in future releases.Instead of using 'Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body)'.")]
-        public int Update<TEntity>(Expression<Func<TEntity, TEntity>> body, Expression<Func<TEntity, bool>> condition)
-        {
-            return this.Update(condition, body);
         }
 
         public virtual int Delete<TEntity>(TEntity entity)
