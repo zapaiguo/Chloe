@@ -12,17 +12,17 @@ namespace Chloe.Query.QueryExpressions
     class AggregateQueryExpression : QueryExpression
     {
         MethodInfo _method;
-        ReadOnlyCollection<Expression> _parameters;
+        ReadOnlyCollection<Expression> _arguments;
 
-        public AggregateQueryExpression(QueryExpression prevExpression, MethodInfo method, IList<Expression> parameters)
+        public AggregateQueryExpression(QueryExpression prevExpression, MethodInfo method, IList<Expression> arguments)
             : base(QueryExpressionType.Aggregate, method.ReturnType, prevExpression)
         {
             this._method = method;
-            this._parameters = new ReadOnlyCollection<Expression>(parameters);
+            this._arguments = new ReadOnlyCollection<Expression>(arguments);
         }
 
         public MethodInfo Method { get { return this._method; } }
-        public ReadOnlyCollection<Expression> Parameters { get { return this._parameters; } }
+        public ReadOnlyCollection<Expression> Arguments { get { return this._arguments; } }
 
 
         public override T Accept<T>(QueryExpressionVisitor<T> visitor)

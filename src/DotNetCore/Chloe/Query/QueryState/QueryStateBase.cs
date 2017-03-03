@@ -41,8 +41,8 @@ namespace Chloe.Query.QueryState
 
         public virtual IQueryState Accept(WhereExpression exp)
         {
-            DbExpression dbExp = FilterPredicateExpressionVisitor.VisitFilterPredicate(exp.Expression, this.MoeList);
-            this._resultElement.AppendCondition(dbExp);
+            DbExpression whereCondition = FilterPredicateExpressionVisitor.ParseFilterPredicate(exp.Predicate, this.MoeList);
+            this._resultElement.AppendCondition(whereCondition);
 
             return this;
         }
@@ -80,14 +80,14 @@ namespace Chloe.Query.QueryState
         }
         public virtual IQueryState Accept(AggregateQueryExpression exp)
         {
-            List<DbExpression> dbParameters = new List<DbExpression>(exp.Parameters.Count);
-            foreach (Expression pExp in exp.Parameters)
+            List<DbExpression> dbArguments = new List<DbExpression>(exp.Arguments.Count);
+            foreach (Expression argument in exp.Arguments)
             {
-                var dbExp = GeneralExpressionVisitor.VisitPredicate((LambdaExpression)pExp, this.MoeList);
-                dbParameters.Add(dbExp);
+                var dbArgument = GeneralExpressionVisitor.ParseLambda((LambdaExpression)argument, this.MoeList);
+                dbArguments.Add(dbArgument);
             }
 
-            DbAggregateExpression dbAggregateExp = new DbAggregateExpression(exp.ElementType, exp.Method, dbParameters);
+            DbAggregateExpression dbAggregateExp = new DbAggregateExpression(exp.ElementType, exp.Method, dbArguments);
             MappingFieldExpression mfe = new MappingFieldExpression(exp.ElementType, dbAggregateExp);
 
             ResultElement result = new ResultElement();
@@ -104,14 +104,14 @@ namespace Chloe.Query.QueryState
             List<IMappingObjectExpression> moeList = this.MoeList;
             foreach (LambdaExpression item in exp.GroupKeySelectors)
             {
-                var dbExp = GeneralExpressionVisitor.VisitPredicate(item, moeList);
+                var dbExp = GeneralExpressionVisitor.ParseLambda(item, moeList);
                 this._resultElement.GroupSegments.Add(dbExp);
             }
 
-            foreach (LambdaExpression item in exp.HavingPredicates)
+            foreach (LambdaExpression havingPredicate in exp.HavingPredicates)
             {
-                var dbExp = GeneralExpressionVisitor.VisitPredicate(item, moeList);
-                this._resultElement.AppendHavingCondition(dbExp);
+                var havingCondition = FilterPredicateExpressionVisitor.ParseFilterPredicate(havingPredicate, moeList);
+                this._resultElement.AppendHavingCondition(havingCondition);
             }
 
             var newResult = this.CreateNewResult(exp.Selector);
@@ -221,7 +221,7 @@ namespace Chloe.Query.QueryState
 
         protected static DbOrdering VisistOrderExpression(List<IMappingObjectExpression> moeList, OrderExpression orderExp)
         {
-            DbExpression dbExpression = GeneralExpressionVisitor.VisitPredicate(orderExp.KeySelector, moeList);
+            DbExpression dbExpression = GeneralExpressionVisitor.ParseLambda(orderExp.KeySelector, moeList);
             DbOrderType orderType;
             if (orderExp.NodeType == QueryExpressionType.OrderBy || orderExp.NodeType == QueryExpressionType.ThenBy)
             {
@@ -270,7 +270,7 @@ namespace Chloe.Query.QueryState
             List<IMappingObjectExpression> moes = new List<IMappingObjectExpression>(moeList.Count + 1);
             moes.AddRange(moeList);
             moes.Add(newMoe);
-            DbExpression condition = GeneralExpressionVisitor.VisitPredicate(conditionExpression, moes);
+            DbExpression condition = GeneralExpressionVisitor.ParseLambda(conditionExpression, moes);
 
             DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType, tableSeg, condition);
 

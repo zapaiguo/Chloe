@@ -16,7 +16,7 @@ namespace Chloe.Query
 {
     class Query<T> : QueryBase, IQuery<T>
     {
-        static readonly List<Expression> EmptyParameterList = new List<Expression>(0);
+        static readonly List<Expression> EmptyArgumentList = new List<Expression>(0);
 
         DbContext _dbContext;
         QueryExpression _expression;
@@ -287,19 +287,19 @@ namespace Chloe.Query
         }
 
 
-        TResult ExecuteAggregateQuery<TResult>(MethodInfo method, Expression parameter, bool checkParameter = true)
+        TResult ExecuteAggregateQuery<TResult>(MethodInfo method, Expression argument, bool checkArgument = true)
         {
-            if (checkParameter)
-                Utils.CheckNull(parameter);
+            if (checkArgument)
+                Utils.CheckNull(argument);
 
-            List<Expression> parameters = parameter == null ? EmptyParameterList : new List<Expression>(1) { parameter };
+            List<Expression> arguments = argument == null ? EmptyArgumentList : new List<Expression>(1) { argument };
 
-            IEnumerable<TResult> iterator = this.CreateAggregateQuery<TResult>(method, parameters);
+            IEnumerable<TResult> iterator = this.CreateAggregateQuery<TResult>(method, arguments);
             return iterator.Single();
         }
-        InternalQuery<TResult> CreateAggregateQuery<TResult>(MethodInfo method, List<Expression> parameters)
+        InternalQuery<TResult> CreateAggregateQuery<TResult>(MethodInfo method, List<Expression> arguments)
         {
-            AggregateQueryExpression e = new AggregateQueryExpression(this._expression, method, parameters);
+            AggregateQueryExpression e = new AggregateQueryExpression(this._expression, method, arguments);
             var q = new Query<TResult>(this._dbContext, e, false);
             InternalQuery<TResult> iterator = q.GenerateIterator();
             return iterator;

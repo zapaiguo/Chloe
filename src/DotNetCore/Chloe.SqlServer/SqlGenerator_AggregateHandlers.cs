@@ -36,19 +36,19 @@ namespace Chloe.SqlServer
         }
         static void Aggregate_Sum(DbAggregateExpression exp, SqlGenerator generator)
         {
-            Aggregate_Sum(generator, exp.Parameters.First(), exp.Method.ReturnType);
+            Aggregate_Sum(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Aggregate_Max(DbAggregateExpression exp, SqlGenerator generator)
         {
-            Aggregate_Max(generator, exp.Parameters.First(), exp.Method.ReturnType);
+            Aggregate_Max(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Aggregate_Min(DbAggregateExpression exp, SqlGenerator generator)
         {
-            Aggregate_Min(generator, exp.Parameters.First(), exp.Method.ReturnType);
+            Aggregate_Min(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Aggregate_Average(DbAggregateExpression exp, SqlGenerator generator)
         {
-            Aggregate_Average(generator, exp.Parameters.First(), exp.Method.ReturnType);
+            Aggregate_Average(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
     }
 }

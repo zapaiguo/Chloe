@@ -10,16 +10,16 @@ namespace Chloe.DbExpressions
     public class DbAggregateExpression : DbExpression
     {
         MethodInfo _method;
-        ReadOnlyCollection<DbExpression> _parameters;
-        public DbAggregateExpression(Type type, MethodInfo method, IList<DbExpression> parameters)
+        ReadOnlyCollection<DbExpression> _arguments;
+        public DbAggregateExpression(Type type, MethodInfo method, IList<DbExpression> arguments)
             : base(DbExpressionType.Aggregate, type)
         {
             this._method = method;
-            this._parameters = new ReadOnlyCollection<DbExpression>(parameters);
+            this._arguments = new ReadOnlyCollection<DbExpression>(arguments);
         }
 
         public MethodInfo Method { get { return this._method; } }
-        public ReadOnlyCollection<DbExpression> Parameters { get { return this._parameters; } }
+        public ReadOnlyCollection<DbExpression> Arguments { get { return this._arguments; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {
