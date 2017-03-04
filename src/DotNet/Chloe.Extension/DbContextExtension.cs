@@ -13,12 +13,16 @@ namespace Chloe
 {
     public static class DbContextExtension
     {
-        public static IQuery<T> Query<T>(this IDbContext dbContext, Expression<Func<T, bool>> predicate) where T : new()
+        public static IQuery<T> Query<T>(this IDbContext dbContext, Expression<Func<T, bool>> predicate)
         {
             return dbContext.Query<T>().Where(predicate);
         }
 
-        public static void BeginTransaction(this IDbContext dbContext, IsolationLevel il = IsolationLevel.ReadCommitted)
+        public static void BeginTransaction(this IDbContext dbContext)
+        {
+            dbContext.Session.BeginTransaction();
+        }
+        public static void BeginTransaction(this IDbContext dbContext, IsolationLevel il)
         {
             dbContext.Session.BeginTransaction(il);
         }
@@ -30,9 +34,30 @@ namespace Chloe
         {
             dbContext.Session.RollbackTransaction();
         }
-        public static void DoWithTransaction(this IDbContext dbContext, Action action, IsolationLevel il = IsolationLevel.ReadCommitted)
+        public static void DoWithTransaction(this IDbContext dbContext, Action action)
+        {
+            dbContext.Session.BeginTransaction();
+            ExecuteAction(dbContext, action);
+        }
+        public static void DoWithTransaction(this IDbContext dbContext, Action action, IsolationLevel il)
         {
             dbContext.Session.BeginTransaction(il);
+            ExecuteAction(dbContext, action);
+        }
+        public static T DoWithTransaction<T>(this IDbContext dbContext, Func<T> action)
+        {
+            dbContext.Session.BeginTransaction();
+            return ExecuteAction(dbContext, action);
+        }
+        public static T DoWithTransaction<T>(this IDbContext dbContext, Func<T> action, IsolationLevel il)
+        {
+            dbContext.Session.BeginTransaction(il);
+            return ExecuteAction(dbContext, action);
+        }
+
+
+        static void ExecuteAction(IDbContext dbContext, Action action)
+        {
             try
             {
                 action();
@@ -45,9 +70,8 @@ namespace Chloe
                 throw;
             }
         }
-        public static T DoWithTransaction<T>(this IDbContext dbContext, Func<T> action, IsolationLevel il = IsolationLevel.ReadCommitted)
+        static T ExecuteAction<T>(IDbContext dbContext, Func<T> action)
         {
-            dbContext.Session.BeginTransaction(il);
             try
             {
                 T ret = action();

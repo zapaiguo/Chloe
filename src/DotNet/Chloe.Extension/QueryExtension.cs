@@ -50,6 +50,13 @@ namespace Chloe
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="q"></param>
+        /// <param name="orderString">Id asc,Age desc...</param>
+        /// <returns></returns>
         public static IOrderedQuery<T> OrderBy<T>(this IQuery<T> q, string orderString)
         {
             if (q == null)
@@ -71,6 +78,13 @@ namespace Chloe
 
             return orderedQuery;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="q"></param>
+        /// <param name="orderString">Id asc,Age desc...</param>
+        /// <returns></returns>
         public static IOrderedQuery<T> ThenBy<T>(this IOrderedQuery<T> q, string orderString)
         {
             if (q == null)
