@@ -17,7 +17,7 @@ Requires:
 - .NET Framework(>=4.0)
 - Chloe(>=2.5.0)
     </description>
-    <copyright>Copyright 2016</copyright>
+    <copyright>Copyright 2016-2017</copyright>
     <tags>Chloe,ORM,Data,SQLite</tags>
   </metadata>
 
