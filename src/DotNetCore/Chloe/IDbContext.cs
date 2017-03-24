@@ -12,8 +12,8 @@ namespace Chloe
         IQuery<TEntity> Query<TEntity>();
         TEntity QueryByKey<TEntity>(object key, bool tracking = false);
 
-        IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters) where T : new();
-        IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters) where T : new();
+        IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters);
+        IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters);
 
         TEntity Insert<TEntity>(TEntity entity);
         /// <summary>

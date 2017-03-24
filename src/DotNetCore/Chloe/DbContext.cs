@@ -71,11 +71,11 @@ namespace Chloe
             return q.FirstOrDefault();
         }
 
-        public virtual IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters) where T : new()
+        public virtual IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters)
         {
             return this.SqlQuery<T>(sql, CommandType.Text, parameters);
         }
-        public virtual IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters) where T : new()
+        public virtual IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters)
         {
             Utils.CheckNull(sql, "sql");
             return new InternalSqlQuery<T>(this, sql, cmdType, parameters);
