@@ -55,6 +55,8 @@ namespace Chloe.Oracle
 
             if (fieldType == UtilConstants.TypeOfInt32)
                 return Convert.ToBoolean(this._reader.GetInt32(i));
+            if (fieldType == UtilConstants.TypeOfInt16)
+                return Convert.ToBoolean(this._reader.GetInt16(i));
             if (fieldType == UtilConstants.TypeOfDecimal)
                 return Convert.ToBoolean(this._reader.GetDecimal(i));
 
