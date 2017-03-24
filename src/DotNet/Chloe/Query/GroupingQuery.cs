@@ -29,7 +29,7 @@ namespace Chloe.Query
             this._havingPredicates = havingPredicates;
         }
 
-        public IGroupingQuery<T> ThenBy<K>(Expression<Func<T, K>> keySelector)
+        public IGroupingQuery<T> AndBy<K>(Expression<Func<T, K>> keySelector)
         {
             List<LambdaExpression> groupKeySelectors = new List<LambdaExpression>(this._groupKeySelectors.Count + 1);
             groupKeySelectors.AddRange(this._groupKeySelectors);
