@@ -178,7 +178,6 @@ namespace Chloe.Query.Internals
             static ObjectActivator CreateObjectActivator(Type type, IDataReader reader)
             {
                 ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes);
-
                 if (constructor == null)
                     throw new ArgumentException(string.Format("The type of '{0}' does't define a none parameter constructor.", type.FullName));
 
