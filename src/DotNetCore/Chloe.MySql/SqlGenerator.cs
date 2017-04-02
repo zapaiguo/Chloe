@@ -211,6 +211,14 @@ namespace Chloe.MySql
 
             return exp;
         }
+        // %
+        public override DbExpression Visit(DbModuloExpression exp)
+        {
+            Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
+            this.ConcatOperands(operands, " % ");
+
+            return exp;
+        }
         // <
         public override DbExpression Visit(DbLessThanExpression exp)
         {

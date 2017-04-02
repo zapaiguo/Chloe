@@ -69,6 +69,11 @@ namespace Chloe.Core.Visitors
         {
             return DbExpression.Divide(this.Visit(exp.Left), this.Visit(exp.Right), exp.Type);
         }
+        // %
+        protected override DbExpression VisitBinary_Modulo(BinaryExpression exp)
+        {
+            return DbExpression.Modulo(this.Visit(exp.Left), this.Visit(exp.Right), exp.Type);
+        }
         // <
         protected override DbExpression VisitBinary_LessThan(BinaryExpression exp)
         {

@@ -235,6 +235,17 @@ namespace Chloe.Oracle
 
             return exp;
         }
+        // %
+        public override DbExpression Visit(DbModuloExpression exp)
+        {
+            this._sqlBuilder.Append("MOD(");
+            exp.Left.Accept(this);
+            this._sqlBuilder.Append(",");
+            exp.Right.Accept(this);
+            this._sqlBuilder.Append(")");
+
+            return exp;
+        }
         // <
         public override DbExpression Visit(DbLessThanExpression exp)
         {

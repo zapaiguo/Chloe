@@ -21,6 +21,7 @@ namespace Chloe.DbExpressions
         Divide,
         BitAnd,
         BitOr,
+        Modulo,
 
         Convert,
         Constant,

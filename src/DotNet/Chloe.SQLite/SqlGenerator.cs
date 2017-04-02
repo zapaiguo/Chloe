@@ -209,6 +209,14 @@ namespace Chloe.SQLite
 
             return exp;
         }
+        // %
+        public override DbExpression Visit(DbModuloExpression exp)
+        {
+            Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
+            this.ConcatOperands(operands, " % ");
+
+            return exp;
+        }
         // <
         public override DbExpression Visit(DbLessThanExpression exp)
         {

@@ -49,6 +49,10 @@ namespace Chloe.DbExpressions
         {
             return new DbDivideExpression(returnType, left, right);
         }
+        public static DbModuloExpression Modulo(DbExpression left, DbExpression right, Type returnType)
+        {
+            return new DbModuloExpression(returnType, left, right);
+        }
 
         public static DbBitAndExpression BitAnd(Type type, DbExpression left, DbExpression right)
         {

@@ -83,6 +83,7 @@
     <Compile Include="DbExpressions\DbMainTableExpression.cs" />
     <Compile Include="DbExpressions\DbMemberExpression.cs" />
     <Compile Include="DbExpressions\DbMethodCallExpression.cs" />
+    <Compile Include="DbExpressions\DbModuloExpression.cs" />
     <Compile Include="DbExpressions\DbMultiplyExpression.cs" />
     <Compile Include="DbExpressions\DbNotEqualExpression.cs" />
     <Compile Include="DbExpressions\DbNotExpression.cs" />
