@@ -1,5 +1,6 @@
 ﻿using Chloe.Core;
 using Chloe.DbExpressions;
+using Chloe.InternalExtensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,6 +43,53 @@ namespace Chloe.Oracle
 
             return row_numberName;
         }
+        static void AmendDbInfo(DbExpression exp1, DbExpression exp2)
+        {
+            DbColumnAccessExpression datumPointExp = null;
+            DbParameterExpression expToAmend = null;
+
+            DbExpression e = Trim_Nullable_Value(exp1);
+            if (e.NodeType == DbExpressionType.ColumnAccess && exp2.NodeType == DbExpressionType.Parameter)
+            {
+                datumPointExp = (DbColumnAccessExpression)e;
+                expToAmend = (DbParameterExpression)exp2;
+            }
+            else if ((e = Trim_Nullable_Value(exp2)).NodeType == DbExpressionType.ColumnAccess && exp1.NodeType == DbExpressionType.Parameter)
+            {
+                datumPointExp = (DbColumnAccessExpression)e;
+                expToAmend = (DbParameterExpression)exp1;
+            }
+            else
+                return;
+
+            if (datumPointExp.Column.DbType != null)
+            {
+                if (expToAmend.DbType == null)
+                    expToAmend.DbType = datumPointExp.Column.DbType;
+            }
+        }
+        static void AmendDbInfo(DbColumn column, DbExpression exp)
+        {
+            if (column.DbType == null || exp.NodeType != DbExpressionType.Parameter)
+                return;
+
+            DbParameterExpression expToAmend = (DbParameterExpression)exp;
+
+            if (expToAmend.DbType == null)
+                expToAmend.DbType = column.DbType;
+        }
+        static DbExpression Trim_Nullable_Value(DbExpression exp)
+        {
+            DbMemberExpression memberExp = exp as DbMemberExpression;
+            if (memberExp == null)
+                return exp;
+
+            if (memberExp.Member.Name == "Value" && ReflectionExtension.IsNullable(memberExp.Expression.Type))
+                return memberExp.Expression;
+
+            return exp;
+        }
+
 
         static DbExpression EnsureDbExpressionReturnCSharpBoolean(DbExpression exp)
         {
@@ -107,7 +155,7 @@ namespace Chloe.Oracle
                 throw new NotSupportedException();
 
             DbParameterExpression p;
-            if (!DbExpressionExtensions.TryParseToParameterExpression(m, out p))
+            if (!DbExpressionExtension.TryConvertToParameterExpression(m, out p))
             {
                 throw new NotSupportedException();
             }
@@ -127,8 +175,8 @@ namespace Chloe.Oracle
         {
             dbTypeString = null;
 
-            sourceType = Utils.GetUnderlyingType(sourceType);
-            targetType = Utils.GetUnderlyingType(targetType);
+            sourceType = ReflectionExtension.GetUnderlyingType(sourceType);
+            targetType = ReflectionExtension.GetUnderlyingType(targetType);
 
             if (sourceType == targetType)
                 return false;
@@ -216,8 +264,8 @@ namespace Chloe.Oracle
             string dbTypeString = null;
             if (withCast == true)
             {
-                Type unType = Utils.GetUnderlyingType(retType);
-                if (CastTypeMap.TryGetValue(unType, out dbTypeString))
+                Type underlyingType = ReflectionExtension.GetUnderlyingType(retType);
+                if (CastTypeMap.TryGetValue(underlyingType, out dbTypeString))
                 {
                     generator._sqlBuilder.Append("CAST(");
                 }
@@ -245,7 +293,7 @@ namespace Chloe.Oracle
         }
         static DbColumnSegment CloneColumnSegment(DbColumnSegment rawColumnSeg, DbTable newBelongTable)
         {
-            DbColumnAccessExpression columnAccessExp = new DbColumnAccessExpression(rawColumnSeg.Body.Type, newBelongTable, rawColumnSeg.Alias);
+            DbColumnAccessExpression columnAccessExp = new DbColumnAccessExpression(newBelongTable, DbColumn.MakeColumn(rawColumnSeg.Body, rawColumnSeg.Alias));
             DbColumnSegment newColumnSeg = new DbColumnSegment(columnAccessExp, rawColumnSeg.Alias);
 
             return newColumnSeg;

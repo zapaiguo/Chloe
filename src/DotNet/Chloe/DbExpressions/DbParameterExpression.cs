@@ -1,5 +1,6 @@
 ﻿using Chloe.Utility;
 using System;
+using System.Data;
 
 namespace Chloe.DbExpressions
 {
@@ -39,6 +40,7 @@ namespace Chloe.DbExpressions
 
         public override Type Type { get { return this._type; } }
         public object Value { get { return this._value; } }
+        public DbType? DbType { get; set; }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

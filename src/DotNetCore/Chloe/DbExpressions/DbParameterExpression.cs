@@ -1,5 +1,6 @@
 ﻿using Chloe.Utility;
 using System;
+using System.Data;
 using System.Reflection;
 
 namespace Chloe.DbExpressions
@@ -30,7 +31,7 @@ namespace Chloe.DbExpressions
             {
                 Type t = value.GetType();
 
-                if (!type.GetTypeInfo().IsAssignableFrom(t))
+                if (!type.IsAssignableFrom(t))
                     throw new ArgumentException();
             }
 
@@ -40,6 +41,7 @@ namespace Chloe.DbExpressions
 
         public override Type Type { get { return this._type; } }
         public object Value { get { return this._value; } }
+        public DbType? DbType { get; set; }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {

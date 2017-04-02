@@ -1,82 +1,84 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.InternalExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Reflection;
 
 namespace Chloe.SqlServer
 {
     static class DbExpressionHelper
     {
-        public static DbExpression StripConvert(DbExpression exp)
+        /// <summary>
+        /// 尝试将 exp 转换成 DbParameterExpression。
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static DbExpression OptimizeDbExpression(this DbExpression exp)
         {
-            while (exp.NodeType == DbExpressionType.Convert)
+            DbExpression stripedExp = DbExpressionExtension.StripInvalidConvert(exp);
+
+            DbExpression tempExp = stripedExp;
+
+            List<DbConvertExpression> cList = null;
+            while (tempExp.NodeType == DbExpressionType.Convert)
             {
-                exp = ((DbConvertExpression)exp).Operand;
+                if (cList == null)
+                    cList = new List<DbConvertExpression>();
+
+                DbConvertExpression c = (DbConvertExpression)tempExp;
+                cList.Add(c);
+                tempExp = c.Operand;
             }
 
-            return exp;
+            if (tempExp.NodeType == DbExpressionType.Constant || tempExp.NodeType == DbExpressionType.Parameter)
+                return stripedExp;
+
+            if (tempExp.NodeType == DbExpressionType.MemberAccess)
+            {
+                DbMemberExpression dbMemberExp = (DbMemberExpression)tempExp;
+
+                if (ExistDateTime_NowOrDateTime_UtcNow(dbMemberExp))
+                    return stripedExp;
+
+                DbParameterExpression val;
+                if (DbExpressionExtension.TryConvertToParameterExpression(dbMemberExp, out val))
+                {
+                    if (cList != null)
+                    {
+                        if (val.Value == DBNull.Value)//如果是 null，则不需要 Convert 了，在数据库里没意义
+                            return val;
+
+                        DbConvertExpression c = null;
+                        for (int i = cList.Count - 1; i > -1; i--)
+                        {
+                            DbConvertExpression item = cList[i];
+                            c = new DbConvertExpression(item.Type, val);
+                        }
+
+                        return c;
+                    }
+
+                    return val;
+                }
+            }
+
+            return stripedExp;
         }
-        public static DbExpression StripInvalidConvert(DbExpression exp)
+
+        public static bool ExistDateTime_NowOrDateTime_UtcNow(this DbMemberExpression exp)
         {
-            DbConvertExpression convertExpression = exp as DbConvertExpression;
-
-            if (convertExpression == null)
-                return exp;
-
-            if (convertExpression.Type.GetTypeInfo().IsEnum)
+            while (exp != null)
             {
-                //(enumType)123
-                if (typeof(int) == convertExpression.Operand.Type)
-                    return StripInvalidConvert(convertExpression.Operand);
+                if (exp.Member == UtilConstants.PropertyInfo_DateTime_Now || exp.Member == UtilConstants.PropertyInfo_DateTime_UtcNow)
+                {
+                    return true;
+                }
 
-                DbConvertExpression newExp = new DbConvertExpression(typeof(int), convertExpression.Operand);
-                return StripInvalidConvert(newExp);
+                exp = exp.Expression as DbMemberExpression;
             }
 
-            Type unType;
-
-            //(int?)123
-            if (Utils.IsNullable(convertExpression.Type, out unType))//可空类型转换
-            {
-                if (unType == convertExpression.Operand.Type)
-                    return StripInvalidConvert(convertExpression.Operand);
-
-                DbConvertExpression newExp = new DbConvertExpression(unType, convertExpression.Operand);
-                return StripInvalidConvert(newExp);
-            }
-
-            //(int)enumTypeValue
-            if (exp.Type == typeof(int))
-            {
-                //(int)enumTypeValue
-                if (convertExpression.Operand.Type.GetTypeInfo().IsEnum)
-                    return StripInvalidConvert(convertExpression.Operand);
-
-                //(int)NullableEnumTypeValue
-                if (Utils.IsNullable(convertExpression.Operand.Type, out unType) && unType.GetTypeInfo().IsEnum)
-                    return StripInvalidConvert(convertExpression.Operand);
-            }
-
-            //float long double and so on
-            if (exp.Type.GetTypeInfo().IsValueType)
-            {
-                //(long)NullableValue
-                if (Utils.IsNullable(convertExpression.Operand.Type, out unType) && unType == exp.Type)
-                    return StripInvalidConvert(convertExpression.Operand);
-            }
-
-            if (convertExpression.Type == convertExpression.Operand.Type)
-            {
-                return StripInvalidConvert(convertExpression.Operand);
-            }
-
-            //如果是子类向父类转换
-            if (exp.Type.IsAssignableFrom(convertExpression.Operand.Type))
-                return StripInvalidConvert(convertExpression.Operand);
-
-            return convertExpression;
+            return false;
         }
     }
 }

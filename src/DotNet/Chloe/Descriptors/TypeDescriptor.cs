@@ -2,7 +2,7 @@
 using Chloe.DbExpressions;
 using Chloe.Entity;
 using Chloe.Exceptions;
-using Chloe.Extensions;
+using Chloe.InternalExtensions;
 using Chloe.Query.Visitors;
 using Chloe.Utility;
 using System;
@@ -131,77 +131,41 @@ namespace Chloe.Descriptors
             List<MappingMemberDescriptor> mappingMemberDescriptors = new List<MappingMemberDescriptor>();
             foreach (var member in members)
             {
-                var ignoreFlags = member.GetCustomAttributes(typeof(NotMappedAttribute), false);
-                if (ignoreFlags.Length > 0)
+                if (ShouldMap(member) == false)
                     continue;
 
-                Type memberType = null;
-                PropertyInfo prop = null;
-                FieldInfo field = null;
-
-                if ((prop = member as PropertyInfo) != null)
+                if (Utils.IsMapType(member.GetMemberType()))
                 {
-                    if (prop.GetSetMethod() == null)
-                        continue;//对于没有公共的 setter 直接跳过
-                    memberType = prop.PropertyType;
-                }
-                else if ((field = member as FieldInfo) != null)
-                {
-                    memberType = field.FieldType;
-                }
-                else
-                    continue;//只支持公共属性和字段
-
-                if (Utils.IsMapType(memberType))
-                {
-                    MappingMemberDescriptor memberDescriptor = this.ConstructMappingMemberDescriptor(member);
+                    MappingMemberDescriptor memberDescriptor = new MappingMemberDescriptor(member, this);
                     mappingMemberDescriptors.Add(memberDescriptor);
                 }
             }
 
             return mappingMemberDescriptors;
         }
-        MappingMemberDescriptor ConstructMappingMemberDescriptor(MemberInfo member)
-        {
-            string columnName = null;
-            bool isPrimaryKey = false;
 
-            var columnFlags = member.GetCustomAttributes(typeof(ColumnAttribute), true);
-            if (columnFlags.Length > 0)
-            {
-                ColumnAttribute columnFlag = (ColumnAttribute)columnFlags.First();
-                if (columnFlag.Name != null)
-                    columnName = columnFlag.Name;
-                else
-                    columnName = member.Name;
-
-                if (columnFlag.IsPrimaryKey)
-                {
-                    isPrimaryKey = true;
-                }
-            }
-            else
-                columnName = member.Name;
-
-
-            MappingMemberDescriptor memberDescriptor = null;
-            PropertyInfo propertyInfo = member as PropertyInfo;
-            if (propertyInfo != null)
-            {
-                memberDescriptor = new PropertyDescriptor(propertyInfo, this, columnName);
-            }
-            else
-            {
-                memberDescriptor = new FieldDescriptor((FieldInfo)member, this, columnName);
-            }
-
-            memberDescriptor.IsPrimaryKey = isPrimaryKey;
-
-            return memberDescriptor;
-        }
         static bool IsAutoIncrementType(Type t)
         {
             return t == UtilConstants.TypeOfInt16 || t == UtilConstants.TypeOfInt32 || t == UtilConstants.TypeOfInt64;
+        }
+        static bool ShouldMap(MemberInfo member)
+        {
+            var ignoreFlags = member.GetCustomAttributes(typeof(NotMappedAttribute), false);
+            if (ignoreFlags.Length > 0)
+                return false;
+
+            if (member.MemberType == MemberTypes.Property)
+            {
+                if (((PropertyInfo)member).GetSetMethod() == null)
+                    return false;//对于没有公共的 setter 直接跳过
+                return true;
+            }
+            else if (member.MemberType == MemberTypes.Field)
+            {
+                return true;
+            }
+            else
+                return false;//只支持公共属性和字段
         }
 
         public Type EntityType { get; private set; }

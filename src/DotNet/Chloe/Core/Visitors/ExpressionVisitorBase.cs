@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Linq;
 using Chloe.DbExpressions;
 using Chloe.Utility;
+using Chloe.InternalExtensions;
 
 namespace Chloe.Core.Visitors
 {
@@ -441,7 +442,7 @@ namespace Chloe.Core.Visitors
                 if (exp.NodeType == ExpressionType.MemberAccess)
                 {
                     MemberExpression memberExpression = (MemberExpression)exp;
-                    if (memberExpression.Member.Name == "HasValue" && Utils.IsNullable(memberExpression.Member.DeclaringType))
+                    if (memberExpression.Member.Name == "HasValue" && ReflectionExtension.IsNullable(memberExpression.Member.DeclaringType))
                     {
                         var nullRight = Expression.Constant(null, memberExpression.Expression.Type);
                         if (trueOrFalse)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
-using Chloe.Extensions;
+using Chloe.InternalExtensions;
+using System.Data;
 
 namespace Chloe.DbExpressions
 {
@@ -22,13 +23,18 @@ namespace Chloe.DbExpressions
         {
             get
             {
-                return this._member.GetPropertyOrFieldType();
+                return this._member.GetMemberType();
             }
         }
 
         public MemberInfo Member
         {
             get { return this._member; }
+        }
+        public DbType? DbType
+        {
+            get;
+            set;
         }
 
         /// <summary>

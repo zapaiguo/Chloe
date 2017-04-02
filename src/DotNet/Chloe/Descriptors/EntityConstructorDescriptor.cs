@@ -1,4 +1,5 @@
-﻿using Chloe.Mapper;
+﻿using Chloe.InternalExtensions;
+using Chloe.Mapper;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace Chloe.Descriptors
             ConstructorInfo constructor = this.ConstructorInfo;
             Type type = constructor.DeclaringType;
 
-            if (Utils.IsAnonymousType(type))
+            if (ReflectionExtension.IsAnonymousType(type))
             {
                 ParameterInfo[] parameters = constructor.GetParameters();
                 this.MemberParameterMap = new Dictionary<MemberInfo, ParameterInfo>(parameters.Length);

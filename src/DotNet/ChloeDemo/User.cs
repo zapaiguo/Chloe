@@ -2,6 +2,7 @@
 using Chloe.Oracle;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,14 +14,26 @@ namespace ChloeDemo
         Woman
     }
 
+    public interface IEntity
+    {
+        int Id { get; set; }
+    }
     [TableAttribute("Users")]
-    public class User
+    public class UserLite : IEntity
     {
         [Column(IsPrimaryKey = true)]
         [AutoIncrement]
         [Sequence("USERS_AUTOID")]//For oracle
-        public int Id { get; set; }
+        public virtual int Id { get; set; }
+        [Column(DbType = DbType.String)]
         public string Name { get; set; }
+    }
+
+
+    [TableAttribute("Users")]
+    public class User : UserLite
+    {
+        [Column(DbType = DbType.Int32)]
         public Gender? Gender { get; set; }
         public int? Age { get; set; }
         public int? CityId { get; set; }

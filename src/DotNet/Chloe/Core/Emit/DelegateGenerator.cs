@@ -1,4 +1,5 @@
 ﻿using Chloe.Extensions;
+using Chloe.InternalExtensions;
 using Chloe.Mapper;
 using Chloe.Utility;
 using System;
@@ -24,7 +25,7 @@ namespace Chloe.Core.Emit
             il.Emit(OpCodes.Ldarg_S, 0);//将第一个参数 object 对象加载到栈顶
             il.Emit(OpCodes.Castclass, member.DeclaringType);//将 object 对象转换为强类型对象 此时栈顶为强类型的对象
 
-            var readerMethod = DataReaderConstant.GetReaderMethod(member.GetPropertyOrFieldType());
+            var readerMethod = DataReaderConstant.GetReaderMethod(member.GetMemberType());
 
             //ordinal
             il.Emit(OpCodes.Ldarg_S, 1);    //加载参数DataReader
@@ -47,7 +48,7 @@ namespace Chloe.Core.Emit
             var reader = Expression.Parameter(typeof(IDataReader), "reader");
             var ordinal = Expression.Parameter(typeof(int), "ordinal");
 
-            var readerMethod = DataReaderConstant.GetReaderMethod(member.GetPropertyOrFieldType());
+            var readerMethod = DataReaderConstant.GetReaderMethod(member.GetMemberType());
 
             var getValue = Expression.Call(null, readerMethod, reader, ordinal);
 
@@ -161,16 +162,16 @@ namespace Chloe.Core.Emit
 
             return ret;
         }
-        public static Func<object, object> CreateValueGetter(MemberInfo member)
+        public static Func<object, object> CreateValueGetter(MemberInfo propertyOrField)
         {
             var p = Expression.Parameter(typeof(object), "a");
-            var instance = Expression.Convert(p, member.DeclaringType);
-            var memberAccess = Expression.MakeMemberAccess(instance, member);
+            var instance = Expression.Convert(p, propertyOrField.DeclaringType);
+            var memberAccess = Expression.MakeMemberAccess(instance, propertyOrField);
 
-            Type type = ReflectionExtension.GetMemberInfoType(member);
+            Type type = ReflectionExtension.GetMemberType(propertyOrField);
 
             Expression body = memberAccess;
-            if (type.IsValueType)
+            if (type.IsValueType())
             {
                 body = Expression.Convert(memberAccess, typeof(object));
             }

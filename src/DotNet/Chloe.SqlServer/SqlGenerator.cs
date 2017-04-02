@@ -1,9 +1,11 @@
 ﻿using Chloe.Core;
 using Chloe.DbExpressions;
+using Chloe.InternalExtensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -89,23 +91,25 @@ namespace Chloe.SqlServer
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
-            left = DbExpressionExtensions.ParseDbExpression(left);
-            right = DbExpressionExtensions.ParseDbExpression(right);
+            left = DbExpressionHelper.OptimizeDbExpression(left);
+            right = DbExpressionHelper.OptimizeDbExpression(right);
 
             //明确 left right 其中一边一定为 null
-            if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(right))
+            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(right))
             {
                 left.Accept(this);
                 this._sqlBuilder.Append(" IS NULL");
                 return exp;
             }
 
-            if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(left))
+            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(left))
             {
                 right.Accept(this);
                 this._sqlBuilder.Append(" IS NULL");
                 return exp;
             }
+
+            AmendDbInfo(left, right);
 
             left.Accept(this);
             this._sqlBuilder.Append(" = ");
@@ -118,23 +122,25 @@ namespace Chloe.SqlServer
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
-            left = DbExpressionExtensions.ParseDbExpression(left);
-            right = DbExpressionExtensions.ParseDbExpression(right);
+            left = DbExpressionHelper.OptimizeDbExpression(left);
+            right = DbExpressionHelper.OptimizeDbExpression(right);
 
             //明确 left right 其中一边一定为 null
-            if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(right))
+            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(right))
             {
                 left.Accept(this);
                 this._sqlBuilder.Append(" IS NOT NULL");
                 return exp;
             }
 
-            if (DbExpressionExtensions.AffirmExpressionRetValueIsNull(left))
+            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(left))
             {
                 right.Accept(this);
                 this._sqlBuilder.Append(" IS NOT NULL");
                 return exp;
             }
+
+            AmendDbInfo(left, right);
 
             left.Accept(this);
             this._sqlBuilder.Append(" <> ");
@@ -389,7 +395,9 @@ namespace Chloe.SqlServer
                     this._sqlBuilder.Append(",");
                 }
 
-                item.Value.Accept(this.ValueExpressionVisitor);
+                DbExpression valExp = item.Value.OptimizeDbExpression();
+                AmendDbInfo(item.Key, valExp);
+                valExp.Accept(this.ValueExpressionVisitor);
             }
 
             this._sqlBuilder.Append(")");
@@ -412,7 +420,10 @@ namespace Chloe.SqlServer
 
                 this.QuoteName(item.Key.Name);
                 this._sqlBuilder.Append("=");
-                item.Value.Accept(this.ValueExpressionVisitor);
+
+                DbExpression valExp = item.Value.OptimizeDbExpression();
+                AmendDbInfo(item.Key, valExp);
+                valExp.Accept(this.ValueExpressionVisitor);
             }
 
             this.BuildWhereState(exp.Condition);
@@ -450,7 +461,7 @@ namespace Chloe.SqlServer
         }
         public override DbExpression Visit(DbConvertExpression exp)
         {
-            DbExpression stripedExp = DbExpressionHelper.StripInvalidConvert(exp);
+            DbExpression stripedExp = DbExpressionExtension.StripInvalidConvert(exp);
 
             if (stripedExp.NodeType != DbExpressionType.Convert)
             {
@@ -521,7 +532,7 @@ namespace Chloe.SqlServer
 
 
             DbParameterExpression newExp;
-            if (DbExpressionExtensions.TryParseToParameterExpression(exp, out newExp))
+            if (DbExpressionExtension.TryConvertToParameterExpression(exp, out newExp))
             {
                 return newExp.Accept(this);
             }
@@ -534,7 +545,7 @@ namespace Chloe.SqlServer
 
                 return exp;
             }
-            else if (member.Name == "Value" && Utils.IsNullable(exp.Expression.Type))
+            else if (member.Name == "Value" && ReflectionExtension.IsNullable(exp.Expression.Type))
             {
                 exp.Expression.Accept(this);
                 return exp;
@@ -561,7 +572,7 @@ namespace Chloe.SqlServer
                 this._sqlBuilder.Append("N'", exp.Value, "'");
                 return exp;
             }
-            else if (objType.IsEnum)
+            else if (objType.IsEnum())
             {
                 this._sqlBuilder.Append(((int)exp.Value).ToString());
                 return exp;
@@ -575,7 +586,7 @@ namespace Chloe.SqlServer
             object paramValue = exp.Value;
             Type paramType = exp.Type;
 
-            if (paramType.IsEnum)
+            if (paramType.IsEnum())
             {
                 paramType = UtilConstants.TypeOfInt32;
                 if (paramValue != null)
@@ -606,9 +617,14 @@ namespace Chloe.SqlServer
 
             if (paramValue.GetType() == UtilConstants.TypeOfString)
             {
-                if (((string)paramValue).Length <= 4000)
+                if (exp.DbType == DbType.AnsiStringFixedLength || exp.DbType == DbType.StringFixedLength)
+                    p.Size = ((string)paramValue).Length;
+                else if (((string)paramValue).Length <= 4000)
                     p.Size = 4000;
             }
+
+            if (exp.DbType != null)
+                p.DbType = exp.DbType;
 
             this._parameters.Add(p);
             this._sqlBuilder.Append(paramName);

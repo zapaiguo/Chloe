@@ -119,12 +119,14 @@
     <Compile Include="Exceptions\ChloeException.cs" />
     <Compile Include="Extensions\DataReaderConstant.cs" />
     <Compile Include="Extensions\DataReaderExtension.cs" />
+    <Compile Include="Extensions\DbExpressionExtension.cs" />
     <Compile Include="Extensions\ExpressionExtension.cs" />
     <Compile Include="Extensions\ReflectionExtension.cs" />
     <Compile Include="IDbContext.cs" />
     <Compile Include="IDbSession.cs" />
     <Compile Include="IGroupingQuery.cs" />
     <Compile Include="IJoiningQuery`.cs" />
+    <Compile Include="Infrastructure\DbTypeSystem.cs" />
     <Compile Include="Infrastructure\Interception\DbCommandInterceptionContext`.cs" />
     <Compile Include="Infrastructure\IDbConnectionFactory.cs" />
     <Compile Include="Infrastructure\IDbContextServiceProvider.cs" />

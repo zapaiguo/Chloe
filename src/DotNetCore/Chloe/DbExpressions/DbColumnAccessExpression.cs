@@ -10,10 +10,6 @@ namespace Chloe.DbExpressions
         DbTable _table;
         DbColumn _column;
 
-        public DbColumnAccessExpression(Type type, DbTable table, string columnName)
-            : this(table, new DbColumn(columnName, type))
-        {
-        }
         public DbColumnAccessExpression(DbTable table, DbColumn column)
             : base(DbExpressionType.ColumnAccess, column.Type)
         {

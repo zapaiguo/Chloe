@@ -1,4 +1,5 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.InternalExtensions;
 using Chloe.Query;
 using System;
 using System.Collections.Generic;
@@ -74,15 +75,15 @@ namespace Chloe.Utility
             if (type == null)
                 return null;
 
-            Type unType;
-            if (!Utils.IsNullable(type, out unType))
-                unType = type;
+            Type underlyingType;
+            if (!ReflectionExtension.IsNullable(type, out underlyingType))
+                underlyingType = type;
 
-            if (unType.IsEnum)
-                unType = UtilConstants.TypeOfInt32;
+            if (underlyingType.IsEnum())
+                underlyingType = UtilConstants.TypeOfInt32;
 
             DbType ret;
-            if (_typeDbTypeMap.TryGetValue(unType, out ret))
+            if (_typeDbTypeMap.TryGetValue(underlyingType, out ret))
                 return ret;
 
             return null;
@@ -92,16 +93,7 @@ namespace Chloe.Utility
             if (obj == null)
                 throw new ArgumentNullException(paramName);
         }
-        public static bool IsNullable(Type type)
-        {
-            Type unType;
-            return IsNullable(type, out unType);
-        }
-        public static bool IsNullable(Type type, out Type unType)
-        {
-            unType = Nullable.GetUnderlyingType(type);
-            return unType != null;
-        }
+
         public static bool AreEqual(object obj1, object obj2)
         {
             if (obj1 == null && obj2 == null)
@@ -120,22 +112,16 @@ namespace Chloe.Utility
             return object.Equals(obj1, obj2);
         }
 
-
         public static bool IsMapType(Type type)
         {
-            Type unType;
-            if (!Utils.IsNullable(type, out unType))
-                unType = type;
+            Type underlyingType;
+            if (!ReflectionExtension.IsNullable(type, out underlyingType))
+                underlyingType = type;
 
-            if (unType.IsEnum)
+            if (underlyingType.IsEnum())
                 return true;
 
-            return MapTypes.Contains(unType);
-        }
-        public static bool IsAnonymousType(Type type)
-        {
-            string typeName = type.Name;
-            return typeName.Contains("<>") && typeName.Contains("__") && typeName.Contains("AnonymousType");
+            return MapTypes.Contains(underlyingType);
         }
 
         public static string GenerateUniqueColumnAlias(DbSqlQueryExpression sqlQuery, string defaultAlias = UtilConstants.DefaultColumnAlias)
@@ -163,5 +149,4 @@ namespace Chloe.Utility
             return ret;
         }
     }
-
 }

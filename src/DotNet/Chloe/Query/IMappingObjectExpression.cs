@@ -47,7 +47,7 @@ namespace Chloe.Query
                 columnList.Add(columnSeg);
             }
 
-            DbColumnAccessExpression cae = new DbColumnAccessExpression(columnSeg.Body.Type, table, columnSeg.Alias);
+            DbColumnAccessExpression cae = new DbColumnAccessExpression(table, DbColumn.MakeColumn(columnSeg.Body, columnSeg.Alias));
             return cae;
         }
         public static int? TryGetOrAddColumn(DbSqlQueryExpression sqlQuery, DbExpression exp, string addDefaultAlias = UtilConstants.DefaultColumnAlias)
@@ -88,8 +88,7 @@ namespace Chloe.Query
 
             sqlQuery.ColumnSegments.Add(columnSeg);
 
-            DbColumnAccessExpression cae = new DbColumnAccessExpression(exp.Type, table, alias);
-
+            DbColumnAccessExpression cae = new DbColumnAccessExpression(table, DbColumn.MakeColumn(exp, alias));
             return cae;
         }
     }

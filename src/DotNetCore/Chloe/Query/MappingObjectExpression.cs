@@ -1,4 +1,5 @@
 ﻿using Chloe.Extensions;
+using Chloe.InternalExtensions;
 using Chloe.DbExpressions;
 using Chloe.Descriptors;
 using Chloe.Query.Mapping;
@@ -102,54 +103,71 @@ namespace Chloe.Query
 
             return ret;
         }
-        public DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter)
+        public DbExpression GetDbExpression(MemberExpression memberExpressionDeriveFromParameter)
         {
-            Stack<MemberExpression> memberExpressions = ExpressionExtension.Reverse(memberExpressionDeriveParameter);
+            Stack<MemberExpression> memberExpressions = ExpressionExtension.Reverse(memberExpressionDeriveFromParameter);
 
             DbExpression ret = null;
             IMappingObjectExpression moe = this;
             foreach (MemberExpression memberExpression in memberExpressions)
             {
-                MemberInfo member = memberExpression.Member;
+                MemberInfo accessedMember = memberExpression.Member;
 
                 if (moe == null && ret != null)
                 {
                     /* a.F_DateTime.Value.Date */
-                    ret = DbExpression.MemberAccess(member, ret);
+                    ret = DbExpression.MemberAccess(accessedMember, ret);
                     continue;
                 }
 
-                DbExpression e = moe.GetMemberExpression(member);
+                /* **.accessedMember */
+                DbExpression e = moe.GetMemberExpression(accessedMember);
                 if (e == null)
                 {
-                    moe = moe.GetNavMemberExpression(member);
+                    /* Indicate current accessed member is not mapping member,then try get complex member like 'a.Order' */
+                    moe = moe.GetNavMemberExpression(accessedMember);
+
                     if (moe == null)
                     {
                         if (ret == null)
                         {
-                            throw new Exception();
+                            /*
+                             * If run here,the member access expression must be like 'a.xx',
+                             * and member 'xx' is neither mapping member nor complex member,in this case,we not supported.
+                             */
+                            throw new InvalidOperationException(memberExpressionDeriveFromParameter.ToString());
                         }
                         else
                         {
-                            ret = DbExpression.MemberAccess(member, ret);
+                            /* Non mapping member is not found also,then convert linq MemberExpression to DbMemberExpression */
+                            ret = DbExpression.MemberAccess(accessedMember, ret);
                             continue;
                         }
                     }
 
                     if (ret != null)
-                        throw new NotSupportedException(memberExpressionDeriveParameter.ToString());
+                    {
+                        /* This case and case #110 will not appear in normal,if you meet,please email me(so_while@163.com) or call 911 for help. */
+                        throw new InvalidOperationException(memberExpressionDeriveFromParameter.ToString());
+                    }
                 }
                 else
                 {
-                    if (ret != null)
-                        throw new NotSupportedException(memberExpressionDeriveParameter.ToString());
+                    if (ret != null)//Case: #110
+                        throw new InvalidOperationException(memberExpressionDeriveFromParameter.ToString());
 
                     ret = e;
                 }
             }
 
             if (ret == null)
-                throw new Exception(memberExpressionDeriveParameter.ToString());
+            {
+                /*
+                 * If run here,the input argument 'memberExpressionDeriveFromParameter' expression must be like 'a.xx','a.**.xx','a.**.**.xx' ...and so on,
+                 * and the last accessed member 'xx' is not mapping member,in this case,we not supported too.
+                 */
+                throw new InvalidOperationException(memberExpressionDeriveFromParameter.ToString());
+            }
 
             return ret;
         }

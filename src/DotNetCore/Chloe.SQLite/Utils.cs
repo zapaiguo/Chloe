@@ -13,24 +13,7 @@ namespace Chloe.SQLite
             if (obj == null)
                 throw new ArgumentNullException(paramName);
         }
-        public static bool IsNullable(Type type)
-        {
-            Type unType;
-            return IsNullable(type, out unType);
-        }
-        public static bool IsNullable(Type type, out Type unType)
-        {
-            unType = Nullable.GetUnderlyingType(type);
-            return unType != null;
-        }
-        public static Type GetUnderlyingType(Type type)
-        {
-            Type unType;
-            if (!IsNullable(type, out unType))
-                unType = type;
 
-            return unType;
-        }
         public static bool AreEqual(object obj1, object obj2)
         {
             if (obj1 == null && obj2 == null)

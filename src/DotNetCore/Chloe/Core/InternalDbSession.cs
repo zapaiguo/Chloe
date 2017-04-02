@@ -1,6 +1,7 @@
 ﻿using Chloe.Core;
 using Chloe.Exceptions;
 using Chloe.Infrastructure.Interception;
+using Chloe.InternalExtensions;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
@@ -294,11 +295,16 @@ namespace Chloe.Core
                     if (param.Size != null)
                         parameter.Size = param.Size.Value;
 
-                    DbType? dbType = Utils.TryGetDbType(parameterType);
-                    if (dbType != null)
-                        parameter.DbType = dbType.Value;
+                    if (param.DbType != null)
+                        parameter.DbType = param.DbType.Value;
+                    else
+                    {
+                        DbType? dbType = Utils.TryGetDbType(parameterType);
+                        if (dbType != null)
+                            parameter.DbType = dbType.Value;
+                    }
 
-                    const int defaultSizeOfStringOutputParameter = 8000;/* 当一个 string 类型输出参数未显示指定 Size 时使用的默认大小。如果有需要更大或者该值不足以满足需求，需显示指定 DbParam.Size 值 */
+                    const int defaultSizeOfStringOutputParameter = 4000;/* 当一个 string 类型输出参数未显示指定 Size 时使用的默认大小。如果有需要更大或者该值不足以满足需求，需显示指定 DbParam.Size 值 */
 
                     OutputParameter outputParameter = null;
                     if (param.Direction == ParamDirection.Input)
@@ -462,10 +468,10 @@ namespace Chloe.Core
         }
         static string GetTypeName(Type type)
         {
-            Type unType;
-            if (Utils.IsNullable(type, out unType))
+            Type underlyingType;
+            if (ReflectionExtension.IsNullable(type, out underlyingType))
             {
-                return string.Format("Nullable<{0}>", GetTypeName(unType));
+                return string.Format("Nullable<{0}>", GetTypeName(underlyingType));
             }
 
             return type.Name;

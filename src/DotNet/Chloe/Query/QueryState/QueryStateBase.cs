@@ -195,7 +195,7 @@ namespace Chloe.Query.QueryState
                         sqlQuery.ColumnSegments.Add(columnSeg);
                     }
 
-                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(orderingExp.Type, table, alias);
+                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, DbColumn.MakeColumn(orderingExp, alias));
                     result.Orderings.Add(new DbOrdering(columnAccessExpression, ordering.OrderType));
                 }
             }

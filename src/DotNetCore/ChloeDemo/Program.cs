@@ -15,8 +15,8 @@ namespace ChloeDemo
             DbInterception.Add(interceptor);
 
             SQLiteDemo.Test();
-            //MsSqlDemo.Test();
-            //MySqlDemo.Test();
+            MsSqlDemo.Test();
+            MySqlDemo.Test();
         }
     }
 }

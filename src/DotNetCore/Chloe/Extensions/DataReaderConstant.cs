@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using Chloe.InternalExtensions;
 
 namespace Chloe.Extensions
 {
@@ -16,7 +16,7 @@ namespace Chloe.Extensions
             MethodInfo result;
             bool isNullable = false;
             Type underlyingType;
-            if (Utils.IsNullable(type, out underlyingType))
+            if (ReflectionExtension.IsNullable(type, out underlyingType))
             {
                 isNullable = true;
                 type = underlyingType;

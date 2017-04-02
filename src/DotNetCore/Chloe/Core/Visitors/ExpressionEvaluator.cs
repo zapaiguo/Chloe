@@ -1,4 +1,5 @@
 ﻿using Chloe.Extensions;
+using Chloe.InternalExtensions;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
@@ -52,7 +53,7 @@ namespace Chloe.Core.Visitors
             if (operandValue == null)
             {
                 //(int)null
-                if (exp.Type.GetTypeInfo().IsValueType && !Utils.IsNullable(exp.Type))
+                if (exp.Type.IsValueType() && !ReflectionExtension.IsNullable(exp.Type))
                     throw new NullReferenceException();
 
                 return null;
@@ -67,7 +68,7 @@ namespace Chloe.Core.Visitors
 
             Type unType;
 
-            if (Utils.IsNullable(exp.Type, out unType))
+            if (ReflectionExtension.IsNullable(exp.Type, out unType))
             {
                 //(int?)int
                 if (unType == operandValueType)
@@ -86,7 +87,7 @@ namespace Chloe.Core.Visitors
             }
 
             //(int)int?
-            if (Utils.IsNullable(operandValueType, out unType))
+            if (ReflectionExtension.IsNullable(operandValueType, out unType))
             {
                 if (unType == exp.Type)
                 {

@@ -2,21 +2,30 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using Chloe.InternalExtensions;
 
 namespace Chloe.Descriptors
 {
     public abstract class MemberDescriptor
     {
         Dictionary<Type, Attribute> _customAttributes = new Dictionary<Type, Attribute>();
-        protected MemberDescriptor(TypeDescriptor declaringEntityDescriptor)
+        MemberInfo _memberInfo;
+        TypeDescriptor _declaringTypeDescriptor;
+        protected MemberDescriptor(MemberInfo memberInfo, TypeDescriptor declaringTypeDescriptor)
         {
-            this.DeclaringEntityDescriptor = declaringEntityDescriptor;
+            this._declaringTypeDescriptor = declaringTypeDescriptor;
+            this._memberInfo = memberInfo;
         }
 
-        public TypeDescriptor DeclaringEntityDescriptor { get; set; }
-        public abstract MemberInfo MemberInfo { get; }
-        public abstract Type MemberInfoType { get; }
-        public abstract MemberTypes MemberType { get; }
+        public TypeDescriptor DeclaringTypeDescriptor { get { return this._declaringTypeDescriptor; } }
+        public MemberInfo MemberInfo { get { return this._memberInfo; } }
+        public Type MemberInfoType
+        {
+            get
+            {
+                return this._memberInfo.GetMemberType();
+            }
+        }
 
         public virtual Attribute GetCustomAttribute(Type attributeType)
         {

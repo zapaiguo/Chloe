@@ -1,4 +1,5 @@
 ﻿using Chloe.Extensions;
+using Chloe.InternalExtensions;
 using Chloe.Mapper;
 using Chloe.Utility;
 using System;
@@ -23,7 +24,7 @@ namespace Chloe.Core.Emit
             var reader = Expression.Parameter(typeof(IDataReader), "reader");
             var ordinal = Expression.Parameter(typeof(int), "ordinal");
 
-            var readerMethod = DataReaderConstant.GetReaderMethod(member.GetPropertyOrFieldType());
+            var readerMethod = DataReaderConstant.GetReaderMethod(member.GetMemberType());
 
             var getValue = Expression.Call(null, readerMethod, reader, ordinal);
 
@@ -137,16 +138,16 @@ namespace Chloe.Core.Emit
 
             return ret;
         }
-        public static Func<object, object> CreateValueGetter(MemberInfo member)
+        public static Func<object, object> CreateValueGetter(MemberInfo propertyOrField)
         {
             var p = Expression.Parameter(typeof(object), "a");
-            var instance = Expression.Convert(p, member.DeclaringType);
-            var memberAccess = Expression.MakeMemberAccess(instance, member);
+            var instance = Expression.Convert(p, propertyOrField.DeclaringType);
+            var memberAccess = Expression.MakeMemberAccess(instance, propertyOrField);
 
-            Type type = ReflectionExtension.GetMemberInfoType(member);
+            Type type = ReflectionExtension.GetMemberType(propertyOrField);
 
             Expression body = memberAccess;
-            if (type.GetTypeInfo().IsValueType)
+            if (type.IsValueType())
             {
                 body = Expression.Convert(memberAccess, typeof(object));
             }

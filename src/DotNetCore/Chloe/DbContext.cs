@@ -12,6 +12,7 @@ using Chloe.Query.Internals;
 using Chloe.Core.Visitors;
 using Chloe.Exceptions;
 using System.Data;
+using Chloe.InternalExtensions;
 
 namespace Chloe
 {
@@ -364,7 +365,7 @@ namespace Chloe
             Utils.CheckNull(entity);
             Type entityType = entity.GetType();
 
-            if (Utils.IsAnonymousType(entityType))
+            if (ReflectionExtension.IsAnonymousType(entityType))
                 return;
 
             Dictionary<Type, TrackEntityCollection> entityContainer = this.TrackingEntityContainer;

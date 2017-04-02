@@ -14,13 +14,13 @@ namespace ChloeDemo
         public static void Test()
         {
             BasicQuery();
-            //JoinQuery();
-            //AggregateQuery();
-            //GroupQuery();
-            //Insert();
-            //Update();
-            //Delete();
-            //Method();
+            JoinQuery();
+            AggregateQuery();
+            GroupQuery();
+            Insert();
+            Update();
+            Delete();
+            Method();
 
             ConsoleHelper.WriteLineAndReadKey();
         }

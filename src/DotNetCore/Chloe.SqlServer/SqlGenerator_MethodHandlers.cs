@@ -1,5 +1,6 @@
 ﻿using Chloe.Core;
 using Chloe.DbExpressions;
+using Chloe.InternalExtensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -61,7 +62,7 @@ namespace Chloe.SqlServer
 
             methodHandlers.Add("Abs", Method_Math_Abs);
 
-            var ret = Utils.Clone(methodHandlers, StringComparer.Ordinal);
+            var ret = Utils.Clone(methodHandlers);
             return ret;
         }
 
@@ -206,14 +207,14 @@ namespace Chloe.SqlServer
 
             Type declaringType = method.DeclaringType;
 
-            if (typeof(IList).IsAssignableFrom(declaringType) || (declaringType.GetTypeInfo().IsGenericType && typeof(ICollection<>).MakeGenericType(declaringType.GetGenericArguments()).IsAssignableFrom(declaringType)))
+            if (typeof(IList).IsAssignableFrom(declaringType) || (declaringType.IsGenericType() && typeof(ICollection<>).MakeGenericType(declaringType.GetGenericArguments()).IsAssignableFrom(declaringType)))
             {
                 DbMemberExpression memberExp = exp.Object as DbMemberExpression;
 
-                if (memberExp == null || !memberExp.CanEvaluate())
+                if (memberExp == null || !memberExp.IsEvaluable())
                     throw new NotSupportedException(exp.ToString());
 
-                values = DbExpressionExtensions.GetExpressionValue(memberExp) as IEnumerable; //Enumerable
+                values = DbExpressionExtension.Evaluate(memberExp) as IEnumerable; //Enumerable
                 operand = exp.Arguments[0];
                 goto constructInState;
             }
@@ -221,17 +222,17 @@ namespace Chloe.SqlServer
             {
                 DbMemberExpression memberExp = exp.Arguments[0] as DbMemberExpression;
 
-                if (memberExp == null || !memberExp.CanEvaluate())
+                if (memberExp == null || !memberExp.IsEvaluable())
                     throw new NotSupportedException(exp.ToString());
 
-                values = DbExpressionExtensions.GetExpressionValue(memberExp) as IEnumerable;
+                values = DbExpressionExtension.Evaluate(memberExp) as IEnumerable;
                 operand = exp.Arguments[1];
                 goto constructInState;
             }
 
             throw UtilExceptions.NotSupportedMethod(exp.Method);
 
-        constructInState:
+            constructInState:
             foreach (object value in values)
             {
                 if (value == null)

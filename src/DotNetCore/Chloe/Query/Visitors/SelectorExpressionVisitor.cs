@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Chloe.Extensions;
+using Chloe.InternalExtensions;
 using Chloe.Utility;
 using Chloe.DbExpressions;
 using Chloe.Query.Visitors;
 using System.Collections.Generic;
 using Chloe.Core.Visitors;
+using Chloe.Extensions;
 
 namespace Chloe.Query
 {
@@ -117,7 +118,7 @@ namespace Chloe.Query
 
                 MemberAssignment memberAssignment = (MemberAssignment)binding;
                 MemberInfo member = memberAssignment.Member;
-                Type memberType = member.GetPropertyOrFieldType();
+                Type memberType = member.GetMemberType();
 
                 //是数据库映射类型
                 if (Utils.IsMapType(memberType))
