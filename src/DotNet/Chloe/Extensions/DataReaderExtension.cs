@@ -188,7 +188,14 @@ namespace Chloe.Extensions
 
         public static TEnum GetEnum<TEnum>(this IDataReader reader, int ordinal) where TEnum : struct
         {
-            int value = reader.GetInt32(ordinal);
+            Type fieldType = reader.GetFieldType(ordinal);
+
+            object value;
+            if (fieldType == typeof(short))
+                value = reader.GetInt16(ordinal);
+            else
+                value = reader.GetInt32(ordinal);
+
             return (TEnum)Enum.ToObject(typeof(TEnum), value);
         }
         public static TEnum? GetEnum_Nullable<TEnum>(this IDataReader reader, int ordinal) where TEnum : struct
@@ -198,8 +205,7 @@ namespace Chloe.Extensions
                 return null;
             }
 
-            int value = reader.GetInt32(ordinal);
-            return (TEnum)Enum.ToObject(typeof(TEnum), value);
+            return GetEnum<TEnum>(reader, ordinal);
         }
 
         public static T GetTValue<T>(this IDataReader reader, int ordinal)
