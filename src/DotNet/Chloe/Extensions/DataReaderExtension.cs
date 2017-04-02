@@ -176,13 +176,13 @@ namespace Chloe.Extensions
 
         public static object GetValue(IDataReader reader, int ordinal)
         {
-            object o = reader.GetValue(ordinal);
-            if (o == DBNull.Value)
+            object val = reader.GetValue(ordinal);
+            if (val == DBNull.Value)
             {
                 return null;
             }
 
-            return o;
+            return val;
         }
 
         public static TEnum GetEnum<TEnum>(this IDataReader reader, int ordinal) where TEnum : struct
@@ -209,11 +209,7 @@ namespace Chloe.Extensions
 
         public static T GetTValue<T>(this IDataReader reader, int ordinal)
         {
-            object val = reader.GetValue(ordinal);
-            if (val == DBNull.Value)
-            {
-                val = null;
-            }
+            object val = GetValue(reader, ordinal);
 
             try
             {
@@ -221,7 +217,7 @@ namespace Chloe.Extensions
             }
             catch (NullReferenceException)
             {
-                throw new Exception("The column value could not be null");
+                throw new InvalidCastException("The column value could not be null.");
             }
         }
         public static T? GetTValue_Nullable<T>(this IDataReader reader, int ordinal) where T : struct
