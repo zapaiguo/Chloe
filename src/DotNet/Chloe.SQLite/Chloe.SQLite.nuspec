@@ -6,7 +6,7 @@
     <title>Chloe.SQLite</title>
     <authors>Shuxin Qin</authors>
     <owners>Shuxin Qin</owners>
-    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <licenseUrl>https://github.com/shuxinqin/Chloe/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/shuxinqin/Chloe</projectUrl>
     <iconUrl>http://images.cnblogs.com/cnblogs_com/so9527/860154/o_ORMicon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
