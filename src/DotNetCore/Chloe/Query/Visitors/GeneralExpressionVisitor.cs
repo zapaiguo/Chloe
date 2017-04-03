@@ -1,6 +1,7 @@
 ﻿using Chloe.Core.Visitors;
 using Chloe.DbExpressions;
 using Chloe.Extensions;
+using Chloe.Infrastructure;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
@@ -67,7 +68,7 @@ namespace Chloe.Query.Visitors
         {
             //TODO 只支持 MappingFieldExpression 类型，即类似 q.Select(a=> a.Id).Where(a=> a > 0) 这种情况，也就是 ParameterExpression.Type 为基本映射类型。
 
-            if (Utils.IsMapType(exp.Type))
+            if (MappingTypeSystem.IsMappingType(exp.Type))
             {
                 int idx = this.FindParameterIndex(exp);
                 IMappingObjectExpression moe = this._moeList[idx];

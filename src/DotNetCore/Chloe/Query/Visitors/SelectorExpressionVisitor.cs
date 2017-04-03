@@ -8,6 +8,7 @@ using Chloe.Query.Visitors;
 using System.Collections.Generic;
 using Chloe.Core.Visitors;
 using Chloe.Extensions;
+using Chloe.Infrastructure;
 
 namespace Chloe.Query
 {
@@ -91,7 +92,7 @@ namespace Chloe.Query
             {
                 ParameterInfo pi = parames[i];
                 Expression argExp = exp.Arguments[i];
-                if (Utils.IsMapType(pi.ParameterType))
+                if (MappingTypeSystem.IsMappingType(pi.ParameterType))
                 {
                     DbExpression dbExpression = this.VisistExpression(argExp);
                     result.AddConstructorParameter(pi, dbExpression);
@@ -121,7 +122,7 @@ namespace Chloe.Query
                 Type memberType = member.GetMemberType();
 
                 //是数据库映射类型
-                if (Utils.IsMapType(memberType))
+                if (MappingTypeSystem.IsMappingType(memberType))
                 {
                     DbExpression dbExpression = this.VisistExpression(memberAssignment.Expression);
                     result.AddMemberExpression(member, dbExpression);
@@ -144,7 +145,7 @@ namespace Chloe.Query
         protected override IMappingObjectExpression VisitMemberAccess(MemberExpression exp)
         {
             //create MappingFieldExpression object if exp is map type
-            if (Utils.IsMapType(exp.Type))
+            if (MappingTypeSystem.IsMappingType(exp.Type))
             {
                 DbExpression dbExp = this.VisistExpression(exp);
                 MappingFieldExpression ret = new MappingFieldExpression(exp.Type, dbExp);
@@ -163,7 +164,7 @@ namespace Chloe.Query
 
         IMappingObjectExpression VisistMapTypeSelector(Expression exp)
         {
-            if (!Utils.IsMapType(exp.Type))
+            if (!MappingTypeSystem.IsMappingType(exp.Type))
             {
                 throw new NotSupportedException(exp.ToString());
             }

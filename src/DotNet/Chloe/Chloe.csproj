@@ -127,7 +127,7 @@
     <Compile Include="IDbSession.cs" />
     <Compile Include="IGroupingQuery.cs" />
     <Compile Include="IJoiningQuery`.cs" />
-    <Compile Include="Infrastructure\DbTypeSystem.cs" />
+    <Compile Include="Infrastructure\MappingTypeSystem.cs" />
     <Compile Include="Infrastructure\Interception\DbCommandInterceptionContext`.cs" />
     <Compile Include="Infrastructure\IDbConnectionFactory.cs" />
     <Compile Include="Infrastructure\IDbContextServiceProvider.cs" />

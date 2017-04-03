@@ -1,4 +1,5 @@
 ﻿using Chloe.Extensions;
+using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 using Chloe.Mapper;
 using Chloe.Utility;
@@ -75,7 +76,7 @@ namespace Chloe.Core.Emit
 
             foreach (ParameterInfo parameter in parameters)
             {
-                if (Utils.IsMapType(parameter.ParameterType))
+                if (MappingTypeSystem.IsMappingType(parameter.ParameterType))
                 {
                     var readerMethod = DataReaderConstant.GetReaderMethod(parameter.ParameterType);
                     //int ordinal = readerOrdinalEnumerator.Next();

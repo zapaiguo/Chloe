@@ -2,6 +2,7 @@
 using Chloe.DbExpressions;
 using Chloe.Entity;
 using Chloe.Exceptions;
+using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 using Chloe.Query.Visitors;
 using Chloe.Utility;
@@ -134,7 +135,7 @@ namespace Chloe.Descriptors
                 if (ShouldMap(member) == false)
                     continue;
 
-                if (Utils.IsMapType(member.GetMemberType()))
+                if (MappingTypeSystem.IsMappingType(member.GetMemberType()))
                 {
                     MappingMemberDescriptor memberDescriptor = new MappingMemberDescriptor(member, this);
                     mappingMemberDescriptors.Add(memberDescriptor);

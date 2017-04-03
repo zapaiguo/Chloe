@@ -9,6 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Chloe.Infrastructure;
 
 namespace Chloe.Mapper
 {
@@ -50,7 +51,7 @@ namespace Chloe.Mapper
                 else
                     continue;//只支持公共属性和字段
 
-                if (Utils.IsMapType(memberType))
+                if (MappingTypeSystem.IsMappingType(memberType))
                 {
                     IMRM mrm = MRMHelper.CreateMRM(member);
                     mappingMemberMRMContainer.Add(member, mrm);

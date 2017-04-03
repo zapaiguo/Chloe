@@ -1,5 +1,6 @@
 ﻿using Chloe.Core;
 using Chloe.Exceptions;
+using Chloe.Infrastructure;
 using Chloe.Infrastructure.Interception;
 using Chloe.InternalExtensions;
 using Chloe.Utility;
@@ -299,7 +300,7 @@ namespace Chloe.Core
                         parameter.DbType = param.DbType.Value;
                     else
                     {
-                        DbType? dbType = Utils.TryGetDbType(parameterType);
+                        DbType? dbType = MappingTypeSystem.GetDbType(parameterType);
                         if (dbType != null)
                             parameter.DbType = dbType.Value;
                     }

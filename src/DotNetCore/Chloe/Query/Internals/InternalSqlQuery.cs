@@ -1,5 +1,6 @@
 ﻿using Chloe.Core;
 using Chloe.Descriptors;
+using Chloe.Infrastructure;
 using Chloe.Mapper;
 using Chloe.Query.Mapping;
 using Chloe.Utility;
@@ -120,7 +121,7 @@ namespace Chloe.Query.Internals
             {
                 Type type = typeof(T);
 
-                if (Utils.IsMapType(type))
+                if (MappingTypeSystem.IsMappingType(type))
                 {
                     MappingField mf = new MappingField(type, 0);
                     this._objectActivator = mf.CreateObjectActivator();
