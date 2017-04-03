@@ -9,7 +9,7 @@ The query interface is similar to LINQ.You can query data like LINQ and do any t
 # NuGet Install Command
 
 |              | .NET Framework  | .NET Core  |
-| ------------ | ------------ | ------------ | ------------ |
+| ------------ | --------------- | ---------- |
 | SqlServer  | Install-Package Chloe.SqlServer  | Install-Package ChloeCore.SqlServer  |
 | MySql  | Install-Package Chloe.MySql  |  Install-Package ChloeCore.MySql |
 | Oracle  | Install-Package Chloe.Oracle  |  - |
@@ -296,12 +296,12 @@ user = context.Insert(user);
 ```C#
 MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
-context.Update<User>(a => new User() { Name = a.Name, Age = a.Age + 100, Gender = Gender.Man, OpTime = DateTime.Now }, a => a.Id == 1);
+context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 100, Gender = Gender.Man, OpTime = DateTime.Now });
 /*
  * UPDATE [Users] SET [Name]=[Users].[Name],[Age]=([Users].[Age] + 100),[Gender]=1,[OpTime]=GETDATE() WHERE [Users].[Id] = 1
  */
 
-context.Update<User>(a => new User() { Age = a.Age - 10, OpTime = DateTime.Now }, a => a.Gender == Gender.Woman);
+context.Update<User>(a => a.Gender == Gender.Woman, a => new User() { Age = a.Age - 10, OpTime = DateTime.Now });
 /*
  * UPDATE [Users] SET [Age]=([Users].[Age] - 10),[OpTime]=GETDATE() WHERE [Users].[Gender] = 2
  */
