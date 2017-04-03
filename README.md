@@ -213,29 +213,22 @@ q.Select(a => new
     StartsWith = (bool?)a.Name.StartsWith("s"),//
     EndsWith = (bool?)a.Name.EndsWith("s"),//
 
-	DiffYears = DbFunctions.DiffYears(startTime, endTime),//DATEDIFF(YEAR,@P_0,@P_1)
-	DiffMonths = DbFunctions.DiffMonths(startTime, endTime),//DATEDIFF(MONTH,@P_0,@P_1)
-	DiffDays = DbFunctions.DiffDays(startTime, endTime),//DATEDIFF(DAY,@P_0,@P_1)
-	DiffHours = DbFunctions.DiffHours(startTime, endTime),//DATEDIFF(HOUR,@P_0,@P_1)
-	DiffMinutes = DbFunctions.DiffMinutes(startTime, endTime),//DATEDIFF(MINUTE,@P_0,@P_1)
-	DiffSeconds = DbFunctions.DiffSeconds(startTime, endTime),//DATEDIFF(SECOND,@P_0,@P_1)
-	DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),//DATEDIFF(MILLISECOND,@P_0,@P_1)
-	//DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//DATEDIFF(MICROSECOND,@P_0,@P_1)  Exception
+    DiffYears = DbFunctions.DiffYears(startTime, endTime),//DATEDIFF(YEAR,@P_0,@P_1)
+    DiffMonths = DbFunctions.DiffMonths(startTime, endTime),//DATEDIFF(MONTH,@P_0,@P_1)
+    DiffDays = DbFunctions.DiffDays(startTime, endTime),//DATEDIFF(DAY,@P_0,@P_1)
+    DiffHours = DbFunctions.DiffHours(startTime, endTime),//DATEDIFF(HOUR,@P_0,@P_1)
+    DiffMinutes = DbFunctions.DiffMinutes(startTime, endTime),//DATEDIFF(MINUTE,@P_0,@P_1)
+    DiffSeconds = DbFunctions.DiffSeconds(startTime, endTime),//DATEDIFF(SECOND,@P_0,@P_1)
+    DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),//DATEDIFF(MILLISECOND,@P_0,@P_1)
+    //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//DATEDIFF(MICROSECOND,@P_0,@P_1)  Exception
 
-	/* No longer support method 'DateTime.Subtract(DateTime d)', instead of using 'DbFunctions.DiffXX' */
-    //SubtractTotalDays = endTime.Subtract(startTime).TotalDays,//CAST(DATEDIFF(DAY,@P_0,@P_1)
-    //SubtractTotalHours = endTime.Subtract(startTime).TotalHours,//CAST(DATEDIFF(HOUR,@P_0,@P_1)
-    //SubtractTotalMinutes = endTime.Subtract(startTime).TotalMinutes,//CAST(DATEDIFF(MINUTE,@P_0,@P_1)
-    //SubtractTotalSeconds = endTime.Subtract(startTime).TotalSeconds,//CAST(DATEDIFF(SECOND,@P_0,@P_1)
-    //SubtractTotalMilliseconds = endTime.Subtract(startTime).TotalMilliseconds,//CAST(DATEDIFF(MILLISECOND,@P_0,@P_1)
-
-	AddYears = startTime.AddYears(1),//DATEADD(YEAR,1,@P_0)
-	AddMonths = startTime.AddMonths(1),//DATEADD(MONTH,1,@P_0)
-	AddDays = startTime.AddDays(1),//DATEADD(DAY,1,@P_0)
-	AddHours = startTime.AddHours(1),//DATEADD(HOUR,1,@P_0)
-	AddMinutes = startTime.AddMinutes(2),//DATEADD(MINUTE,2,@P_0)
-	AddSeconds = startTime.AddSeconds(120),//DATEADD(SECOND,120,@P_0)
-	AddMilliseconds = startTime.AddMilliseconds(20000),//DATEADD(MILLISECOND,20000,@P_0)
+    AddYears = startTime.AddYears(1),//DATEADD(YEAR,1,@P_0)
+    AddMonths = startTime.AddMonths(1),//DATEADD(MONTH,1,@P_0)
+    AddDays = startTime.AddDays(1),//DATEADD(DAY,1,@P_0)
+    AddHours = startTime.AddHours(1),//DATEADD(HOUR,1,@P_0)
+    AddMinutes = startTime.AddMinutes(2),//DATEADD(MINUTE,2,@P_0)
+    AddSeconds = startTime.AddSeconds(120),//DATEADD(SECOND,120,@P_0)
+    AddMilliseconds = startTime.AddMilliseconds(20000),//DATEADD(MILLISECOND,20000,@P_0)
 	
     Now = DateTime.Now,//GETDATE()
     UtcNow = DateTime.UtcNow,//GETUTCDATE()
