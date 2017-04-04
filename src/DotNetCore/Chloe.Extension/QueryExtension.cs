@@ -106,7 +106,7 @@ namespace Chloe
 
         static IOrderedQuery<T> InnerOrderBy<T>(this IQuery<T> q, Ordering ordering)
         {
-            LambdaExpression predicate = GetOrderPredicate<T>(ordering.MemberChain);
+            LambdaExpression keySelector = ConvertToLambda<T>(ordering.MemberChain);
 
             MethodInfo orderMethod;
             if (ordering.OrderType == OrderType.Asc)
@@ -114,12 +114,12 @@ namespace Chloe
             else
                 orderMethod = typeof(IQuery<T>).GetMethod("OrderByDesc");
 
-            IOrderedQuery<T> orderedQuery = Invoke<T>(q, orderMethod, predicate);
+            IOrderedQuery<T> orderedQuery = Invoke<T>(q, orderMethod, keySelector);
             return orderedQuery;
         }
         static IOrderedQuery<T> InnerThenBy<T>(this IOrderedQuery<T> q, Ordering ordering)
         {
-            LambdaExpression predicate = GetOrderPredicate<T>(ordering.MemberChain);
+            LambdaExpression keySelector = ConvertToLambda<T>(ordering.MemberChain);
 
             MethodInfo orderMethod;
             if (ordering.OrderType == OrderType.Asc)
@@ -127,13 +127,13 @@ namespace Chloe
             else
                 orderMethod = typeof(IOrderedQuery<T>).GetMethod("ThenByDesc");
 
-            IOrderedQuery<T> orderedQuery = Invoke<T>(q, orderMethod, predicate);
+            IOrderedQuery<T> orderedQuery = Invoke<T>(q, orderMethod, keySelector);
             return orderedQuery;
         }
-        static IOrderedQuery<T> Invoke<T>(object q, MethodInfo orderMethod, LambdaExpression predicate)
+        static IOrderedQuery<T> Invoke<T>(object q, MethodInfo orderMethod, LambdaExpression keySelector)
         {
-            orderMethod = orderMethod.MakeGenericMethod(new Type[] { predicate.Body.Type });
-            IOrderedQuery<T> orderedQuery = (IOrderedQuery<T>)orderMethod.Invoke(q, new object[] { predicate });
+            orderMethod = orderMethod.MakeGenericMethod(new Type[] { keySelector.Body.Type });
+            IOrderedQuery<T> orderedQuery = (IOrderedQuery<T>)orderMethod.Invoke(q, new object[] { keySelector });
             return orderedQuery;
         }
         static List<Ordering> SplitOrderingString(string orderString)
@@ -148,7 +148,7 @@ namespace Chloe
 
             return orderingList;
         }
-        static LambdaExpression GetOrderPredicate<T>(string memberChain)
+        static LambdaExpression ConvertToLambda<T>(string memberChain)
         {
             Type entityType = typeof(T);
 
