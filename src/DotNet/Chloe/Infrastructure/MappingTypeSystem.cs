@@ -9,7 +9,7 @@ namespace Chloe.Infrastructure
     public static class MappingTypeSystem
     {
         static readonly object _lockObj = new object();
-        static readonly Dictionary<Type, DbType> _defaultTypeMap = new Dictionary<Type, DbType>();
+        static readonly Dictionary<Type, DbType> _defaultTypeMap;
         static readonly Dictionary<Type, DbType> _typeMap;
 
         static MappingTypeSystem()
@@ -38,6 +38,11 @@ namespace Chloe.Infrastructure
             _defaultTypeMap = Utils.Clone(defaultTypeMap);
             _typeMap = Utils.Clone(defaultTypeMap);
         }
+        /// <summary>
+        /// 注册一个需要映射的类型。
+        /// </summary>
+        /// <param name="type">新增的映射类型</param>
+        /// <param name="dbTypeToMap">映射的 DbType。如果是扩展的 DbType，务必对原生的 System.Data.IDataParameter 进行包装，拦截 IDataParameter.DbType 属性的 setter 以对 dbTypeToMap 处理。</param>
         public static void Register(Type type, DbType dbTypeToMap)
         {
             Utils.CheckNull(type);
