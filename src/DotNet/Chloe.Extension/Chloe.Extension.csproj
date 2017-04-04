@@ -38,9 +38,11 @@
   <ItemGroup>
     <Compile Include="ConstantWrapper.cs" />
     <Compile Include="DbActionBag.cs" />
+    <Compile Include="DbContextAsyncExtension.cs" />
     <Compile Include="DbContextExtension.cs" />
     <Compile Include="ParameterTwoExpressionReplacer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryAsyncExtension.cs" />
     <Compile Include="QueryExtension.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

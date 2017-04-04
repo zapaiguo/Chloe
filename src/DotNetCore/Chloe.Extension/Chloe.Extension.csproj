@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>A lightweight and high-performance Object/Relational Mapping(ORM) library.</Description>
+    <Description></Description>
     <Copyright>Copyright 2016-2017.</Copyright>
-    <AssemblyTitle>Chloe.SQLite</AssemblyTitle>
-    <VersionPrefix>2.6.0.0</VersionPrefix>
+    <AssemblyTitle>Chloe.Extension</AssemblyTitle>
+    <VersionPrefix>1.2.0.0</VersionPrefix>
     <Authors>Chloe</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
-    <AssemblyName>Chloe.SQLite</AssemblyName>
-    <PackageId>Chloe.SQLite</PackageId>
+    <AssemblyName>Chloe.Extension</AssemblyName>
+    <PackageId>Chloe.Extension</PackageId>
     <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
     <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
@@ -22,14 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Chloe\Chloe.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Data.Common" Version="4.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>
