@@ -21,26 +21,27 @@ namespace Chloe.Oracle
         internal ISqlBuilder _sqlBuilder = new SqlBuilder();
         List<DbParam> _parameters = new List<DbParam>();
 
-        DbValueExpressionVisitor _valueExpressionVisitor = null;
+        DbValueExpressionVisitor _valueExpressionVisitor;
 
         static readonly Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>> MethodHandlers = InitMethodHandlers();
         static readonly Dictionary<string, Action<DbAggregateExpression, SqlGenerator>> AggregateHandlers = InitAggregateHandlers();
         static readonly Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
-        static readonly Dictionary<Type, string> CastTypeMap = null;
+        static readonly Dictionary<Type, string> CastTypeMap;
+        static readonly Dictionary<Type, Type> NumericTypes;
+        static readonly List<string> CacheParameterNames;
 
-        public static readonly ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes = null;
-
-        static readonly List<string> CacheParameterNames = null;
+        public static readonly ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes;
 
         static SqlGenerator()
         {
-            List<DbExpressionType> list = new List<DbExpressionType>();
-            list.Add(DbExpressionType.MemberAccess);
-            list.Add(DbExpressionType.ColumnAccess);
-            list.Add(DbExpressionType.Constant);
-            list.Add(DbExpressionType.Parameter);
-            list.Add(DbExpressionType.Convert);
-            SafeDbExpressionTypes = list.AsReadOnly();
+            List<DbExpressionType> safeDbExpressionTypes = new List<DbExpressionType>();
+            safeDbExpressionTypes.Add(DbExpressionType.MemberAccess);
+            safeDbExpressionTypes.Add(DbExpressionType.ColumnAccess);
+            safeDbExpressionTypes.Add(DbExpressionType.Constant);
+            safeDbExpressionTypes.Add(DbExpressionType.Parameter);
+            safeDbExpressionTypes.Add(DbExpressionType.Convert);
+            SafeDbExpressionTypes = safeDbExpressionTypes.AsReadOnly();
+
 
             Dictionary<Type, string> castTypeMap = new Dictionary<Type, string>();
             //castTypeMap.Add(typeof(string), "NVARCHAR2"); // instead of using to_char(exp) 
@@ -48,24 +49,37 @@ namespace Chloe.Oracle
             castTypeMap.Add(typeof(Int16), "NUMBER(4,0)");
             castTypeMap.Add(typeof(int), "NUMBER(9,0)");
             castTypeMap.Add(typeof(long), "NUMBER(18,0)");
-            castTypeMap.Add(typeof(decimal), "NUMBER");
-            castTypeMap.Add(typeof(double), "BINARY_DOUBLE");
             castTypeMap.Add(typeof(float), "BINARY_FLOAT");
+            castTypeMap.Add(typeof(double), "BINARY_DOUBLE");
+            castTypeMap.Add(typeof(decimal), "NUMBER");
             castTypeMap.Add(typeof(bool), "NUMBER(9,0)");
             //castTypeMap.Add(typeof(DateTime), "DATE"); // instead of using TO_TIMESTAMP(exp) 
             //castTypeMap.Add(typeof(Guid), "BLOB");
-
             CastTypeMap = Utils.Clone(castTypeMap);
+
+
+            Dictionary<Type, Type> numericTypes = new Dictionary<Type, Type>();
+            numericTypes.Add(typeof(byte), typeof(byte));
+            numericTypes.Add(typeof(sbyte), typeof(sbyte));
+            numericTypes.Add(typeof(short), typeof(short));
+            numericTypes.Add(typeof(ushort), typeof(ushort));
+            numericTypes.Add(typeof(int), typeof(int));
+            numericTypes.Add(typeof(uint), typeof(uint));
+            numericTypes.Add(typeof(long), typeof(long));
+            numericTypes.Add(typeof(ulong), typeof(ulong));
+            numericTypes.Add(typeof(float), typeof(float));
+            numericTypes.Add(typeof(double), typeof(double));
+            numericTypes.Add(typeof(decimal), typeof(decimal));
+            NumericTypes = Utils.Clone(numericTypes);
+
 
             int cacheParameterNameCount = 2 * 12;
             List<string> cacheParameterNames = new List<string>(cacheParameterNameCount);
-
             for (int i = 0; i < cacheParameterNameCount; i++)
             {
                 string paramName = ParameterPrefix + i.ToString();
                 cacheParameterNames.Add(paramName);
             }
-
             CacheParameterNames = cacheParameterNames;
         }
 
@@ -645,8 +659,15 @@ namespace Chloe.Oracle
                 this._sqlBuilder.Append(((int)exp.Value).ToString());
                 return exp;
             }
+            else if (NumericTypes.ContainsKey(exp.Value.GetType()))
+            {
+                this._sqlBuilder.Append(exp.Value);
+                return exp;
+            }
 
-            this._sqlBuilder.Append(exp.Value);
+            DbParameterExpression p = new DbParameterExpression(exp.Value);
+            p.Accept(this);
+
             return exp;
         }
         public override DbExpression Visit(DbParameterExpression exp)

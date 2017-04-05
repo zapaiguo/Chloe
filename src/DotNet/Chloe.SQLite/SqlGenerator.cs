@@ -22,9 +22,9 @@ namespace Chloe.SQLite
         static readonly Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>> MethodHandlers = InitMethodHandlers();
         static readonly Dictionary<string, Action<DbAggregateExpression, SqlGenerator>> AggregateHandlers = InitAggregateHandlers();
         static readonly Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
-        static readonly Dictionary<Type, string> CastTypeMap = null;
-
-        static readonly List<string> CacheParameterNames = null;
+        static readonly Dictionary<Type, string> CastTypeMap;
+        static readonly Dictionary<Type, Type> NumericTypes;
+        static readonly List<string> CacheParameterNames;
 
         static SqlGenerator()
         {
@@ -34,23 +34,35 @@ namespace Chloe.SQLite
             castTypeMap.Add(typeof(Int16), "INTEGER");
             castTypeMap.Add(typeof(int), "INTEGER");
             castTypeMap.Add(typeof(long), "INTEGER");
-            //castTypeMap.Add(typeof(decimal), "DECIMAL(19,0)");//I think this will be a bug.
-            castTypeMap.Add(typeof(double), "REAL");
             castTypeMap.Add(typeof(float), "REAL");
+            castTypeMap.Add(typeof(double), "REAL");
+            //castTypeMap.Add(typeof(decimal), "DECIMAL(19,0)");//I think this will be a bug.
             castTypeMap.Add(typeof(bool), "INTEGER");
-
             CastTypeMap = Utils.Clone(castTypeMap);
+
+
+            Dictionary<Type, Type> numericTypes = new Dictionary<Type, Type>();
+            numericTypes.Add(typeof(byte), typeof(byte));
+            numericTypes.Add(typeof(sbyte), typeof(sbyte));
+            numericTypes.Add(typeof(short), typeof(short));
+            numericTypes.Add(typeof(ushort), typeof(ushort));
+            numericTypes.Add(typeof(int), typeof(int));
+            numericTypes.Add(typeof(uint), typeof(uint));
+            numericTypes.Add(typeof(long), typeof(long));
+            numericTypes.Add(typeof(ulong), typeof(ulong));
+            numericTypes.Add(typeof(float), typeof(float));
+            numericTypes.Add(typeof(double), typeof(double));
+            numericTypes.Add(typeof(decimal), typeof(decimal));
+            NumericTypes = Utils.Clone(numericTypes);
 
 
             int cacheParameterNameCount = 2 * 12;
             List<string> cacheParameterNames = new List<string>(cacheParameterNameCount);
-
             for (int i = 0; i < cacheParameterNameCount; i++)
             {
                 string paramName = ParameterPrefix + i.ToString();
                 cacheParameterNames.Add(paramName);
             }
-
             CacheParameterNames = cacheParameterNames;
         }
 
@@ -553,8 +565,15 @@ namespace Chloe.SQLite
                 this._sqlBuilder.Append(((int)exp.Value).ToString());
                 return exp;
             }
+            else if (NumericTypes.ContainsKey(exp.Value.GetType()))
+            {
+                this._sqlBuilder.Append(exp.Value);
+                return exp;
+            }
 
-            this._sqlBuilder.Append(exp.Value);
+            DbParameterExpression p = new DbParameterExpression(exp.Value);
+            p.Accept(this);
+
             return exp;
         }
         public override DbExpression Visit(DbParameterExpression exp)
