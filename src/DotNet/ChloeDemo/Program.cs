@@ -18,6 +18,8 @@ namespace ChloeDemo
             MsSqlDemo.Test();
             MySqlDemo.Test();
             OracleDemo.Test();
+
+            RegisterMappingTypeDemo.RunDemo();
         }
     }
 }

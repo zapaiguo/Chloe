@@ -17,6 +17,8 @@ namespace ChloeDemo
             SQLiteDemo.Test();
             MsSqlDemo.Test();
             MySqlDemo.Test();
+
+            RegisterMappingTypeDemo.RunDemo();
         }
     }
 }
