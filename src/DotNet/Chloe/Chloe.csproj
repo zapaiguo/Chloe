@@ -104,14 +104,9 @@
     <Compile Include="DbParam.cs" />
     <Compile Include="DbParamList.cs" />
     <Compile Include="Descriptors\EntityConstructorDescriptor.cs" />
-    <Compile Include="Descriptors\FieldDescriptor.cs" />
     <Compile Include="Descriptors\MappingMemberDescriptor.cs" />
-    <Compile Include="Descriptors\PropertyDescriptor.cs" />
     <Compile Include="Descriptors\TypeDescriptor.cs" />
     <Compile Include="Descriptors\MemberDescriptor.cs" />
-    <Compile Include="Descriptors\NavigationFieldDescriptor.cs" />
-    <Compile Include="Descriptors\NavigationMemberDescriptor.cs" />
-    <Compile Include="Descriptors\NavigationPropertyDescriptor.cs" />
     <Compile Include="Entity\AutoIncrementAttribute.cs" />
     <Compile Include="Entity\ColumnAttribute.cs" />
     <Compile Include="Entity\NonAutoIncrementAttribute.cs" />
@@ -155,7 +150,6 @@
     <Compile Include="Query\Internals\InternalQuery.cs" />
     <Compile Include="Query\Internals\InternalSqlQuery.cs" />
     <Compile Include="Query\Internals\QueryEnumerator.cs" />
-    <Compile Include="Core\ISqlState.cs" />
     <Compile Include="Query\JoiningQueryInfo.cs" />
     <Compile Include="Query\JoiningQuery`.cs" />
     <Compile Include="Query\JoinQueryResult.cs" />
@@ -191,7 +185,6 @@
     <Compile Include="Query\QueryState\TakeQueryState.cs" />
     <Compile Include="Query\Query`.cs" />
     <Compile Include="Query\ResultElement.cs" />
-    <Compile Include="Core\SqlState.cs" />
     <Compile Include="Query\Visitors\FilterPredicateExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\GeneralExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
