@@ -654,7 +654,7 @@ namespace Chloe.Oracle
                 this._sqlBuilder.Append("N'", exp.Value, "'");
                 return exp;
             }
-            else if (objType.IsEnum)
+            else if (objType.IsEnum())
             {
                 this._sqlBuilder.Append(((int)exp.Value).ToString());
                 return exp;
