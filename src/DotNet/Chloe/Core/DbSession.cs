@@ -17,8 +17,8 @@ namespace Chloe.Core
         }
 
         public IDbContext DbContext { get { return this._dbContext; } }
-        public bool IsInTransaction { get { return this._dbContext.InnerDbSession.IsInTransaction; } }
-        public int CommandTimeout { get { return this._dbContext.InnerDbSession.CommandTimeout; } set { this._dbContext.InnerDbSession.CommandTimeout = value; } }
+        public bool IsInTransaction { get { return this._dbContext.AdoSession.IsInTransaction; } }
+        public int CommandTimeout { get { return this._dbContext.AdoSession.CommandTimeout; } set { this._dbContext.AdoSession.CommandTimeout = value; } }
 
         public int ExecuteNonQuery(string cmdText, params DbParam[] parameters)
         {
@@ -27,7 +27,7 @@ namespace Chloe.Core
         public int ExecuteNonQuery(string cmdText, CommandType cmdType, params DbParam[] parameters)
         {
             Utils.CheckNull(cmdText, "cmdText");
-            return this._dbContext.InnerDbSession.ExecuteNonQuery(cmdText, parameters, cmdType);
+            return this._dbContext.AdoSession.ExecuteNonQuery(cmdText, parameters, cmdType);
         }
 
         public object ExecuteScalar(string cmdText, params DbParam[] parameters)
@@ -37,7 +37,7 @@ namespace Chloe.Core
         public object ExecuteScalar(string cmdText, CommandType cmdType, params DbParam[] parameters)
         {
             Utils.CheckNull(cmdText, "cmdText");
-            return this._dbContext.InnerDbSession.ExecuteScalar(cmdText, parameters, cmdType);
+            return this._dbContext.AdoSession.ExecuteScalar(cmdText, parameters, cmdType);
         }
 
         public IDataReader ExecuteReader(string cmdText, params DbParam[] parameters)
@@ -47,7 +47,7 @@ namespace Chloe.Core
         public IDataReader ExecuteReader(string cmdText, CommandType cmdType, params DbParam[] parameters)
         {
             Utils.CheckNull(cmdText, "cmdText");
-            return this._dbContext.InnerDbSession.ExecuteReader(cmdText, parameters, cmdType);
+            return this._dbContext.AdoSession.ExecuteReader(cmdText, parameters, cmdType);
         }
 
         /* Using IsolationLevel.ReadCommitted level.  */
@@ -57,26 +57,26 @@ namespace Chloe.Core
         }
         public void BeginTransaction(IsolationLevel il)
         {
-            this._dbContext.InnerDbSession.BeginTransaction(il);
+            this._dbContext.AdoSession.BeginTransaction(il);
         }
         public void CommitTransaction()
         {
-            this._dbContext.InnerDbSession.CommitTransaction();
+            this._dbContext.AdoSession.CommitTransaction();
         }
         public void RollbackTransaction()
         {
-            this._dbContext.InnerDbSession.RollbackTransaction();
+            this._dbContext.AdoSession.RollbackTransaction();
         }
 
         public void AddInterceptor(IDbCommandInterceptor interceptor)
         {
             Utils.CheckNull(interceptor, "interceptor");
-            this._dbContext.InnerDbSession.DbCommandInterceptors.Add(interceptor);
+            this._dbContext.AdoSession.DbCommandInterceptors.Add(interceptor);
         }
         public void RemoveInterceptor(IDbCommandInterceptor interceptor)
         {
             Utils.CheckNull(interceptor, "interceptor");
-            this._dbContext.InnerDbSession.DbCommandInterceptors.Remove(interceptor);
+            this._dbContext.AdoSession.DbCommandInterceptors.Remove(interceptor);
         }
 
         public void Dispose()

@@ -7,20 +7,20 @@ namespace Chloe.Core
 {
     class InternalDataReader : IDataReader, IDisposable, IDataRecord
     {
-        InternalDbSession _dbSession;
+        InternalAdoSession _adoSession;
         IDataReader _reader;
         IDbCommand _cmd;
         List<OutputParameter> _outputParameters;
         bool _disposed = false;
 
 
-        public InternalDataReader(InternalDbSession dbSession, IDataReader reader, IDbCommand cmd, List<OutputParameter> outputParameters)
+        public InternalDataReader(InternalAdoSession adoSession, IDataReader reader, IDbCommand cmd, List<OutputParameter> outputParameters)
         {
-            Utils.CheckNull(dbSession);
+            Utils.CheckNull(adoSession);
             Utils.CheckNull(reader);
             Utils.CheckNull(cmd);
 
-            this._dbSession = dbSession;
+            this._adoSession = adoSession;
             this._reader = reader;
             this._cmd = cmd;
             this._outputParameters = outputParameters;
@@ -43,7 +43,7 @@ namespace Chloe.Core
                 }
                 finally
                 {
-                    this._dbSession.Complete();
+                    this._adoSession.Complete();
                 }
             }
         }

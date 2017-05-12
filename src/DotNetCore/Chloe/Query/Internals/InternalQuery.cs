@@ -43,7 +43,7 @@ namespace Chloe.Query.Internals
         public IEnumerator<T> GetEnumerator()
         {
             DbCommandFactor commandFactor = this.GenerateCommandFactor();
-            var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(this._query.DbContext.InnerDbSession, commandFactor);
+            var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(this._query.DbContext.AdoSession, commandFactor);
             return enumerator;
         }
         IEnumerator IEnumerable.GetEnumerator()
@@ -54,7 +54,7 @@ namespace Chloe.Query.Internals
         public override string ToString()
         {
             DbCommandFactor commandFactor = this.GenerateCommandFactor();
-            return InternalDbSession.AppendDbCommandInfo(commandFactor.CommandText, commandFactor.Parameters);
+            return InternalAdoSession.AppendDbCommandInfo(commandFactor.CommandText, commandFactor.Parameters);
         }
     }
 }

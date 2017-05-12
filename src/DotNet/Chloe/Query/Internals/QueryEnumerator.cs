@@ -11,13 +11,13 @@ namespace Chloe.Query.Internals
 {
     static class QueryEnumeratorCreator
     {
-        public static IEnumerator<T> CreateEnumerator<T>(InternalDbSession dbSession, DbCommandFactor commandFactor)
+        public static IEnumerator<T> CreateEnumerator<T>(InternalAdoSession adoSession, DbCommandFactor commandFactor)
         {
-            return new QueryEnumerator<T>(dbSession, commandFactor);
+            return new QueryEnumerator<T>(adoSession, commandFactor);
         }
         internal struct QueryEnumerator<T> : IEnumerator<T>
         {
-            InternalDbSession _dbSession;
+            InternalAdoSession _adoSession;
             DbCommandFactor _commandFactor;
             IObjectActivator _objectActivator;
 
@@ -26,9 +26,9 @@ namespace Chloe.Query.Internals
             T _current;
             bool _hasFinished;
             bool _disposed;
-            public QueryEnumerator(InternalDbSession dbSession, DbCommandFactor commandFactor)
+            public QueryEnumerator(InternalAdoSession adoSession, DbCommandFactor commandFactor)
             {
-                this._dbSession = dbSession;
+                this._adoSession = adoSession;
                 this._commandFactor = commandFactor;
                 this._objectActivator = commandFactor.ObjectActivator;
 
@@ -51,7 +51,7 @@ namespace Chloe.Query.Internals
                 if (this._reader == null)
                 {
                     //TODO 执行 sql 语句，获取 DataReader
-                    this._reader = this._dbSession.ExecuteReader(this._commandFactor.CommandText, this._commandFactor.Parameters, CommandType.Text);
+                    this._reader = this._adoSession.ExecuteReader(this._commandFactor.CommandText, this._commandFactor.Parameters, CommandType.Text);
                 }
 
                 if (this._reader.Read())

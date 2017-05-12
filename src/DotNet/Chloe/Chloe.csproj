@@ -47,7 +47,7 @@
     <Compile Include="Core\Emit\EmitHelper.cs" />
     <Compile Include="Core\IEntityState.cs" />
     <Compile Include="Core\InternalDataReader.cs" />
-    <Compile Include="Core\InternalDbSession.cs" />
+    <Compile Include="Core\InternalAdoSession.cs" />
     <Compile Include="Core\OutputParameter.cs" />
     <Compile Include="Core\Visitors\DefaultExpressionVisitor.cs" />
     <Compile Include="Core\Visitors\ExpressionEvaluator.cs" />

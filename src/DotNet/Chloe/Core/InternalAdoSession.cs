@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Chloe.Core
 {
-    class InternalDbSession : IDisposable
+    class InternalAdoSession : IDisposable
     {
         IDbConnection _dbConnection;
         IDbTransaction _dbTransaction;
@@ -23,7 +23,7 @@ namespace Chloe.Core
 
         bool _disposed = false;
 
-        public InternalDbSession(IDbConnection conn)
+        public InternalAdoSession(IDbConnection conn)
         {
             this._dbConnection = conn;
         }

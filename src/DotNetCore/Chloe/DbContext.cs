@@ -19,7 +19,7 @@ namespace Chloe
     public abstract class DbContext : IDbContext, IDisposable
     {
         bool _disposed = false;
-        InternalDbSession _innerDbSession;
+        InternalAdoSession _adoSession;
         DbSession _session;
 
         Dictionary<Type, TrackEntityCollection> _trackingEntityContainer;
@@ -37,14 +37,14 @@ namespace Chloe
             }
         }
 
-        internal InternalDbSession InnerDbSession
+        internal InternalAdoSession AdoSession
         {
             get
             {
                 this.CheckDisposed();
-                if (this._innerDbSession == null)
-                    this._innerDbSession = new InternalDbSession(this.DbContextServiceProvider.CreateConnection());
-                return this._innerDbSession;
+                if (this._adoSession == null)
+                    this._adoSession = new InternalAdoSession(this.DbContextServiceProvider.CreateConnection());
+                return this._adoSession;
             }
         }
         public abstract IDbContextServiceProvider DbContextServiceProvider { get; }
@@ -412,8 +412,8 @@ namespace Chloe
             if (this._disposed)
                 return;
 
-            if (this._innerDbSession != null)
-                this._innerDbSession.Dispose();
+            if (this._adoSession != null)
+                this._adoSession.Dispose();
             this.Dispose(true);
             this._disposed = true;
         }
@@ -436,7 +436,7 @@ namespace Chloe
             List<DbParam> parameters;
             string cmdText = translator.Translate(e, out parameters);
 
-            int r = this.InnerDbSession.ExecuteNonQuery(cmdText, parameters.ToArray(), CommandType.Text);
+            int r = this.AdoSession.ExecuteNonQuery(cmdText, parameters.ToArray(), CommandType.Text);
             return r;
         }
 
