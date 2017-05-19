@@ -247,7 +247,18 @@ namespace Chloe.SqlServer
         }
         static void Aggregate_Sum(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            AppendAggregateFunction(generator, exp, retType, "SUM", true);
+            if (retType.IsNullable())
+            {
+                AppendAggregateFunction(generator, exp, retType, "SUM", true);
+            }
+            else
+            {
+                generator._sqlBuilder.Append("ISNULL(");
+                AppendAggregateFunction(generator, exp, retType, "SUM", true);
+                generator._sqlBuilder.Append(",");
+                generator._sqlBuilder.Append("0");
+                generator._sqlBuilder.Append(")");
+            }
         }
         static void Aggregate_Average(SqlGenerator generator, DbExpression exp, Type retType)
         {

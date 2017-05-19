@@ -252,7 +252,18 @@ namespace Chloe.Oracle
         }
         static void Aggregate_Sum(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            AppendAggregateFunction(generator, exp, retType, "SUM", false);
+            if (retType.IsNullable())
+            {
+                AppendAggregateFunction(generator, exp, retType, "SUM", false);
+            }
+            else
+            {
+                generator._sqlBuilder.Append("NVL(");
+                AppendAggregateFunction(generator, exp, retType, "SUM", false);
+                generator._sqlBuilder.Append(",");
+                generator._sqlBuilder.Append("0");
+                generator._sqlBuilder.Append(")");
+            }
         }
         static void Aggregate_Average(SqlGenerator generator, DbExpression exp, Type retType)
         {
