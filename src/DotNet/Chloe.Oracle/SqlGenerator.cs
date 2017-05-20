@@ -313,6 +313,12 @@ namespace Chloe.Oracle
 
         public override DbExpression Visit(DbTableExpression exp)
         {
+            if (exp.Table.Schema != null)
+            {
+                this.QuoteName(exp.Table.Schema);
+                this._sqlBuilder.Append(".");
+            }
+
             this.QuoteName(exp.Table.Name);
 
             return exp;

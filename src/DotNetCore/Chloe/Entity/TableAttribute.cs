@@ -11,5 +11,6 @@ namespace Chloe.Entity
             Name = name;
         }
         public string Name { get; set; }
+        public string Schema { get; set; }
     }
 }

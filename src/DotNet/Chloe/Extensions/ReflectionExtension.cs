@@ -100,5 +100,10 @@ namespace Chloe.InternalExtensions
         {
             return type.IsGenericType;
         }
+
+        public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this Type type, bool inherit)
+        {
+            return type.GetCustomAttributes(typeof(TAttribute), inherit).Cast<TAttribute>();
+        }
     }
 }

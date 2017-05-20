@@ -54,11 +54,11 @@ namespace Chloe.Query
         {
             if (exp1.Column.Name != exp2.Column.Name)
                 return false;
-            return exp1.Table.Name == exp2.Table.Name;
+            return exp1.Table.Name == exp2.Table.Name && exp1.Table.Schema == exp2.Table.Schema;
         }
         public static bool AreEqual(DbTableExpression exp1, DbTableExpression exp2)
         {
-            return exp1.Table.Name == exp2.Table.Name;
+            return exp1.Table.Name == exp2.Table.Name && exp1.Table.Schema == exp2.Table.Schema;
         }
         public static bool AreEqual(DbConstantExpression exp1, DbConstantExpression exp2)
         {

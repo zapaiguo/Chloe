@@ -37,22 +37,17 @@ namespace Chloe.Descriptors
         }
         void InitTableInfo()
         {
-            Type t = this.EntityType;
-            var tableFlags = t.GetTypeInfo().GetCustomAttributes(typeof(TableAttribute), false);
+            Type entityType = this.EntityType;
+            TableAttribute tableFlag = entityType.GetCustomAttributes<TableAttribute>(false).FirstOrDefault();
 
-            string tableName;
-            if (tableFlags.Count() > 0)
+            if (tableFlag == null)
             {
-                TableAttribute tableFlag = (TableAttribute)tableFlags.First();
-                if (tableFlag.Name != null)
-                    tableName = tableFlag.Name;
-                else
-                    tableName = t.Name;
+                tableFlag = new TableAttribute(entityType.Name);
             }
-            else
-                tableName = t.Name;
+            else if (tableFlag.Name == null)
+                tableFlag.Name = entityType.Name;
 
-            this.Table = new DbTable(tableName);
+            this.Table = new DbTable(tableFlag.Name, tableFlag.Schema);
         }
         void InitMemberInfo()
         {
