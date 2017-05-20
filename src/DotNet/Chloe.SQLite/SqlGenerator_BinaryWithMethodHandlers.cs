@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Chloe.SQLite
 {
@@ -53,17 +52,7 @@ namespace Chloe.SQLite
                 else
                     whenExp = DbExpression.And(whenExp, equalNullExp);
 
-                DbExpression thenExp = DbConstantExpression.StringEmpty;
-                DbCaseWhenExpression.WhenThenExpressionPair whenThenPair = new DbCaseWhenExpression.WhenThenExpressionPair(equalNullExp, thenExp);
-
-                List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
-                whenThenExps.Add(whenThenPair);
-
-                DbExpression elseExp = opBody;
-
-                DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, elseExp, UtilConstants.TypeOfString);
-
-                operandExps.Add(caseWhenExpression);
+                operandExps.Add(opBody);
             }
 
             generator._sqlBuilder.Append("CASE", " WHEN ");
@@ -79,7 +68,11 @@ namespace Chloe.SQLite
                 if (i > 0)
                     generator._sqlBuilder.Append(" || ");
 
+                generator._sqlBuilder.Append("IFNULL(");
                 operandExps[i].Accept(generator);
+                generator._sqlBuilder.Append(",");
+                DbConstantExpression.StringEmpty.Accept(generator);
+                generator._sqlBuilder.Append(")");
             }
 
             generator._sqlBuilder.Append(")");
