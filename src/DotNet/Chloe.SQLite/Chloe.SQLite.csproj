@@ -33,12 +33,18 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChloeSQLiteCommand.cs" />
+    <Compile Include="ChloeSQLiteConcurrentConnection.cs" />
+    <Compile Include="ChloeSQLiteDataReader.cs" />
+    <Compile Include="ChloeSQLiteTransaction.cs" />
     <Compile Include="DbContextServiceProvider.cs" />
     <Compile Include="DbExpressionHelper.cs" />
     <Compile Include="DbExpressionTranslator.cs" />
     <Compile Include="ISqlBuilder.cs" />
+    <Compile Include="ReaderWriterLockWrapper.cs" />
     <Compile Include="SqlGenerator_BinaryWithMethodHandlers.cs" />
     <Compile Include="SQLiteContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
