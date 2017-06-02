@@ -662,7 +662,7 @@ namespace Chloe.Oracle
             }
             else if (objType.IsEnum())
             {
-                this._sqlBuilder.Append(((int)exp.Value).ToString());
+                this._sqlBuilder.Append(Convert.ChangeType(exp.Value, Enum.GetUnderlyingType(objType)).ToString());
                 return exp;
             }
             else if (NumericTypes.ContainsKey(exp.Value.GetType()))
@@ -683,11 +683,9 @@ namespace Chloe.Oracle
 
             if (paramType.IsEnum())
             {
-                paramType = UtilConstants.TypeOfInt32;
+                paramType = Enum.GetUnderlyingType(paramType);
                 if (paramValue != null)
-                {
-                    paramValue = (int)paramValue;
-                }
+                    paramValue = Convert.ChangeType(paramValue, paramType);
             }
             else if (paramType == UtilConstants.TypeOfBoolean)
             {
@@ -981,7 +979,7 @@ namespace Chloe.Oracle
 
                         return false;
 
-                    appendIntervalTime:
+                        appendIntervalTime:
                         this.CalcDateDiffPrecise(dbMethodExp.Object, dbMethodExp.Arguments[0], intervalDivisor.Value);
                         return true;
                     }

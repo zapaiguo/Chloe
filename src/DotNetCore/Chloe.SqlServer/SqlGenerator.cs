@@ -602,7 +602,7 @@ namespace Chloe.SqlServer
             }
             else if (objType.IsEnum())
             {
-                this._sqlBuilder.Append(((int)exp.Value).ToString());
+                this._sqlBuilder.Append(Convert.ChangeType(exp.Value, Enum.GetUnderlyingType(objType)).ToString());
                 return exp;
             }
             else if (NumericTypes.ContainsKey(exp.Value.GetType()))
@@ -623,11 +623,9 @@ namespace Chloe.SqlServer
 
             if (paramType.IsEnum())
             {
-                paramType = UtilConstants.TypeOfInt32;
+                paramType = Enum.GetUnderlyingType(paramType);
                 if (paramValue != null)
-                {
-                    paramValue = (int)paramValue;
-                }
+                    paramValue = Convert.ChangeType(paramValue, paramType);
             }
 
             if (paramValue == null)
