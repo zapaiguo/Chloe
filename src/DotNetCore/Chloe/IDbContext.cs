@@ -10,7 +10,9 @@ namespace Chloe
         IDbSession Session { get; }
 
         IQuery<TEntity> Query<TEntity>();
+        IQuery<TEntity> Query<TEntity>(string table);
         TEntity QueryByKey<TEntity>(object key, bool tracking = false);
+        TEntity QueryByKey<TEntity>(object key, string table, bool tracking = false);
 
         IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters);
         IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters);
