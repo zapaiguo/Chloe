@@ -49,7 +49,7 @@
     <Compile Include="Core\InternalDataReader.cs" />
     <Compile Include="Core\InternalAdoSession.cs" />
     <Compile Include="Core\OutputParameter.cs" />
-    <Compile Include="Core\Visitors\DefaultExpressionVisitor.cs" />
+    <Compile Include="Core\Visitors\DefaultExpressionParser.cs" />
     <Compile Include="Core\Visitors\ExpressionEvaluator.cs" />
     <Compile Include="Core\Visitors\ExpressionVisitor.cs" />
     <Compile Include="Core\Visitors\ExpressionVisitorBase.cs" />

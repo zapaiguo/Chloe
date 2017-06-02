@@ -59,12 +59,20 @@ namespace Chloe
 
         public virtual IQuery<TEntity> Query<TEntity>()
         {
-            return new Query<TEntity>(this);
+            return this.Query<TEntity>(null);
         }
-        public TEntity QueryByKey<TEntity>(object key, bool tracking = false)
+        public virtual IQuery<TEntity> Query<TEntity>(string table)
+        {
+            return new Query<TEntity>(this, table);
+        }
+        public virtual TEntity QueryByKey<TEntity>(object key, bool tracking = false)
+        {
+            return this.QueryByKey<TEntity>(key, null, tracking);
+        }
+        public virtual TEntity QueryByKey<TEntity>(object key, string table, bool tracking = false)
         {
             Expression<Func<TEntity, bool>> predicate = BuildPredicate<TEntity>(key);
-            var q = this.Query<TEntity>().Where(predicate);
+            var q = this.Query<TEntity>(table).Where(predicate);
 
             if (tracking)
                 q = q.AsTracking();
@@ -83,6 +91,10 @@ namespace Chloe
         }
 
         public virtual TEntity Insert<TEntity>(TEntity entity)
+        {
+            return this.Insert(entity, null);
+        }
+        public virtual TEntity Insert<TEntity>(TEntity entity, string table)
         {
             Utils.CheckNull(entity);
 
@@ -122,7 +134,8 @@ namespace Chloe
                 throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
             }
 
-            DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
+            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbInsertExpression e = new DbInsertExpression(dbTable);
 
             foreach (var kv in insertColumns)
             {
@@ -155,6 +168,10 @@ namespace Chloe
         }
         public virtual object Insert<TEntity>(Expression<Func<TEntity>> body)
         {
+            return this.Insert(body, null);
+        }
+        public virtual object Insert<TEntity>(Expression<Func<TEntity>> body, string table)
+        {
             Utils.CheckNull(body);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
@@ -165,7 +182,11 @@ namespace Chloe
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(body);
 
-            DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
+            DbTable explicitDbTable = null;
+            if (table != null)
+                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+            DbInsertExpression e = new DbInsertExpression(explicitDbTable ?? typeDescriptor.Table);
 
             object keyVal = null;
 
@@ -193,7 +214,7 @@ namespace Chloe
                     }
                 }
 
-                e.InsertColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
+                e.InsertColumns.Add(memberDescriptor.Column, expressionParser.Parse(kv.Value));
             }
 
             //主键为空并且主键又不是自增列
@@ -227,6 +248,10 @@ namespace Chloe
 
         public virtual int Update<TEntity>(TEntity entity)
         {
+            return this.Update(entity, null);
+        }
+        public virtual int Update<TEntity>(TEntity entity, string table)
+        {
             Utils.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
@@ -254,7 +279,7 @@ namespace Chloe
                 if (memberDescriptor.IsAutoIncrement)
                     continue;
 
-                var val = memberDescriptor.GetValue(entity);
+                object val = memberDescriptor.GetValue(entity);
 
                 if (entityState != null && !entityState.HasChanged(memberDescriptor, val))
                     continue;
@@ -269,11 +294,12 @@ namespace Chloe
             if (updateColumns.Count == 0)
                 return 0;
 
-            DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
+            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbExpression left = new DbColumnAccessExpression(dbTable, keyMemberDescriptor.Column);
             DbExpression right = DbExpression.Parameter(keyVal, keyMemberDescriptor.MemberInfoType);
             DbExpression conditionExp = new DbEqualExpression(left, right);
 
-            DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
+            DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 
             foreach (var item in updateColumns)
             {
@@ -287,15 +313,25 @@ namespace Chloe
         }
         public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body)
         {
+            return this.Update(condition, body, null);
+        }
+        public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body, string table)
+        {
             Utils.CheckNull(condition);
             Utils.CheckNull(body);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
 
             Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(body);
-            DbExpression conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
-            DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
+            DbTable explicitDbTable = null;
+            if (table != null)
+                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+
+            DbExpression conditionExp = expressionParser.ParseFilterPredicate(condition);
+
+            DbUpdateExpression e = new DbUpdateExpression(explicitDbTable ?? typeDescriptor.Table, conditionExp);
 
             foreach (var kv in updateColumns)
             {
@@ -311,16 +347,21 @@ namespace Chloe
                 if (memberDescriptor.IsAutoIncrement)
                     throw new ChloeException(string.Format("Could not update the identity column '{0}'.", memberDescriptor.Column.Name));
 
-                e.UpdateColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
+                e.UpdateColumns.Add(memberDescriptor.Column, expressionParser.Parse(kv.Value));
             }
 
             if (e.UpdateColumns.Count == 0)
                 return 0;
 
             return this.ExecuteSqlCommand(e);
+
         }
 
         public virtual int Delete<TEntity>(TEntity entity)
+        {
+            return this.Delete(entity, null);
+        }
+        public virtual int Delete<TEntity>(TEntity entity, string table)
         {
             Utils.CheckNull(entity);
 
@@ -335,28 +376,42 @@ namespace Chloe
             if (keyVal == null)
                 throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMember.Name));
 
-            DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
+            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbExpression left = new DbColumnAccessExpression(dbTable, keyMemberDescriptor.Column);
             DbExpression right = new DbParameterExpression(keyVal);
             DbExpression conditionExp = new DbEqualExpression(left, right);
 
-            DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
+            DbDeleteExpression e = new DbDeleteExpression(dbTable, conditionExp);
             return this.ExecuteSqlCommand(e);
         }
         public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition)
         {
+            return this.Delete(condition, null);
+        }
+        public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table)
+        {
             Utils.CheckNull(condition);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
-            DbExpression conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
-            DbDeleteExpression e = new DbDeleteExpression(typeDescriptor.Table, conditionExp);
+            DbTable explicitDbTable = null;
+            if (table != null)
+                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+            DbExpression conditionExp = expressionParser.ParseFilterPredicate(condition);
+
+            DbDeleteExpression e = new DbDeleteExpression(explicitDbTable ?? typeDescriptor.Table, conditionExp);
 
             return this.ExecuteSqlCommand(e);
         }
-        public int DeleteByKey<TEntity>(object key)
+        public virtual int DeleteByKey<TEntity>(object key)
+        {
+            return this.DeleteByKey<TEntity>(key, null);
+        }
+        public virtual int DeleteByKey<TEntity>(object key, string table)
         {
             Expression<Func<TEntity, bool>> predicate = BuildPredicate<TEntity>(key);
-            return this.Delete<TEntity>(predicate);
+            return this.Delete<TEntity>(predicate, table);
         }
 
 

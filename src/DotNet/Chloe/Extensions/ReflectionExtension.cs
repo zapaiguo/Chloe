@@ -88,6 +88,10 @@ namespace Chloe.InternalExtensions
         {
             return type.IsInterface;
         }
+        public static bool IsAbstractOrInterface(this Type type)
+        {
+            return type.IsAbstract || type.IsInterface;
+        }
         public static bool IsEnum(this Type type)
         {
             return type.IsEnum;

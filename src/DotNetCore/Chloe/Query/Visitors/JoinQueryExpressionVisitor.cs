@@ -39,9 +39,13 @@ namespace Chloe.Query.Visitors
             Type type = exp.ElementType;
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(type);
 
-            string alias = this._resultElement.GenerateUniqueTableAlias(typeDescriptor.Table.Name);
+            string explicitTableName = exp.ExplicitTable;
+            DbTable dbTable = typeDescriptor.Table;
+            if (explicitTableName != null)
+                dbTable = new DbTable(explicitTableName, dbTable.Schema);
+            string alias = this._resultElement.GenerateUniqueTableAlias(dbTable.Name);
 
-            DbTableSegment tableSeg = CreateTableExpression(typeDescriptor.Table, alias);
+            DbTableSegment tableSeg = CreateTableExpression(dbTable, alias);
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetTypeInfo().GetConstructor(Type.EmptyTypes));
 
             DbTable table = new DbTable(alias);

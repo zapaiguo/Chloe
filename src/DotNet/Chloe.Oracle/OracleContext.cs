@@ -31,7 +31,7 @@ namespace Chloe.Oracle
             get { return this._dbContextServiceProvider; }
         }
 
-        public override TEntity Insert<TEntity>(TEntity entity)
+        public override TEntity Insert<TEntity>(TEntity entity, string table)
         {
             Utils.CheckNull(entity);
 
@@ -80,7 +80,8 @@ namespace Chloe.Oracle
                 throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
             }
 
-            DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
+            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbInsertExpression e = new DbInsertExpression(dbTable);
 
             foreach (var kv in insertColumns)
             {
@@ -94,7 +95,7 @@ namespace Chloe.Oracle
 
             return entity;
         }
-        public override object Insert<TEntity>(Expression<Func<TEntity>> body)
+        public override object Insert<TEntity>(Expression<Func<TEntity>> body, string table)
         {
             Utils.CheckNull(body);
 
@@ -109,7 +110,11 @@ namespace Chloe.Oracle
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(body);
 
-            DbInsertExpression e = new DbInsertExpression(typeDescriptor.Table);
+            DbTable explicitDbTable = null;
+            if (table != null)
+                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+            DbInsertExpression e = new DbInsertExpression(explicitDbTable ?? typeDescriptor.Table);
 
             object keyVal = null;
 
@@ -137,7 +142,7 @@ namespace Chloe.Oracle
                     }
                 }
 
-                e.InsertColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
+                e.InsertColumns.Add(memberDescriptor.Column, expressionParser.Parse(kv.Value));
             }
 
             if (keyMemberDescriptor == defineSequenceMemberDescriptor)
@@ -157,7 +162,7 @@ namespace Chloe.Oracle
             return keyVal;
         }
 
-        public override int Update<TEntity>(TEntity entity)
+        public override int Update<TEntity>(TEntity entity, string table)
         {
             Utils.CheckNull(entity);
 
@@ -202,11 +207,12 @@ namespace Chloe.Oracle
             if (updateColumns.Count == 0)
                 return 0;
 
-            DbExpression left = new DbColumnAccessExpression(typeDescriptor.Table, keyMemberDescriptor.Column);
+            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbExpression left = new DbColumnAccessExpression(dbTable, keyMemberDescriptor.Column);
             DbExpression right = DbExpression.Parameter(keyVal, keyMemberDescriptor.MemberInfoType);
             DbExpression conditionExp = new DbEqualExpression(left, right);
 
-            DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
+            DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 
             foreach (var item in updateColumns)
             {
@@ -218,7 +224,7 @@ namespace Chloe.Oracle
                 entityState.Refresh();
             return ret;
         }
-        public override int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body)
+        public override int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body, string table)
         {
             Utils.CheckNull(condition);
             Utils.CheckNull(body);
@@ -226,9 +232,15 @@ namespace Chloe.Oracle
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
 
             Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(body);
-            DbExpression conditionExp = typeDescriptor.Visitor.VisitFilterPredicate(condition);
 
-            DbUpdateExpression e = new DbUpdateExpression(typeDescriptor.Table, conditionExp);
+            DbTable explicitDbTable = null;
+            if (table != null)
+                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+
+            DbExpression conditionExp = expressionParser.ParseFilterPredicate(condition);
+
+            DbUpdateExpression e = new DbUpdateExpression(explicitDbTable ?? typeDescriptor.Table, conditionExp);
 
             foreach (var kv in updateColumns)
             {
@@ -245,7 +257,7 @@ namespace Chloe.Oracle
                 if (attr != null)
                     throw new ChloeException(string.Format("Could not update the column '{0}',because it's mapping member has define a sequence.", memberDescriptor.Column.Name));
 
-                e.UpdateColumns.Add(memberDescriptor.Column, typeDescriptor.Visitor.Visit(kv.Value));
+                e.UpdateColumns.Add(memberDescriptor.Column, expressionParser.Parse(kv.Value));
             }
 
             if (e.UpdateColumns.Count == 0)

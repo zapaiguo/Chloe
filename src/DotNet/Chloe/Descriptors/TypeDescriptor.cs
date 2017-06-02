@@ -21,7 +21,7 @@ namespace Chloe.Descriptors
         MappingMemberDescriptor _primaryKey = null;
         MappingMemberDescriptor _autoIncrement = null;
 
-        DefaultExpressionVisitor _visitor = null;
+        DefaultExpressionParser _expressionParser = null;
 
         TypeDescriptor(Type t)
         {
@@ -169,15 +169,17 @@ namespace Chloe.Descriptors
 
         public MappingMemberDescriptor PrimaryKey { get { return this._primaryKey; } }
         public MappingMemberDescriptor AutoIncrement { get { return this._autoIncrement; } }
-        public DefaultExpressionVisitor Visitor
-        {
-            get
-            {
-                if (this._visitor == null)
-                    this._visitor = new DefaultExpressionVisitor(this);
 
-                return this._visitor;
+        public DefaultExpressionParser GetExpressionParser(DbTable explicitDbTable)
+        {
+            if (explicitDbTable == null)
+            {
+                if (this._expressionParser == null)
+                    this._expressionParser = new DefaultExpressionParser(this, null);
+                return this._expressionParser;
             }
+            else
+                return new DefaultExpressionParser(this, explicitDbTable);
         }
 
         public Dictionary<MemberInfo, MappingMemberDescriptor> MappingMemberDescriptors { get { return this._mappingMemberDescriptors; } }

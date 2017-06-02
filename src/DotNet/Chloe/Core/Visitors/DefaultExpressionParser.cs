@@ -12,19 +12,25 @@ using System.Text;
 
 namespace Chloe.Core.Visitors
 {
-    public class DefaultExpressionVisitor : ExpressionVisitorBase
+    public class DefaultExpressionParser : ExpressionVisitorBase
     {
         TypeDescriptor _typeDescriptor;
+        DbTable _explicitDbTable;
 
-        public DefaultExpressionVisitor(TypeDescriptor typeDescriptor)
+        public DefaultExpressionParser(TypeDescriptor typeDescriptor, DbTable explicitDbTable)
         {
             this._typeDescriptor = typeDescriptor;
+            this._explicitDbTable = explicitDbTable;
         }
 
-        public DbExpression VisitFilterPredicate(LambdaExpression lambda)
+        public DbExpression ParseFilterPredicate(LambdaExpression lambda)
         {
             lambda = ExpressionVisitorBase.ReBuildFilterPredicate(lambda);
             return this.Visit(lambda);
+        }
+        public DbExpression Parse(Expression exp)
+        {
+            return this.Visit(exp);
         }
 
         protected override DbExpression VisitMemberAccess(MemberExpression exp)
@@ -40,6 +46,9 @@ namespace Chloe.Core.Visitors
                     if (first)
                     {
                         DbColumnAccessExpression dbColumnAccessExpression = this._typeDescriptor.TryGetColumnAccessExpression(me.Member);
+                        if (this._explicitDbTable != null)
+                            dbColumnAccessExpression = new DbColumnAccessExpression(this._explicitDbTable, dbColumnAccessExpression.Column);
+
                         if (dbColumnAccessExpression == null)
                         {
                             throw new ChloeException(string.Format("The member '{0}' does not map any column.", me.Member.Name));

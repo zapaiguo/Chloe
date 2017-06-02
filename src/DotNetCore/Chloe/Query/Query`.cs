@@ -24,8 +24,8 @@ namespace Chloe.Query
         internal bool _trackEntity = false;
         public DbContext DbContext { get { return this._dbContext; } }
 
-        public Query(DbContext dbContext)
-            : this(dbContext, new RootQueryExpression(typeof(T)), false)
+        public Query(DbContext dbContext, string explicitTable)
+            : this(dbContext, new RootQueryExpression(typeof(T), explicitTable), false)
         {
 
         }

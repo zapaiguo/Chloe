@@ -3,14 +3,15 @@ using System;
 using Chloe.Utility;
 using Chloe.Descriptors;
 using System.Reflection;
+using Chloe.InternalExtensions;
 
 namespace Chloe.Query.QueryState
 {
     internal sealed class RootQueryState : QueryStateBase
     {
         Type _elementType;
-        public RootQueryState(Type elementType)
-            : base(CreateResultElement(elementType))
+        public RootQueryState(Type elementType, string explicitTableName)
+            : base(CreateResultElement(elementType, explicitTableName))
         {
             this._elementType = elementType;
         }
@@ -28,10 +29,9 @@ namespace Chloe.Query.QueryState
             return base.ToFromQueryResult();
         }
 
-        static ResultElement CreateResultElement(Type type)
+        static ResultElement CreateResultElement(Type type, string explicitTableName)
         {
-            TypeInfo typeInfo = type.GetTypeInfo();
-            if (typeInfo.IsAbstract || typeInfo.IsInterface)
+            if (type.IsAbstractOrInterface())
                 throw new ArgumentException("The type of input can not be abstract class or interface.");
 
             //TODO init _resultElement
@@ -39,9 +39,12 @@ namespace Chloe.Query.QueryState
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(type);
 
-            string alias = resultElement.GenerateUniqueTableAlias(typeDescriptor.Table.Name);
+            DbTable dbTable = typeDescriptor.Table;
+            if (explicitTableName != null)
+                dbTable = new DbTable(explicitTableName, dbTable.Schema);
+            string alias = resultElement.GenerateUniqueTableAlias(dbTable.Name);
 
-            resultElement.FromTable = CreateRootTable(typeDescriptor.Table, alias);
+            resultElement.FromTable = CreateRootTable(dbTable, alias);
 
             ConstructorInfo constructor = typeDescriptor.EntityType.GetConstructor(Type.EmptyTypes);
             if (constructor == null)
