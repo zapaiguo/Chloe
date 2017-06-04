@@ -15,14 +15,17 @@ A lightweight and high-performance Object/Relational Mapping(ORM) library.
 
 Requires:
 - .NET Framework(>=4.0)
-- Chloe(>=2.8.0)
     </description>
     <copyright>Copyright 2016-2017</copyright>
     <tags>Chloe,ORM,Data,SqlServer</tags>
+
+    <dependencies>
+      <dependency id="Chloe" version="2.8.0" />
+    </dependencies>
+    
   </metadata>
 
   <files>
-    <file src="bin\Release\Chloe.dll" target="lib\net40" />
     <file src="bin\Release\Chloe.SqlServer.dll" target="lib\net40" />
   </files>
 </package>

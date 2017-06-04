@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Chloe.Oracle</id>
+    <id>Chloe</id>
     <version>2.8.0</version>
-    <title>Chloe.Oracle</title>
+    <title>Chloe</title>
     <authors>Shuxin Qin</authors>
     <owners>Shuxin Qin</owners>
     <licenseUrl>https://github.com/shuxinqin/Chloe/blob/master/LICENSE</licenseUrl>
@@ -17,15 +17,11 @@ Requires:
 - .NET Framework(>=4.0)
     </description>
     <copyright>Copyright 2016-2017</copyright>
-    <tags>Chloe,ORM,Data,Oracle</tags>
-
-    <dependencies>
-      <dependency id="Chloe" version="2.8.0" />
-    </dependencies>
-    
+    <tags>Chloe,ORM,Data</tags>
+   
   </metadata>
 
   <files>
-    <file src="bin\Release\Chloe.Oracle.dll" target="lib\net40" />
+    <file src="bin\Release\Chloe.dll" target="lib\net40" />
   </files>
 </package>
