@@ -22,10 +22,10 @@ namespace Chloe.Query
             this._moeList = moeList;
         }
 
-        public static IMappingObjectExpression VisitSelectExpression(LambdaExpression exp, List<IMappingObjectExpression> moeList)
+        public static IMappingObjectExpression ResolveSelectorExpression(LambdaExpression selector, List<IMappingObjectExpression> moeList)
         {
             SelectorExpressionVisitor visitor = new SelectorExpressionVisitor(moeList);
-            return visitor.Visit(exp);
+            return visitor.Visit(selector);
         }
 
         int FindParameterIndex(ParameterExpression exp)
@@ -38,18 +38,18 @@ namespace Chloe.Query
 
             return idx;
         }
-        DbExpression VisistExpression(Expression exp)
+        DbExpression ResolveExpression(Expression exp)
         {
             return this._visitor.Visit(exp);
         }
-        IMappingObjectExpression VisitNavigationMember(MemberExpression exp)
+        IMappingObjectExpression ResolveComplexMember(MemberExpression exp)
         {
             ParameterExpression p;
             if (ExpressionExtension.IsDerivedFromParameter(exp, out p))
             {
                 int idx = this.FindParameterIndex(p);
                 IMappingObjectExpression moe = this._moeList[idx];
-                return moe.GetNavMemberExpression(exp);
+                return moe.GetComplexMemberExpression(exp);
             }
             else
             {
@@ -94,7 +94,7 @@ namespace Chloe.Query
                 Expression argExp = exp.Arguments[i];
                 if (MappingTypeSystem.IsMappingType(pi.ParameterType))
                 {
-                    DbExpression dbExpression = this.VisistExpression(argExp);
+                    DbExpression dbExpression = this.ResolveExpression(argExp);
                     result.AddConstructorParameter(pi, dbExpression);
                 }
                 else
@@ -124,14 +124,14 @@ namespace Chloe.Query
                 //是数据库映射类型
                 if (MappingTypeSystem.IsMappingType(memberType))
                 {
-                    DbExpression dbExpression = this.VisistExpression(memberAssignment.Expression);
+                    DbExpression dbExpression = this.ResolveExpression(memberAssignment.Expression);
                     result.AddMemberExpression(member, dbExpression);
                 }
                 else
                 {
                     //对于非数据库映射类型，只支持 NewExpression 和 MemberInitExpression
                     IMappingObjectExpression subResult = this.Visit(memberAssignment.Expression);
-                    result.AddNavMemberExpression(member, subResult);
+                    result.AddComplexMemberExpression(member, subResult);
                 }
             }
 
@@ -147,13 +147,13 @@ namespace Chloe.Query
             //create MappingFieldExpression object if exp is map type
             if (MappingTypeSystem.IsMappingType(exp.Type))
             {
-                DbExpression dbExp = this.VisistExpression(exp);
+                DbExpression dbExp = this.ResolveExpression(exp);
                 MappingFieldExpression ret = new MappingFieldExpression(exp.Type, dbExp);
                 return ret;
             }
 
             //如 a.Order a.User 等形式
-            return this.VisitNavigationMember(exp);
+            return this.ResolveComplexMember(exp);
         }
         protected override IMappingObjectExpression VisitParameter(ParameterExpression exp)
         {
@@ -169,7 +169,7 @@ namespace Chloe.Query
                 throw new NotSupportedException(exp.ToString());
             }
 
-            DbExpression dbExp = this.VisistExpression(exp);
+            DbExpression dbExp = this.ResolveExpression(exp);
             MappingFieldExpression ret = new MappingFieldExpression(exp.Type, dbExp);
             return ret;
         }

@@ -52,7 +52,7 @@ namespace Chloe.Query
             memberInfo = memberInfo.AsReflectedMemberOf(this.ConstructorDescriptor.ConstructorInfo.DeclaringType);
             this.SelectedMembers.Add(memberInfo, exp);
         }
-        public void AddNavMemberExpression(MemberInfo memberInfo, IMappingObjectExpression moe)
+        public void AddComplexMemberExpression(MemberInfo memberInfo, IMappingObjectExpression moe)
         {
             memberInfo = memberInfo.AsReflectedMemberOf(this.ConstructorDescriptor.ConstructorInfo.DeclaringType);
             this.SubResultEntities.Add(memberInfo, moe);
@@ -82,7 +82,7 @@ namespace Chloe.Query
 
             return ret;
         }
-        public IMappingObjectExpression GetNavMemberExpression(MemberInfo memberInfo)
+        public IMappingObjectExpression GetComplexMemberExpression(MemberInfo memberInfo)
         {
             memberInfo = memberInfo.AsReflectedMemberOf(this.ConstructorDescriptor.ConstructorInfo.DeclaringType);
             IMappingObjectExpression ret = null;
@@ -125,7 +125,7 @@ namespace Chloe.Query
                 if (e == null)
                 {
                     /* Indicate current accessed member is not mapping member,then try get complex member like 'a.Order' */
-                    moe = moe.GetNavMemberExpression(accessedMember);
+                    moe = moe.GetComplexMemberExpression(accessedMember);
 
                     if (moe == null)
                     {
@@ -171,7 +171,7 @@ namespace Chloe.Query
 
             return ret;
         }
-        public IMappingObjectExpression GetNavMemberExpression(MemberExpression memberExpressionDeriveParameter)
+        public IMappingObjectExpression GetComplexMemberExpression(MemberExpression memberExpressionDeriveParameter)
         {
             Stack<MemberExpression> memberExpressions = ExpressionExtension.Reverse(memberExpressionDeriveParameter);
 
@@ -183,7 +183,7 @@ namespace Chloe.Query
             {
                 MemberInfo member = memberExpression.Member;
 
-                ret = ret.GetNavMemberExpression(member);
+                ret = ret.GetComplexMemberExpression(member);
                 if (ret == null)
                 {
                     throw new NotSupportedException(memberExpressionDeriveParameter.ToString());
@@ -216,8 +216,8 @@ namespace Chloe.Query
                 ParameterInfo pi = kv.Key;
                 IMappingObjectExpression val = kv.Value;
 
-                IObjectActivatorCreator navMappingMember = val.GenarateObjectActivatorCreator(sqlQuery);
-                mappingEntity.ConstructorEntityParameters.Add(pi, navMappingMember);
+                IObjectActivatorCreator complexMappingMember = val.GenarateObjectActivatorCreator(sqlQuery);
+                mappingEntity.ConstructorEntityParameters.Add(pi, complexMappingMember);
             }
 
             foreach (var kv in mappingMembers.SelectedMembers)
@@ -239,8 +239,8 @@ namespace Chloe.Query
                 MemberInfo member = kv.Key;
                 IMappingObjectExpression val = kv.Value;
 
-                IObjectActivatorCreator navMappingMember = val.GenarateObjectActivatorCreator(sqlQuery);
-                mappingEntity.EntityMembers.Add(kv.Key, navMappingMember);
+                IObjectActivatorCreator complexMappingMember = val.GenarateObjectActivatorCreator(sqlQuery);
+                mappingEntity.EntityMembers.Add(kv.Key, complexMappingMember);
             }
 
             if (mappingEntity.CheckNullOrdinal == null)
@@ -270,8 +270,8 @@ namespace Chloe.Query
                 ParameterInfo pi = kv.Key;
                 IMappingObjectExpression val = kv.Value;
 
-                IMappingObjectExpression navMappingMember = val.ToNewObjectExpression(sqlQuery, table);
-                moe.AddConstructorEntityParameter(pi, navMappingMember);
+                IMappingObjectExpression complexMappingMember = val.ToNewObjectExpression(sqlQuery, table);
+                moe.AddConstructorEntityParameter(pi, complexMappingMember);
             }
 
             foreach (var kv in mappingMembers.SelectedMembers)
@@ -297,8 +297,8 @@ namespace Chloe.Query
                 MemberInfo member = kv.Key;
                 IMappingObjectExpression val = kv.Value;
 
-                IMappingObjectExpression navMappingMember = val.ToNewObjectExpression(sqlQuery, table);
-                moe.AddNavMemberExpression(member, navMappingMember);
+                IMappingObjectExpression complexMappingMember = val.ToNewObjectExpression(sqlQuery, table);
+                moe.AddComplexMemberExpression(member, complexMappingMember);
             }
 
             if (moe.NullChecking == null)

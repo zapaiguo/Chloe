@@ -38,7 +38,7 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
-        public void AddNavMemberExpression(MemberInfo p, IMappingObjectExpression exp)
+        public void AddComplexMemberExpression(MemberInfo p, IMappingObjectExpression exp)
         {
             throw new NotSupportedException();
         }
@@ -46,7 +46,7 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
-        public IMappingObjectExpression GetNavMemberExpression(MemberInfo memberInfo)
+        public IMappingObjectExpression GetComplexMemberExpression(MemberInfo memberInfo)
         {
             throw new NotSupportedException();
         }
@@ -70,7 +70,7 @@ namespace Chloe.Query
 
             return ret;
         }
-        public IMappingObjectExpression GetNavMemberExpression(MemberExpression exp)
+        public IMappingObjectExpression GetComplexMemberExpression(MemberExpression exp)
         {
             throw new NotSupportedException();
         }

@@ -18,11 +18,11 @@ namespace Chloe.Query
         void AddConstructorParameter(ParameterInfo p, DbExpression exp);
         void AddConstructorEntityParameter(ParameterInfo p, IMappingObjectExpression exp);
         void AddMemberExpression(MemberInfo memberInfo, DbExpression exp);
-        void AddNavMemberExpression(MemberInfo memberInfo, IMappingObjectExpression moe);
+        void AddComplexMemberExpression(MemberInfo memberInfo, IMappingObjectExpression moe);
         DbExpression GetMemberExpression(MemberInfo memberInfo);
-        IMappingObjectExpression GetNavMemberExpression(MemberInfo memberInfo);
+        IMappingObjectExpression GetComplexMemberExpression(MemberInfo memberInfo);
         DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter);
-        IMappingObjectExpression GetNavMemberExpression(MemberExpression exp);
+        IMappingObjectExpression GetComplexMemberExpression(MemberExpression exp);
 
         void SetNullChecking(DbExpression exp);
     }
