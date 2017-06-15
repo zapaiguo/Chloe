@@ -14,7 +14,7 @@ namespace ChloeDemo
     //[TestClass]
     public class MsSqlDemo
     {
-        /* DbContext 是非线程安全的，正式使用不能设置为 static */
+        /* WARNING: DbContext 是非线程安全的，正式使用不能设置为 static */
         static MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
         public static void Test()
@@ -48,9 +48,9 @@ namespace ChloeDemo
              */
 
             //分页
-            q.Where(a => a.Id > 0).OrderBy(a => a.Age).Skip(1).Take(999).ToList();
+            q.Where(a => a.Id > 0).OrderBy(a => a.Age).Skip(20).Take(10).ToList();
             /*
-             * SELECT TOP (999) [T].[Id] AS [Id],[T].[Name] AS [Name],[T].[Gender] AS [Gender],[T].[Age] AS [Age],[T].[CityId] AS [CityId],[T].[OpTime] AS [OpTime] FROM (SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name],[Users].[Gender] AS [Gender],[Users].[Age] AS [Age],[Users].[CityId] AS [CityId],[Users].[OpTime] AS [OpTime],ROW_NUMBER() OVER(ORDER BY [Users].[Age] ASC) AS [ROW_NUMBER_0] FROM [Users] AS [Users] WHERE [Users].[Id] > 0) AS [T] WHERE [T].[ROW_NUMBER_0] > 1
+             * SELECT TOP (10) [T].[Id] AS [Id],[T].[Name] AS [Name],[T].[Gender] AS [Gender],[T].[Age] AS [Age],[T].[CityId] AS [CityId],[T].[OpTime] AS [OpTime] FROM (SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name],[Users].[Gender] AS [Gender],[Users].[Age] AS [Age],[Users].[CityId] AS [CityId],[Users].[OpTime] AS [OpTime],ROW_NUMBER() OVER(ORDER BY [Users].[Age] ASC) AS [ROW_NUMBER_0] FROM [Users] AS [Users] WHERE [Users].[Id] > 0) AS [T] WHERE [T].[ROW_NUMBER_0] > 20
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -169,16 +169,16 @@ namespace ChloeDemo
         }
         public static void Update()
         {
-            context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 100, Gender = Gender.Man, OpTime = DateTime.Now });
+            context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
             /*
-             * UPDATE [Users] SET [Name]=[Users].[Name],[Age]=([Users].[Age] + 100),[Gender]=1,[OpTime]=GETDATE() WHERE [Users].[Id] = 1
+             * UPDATE [Users] SET [Name]=[Users].[Name],[Age]=([Users].[Age] + 1),[Gender]=1,[OpTime]=GETDATE() WHERE [Users].[Id] = 1
              */
 
             //批量更新
-            //给所有女性年轻 10 岁
-            context.Update<User>(a => a.Gender == Gender.Woman, a => new User() { Age = a.Age - 10, OpTime = DateTime.Now });
+            //给所有女性年轻 1 岁
+            context.Update<User>(a => a.Gender == Gender.Woman, a => new User() { Age = a.Age - 1, OpTime = DateTime.Now });
             /*
-             * UPDATE [Users] SET [Age]=([Users].[Age] - 10),[OpTime]=GETDATE() WHERE [Users].[Gender] = 2
+             * UPDATE [Users] SET [Age]=([Users].[Age] - 1),[OpTime]=GETDATE() WHERE [Users].[Gender] = 2
              */
 
             User user = new User();

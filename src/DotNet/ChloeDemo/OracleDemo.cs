@@ -10,7 +10,7 @@ namespace ChloeDemo
 {
     public class OracleDemo
     {
-        /* DbContext 是非线程安全的，正式使用不能设置为 static */
+        /* WARNING: DbContext 是非线程安全的，正式使用不能设置为 static */
         static OracleContext context = new OracleContext(new OracleConnectionFactory("Data Source=localhost/orcl;User ID=system;Password=sa;"));
 
         public static void Test()
@@ -44,9 +44,9 @@ namespace ChloeDemo
              */
 
             //分页
-            q.Where(a => a.Id > 0).OrderBy(a => a.Age).Skip(1).Take(999).ToList();
+            q.Where(a => a.Id > 0).OrderBy(a => a.Age).Skip(20).Take(10).ToList();
             /*
-             * SELECT "T"."ID" AS "ID","T"."NAME" AS "NAME","T"."GENDER" AS "GENDER","T"."AGE" AS "AGE","T"."CITYID" AS "CITYID","T"."OPTIME" AS "OPTIME" FROM (SELECT "TTAKE"."ID" AS "ID","TTAKE"."NAME" AS "NAME","TTAKE"."GENDER" AS "GENDER","TTAKE"."AGE" AS "AGE","TTAKE"."CITYID" AS "CITYID","TTAKE"."OPTIME" AS "OPTIME",ROWNUM AS "ROW_NUMBER_0" FROM (SELECT "USERS"."ID" AS "ID","USERS"."NAME" AS "NAME","USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME" FROM "USERS" "USERS" WHERE "USERS"."ID" > 0 ORDER BY "USERS"."AGE" ASC) "TTAKE" WHERE ROWNUM < 1001) "T" WHERE "T"."ROW_NUMBER_0" > 1
+             * SELECT "T"."ID" AS "ID","T"."NAME" AS "NAME","T"."GENDER" AS "GENDER","T"."AGE" AS "AGE","T"."CITYID" AS "CITYID","T"."OPTIME" AS "OPTIME" FROM (SELECT "TTAKE"."ID" AS "ID","TTAKE"."NAME" AS "NAME","TTAKE"."GENDER" AS "GENDER","TTAKE"."AGE" AS "AGE","TTAKE"."CITYID" AS "CITYID","TTAKE"."OPTIME" AS "OPTIME",ROWNUM AS "ROW_NUMBER_0" FROM (SELECT "USERS"."ID" AS "ID","USERS"."NAME" AS "NAME","USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME" FROM "USERS" "USERS" WHERE "USERS"."ID" > 0 ORDER BY "USERS"."AGE" ASC) "TTAKE" WHERE ROWNUM < 31) "T" WHERE "T"."ROW_NUMBER_0" > 20
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -168,16 +168,16 @@ namespace ChloeDemo
         }
         public static void Update()
         {
-            context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 100, Gender = Gender.Man, OpTime = DateTime.Now });
+            context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
             /*
-             * UPDATE "USERS" SET "NAME"="USERS"."NAME","AGE"=("USERS"."AGE" + 100),"GENDER"=1,"OPTIME"=SYSTIMESTAMP WHERE "USERS"."ID" = 1
+             * UPDATE "USERS" SET "NAME"="USERS"."NAME","AGE"=("USERS"."AGE" + 1),"GENDER"=1,"OPTIME"=SYSTIMESTAMP WHERE "USERS"."ID" = 1
              */
 
             //批量更新
-            //给所有女性年轻 10 岁
-            context.Update<User>(a => a.Gender == Gender.Woman, a => new User() { Age = a.Age - 10, OpTime = DateTime.Now });
+            //给所有女性年轻 1 岁
+            context.Update<User>(a => a.Gender == Gender.Woman, a => new User() { Age = a.Age - 1, OpTime = DateTime.Now });
             /*
-             * UPDATE "USERS" SET "AGE"=("USERS"."AGE" - 10),"OPTIME"=SYSTIMESTAMP WHERE "USERS"."GENDER" = 2
+             * UPDATE "USERS" SET "AGE"=("USERS"."AGE" - 1),"OPTIME"=SYSTIMESTAMP WHERE "USERS"."GENDER" = 2
              */
 
             User user = new User();

@@ -63,11 +63,11 @@ IQuery<User> q = context.Query<User>();
 q.Where(a => a.Id > 0).FirstOrDefault();
 q.Where(a => a.Id > 0).ToList();
 q.Where(a => a.Id > 0).OrderBy(a => a.Age).ToList();
-q.Where(a => a.Id > 0).Take(999).OrderBy(a => a.Age).ToList();
+q.Where(a => a.Id > 0).Take(10).OrderBy(a => a.Age).ToList();
 
-q.Where(a => a.Id > 0).OrderBy(a => a.Age).ThenByDesc(a => a.Id).Select(a => new { a.Id, a.Name }).Skip(1).Take(999).ToList();
+q.Where(a => a.Id > 0).OrderBy(a => a.Age).ThenByDesc(a => a.Id).Select(a => new { a.Id, a.Name }).Skip(20).Take(10).ToList();
 /*
- * SELECT TOP (999) [T].[Id] AS [Id],[T].[Name] AS [Name] FROM (SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name],ROW_NUMBER() OVER(ORDER BY [Users].[Age] ASC,[Users].[Id] DESC) AS [ROW_NUMBER_0] FROM [Users] AS [Users] WHERE [Users].[Id] > 0) AS [T] WHERE [T].[ROW_NUMBER_0] > 1
+ * SELECT TOP (10) [T].[Id] AS [Id],[T].[Name] AS [Name] FROM (SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name],ROW_NUMBER() OVER(ORDER BY [Users].[Age] ASC,[Users].[Id] DESC) AS [ROW_NUMBER_0] FROM [Users] AS [Users] WHERE [Users].[Id] > 0) AS [T] WHERE [T].[ROW_NUMBER_0] > 20
  */
 
 q.Where(a => a.Id > 0).Where(a => a.Name.Contains("lu")).ToList();
@@ -289,14 +289,14 @@ user = context.Insert(user);
 ```C#
 MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
-context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 100, Gender = Gender.Man, OpTime = DateTime.Now });
+context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
 /*
- * UPDATE [Users] SET [Name]=[Users].[Name],[Age]=([Users].[Age] + 100),[Gender]=1,[OpTime]=GETDATE() WHERE [Users].[Id] = 1
+ * UPDATE [Users] SET [Name]=[Users].[Name],[Age]=([Users].[Age] + 1),[Gender]=1,[OpTime]=GETDATE() WHERE [Users].[Id] = 1
  */
 
-context.Update<User>(a => a.Gender == Gender.Woman, a => new User() { Age = a.Age - 10, OpTime = DateTime.Now });
+context.Update<User>(a => a.Gender == Gender.Woman, a => new User() { Age = a.Age - 1, OpTime = DateTime.Now });
 /*
- * UPDATE [Users] SET [Age]=([Users].[Age] - 10),[OpTime]=GETDATE() WHERE [Users].[Gender] = 2
+ * UPDATE [Users] SET [Age]=([Users].[Age] - 1),[OpTime]=GETDATE() WHERE [Users].[Gender] = 2
  */
 
 
@@ -353,4 +353,4 @@ context.Delete(user);
 # License
 [MIT](http://opensource.org/licenses/MIT) License
 
-notes：早期使用 apache 2.0 开源协议，从 2017-3-3 起切换至更宽松的 MIT 协议
+note：早期使用 apache 2.0 开源协议，从 2017-3-3 起切换至更宽松的 MIT 协议

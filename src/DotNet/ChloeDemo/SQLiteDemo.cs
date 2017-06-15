@@ -11,7 +11,7 @@ namespace ChloeDemo
 {
     class SQLiteDemo
     {
-        /* DbContext 是非线程安全的，正式使用不能设置为 static */
+        /* WARNING: DbContext 是非线程安全的，正式使用不能设置为 static */
         static SQLiteContext context = new SQLiteContext(new SQLiteConnectionFactory("Data Source=..\\..\\Chloe.db;Version=3;Pooling=True;Max Pool Size=100;"));
         public static void Test()
         {
@@ -44,9 +44,9 @@ namespace ChloeDemo
              */
 
             //分页
-            q.Where(a => a.Id > 0).OrderBy(a => a.Age).Skip(1).Take(999).ToList();
+            q.Where(a => a.Id > 0).OrderBy(a => a.Age).Skip(20).Take(10).ToList();
             /*
-             * SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name],[Users].[Gender] AS [Gender],[Users].[Age] AS [Age],[Users].[CityId] AS [CityId],[Users].[OpTime] AS [OpTime] FROM [Users] AS [Users] WHERE [Users].[Id] > 0 ORDER BY [Users].[Age] ASC LIMIT 999 OFFSET 1
+             * SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name],[Users].[Gender] AS [Gender],[Users].[Age] AS [Age],[Users].[CityId] AS [CityId],[Users].[OpTime] AS [OpTime] FROM [Users] AS [Users] WHERE [Users].[Id] > 0 ORDER BY [Users].[Age] ASC LIMIT 10 OFFSET 20
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -165,16 +165,16 @@ namespace ChloeDemo
         }
         public static void Update()
         {
-            context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 100, Gender = Gender.Man, OpTime = DateTime.Now });
+            context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
             /*
-             * UPDATE [Users] SET [Name]=[Users].[Name],[Age]=([Users].[Age] + 100),[Gender]=1,[OpTime]=DATETIME('NOW','LOCALTIME') WHERE [Users].[Id] = 1
+             * UPDATE [Users] SET [Name]=[Users].[Name],[Age]=([Users].[Age] + 1),[Gender]=1,[OpTime]=DATETIME('NOW','LOCALTIME') WHERE [Users].[Id] = 1
              */
 
             //批量更新
-            //给所有女性年轻 10 岁
-            context.Update<User>(a => a.Gender == Gender.Woman, a => new User() { Age = a.Age - 10, OpTime = DateTime.Now });
+            //给所有女性年轻 1 岁
+            context.Update<User>(a => a.Gender == Gender.Woman, a => new User() { Age = a.Age - 1, OpTime = DateTime.Now });
             /*
-             * UPDATE [Users] SET [Age]=([Users].[Age] - 10),[OpTime]=DATETIME('NOW','LOCALTIME') WHERE [Users].[Gender] = 2
+             * UPDATE [Users] SET [Age]=([Users].[Age] - 1),[OpTime]=DATETIME('NOW','LOCALTIME') WHERE [Users].[Gender] = 2
              */
 
             User user = new User();
