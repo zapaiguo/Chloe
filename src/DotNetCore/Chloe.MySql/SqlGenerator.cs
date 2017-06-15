@@ -426,6 +426,16 @@ namespace Chloe.MySql
         }
 
 
+        public override DbExpression Visit(DbCoalesceExpression exp)
+        {
+            this._sqlBuilder.Append("IFNULL(");
+            exp.CheckExpression.Accept(this);
+            this._sqlBuilder.Append(",");
+            exp.ReplacementValue.Accept(this);
+            this._sqlBuilder.Append(")");
+
+            return exp;
+        }
         public override DbExpression Visit(DbCaseWhenExpression exp)
         {
             this._sqlBuilder.Append("CASE");

@@ -25,6 +25,7 @@ namespace Chloe.DbExpressions
 
         Convert,
         Constant,
+        Coalesce,
         CaseWhen,
         MemberAccess,
         Call,

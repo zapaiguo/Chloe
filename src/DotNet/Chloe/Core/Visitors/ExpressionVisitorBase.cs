@@ -239,19 +239,7 @@ namespace Chloe.Core.Visitors
         // a??b
         protected override DbExpression VisitBinary_Coalesce(BinaryExpression exp)
         {
-            DbExpression whenExp = null;
-            DbExpression thenExp = null;
-            DbExpression elseExp = null;
-
-            // case when left is null then rigth else left end
-            thenExp = this.Visit(exp.Right);
-            whenExp = elseExp = this.Visit(exp.Left);
-
-            List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
-            whenThenExps.Add(new DbCaseWhenExpression.WhenThenExpressionPair(DbExpression.Equal(whenExp, DbExpression.Constant(null, exp.Type)), thenExp));
-
-            DbExpression dbExp = DbExpression.CaseWhen(whenThenExps, elseExp, exp.Type);
-
+            DbExpression dbExp = new DbCoalesceExpression(this.Visit(exp.Left), this.Visit(exp.Right));
             return dbExp;
         }
 

@@ -104,6 +104,11 @@ namespace Chloe.Oracle
             return exp.Accept(this._generator);
         }
 
+        public override DbExpression Visit(DbCoalesceExpression exp)
+        {
+            return exp.Accept(this._generator);
+        }
+
         public override DbExpression Visit(DbCaseWhenExpression exp)
         {
             return exp.Accept(this._generator);
