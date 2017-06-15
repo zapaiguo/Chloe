@@ -36,7 +36,6 @@ namespace Chloe.Oracle
             Utils.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
-            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MemberInfo keyMember = typeDescriptor.PrimaryKey.MemberInfo;
@@ -75,7 +74,7 @@ namespace Chloe.Oracle
                 insertColumns.Add(memberDescriptor, valExp);
             }
 
-            if (keyValue == null)
+            if (keyMemberDescriptor != null && keyValue == null)
             {
                 throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
             }
@@ -100,7 +99,6 @@ namespace Chloe.Oracle
             Utils.CheckNull(body);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
-            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
 
@@ -153,13 +151,13 @@ namespace Chloe.Oracle
                 e.InsertColumns.Add(keyMemberDescriptor.Column, DbExpression.Parameter(keyVal));
             }
 
-            if (keyVal == null)
+            if (keyMemberDescriptor != null && keyVal == null)
             {
                 throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
             }
 
             this.ExecuteSqlCommand(e);
-            return keyVal;
+            return keyVal; /* It will return null if an entity does not define primary key. */
         }
 
         public override int Update<TEntity>(TEntity entity, string table)

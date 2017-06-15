@@ -99,10 +99,8 @@ namespace Chloe
             Utils.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
-            EnsureEntityHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
-            MemberInfo keyMember = typeDescriptor.PrimaryKey.MemberInfo;
 
             object keyValue = null;
 
@@ -127,10 +125,13 @@ namespace Chloe
                 insertColumns.Add(memberDescriptor, valExp);
             }
 
-            //主键为空并且主键又不是自增列
-            if (keyValue == null && keyMemberDescriptor != autoIncrementMemberDescriptor)
+            if (keyMemberDescriptor != null)
             {
-                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
+                //主键为空并且主键又不是自增列
+                if (keyValue == null && keyMemberDescriptor != autoIncrementMemberDescriptor)
+                {
+                    throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
+                }
             }
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -174,7 +175,6 @@ namespace Chloe
             Utils.CheckNull(body);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
-            EnsureEntityHasPrimaryKey(typeDescriptor);
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MappingMemberDescriptor autoIncrementMemberDescriptor = typeDescriptor.AutoIncrement;
@@ -216,16 +216,19 @@ namespace Chloe
                 e.InsertColumns.Add(memberDescriptor.Column, expressionParser.Parse(kv.Value));
             }
 
-            //主键为空并且主键又不是自增列
-            if (keyVal == null && keyMemberDescriptor != autoIncrementMemberDescriptor)
+            if (keyMemberDescriptor != null)
             {
-                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
+                //主键为空并且主键又不是自增列
+                if (keyVal == null && keyMemberDescriptor != autoIncrementMemberDescriptor)
+                {
+                    throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
+                }
             }
 
-            if (keyMemberDescriptor != autoIncrementMemberDescriptor)
+            if (keyMemberDescriptor == null || keyMemberDescriptor != autoIncrementMemberDescriptor)
             {
                 this.ExecuteSqlCommand(e);
-                return keyVal;
+                return keyVal; /* It will return null if an entity does not define primary key. */
             }
 
             IDbExpressionTranslator translator = this.DbContextServiceProvider.CreateDbExpressionTranslator();

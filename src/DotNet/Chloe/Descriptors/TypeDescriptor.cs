@@ -147,7 +147,7 @@ namespace Chloe.Descriptors
         static bool ShouldMap(MemberInfo member)
         {
             var ignoreFlags = member.GetCustomAttributes(typeof(NotMappedAttribute), false);
-            if (ignoreFlags.Length > 0)
+            if (ignoreFlags.Count() > 0)
                 return false;
 
             if (member.MemberType == MemberTypes.Property)
@@ -167,7 +167,9 @@ namespace Chloe.Descriptors
         public Type EntityType { get; private set; }
         public DbTable Table { get; private set; }
 
+        /* It will return null if an entity does not define primary key. */
         public MappingMemberDescriptor PrimaryKey { get { return this._primaryKey; } }
+        /* It will return null if an entity has no auto increment member. */
         public MappingMemberDescriptor AutoIncrement { get { return this._autoIncrement; } }
 
         public DefaultExpressionParser GetExpressionParser(DbTable explicitDbTable)

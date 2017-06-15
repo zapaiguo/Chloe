@@ -167,7 +167,9 @@ namespace Chloe.Descriptors
         public Type EntityType { get; private set; }
         public DbTable Table { get; private set; }
 
+        /* It will return null if an entity does not define primary key. */
         public MappingMemberDescriptor PrimaryKey { get { return this._primaryKey; } }
+        /* It will return null if an entity has no auto increment member. */
         public MappingMemberDescriptor AutoIncrement { get { return this._autoIncrement; } }
 
         public DefaultExpressionParser GetExpressionParser(DbTable explicitDbTable)

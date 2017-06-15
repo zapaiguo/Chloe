@@ -24,7 +24,7 @@ namespace Chloe
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="body"></param>
-        /// <returns>PrimaryKey</returns>
+        /// <returns>It will return null if an entity does not define primary key,other wise return primary key value.</returns>
         object Insert<TEntity>(Expression<Func<TEntity>> body);
         object Insert<TEntity>(Expression<Func<TEntity>> body, string table);
 
