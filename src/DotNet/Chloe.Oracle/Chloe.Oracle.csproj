@@ -47,7 +47,6 @@
     <Compile Include="OracleContext.cs" />
     <Compile Include="OracleSemantics.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SequenceAttribute.cs" />
     <Compile Include="SqlGenerator.cs" />
     <Compile Include="SqlGenerator_AggregateHandlers.cs" />
     <Compile Include="SqlGenerator_BinaryWithMethodHandlers.cs" />

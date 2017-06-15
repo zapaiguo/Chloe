@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Chloe.Oracle
+namespace Chloe.Entity
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public class SequenceAttribute : Attribute

@@ -112,6 +112,7 @@
     <Compile Include="Entity\ColumnAttribute.cs" />
     <Compile Include="Entity\NonAutoIncrementAttribute.cs" />
     <Compile Include="Entity\NotMappedAttribute.cs" />
+    <Compile Include="Entity\SequenceAttribute.cs" />
     <Compile Include="Entity\TableAttribute.cs" />
     <Compile Include="Exceptions\ChloeException.cs" />
     <Compile Include="Extensions\DataReaderConstant.cs" />
