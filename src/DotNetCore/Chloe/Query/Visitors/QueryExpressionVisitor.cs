@@ -1,7 +1,6 @@
 ﻿using Chloe.DbExpressions;
 using Chloe.Query.QueryExpressions;
 using Chloe.Query.QueryState;
-using Chloe.Utility;
 using System.Collections.Generic;
 
 namespace Chloe.Query.Visitors
@@ -77,18 +76,18 @@ namespace Chloe.Query.Visitors
 
                 var nullChecking = DbExpression.CaseWhen(new DbCaseWhenExpression.WhenThenExpressionPair(joinQueryResult.JoinTable.Condition, DbConstantExpression.One), DbConstantExpression.Null, DbConstantExpression.One.Type);
 
-                if (joiningQueryInfo.JoinType == DbJoinType.LeftJoin)
+                if (joiningQueryInfo.JoinType == JoinType.LeftJoin)
                 {
                     joinQueryResult.MappingObjectExpression.SetNullChecking(nullChecking);
                 }
-                else if (joiningQueryInfo.JoinType == DbJoinType.RightJoin)
+                else if (joiningQueryInfo.JoinType == JoinType.RightJoin)
                 {
                     foreach (IMappingObjectExpression item in moeList)
                     {
                         item.SetNullChecking(nullChecking);
                     }
                 }
-                else if (joiningQueryInfo.JoinType == DbJoinType.FullJoin)
+                else if (joiningQueryInfo.JoinType == JoinType.FullJoin)
                 {
                     joinQueryResult.MappingObjectExpression.SetNullChecking(nullChecking);
                     foreach (IMappingObjectExpression item in moeList)

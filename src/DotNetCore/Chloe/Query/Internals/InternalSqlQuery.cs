@@ -3,7 +3,6 @@ using Chloe.Descriptors;
 using Chloe.Infrastructure;
 using Chloe.Mapper;
 using Chloe.Query.Mapping;
-using Chloe.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;

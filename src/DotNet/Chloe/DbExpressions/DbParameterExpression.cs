@@ -1,5 +1,4 @@
-﻿using Chloe.Utility;
-using System;
+﻿using System;
 using System.Data;
 
 namespace Chloe.DbExpressions

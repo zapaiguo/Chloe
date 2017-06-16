@@ -133,6 +133,7 @@
     <Compile Include="Infrastructure\Interception\IDbCommandInterceptor.cs" />
     <Compile Include="IOrderedQuery`.cs" />
     <Compile Include="IQuery`.cs" />
+    <Compile Include="JoinType.cs" />
     <Compile Include="Mapper\EntityConstructor.cs" />
     <Compile Include="Mapper\EntityMemberMapper.cs" />
     <Compile Include="Mapper\IObjectActivator.cs" />
@@ -192,7 +193,6 @@
     <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\SelectorExpressionVisitor.cs" />
-    <Compile Include="Utility\UtilExceptions.cs" />
     <Compile Include="Utility\UtilConstants.cs" />
     <Compile Include="Utility\Utils.cs" />
   </ItemGroup>

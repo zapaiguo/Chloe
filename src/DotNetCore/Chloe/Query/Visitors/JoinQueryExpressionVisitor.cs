@@ -2,25 +2,25 @@
 using Chloe.Descriptors;
 using Chloe.Query.QueryExpressions;
 using Chloe.Query.QueryState;
-using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Reflection;
+using Chloe.InternalExtensions;
 
 namespace Chloe.Query.Visitors
 {
     class JoinQueryExpressionVisitor : QueryExpressionVisitor<JoinQueryResult>
     {
         ResultElement _resultElement;
-        DbJoinType _joinType;
+        JoinType _joinType;
 
         LambdaExpression _conditionExpression;
         List<IMappingObjectExpression> _moeList;
 
-        JoinQueryExpressionVisitor(ResultElement resultElement, DbJoinType joinType, LambdaExpression conditionExpression, List<IMappingObjectExpression> moeList)
+        JoinQueryExpressionVisitor(ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, List<IMappingObjectExpression> moeList)
         {
             this._resultElement = resultElement;
             this._joinType = joinType;
@@ -28,7 +28,7 @@ namespace Chloe.Query.Visitors
             this._moeList = moeList;
         }
 
-        public static JoinQueryResult VisitQueryExpression(QueryExpression queryExpression, ResultElement resultElement, DbJoinType joinType, LambdaExpression conditionExpression, List<IMappingObjectExpression> moeList)
+        public static JoinQueryResult VisitQueryExpression(QueryExpression queryExpression, ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, List<IMappingObjectExpression> moeList)
         {
             JoinQueryExpressionVisitor visitor = new JoinQueryExpressionVisitor(resultElement, joinType, conditionExpression, moeList);
             return queryExpression.Accept(visitor);
@@ -46,7 +46,7 @@ namespace Chloe.Query.Visitors
             string alias = this._resultElement.GenerateUniqueTableAlias(dbTable.Name);
 
             DbTableSegment tableSeg = CreateTableExpression(dbTable, alias);
-            MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetTypeInfo().GetConstructor(Type.EmptyTypes));
+            MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.EntityType.GetConstructor(Type.EmptyTypes));
 
             DbTable table = new DbTable(alias);
             foreach (MappingMemberDescriptor item in typeDescriptor.MappingMemberDescriptors.Values)
@@ -65,7 +65,7 @@ namespace Chloe.Query.Visitors
             moeList.Add(moe);
             condition = GeneralExpressionVisitor.ParseLambda(this._conditionExpression, moeList);
 
-            DbJoinTableExpression joinTable = new DbJoinTableExpression(this._joinType, tableSeg, condition);
+            DbJoinTableExpression joinTable = new DbJoinTableExpression(this._joinType.AsDbJoinType(), tableSeg, condition);
 
             JoinQueryResult result = new JoinQueryResult();
             result.MappingObjectExpression = moe;

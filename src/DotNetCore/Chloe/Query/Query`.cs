@@ -8,7 +8,6 @@ using Chloe.Query.QueryExpressions;
 using Chloe.Infrastructure;
 using Chloe.Query.Internals;
 using System.Diagnostics;
-using Chloe.Utility;
 using System.Reflection;
 using Chloe.DbExpressions;
 
@@ -90,6 +89,18 @@ namespace Chloe.Query
             return new GroupingQuery<T>(this, keySelector);
         }
 
+
+        public IJoiningQuery<T, TOther> Join<TOther>(JoinType joinType, Expression<Func<T, TOther, bool>> on)
+        {
+            return this.Join<TOther>(this._dbContext.Query<TOther>(), joinType, on);
+        }
+        public IJoiningQuery<T, TOther> Join<TOther>(IQuery<TOther> q, JoinType joinType, Expression<Func<T, TOther, bool>> on)
+        {
+            Utils.CheckNull(q);
+            Utils.CheckNull(on);
+            return new JoiningQuery<T, TOther>(this, (Query<TOther>)q, joinType, on);
+        }
+
         public IJoiningQuery<T, TOther> InnerJoin<TOther>(Expression<Func<T, TOther, bool>> on)
         {
             return this.InnerJoin<TOther>(this._dbContext.Query<TOther>(), on);
@@ -109,27 +120,19 @@ namespace Chloe.Query
 
         public IJoiningQuery<T, TOther> InnerJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
         {
-            Utils.CheckNull(q);
-            Utils.CheckNull(on);
-            return new JoiningQuery<T, TOther>(this, (Query<TOther>)q, DbJoinType.InnerJoin, on);
+            return this.Join<TOther>(q, JoinType.InnerJoin, on);
         }
         public IJoiningQuery<T, TOther> LeftJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
         {
-            Utils.CheckNull(q);
-            Utils.CheckNull(on);
-            return new JoiningQuery<T, TOther>(this, (Query<TOther>)q, DbJoinType.LeftJoin, on);
+            return this.Join<TOther>(q, JoinType.LeftJoin, on);
         }
         public IJoiningQuery<T, TOther> RightJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
         {
-            Utils.CheckNull(q);
-            Utils.CheckNull(on);
-            return new JoiningQuery<T, TOther>(this, (Query<TOther>)q, DbJoinType.RightJoin, on);
+            return this.Join<TOther>(q, JoinType.RightJoin, on);
         }
         public IJoiningQuery<T, TOther> FullJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
         {
-            Utils.CheckNull(q);
-            Utils.CheckNull(on);
-            return new JoiningQuery<T, TOther>(this, (Query<TOther>)q, DbJoinType.FullJoin, on);
+            return this.Join<TOther>(q, JoinType.FullJoin, on);
         }
 
         public T First()

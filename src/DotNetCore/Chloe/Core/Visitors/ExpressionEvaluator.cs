@@ -1,6 +1,5 @@
 ﻿using Chloe.Extensions;
 using Chloe.InternalExtensions;
-using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;

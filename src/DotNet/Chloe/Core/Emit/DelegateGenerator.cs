@@ -2,7 +2,6 @@
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 using Chloe.Mapper;
-using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;

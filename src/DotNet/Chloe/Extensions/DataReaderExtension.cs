@@ -4,7 +4,6 @@ using System.Data;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
-using Chloe.Utility;
 
 namespace Chloe.Extensions
 {

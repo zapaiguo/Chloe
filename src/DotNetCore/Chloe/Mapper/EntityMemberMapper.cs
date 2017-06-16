@@ -1,7 +1,6 @@
 ﻿using Chloe.Core;
 using Chloe.Core.Emit;
 using Chloe.Query.Mapping;
-using Chloe.Utility;
 using Chloe.InternalExtensions;
 using System;
 using System.Collections.Generic;

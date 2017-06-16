@@ -2,7 +2,6 @@
 using Chloe.Query.Mapping;
 using Chloe.Query.QueryExpressions;
 using Chloe.Query.Visitors;
-using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -256,7 +255,7 @@ namespace Chloe.Query.QueryState
             return result;
         }
 
-        public virtual JoinQueryResult ToJoinQueryResult(DbJoinType joinType, LambdaExpression conditionExpression, DbFromTableExpression fromTable, List<IMappingObjectExpression> moeList, string tableAlias)
+        public virtual JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, DbFromTableExpression fromTable, List<IMappingObjectExpression> moeList, string tableAlias)
         {
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
@@ -272,7 +271,7 @@ namespace Chloe.Query.QueryState
             moes.Add(newMoe);
             DbExpression condition = GeneralExpressionVisitor.ParseLambda(conditionExpression, moes);
 
-            DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType, tableSeg, condition);
+            DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType.AsDbJoinType(), tableSeg, condition);
 
             JoinQueryResult result = new JoinQueryResult();
             result.MappingObjectExpression = newMoe;

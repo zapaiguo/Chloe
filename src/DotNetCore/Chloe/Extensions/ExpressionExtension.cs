@@ -1,5 +1,4 @@
-﻿using Chloe.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -80,6 +79,16 @@ namespace Chloe.Extensions
             return exp;
         }
 
+        public static Expression StripConvert(this Expression exp)
+        {
+            Expression operand = exp;
+            while (operand.NodeType == ExpressionType.Convert || operand.NodeType == ExpressionType.ConvertChecked)
+            {
+                operand = ((UnaryExpression)operand).Operand;
+            }
+            return operand;
+        }
+
         public static Stack<MemberExpression> Reverse(this MemberExpression exp)
         {
             var stack = new Stack<MemberExpression>();
@@ -139,6 +148,7 @@ namespace Chloe.Extensions
             return constructor.Invoke(new object[] { value });
         }
     }
+
     internal class ConstantWrapper<T>
     {
         public ConstantWrapper(T value)

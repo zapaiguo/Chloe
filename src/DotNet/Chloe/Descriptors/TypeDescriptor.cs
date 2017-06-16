@@ -5,7 +5,6 @@ using Chloe.Exceptions;
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 using Chloe.Query.Visitors;
-using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;

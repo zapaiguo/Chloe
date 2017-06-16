@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Linq;
 using Chloe.Query;
 using Chloe.Core;
-using Chloe.Utility;
 using Chloe.Infrastructure;
 using Chloe.Descriptors;
 using Chloe.DbExpressions;
@@ -13,6 +13,7 @@ using Chloe.Core.Visitors;
 using Chloe.Exceptions;
 using System.Data;
 using Chloe.InternalExtensions;
+using Chloe.Extensions;
 
 namespace Chloe
 {
@@ -78,6 +79,45 @@ namespace Chloe
                 q = q.AsTracking();
 
             return q.FirstOrDefault();
+        }
+
+        public virtual IJoiningQuery<T1, T2> JoinQuery<T1, T2>(Expression<Func<T1, T2, object[]>> joinInfo)
+        {
+            List<Tuple<JoinType, Expression>> joinInfos = ResolveJoinInfo(joinInfo);
+            var ret = this.Query<T1>()
+                .Join<T2>(joinInfos[0].Item1, (Expression<Func<T1, T2, bool>>)joinInfos[0].Item2);
+
+            return ret;
+        }
+        public virtual IJoiningQuery<T1, T2, T3> JoinQuery<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> joinInfo)
+        {
+            List<Tuple<JoinType, Expression>> joinInfos = ResolveJoinInfo(joinInfo);
+            var ret = this.Query<T1>()
+                .Join<T2>(joinInfos[0].Item1, (Expression<Func<T1, T2, bool>>)joinInfos[0].Item2)
+                .Join<T3>(joinInfos[1].Item1, (Expression<Func<T1, T2, T3, bool>>)joinInfos[1].Item2);
+
+            return ret;
+        }
+        public virtual IJoiningQuery<T1, T2, T3, T4> JoinQuery<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, object[]>> joinInfo)
+        {
+            List<Tuple<JoinType, Expression>> joinInfos = ResolveJoinInfo(joinInfo);
+            var ret = this.Query<T1>()
+                .Join<T2>(joinInfos[0].Item1, (Expression<Func<T1, T2, bool>>)joinInfos[0].Item2)
+                .Join<T3>(joinInfos[1].Item1, (Expression<Func<T1, T2, T3, bool>>)joinInfos[1].Item2)
+                .Join<T4>(joinInfos[2].Item1, (Expression<Func<T1, T2, T3, T4, bool>>)joinInfos[2].Item2);
+
+            return ret;
+        }
+        public virtual IJoiningQuery<T1, T2, T3, T4, T5> JoinQuery<T1, T2, T3, T4, T5>(Expression<Func<T1, T2, T3, T4, T5, object[]>> joinInfo)
+        {
+            List<Tuple<JoinType, Expression>> joinInfos = ResolveJoinInfo(joinInfo);
+            var ret = this.Query<T1>()
+                .Join<T2>(joinInfos[0].Item1, (Expression<Func<T1, T2, bool>>)joinInfos[0].Item2)
+                .Join<T3>(joinInfos[1].Item1, (Expression<Func<T1, T2, T3, bool>>)joinInfos[1].Item2)
+                .Join<T4>(joinInfos[2].Item1, (Expression<Func<T1, T2, T3, T4, bool>>)joinInfos[2].Item2)
+                .Join<T5>(joinInfos[3].Item1, (Expression<Func<T1, T2, T3, T4, T5, bool>>)joinInfos[3].Item2);
+
+            return ret;
         }
 
         public virtual IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters)
@@ -526,7 +566,47 @@ namespace Chloe
 
             return identity;
         }
+        static List<Tuple<JoinType, Expression>> ResolveJoinInfo(LambdaExpression joinInfoExp)
+        {
+            NewArrayExpression body = joinInfoExp.Body as NewArrayExpression;
 
+            List<Tuple<JoinType, Expression>> ret = new List<Tuple<JoinType, Expression>>();
+
+            if ((joinInfoExp.Parameters.Count - 1) * 2 != body.Expressions.Count)
+            {
+                throw new ArgumentException(string.Format("Invalid join infomation '{0}'.", joinInfoExp));
+            }
+
+            for (int i = 0; i < joinInfoExp.Parameters.Count - 1; i++)
+            {
+                int indexOfJoinType = i * 2;
+
+                Expression joinTypeExpression = body.Expressions[indexOfJoinType];
+                object inputJoinType = ExpressionEvaluator.Evaluate(joinTypeExpression);
+                if (inputJoinType.GetType() != typeof(JoinType))
+                    throw new ArgumentException(string.Format("Not support '{0}',please input correct type of 'Chloe.JoinType'.", joinTypeExpression));
+
+                Expression joinCondition = body.Expressions[indexOfJoinType + 1].StripConvert();
+
+                if (joinCondition.Type != typeof(bool))
+                {
+                    throw new ArgumentException(string.Format("Not support '{0}',please input correct join condition.", joinCondition));
+                }
+
+                ParameterExpression[] parameters = joinInfoExp.Parameters.Take(i + 2).ToArray();
+
+                List<Type> typeArguments = parameters.Select(a => a.Type).ToList();
+                typeArguments.Add(typeof(bool));
+
+                Type delegateType = Utils.GetFuncDelegateType(typeArguments.ToArray());
+
+                LambdaExpression newLambda = Expression.Lambda(delegateType, joinCondition, parameters);
+
+                ret.Add(new Tuple<JoinType, Expression>((JoinType)inputJoinType, newLambda));
+            }
+
+            return ret;
+        }
 
         class TrackEntityCollection
         {

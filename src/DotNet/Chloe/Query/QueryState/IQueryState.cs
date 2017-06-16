@@ -12,7 +12,7 @@ namespace Chloe.Query.QueryState
         MappingData GenerateMappingData();
 
         FromQueryResult ToFromQueryResult();
-        JoinQueryResult ToJoinQueryResult(DbJoinType joinType, LambdaExpression conditionExpression, DbFromTableExpression fromTable, List<IMappingObjectExpression> moeList, string tableAlias);
+        JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, DbFromTableExpression fromTable, List<IMappingObjectExpression> moeList, string tableAlias);
 
         IQueryState Accept(WhereExpression exp);
         IQueryState Accept(OrderExpression exp);

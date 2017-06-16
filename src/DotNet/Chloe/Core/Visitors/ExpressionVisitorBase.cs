@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
 using Chloe.DbExpressions;
-using Chloe.Utility;
+using Chloe.Extensions;
 using Chloe.InternalExtensions;
 
 namespace Chloe.Core.Visitors
@@ -339,7 +339,7 @@ namespace Chloe.Core.Visitors
                 return VisitBinary_Specific(left, (bool)c.Value);
             }
 
-            else if (((StripConvert(left)).NodeType == ExpressionType.MemberAccess && (StripConvert(right)).NodeType == ExpressionType.MemberAccess))
+            else if (((ExpressionExtension.StripConvert(left)).NodeType == ExpressionType.MemberAccess && (ExpressionExtension.StripConvert(right)).NodeType == ExpressionType.MemberAccess))
             {
                 //left right 都为 MemberExpression
                 return DbExpression.Equal(this.Visit(left), this.Visit(right));
@@ -358,7 +358,7 @@ namespace Chloe.Core.Visitors
             var left = exp.Left;
             var right = exp.Right;
 
-            if (((StripConvert(left)).NodeType == ExpressionType.MemberAccess && (StripConvert(right)).NodeType == ExpressionType.MemberAccess))
+            if (((ExpressionExtension.StripConvert(left)).NodeType == ExpressionType.MemberAccess && (ExpressionExtension.StripConvert(right)).NodeType == ExpressionType.MemberAccess))
             {
                 //left right 都为 MemberExpression
                 return DbExpression.Equal(this.Visit(left), this.Visit(right));
@@ -371,7 +371,7 @@ namespace Chloe.Core.Visitors
             if ((cLeft != null && cLeft.Value == null) || (cRight != null && cRight.Value == null))
             {
                 // 限定只能是 a.XX == null 其中 a.XX 是 Nullable<bool> 类型，如 (bool?)(a.X>0) == null 的情况则抛出异常
-                if ((StripConvert(left)).NodeType != ExpressionType.MemberAccess && (StripConvert(right)).NodeType != ExpressionType.MemberAccess)
+                if ((ExpressionExtension.StripConvert(left)).NodeType != ExpressionType.MemberAccess && (ExpressionExtension.StripConvert(right)).NodeType != ExpressionType.MemberAccess)
                 {
                     throw new Exception("无效的表达式：" + exp.ToString());
                 }
@@ -424,7 +424,7 @@ namespace Chloe.Core.Visitors
 
             else if (exp.NodeType == ExpressionType.Convert || exp.NodeType == ExpressionType.ConvertChecked)
             {
-                return VisitBinary_Specific(this.StripConvert(exp), trueOrFalse);
+                return VisitBinary_Specific(ExpressionExtension.StripConvert(exp), trueOrFalse);
             }
 
             else
@@ -484,7 +484,7 @@ namespace Chloe.Core.Visitors
             resultExp = Expression.OrElse(nLeft_Or, nRigth_Or);
 
             /* 构建 left==Convert(true); left.Type 为Nullable  并且只有 left right 两边都为 MemberAccess 的时候才会构造 =null*/
-            if (isNullable && (StripConvert(left)).NodeType == ExpressionType.MemberAccess && (StripConvert(right)).NodeType == ExpressionType.MemberAccess)
+            if (isNullable && (ExpressionExtension.StripConvert(left)).NodeType == ExpressionType.MemberAccess && (ExpressionExtension.StripConvert(right)).NodeType == ExpressionType.MemberAccess)
             {
                 //(left==true && right==true) || (left==false && right==false) || (left is null && right is null)
                 resultExp = Expression.OrElse(resultExp, Expression.AndAlso(Expression.Equal(left, UtilConstants.Constant_Null_Boolean), Expression.Equal(right, UtilConstants.Constant_Null_Boolean)));
@@ -510,7 +510,7 @@ namespace Chloe.Core.Visitors
             resultExp = Expression.OrElse(nLeft_Or, nRigth_Or);
 
             /* 构建 left==Convert(true); left.Type 为Nullable  并且只有 left right 两边都为 MemberAccess 的时候才会构造 =null*/
-            if (isNullable && (StripConvert(left)).NodeType == ExpressionType.MemberAccess && (StripConvert(right)).NodeType == ExpressionType.MemberAccess)
+            if (isNullable && (ExpressionExtension.StripConvert(left)).NodeType == ExpressionType.MemberAccess && (ExpressionExtension.StripConvert(right)).NodeType == ExpressionType.MemberAccess)
             {
                 //(left==true && right==false) || (left==false && right==true) || (left is null && right is not null)|| (left is not null && right is null)
                 resultExp = Expression.OrElse(resultExp, Expression.AndAlso(Expression.Equal(left, UtilConstants.Constant_Null_Boolean), Expression.NotEqual(right, UtilConstants.Constant_Null_Boolean)));
@@ -520,16 +520,6 @@ namespace Chloe.Core.Visitors
             return this.Visit(resultExp);
         }
 
-
-        Expression StripConvert(Expression exp)
-        {
-            Expression operand = exp;
-            while (operand.NodeType == ExpressionType.Convert || operand.NodeType == ExpressionType.ConvertChecked)
-            {
-                operand = ((UnaryExpression)operand).Operand;
-            }
-            return operand;
-        }
 
         static Expression BuildBoolEqual(Expression left, bool trueOrFalse)
         {

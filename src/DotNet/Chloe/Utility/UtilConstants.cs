@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace Chloe.Utility
+namespace Chloe
 {
     static class UtilConstants
     {

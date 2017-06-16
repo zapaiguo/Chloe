@@ -2,7 +2,6 @@
 using Chloe.DbExpressions;
 using Chloe.Extensions;
 using Chloe.Infrastructure;
-using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;

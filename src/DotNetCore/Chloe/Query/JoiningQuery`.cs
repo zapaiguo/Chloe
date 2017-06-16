@@ -23,7 +23,7 @@ namespace Chloe.Query
         public QueryBase RootQuery { get { return this._rootQuery; } }
         public List<JoiningQueryInfo> JoinedQueries { get { return this._joinedQueries; } }
 
-        public JoiningQuery(Query<T1> q1, Query<T2> q2, DbJoinType joinType, Expression<Func<T1, T2, bool>> on)
+        public JoiningQuery(Query<T1> q1, Query<T2> q2, JoinType joinType, Expression<Func<T1, T2, bool>> on)
         {
             this._dbContext = q1.DbContext;
             this._rootQuery = q1;
@@ -31,6 +31,15 @@ namespace Chloe.Query
 
             JoiningQueryInfo joiningQueryInfo = new JoiningQueryInfo(q2, joinType, on);
             this._joinedQueries.Add(joiningQueryInfo);
+        }
+
+        public IJoiningQuery<T1, T2, T3> Join<T3>(JoinType joinType, Expression<Func<T1, T2, T3, bool>> on)
+        {
+            return this.Join<T3>(this._dbContext.Query<T3>(), joinType, on);
+        }
+        public IJoiningQuery<T1, T2, T3> Join<T3>(IQuery<T3> q, JoinType joinType, Expression<Func<T1, T2, T3, bool>> on)
+        {
+            return new JoiningQuery<T1, T2, T3>(this, (Query<T3>)q, joinType, on);
         }
 
         public IJoiningQuery<T1, T2, T3> InnerJoin<T3>(Expression<Func<T1, T2, T3, bool>> on)
@@ -52,19 +61,19 @@ namespace Chloe.Query
 
         public IJoiningQuery<T1, T2, T3> InnerJoin<T3>(IQuery<T3> q, Expression<Func<T1, T2, T3, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3>(this, (Query<T3>)q, DbJoinType.InnerJoin, on);
+            return this.Join<T3>(q, JoinType.InnerJoin, on);
         }
         public IJoiningQuery<T1, T2, T3> LeftJoin<T3>(IQuery<T3> q, Expression<Func<T1, T2, T3, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3>(this, (Query<T3>)q, DbJoinType.LeftJoin, on);
+            return this.Join<T3>(q, JoinType.LeftJoin, on);
         }
         public IJoiningQuery<T1, T2, T3> RightJoin<T3>(IQuery<T3> q, Expression<Func<T1, T2, T3, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3>(this, (Query<T3>)q, DbJoinType.RightJoin, on);
+            return this.Join<T3>(q, JoinType.RightJoin, on);
         }
         public IJoiningQuery<T1, T2, T3> FullJoin<T3>(IQuery<T3> q, Expression<Func<T1, T2, T3, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3>(this, (Query<T3>)q, DbJoinType.FullJoin, on);
+            return this.Join<T3>(q, JoinType.FullJoin, on);
         }
         public IQuery<TResult> Select<TResult>(Expression<Func<T1, T2, TResult>> selector)
         {
@@ -84,7 +93,7 @@ namespace Chloe.Query
         public QueryBase RootQuery { get { return this._rootQuery; } }
         public List<JoiningQueryInfo> JoinedQueries { get { return this._joinedQueries; } }
 
-        public JoiningQuery(JoiningQuery<T1, T2> joiningQuery, Query<T3> q, DbJoinType joinType, Expression<Func<T1, T2, T3, bool>> on)
+        public JoiningQuery(JoiningQuery<T1, T2> joiningQuery, Query<T3> q, JoinType joinType, Expression<Func<T1, T2, T3, bool>> on)
         {
             this._dbContext = joiningQuery.DbContext;
             this._rootQuery = joiningQuery.RootQuery;
@@ -94,6 +103,15 @@ namespace Chloe.Query
 
             JoiningQueryInfo joiningQueryInfo = new JoiningQueryInfo(q, joinType, on);
             this._joinedQueries.Add(joiningQueryInfo);
+        }
+
+        public IJoiningQuery<T1, T2, T3, T4> Join<T4>(JoinType joinType, Expression<Func<T1, T2, T3, T4, bool>> on)
+        {
+            return this.Join<T4>(this._dbContext.Query<T4>(), joinType, on);
+        }
+        public IJoiningQuery<T1, T2, T3, T4> Join<T4>(IQuery<T4> q, JoinType joinType, Expression<Func<T1, T2, T3, T4, bool>> on)
+        {
+            return new JoiningQuery<T1, T2, T3, T4>(this, (Query<T4>)q, joinType, on);
         }
 
         public IJoiningQuery<T1, T2, T3, T4> InnerJoin<T4>(Expression<Func<T1, T2, T3, T4, bool>> on)
@@ -115,19 +133,19 @@ namespace Chloe.Query
 
         public IJoiningQuery<T1, T2, T3, T4> InnerJoin<T4>(IQuery<T4> q, Expression<Func<T1, T2, T3, T4, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3, T4>(this, (Query<T4>)q, DbJoinType.InnerJoin, on);
+            return this.Join<T4>(q, JoinType.InnerJoin, on);
         }
         public IJoiningQuery<T1, T2, T3, T4> LeftJoin<T4>(IQuery<T4> q, Expression<Func<T1, T2, T3, T4, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3, T4>(this, (Query<T4>)q, DbJoinType.LeftJoin, on);
+            return this.Join<T4>(q, JoinType.LeftJoin, on);
         }
         public IJoiningQuery<T1, T2, T3, T4> RightJoin<T4>(IQuery<T4> q, Expression<Func<T1, T2, T3, T4, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3, T4>(this, (Query<T4>)q, DbJoinType.RightJoin, on);
+            return this.Join<T4>(q, JoinType.RightJoin, on);
         }
         public IJoiningQuery<T1, T2, T3, T4> FullJoin<T4>(IQuery<T4> q, Expression<Func<T1, T2, T3, T4, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3, T4>(this, (Query<T4>)q, DbJoinType.FullJoin, on);
+            return this.Join<T4>(q, JoinType.FullJoin, on);
         }
 
         public IQuery<TResult> Select<TResult>(Expression<Func<T1, T2, T3, TResult>> selector)
@@ -148,7 +166,7 @@ namespace Chloe.Query
         public QueryBase RootQuery { get { return this._rootQuery; } }
         public List<JoiningQueryInfo> JoinedQueries { get { return this._joinedQueries; } }
 
-        public JoiningQuery(JoiningQuery<T1, T2, T3> joiningQuery, Query<T4> q, DbJoinType joinType, Expression<Func<T1, T2, T3, T4, bool>> on)
+        public JoiningQuery(JoiningQuery<T1, T2, T3> joiningQuery, Query<T4> q, JoinType joinType, Expression<Func<T1, T2, T3, T4, bool>> on)
         {
             this._dbContext = joiningQuery.DbContext;
             this._rootQuery = joiningQuery.RootQuery;
@@ -158,6 +176,15 @@ namespace Chloe.Query
 
             JoiningQueryInfo joiningQueryInfo = new JoiningQueryInfo(q, joinType, on);
             this._joinedQueries.Add(joiningQueryInfo);
+        }
+
+        public IJoiningQuery<T1, T2, T3, T4, T5> Join<T5>(JoinType joinType, Expression<Func<T1, T2, T3, T4, T5, bool>> on)
+        {
+            return this.Join<T5>(this._dbContext.Query<T5>(), joinType, on);
+        }
+        public IJoiningQuery<T1, T2, T3, T4, T5> Join<T5>(IQuery<T5> q, JoinType joinType, Expression<Func<T1, T2, T3, T4, T5, bool>> on)
+        {
+            return new JoiningQuery<T1, T2, T3, T4, T5>(this, (Query<T5>)q, joinType, on);
         }
 
         public IJoiningQuery<T1, T2, T3, T4, T5> InnerJoin<T5>(Expression<Func<T1, T2, T3, T4, T5, bool>> on)
@@ -179,19 +206,19 @@ namespace Chloe.Query
 
         public IJoiningQuery<T1, T2, T3, T4, T5> InnerJoin<T5>(IQuery<T5> q, Expression<Func<T1, T2, T3, T4, T5, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3, T4, T5>(this, (Query<T5>)q, DbJoinType.InnerJoin, on);
+            return this.Join<T5>(q, JoinType.InnerJoin, on);
         }
         public IJoiningQuery<T1, T2, T3, T4, T5> LeftJoin<T5>(IQuery<T5> q, Expression<Func<T1, T2, T3, T4, T5, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3, T4, T5>(this, (Query<T5>)q, DbJoinType.LeftJoin, on);
+            return this.Join<T5>(q, JoinType.LeftJoin, on);
         }
         public IJoiningQuery<T1, T2, T3, T4, T5> RightJoin<T5>(IQuery<T5> q, Expression<Func<T1, T2, T3, T4, T5, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3, T4, T5>(this, (Query<T5>)q, DbJoinType.RightJoin, on);
+            return this.Join<T5>(q, JoinType.RightJoin, on);
         }
         public IJoiningQuery<T1, T2, T3, T4, T5> FullJoin<T5>(IQuery<T5> q, Expression<Func<T1, T2, T3, T4, T5, bool>> on)
         {
-            return new JoiningQuery<T1, T2, T3, T4, T5>(this, (Query<T5>)q, DbJoinType.FullJoin, on);
+            return this.Join<T5>(q, JoinType.FullJoin, on);
         }
 
         public IQuery<TResult> Select<TResult>(Expression<Func<T1, T2, T3, T4, TResult>> selector)
@@ -212,7 +239,7 @@ namespace Chloe.Query
         public QueryBase RootQuery { get { return this._rootQuery; } }
         public List<JoiningQueryInfo> JoinedQueries { get { return this._joinedQueries; } }
 
-        public JoiningQuery(JoiningQuery<T1, T2, T3, T4> joiningQuery, Query<T5> q, DbJoinType joinType, Expression<Func<T1, T2, T3, T4, T5, bool>> on)
+        public JoiningQuery(JoiningQuery<T1, T2, T3, T4> joiningQuery, Query<T5> q, JoinType joinType, Expression<Func<T1, T2, T3, T4, T5, bool>> on)
         {
             this._dbContext = joiningQuery.DbContext;
             this._rootQuery = joiningQuery.RootQuery;
