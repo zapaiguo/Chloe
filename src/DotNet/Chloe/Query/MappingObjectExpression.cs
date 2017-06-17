@@ -123,7 +123,7 @@ namespace Chloe.Query
                 DbExpression e = moe.GetMemberExpression(accessedMember);
                 if (e == null)
                 {
-                    /* Indicate current accessed member is not mapping member,then try get complex member like 'a.Order' */
+                    /* Indicate current accessed member is not mapping member, then try get complex member like 'a.Order' */
                     moe = moe.GetComplexMemberExpression(accessedMember);
 
                     if (moe == null)
@@ -138,7 +138,7 @@ namespace Chloe.Query
                         }
                         else
                         {
-                            /* Non mapping member is not found also,then convert linq MemberExpression to DbMemberExpression */
+                            /* Non mapping member is not found also, then convert linq MemberExpression to DbMemberExpression */
                             ret = DbExpression.MemberAccess(accessedMember, ret);
                             continue;
                         }
@@ -146,7 +146,7 @@ namespace Chloe.Query
 
                     if (ret != null)
                     {
-                        /* This case and case #110 will not appear in normal,if you meet,please email me(so_while@163.com) or call 911 for help. */
+                        /* This case and case #110 will not appear in normal, if you meet,please email me(so_while@163.com) or call 911 for help. */
                         throw new InvalidOperationException(memberExpressionDeriveFromParameter.ToString());
                     }
                 }
@@ -163,7 +163,7 @@ namespace Chloe.Query
             {
                 /*
                  * If run here,the input argument 'memberExpressionDeriveFromParameter' expression must be like 'a.xx','a.**.xx','a.**.**.xx' ...and so on,
-                 * and the last accessed member 'xx' is not mapping member,in this case,we not supported too.
+                 * and the last accessed member 'xx' is not mapping member, in this case, we not supported too.
                  */
                 throw new InvalidOperationException(memberExpressionDeriveFromParameter.ToString());
             }

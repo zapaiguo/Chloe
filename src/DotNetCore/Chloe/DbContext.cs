@@ -586,6 +586,11 @@ namespace Chloe
 
             NewArrayExpression body = joinInfoExp.Body as NewArrayExpression;
 
+            if (body == null)
+            {
+                throw new ArgumentException(string.Format("Invalid join infomation '{0}'. The correct usage is like: {1}", joinInfoExp, "context.JoinQuery<User, City>((user, city) => new object[] { JoinType.LeftJoin, user.CityId == city.Id })"));
+            }
+
             List<Tuple<JoinType, Expression>> ret = new List<Tuple<JoinType, Expression>>();
 
             if ((joinInfoExp.Parameters.Count - 1) * 2 != body.Expressions.Count)
@@ -607,7 +612,7 @@ namespace Chloe
                 Expression joinTypeExpression = body.Expressions[indexOfJoinType];
                 object inputJoinType = ExpressionEvaluator.Evaluate(joinTypeExpression);
                 if (inputJoinType == null || inputJoinType.GetType() != typeof(JoinType))
-                    throw new ArgumentException(string.Format("Not support '{0}',please input correct type of 'Chloe.JoinType'.", joinTypeExpression));
+                    throw new ArgumentException(string.Format("Not support '{0}', please input correct type of 'Chloe.JoinType'.", joinTypeExpression));
 
                 /*
                  * The next expression of join type must be join condition.
@@ -616,7 +621,7 @@ namespace Chloe
 
                 if (joinCondition.Type != typeof(bool))
                 {
-                    throw new ArgumentException(string.Format("Not support '{0}',please input correct join condition.", joinCondition));
+                    throw new ArgumentException(string.Format("Not support '{0}', please input correct join condition.", joinCondition));
                 }
 
                 ParameterExpression[] parameters = joinInfoExp.Parameters.Take(i + 2).ToArray();
