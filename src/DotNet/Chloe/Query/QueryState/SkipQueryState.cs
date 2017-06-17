@@ -45,7 +45,7 @@ namespace Chloe.Query.QueryState
                 return this;
             }
 
-            this.Count += this.Count;
+            this.Count += exp.Count;
 
             return this;
         }
