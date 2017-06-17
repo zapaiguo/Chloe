@@ -71,6 +71,23 @@ namespace ChloeDemo
              * SELECT "USERS"."ID" AS "USERID","USERS"."NAME" AS "USERNAME","CITY"."NAME" AS "CITYNAME","PROVINCE"."NAME" AS "PROVINCENAME" FROM "USERS" "USERS" INNER JOIN "CITY" "CITY" ON "USERS"."CITYID" = "CITY"."ID" INNER JOIN "PROVINCE" "PROVINCE" ON "CITY"."PROVINCEID" = "PROVINCE"."ID" WHERE "USERS"."ID" > 1
              */
 
+
+            /* quick join and paging. */
+            context.JoinQuery<User, City>((user, city) => new object[] { 
+                JoinType.LeftJoin, user.CityId == city.Id
+            }).Select((user, city) => new { User = user, City = city })
+            .Where(a => a.User.Id > -1)
+            .OrderByDesc(a => a.User.Age)
+            .TakePage(1, 20).ToList();
+
+            context.JoinQuery<User, City, Province>((user, city, province) => new object[] { 
+                JoinType.LeftJoin, user.CityId == city.Id, 
+                JoinType.LeftJoin, city.ProvinceId == province.Id 
+            }).Select((user, city, province) => new { User = user, City = city, Province = province })
+            .Where(a => a.User.Id > -1)
+            .OrderByDesc(a => a.User.Age)
+            .TakePage(1, 20).ToList();
+
             ConsoleHelper.WriteLineAndReadKey();
         }
         public static void AggregateQuery()

@@ -206,20 +206,20 @@ namespace Chloe
             autoIncrementMemberDescriptor.SetValue(entity, retIdentity);
             return entity;
         }
-        public virtual object Insert<TEntity>(Expression<Func<TEntity>> body)
+        public virtual object Insert<TEntity>(Expression<Func<TEntity>> content)
         {
-            return this.Insert(body, null);
+            return this.Insert(content, null);
         }
-        public virtual object Insert<TEntity>(Expression<Func<TEntity>> body, string table)
+        public virtual object Insert<TEntity>(Expression<Func<TEntity>> content, string table)
         {
-            Utils.CheckNull(body);
+            Utils.CheckNull(content);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
 
             MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
             MappingMemberDescriptor autoIncrementMemberDescriptor = typeDescriptor.AutoIncrement;
 
-            Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(body);
+            Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
             DbTable explicitDbTable = null;
             if (table != null)
@@ -353,18 +353,18 @@ namespace Chloe
                 entityState.Refresh();
             return ret;
         }
-        public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body)
+        public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content)
         {
-            return this.Update(condition, body, null);
+            return this.Update(condition, content, null);
         }
-        public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body, string table)
+        public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table)
         {
             Utils.CheckNull(condition);
-            Utils.CheckNull(body);
+            Utils.CheckNull(content);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
 
-            Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(body);
+            Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(content);
 
             DbTable explicitDbTable = null;
             if (table != null)
@@ -568,6 +568,22 @@ namespace Chloe
         }
         static List<Tuple<JoinType, Expression>> ResolveJoinInfo(LambdaExpression joinInfoExp)
         {
+            /*
+             * Useage:
+             * var view = context.JoinQuery<User, City, Province, User, City>((user, city, province, user1, city1) => new object[] { 
+             *     JoinType.LeftJoin, user.CityId == city.Id, 
+             *     JoinType.RightJoin, city.ProvinceId == province.Id,
+             *     JoinType.InnerJoin,user.Id==user1.Id,
+             *     JoinType.FullJoin,city.Id==city1.Id
+             * }).Select((user, city, province, user1, city1) => new { User = user, City = city, Province = province, User1 = user1, City1 = city1 });
+             * 
+             * To resolve join infomation:
+             * JoinType.LeftJoin, user.CityId == city.Id               index of joinType is 0
+             * JoinType.RightJoin, city.ProvinceId == province.Id      index of joinType is 2
+             * JoinType.InnerJoin,user.Id==user1.Id                    index of joinType is 4
+             * JoinType.FullJoin,city.Id==city1.Id                     index of joinType is 6
+            */
+
             NewArrayExpression body = joinInfoExp.Body as NewArrayExpression;
 
             List<Tuple<JoinType, Expression>> ret = new List<Tuple<JoinType, Expression>>();
@@ -579,13 +595,23 @@ namespace Chloe
 
             for (int i = 0; i < joinInfoExp.Parameters.Count - 1; i++)
             {
+                /*
+                 * 0  0
+                 * 1  2
+                 * 2  4
+                 * 3  6
+                 * ...
+                 */
                 int indexOfJoinType = i * 2;
 
                 Expression joinTypeExpression = body.Expressions[indexOfJoinType];
                 object inputJoinType = ExpressionEvaluator.Evaluate(joinTypeExpression);
-                if (inputJoinType.GetType() != typeof(JoinType))
+                if (inputJoinType == null || inputJoinType.GetType() != typeof(JoinType))
                     throw new ArgumentException(string.Format("Not support '{0}',please input correct type of 'Chloe.JoinType'.", joinTypeExpression));
 
+                /*
+                 * The next expression of join type must be join condition.
+                 */
                 Expression joinCondition = body.Expressions[indexOfJoinType + 1].StripConvert();
 
                 if (joinCondition.Type != typeof(bool))
@@ -599,10 +625,9 @@ namespace Chloe
                 typeArguments.Add(typeof(bool));
 
                 Type delegateType = Utils.GetFuncDelegateType(typeArguments.ToArray());
+                LambdaExpression lambdaOfJoinCondition = Expression.Lambda(delegateType, joinCondition, parameters);
 
-                LambdaExpression newLambda = Expression.Lambda(delegateType, joinCondition, parameters);
-
-                ret.Add(new Tuple<JoinType, Expression>((JoinType)inputJoinType, newLambda));
+                ret.Add(new Tuple<JoinType, Expression>((JoinType)inputJoinType, lambdaOfJoinCondition));
             }
 
             return ret;

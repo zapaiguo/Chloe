@@ -45,21 +45,34 @@ namespace Chloe
         TEntity Insert<TEntity>(TEntity entity);
         TEntity Insert<TEntity>(TEntity entity, string table);
         /// <summary>
-        /// 
+        /// context.Insert&lt;User&gt;(() => new User() { Name = "lu", Age = 18, Gender = Gender.Woman, CityId = 1, OpTime = DateTime.Now })
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
-        /// <param name="body"></param>
+        /// <param name="content"></param>
         /// <returns>It will return null if an entity does not define primary key,other wise return primary key value.</returns>
-        object Insert<TEntity>(Expression<Func<TEntity>> body);
-        object Insert<TEntity>(Expression<Func<TEntity>> body, string table);
+        object Insert<TEntity>(Expression<Func<TEntity>> content);
+        object Insert<TEntity>(Expression<Func<TEntity>> content, string table);
 
         int Update<TEntity>(TEntity entity);
         int Update<TEntity>(TEntity entity, string table);
-        int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body);
-        int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body, string table);
+        /// <summary>
+        /// context.Update&lt;User&gt;(a => a.Id == 1, a => new User() { Name = "lu", Age = a.Age + 1, Gender = Gender.Woman, OpTime = DateTime.Now })
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="condition"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content);
+        int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table);
 
         int Delete<TEntity>(TEntity entity);
         int Delete<TEntity>(TEntity entity, string table);
+        /// <summary>
+        /// context.Delete&lt;User&gt;(a => a.Id == 1)
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="condition"></param>
+        /// <returns></returns>
         int Delete<TEntity>(Expression<Func<TEntity, bool>> condition);
         int Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table);
         int DeleteByKey<TEntity>(object key);
