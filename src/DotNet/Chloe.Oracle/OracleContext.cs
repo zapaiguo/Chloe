@@ -94,9 +94,9 @@ namespace Chloe.Oracle
 
             return entity;
         }
-        public override object Insert<TEntity>(Expression<Func<TEntity>> body, string table)
+        public override object Insert<TEntity>(Expression<Func<TEntity>> content, string table)
         {
-            Utils.CheckNull(body);
+            Utils.CheckNull(content);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
 
@@ -106,7 +106,7 @@ namespace Chloe.Oracle
             object sequenceValue = null;
             MappingMemberDescriptor defineSequenceMemberDescriptor = GetDefineSequenceMemberDescriptor(typeDescriptor, out sequenceName);
 
-            Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(body);
+            Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
             DbTable explicitDbTable = null;
             if (table != null)
@@ -222,14 +222,14 @@ namespace Chloe.Oracle
                 entityState.Refresh();
             return ret;
         }
-        public override int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> body, string table)
+        public override int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table)
         {
             Utils.CheckNull(condition);
-            Utils.CheckNull(body);
+            Utils.CheckNull(content);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
 
-            Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(body);
+            Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(content);
 
             DbTable explicitDbTable = null;
             if (table != null)
