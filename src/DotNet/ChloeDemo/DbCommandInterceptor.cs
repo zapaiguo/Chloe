@@ -69,7 +69,7 @@ namespace ChloeDemo
                 {
                     value = param.Value;
 
-                    if (param.DbType == DbType.String || param.DbType == DbType.DateTime)
+                    if (param.DbType == DbType.String || param.DbType == DbType.AnsiString || param.DbType == DbType.DateTime)
                         value = "'" + value + "'";
                 }
 

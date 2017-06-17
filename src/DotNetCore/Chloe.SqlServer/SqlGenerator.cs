@@ -647,7 +647,7 @@ namespace Chloe.SqlServer
                 p = this._parameters.Where(a => Utils.AreEqual(a.Value, paramValue) && a.Type == paramType).FirstOrDefault();
             }
             else
-                p = this._parameters.Where(a => Utils.AreEqual(a.Value, paramValue)).FirstOrDefault();
+                p = this._parameters.Where(a => a.DbType == exp.DbType && Utils.AreEqual(a.Value, paramValue)).FirstOrDefault();
 
             if (p != null)
             {
