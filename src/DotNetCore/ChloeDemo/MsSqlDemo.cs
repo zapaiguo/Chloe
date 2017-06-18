@@ -77,20 +77,26 @@ namespace ChloeDemo
 
 
             /* quick join and paging. */
-            context.JoinQuery<User, City>((user, city) => new object[] {
+            context.JoinQuery<User, City>((user, city) => new object[]
+            {
                 JoinType.LeftJoin, user.CityId == city.Id
-            }).Select((user, city) => new { User = user, City = city })
+            })
+            .Select((user, city) => new { User = user, City = city })
             .Where(a => a.User.Id > -1)
             .OrderByDesc(a => a.User.Age)
-            .TakePage(1, 20).ToList();
+            .TakePage(1, 20)
+            .ToList();
 
-            context.JoinQuery<User, City, Province>((user, city, province) => new object[] {
-                JoinType.LeftJoin, user.CityId == city.Id,
-                JoinType.LeftJoin, city.ProvinceId == province.Id
-            }).Select((user, city, province) => new { User = user, City = city, Province = province })
-            .Where(a => a.User.Id > -1)
-            .OrderByDesc(a => a.User.Age)
-            .TakePage(1, 20).ToList();
+            context.JoinQuery<User, City, Province>((user, city, province) => new object[]
+            {
+                JoinType.LeftJoin, user.CityId == city.Id,          /* 表 User 和 City 进行Left连接 */
+                JoinType.LeftJoin, city.ProvinceId == province.Id   /* 表 City 和 Province 进行Left连接 */
+            })
+            .Select((user, city, province) => new { User = user, City = city, Province = province })   /* 投影成匿名对象 */
+            .Where(a => a.User.Id > -1)     /* 进行条件过滤 */
+            .OrderByDesc(a => a.User.Age)   /* 排序 */
+            .TakePage(1, 20)                /* 分页 */
+            .ToList();
 
             ConsoleHelper.WriteLineAndReadKey();
         }
