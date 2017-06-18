@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Chloe.MySql</id>
-    <version>2.9.0</version>
+    <version>2.10.0</version>
     <title>Chloe.MySql</title>
     <authors>Shuxin Qin</authors>
     <owners>Shuxin Qin</owners>
@@ -20,7 +20,7 @@ Requires:
     <tags>Chloe,ORM,Data,MySql</tags>
 
     <dependencies>
-      <dependency id="Chloe" version="2.9.0" />
+      <dependency id="Chloe" version="2.10.0" />
     </dependencies>
     
   </metadata>
