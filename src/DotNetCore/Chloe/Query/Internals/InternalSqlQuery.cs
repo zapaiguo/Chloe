@@ -208,7 +208,7 @@ namespace Chloe.Query.Internals
                             continue;
                     }
 
-                    IMRM mMapper = mapper.TryGetMemberMapper(member);
+                    IMRM mMapper = mapper.TryGetMappingMemberMapper(member);
                     if (mMapper == null)
                         continue;
 

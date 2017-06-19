@@ -25,5 +25,10 @@ namespace Chloe.Core.Emit
             else
                 throw new NotSupportedException();
         }
+
+        public static Type CreateType(this TypeBuilder typeBuilder)
+        {
+            return typeBuilder.CreateTypeInfo().AsType();
+        }
     }
 }

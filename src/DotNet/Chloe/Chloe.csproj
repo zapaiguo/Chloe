@@ -143,7 +143,7 @@
     <Compile Include="Mapper\MappingFieldActivator.cs" />
     <Compile Include="Mapper\MappingMemberBinder.cs" />
     <Compile Include="Mapper\MappingTypeConstructor.cs" />
-    <Compile Include="Mapper\NavigationMemberBinder.cs" />
+    <Compile Include="Mapper\ComplexMemberBinder.cs" />
     <Compile Include="Mapper\ObjectActivator.cs" />
     <Compile Include="ParamDirection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

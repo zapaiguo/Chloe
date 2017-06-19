@@ -15,13 +15,13 @@ namespace Chloe.Extensions
             MethodInfo result;
             bool isNullable = false;
             Type underlyingType;
-            if (ReflectionExtension.IsNullable(type, out underlyingType))
+            if (type.IsNullable(out underlyingType))
             {
                 isNullable = true;
                 type = underlyingType;
             }
 
-            if (type.IsEnum)
+            if (type.IsEnum())
             {
                 result = (isNullable ? Reader_GetEnum_Nullable : Reader_GetEnum).MakeGenericMethod(type);
                 return result;

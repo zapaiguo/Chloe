@@ -94,12 +94,12 @@ namespace Chloe.Query
                 if (MappingTypeSystem.IsMappingType(pi.ParameterType))
                 {
                     DbExpression dbExpression = this.ResolveExpression(argExp);
-                    result.AddConstructorParameter(pi, dbExpression);
+                    result.AddMappingConstructorParameter(pi, dbExpression);
                 }
                 else
                 {
                     IMappingObjectExpression subResult = this.Visit(argExp);
-                    result.AddConstructorEntityParameter(pi, subResult);
+                    result.AddComplexConstructorParameter(pi, subResult);
                 }
             }
 
@@ -124,7 +124,7 @@ namespace Chloe.Query
                 if (MappingTypeSystem.IsMappingType(memberType))
                 {
                     DbExpression dbExpression = this.ResolveExpression(memberAssignment.Expression);
-                    result.AddMemberExpression(member, dbExpression);
+                    result.AddMappingMemberExpression(member, dbExpression);
                 }
                 else
                 {

@@ -24,15 +24,15 @@ namespace Chloe.Query
 
         public DbExpression NullChecking { get; set; }
 
-        public void AddConstructorParameter(ParameterInfo p, DbExpression exp)
+        public void AddMappingConstructorParameter(ParameterInfo p, DbExpression exp)
         {
             throw new NotSupportedException();
         }
-        public void AddConstructorEntityParameter(ParameterInfo p, IMappingObjectExpression exp)
+        public void AddComplexConstructorParameter(ParameterInfo p, IMappingObjectExpression exp)
         {
             throw new NotSupportedException();
         }
-        public void AddMemberExpression(MemberInfo p, DbExpression exp)
+        public void AddMappingMemberExpression(MemberInfo p, DbExpression exp)
         {
             throw new NotSupportedException();
         }
@@ -40,7 +40,7 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
-        public DbExpression GetMemberExpression(MemberInfo memberInfo)
+        public DbExpression GetMappingMemberExpression(MemberInfo memberInfo)
         {
             throw new NotSupportedException();
         }

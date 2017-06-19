@@ -15,16 +15,22 @@ namespace Chloe.Query.Mapping
             this.ConstructorDescriptor = constructorDescriptor;
             this.ConstructorParameters = new Dictionary<ParameterInfo, int>();
             this.ConstructorEntityParameters = new Dictionary<ParameterInfo, IObjectActivatorCreator>();
-            this.Members = new Dictionary<MemberInfo, int>();
-            this.EntityMembers = new Dictionary<MemberInfo, IObjectActivatorCreator>();
+            this.MappingMembers = new Dictionary<MemberInfo, int>();
+            this.ComplexMembers = new Dictionary<MemberInfo, IObjectActivatorCreator>();
         }
         public int? CheckNullOrdinal { get; set; }
         public EntityConstructorDescriptor ConstructorDescriptor { get; private set; }
         public Dictionary<ParameterInfo, int> ConstructorParameters { get; private set; }
         public Dictionary<ParameterInfo, IObjectActivatorCreator> ConstructorEntityParameters { get; private set; }
 
-        public Dictionary<MemberInfo, int> Members { get; private set; }
-        public Dictionary<MemberInfo, IObjectActivatorCreator> EntityMembers { get; private set; }
+        /// <summary>
+        /// 映射成员集合。以 MemberInfo 为 key，读取 DataReader 时的 Ordinal 为 value
+        /// </summary>
+        public Dictionary<MemberInfo, int> MappingMembers { get; private set; }
+        /// <summary>
+        /// 复杂类型成员集合。
+        /// </summary>
+        public Dictionary<MemberInfo, IObjectActivatorCreator> ComplexMembers { get; private set; }
 
         public IObjectActivator CreateObjectActivator()
         {
@@ -33,19 +39,19 @@ namespace Chloe.Query.Mapping
         public IObjectActivator CreateObjectActivator(IDbContext dbContext)
         {
             EntityMemberMapper mapper = this.ConstructorDescriptor.GetEntityMemberMapper();
-            List<IValueSetter> memberSetters = new List<IValueSetter>(this.Members.Count + this.EntityMembers.Count);
-            foreach (var kv in this.Members)
+            List<IValueSetter> memberSetters = new List<IValueSetter>(this.MappingMembers.Count + this.ComplexMembers.Count);
+            foreach (var kv in this.MappingMembers)
             {
-                IMRM mMapper = mapper.TryGetMemberMapper(kv.Key);
+                IMRM mMapper = mapper.TryGetMappingMemberMapper(kv.Key);
                 MappingMemberBinder binder = new MappingMemberBinder(mMapper, kv.Value);
                 memberSetters.Add(binder);
             }
 
-            foreach (var kv in this.EntityMembers)
+            foreach (var kv in this.ComplexMembers)
             {
-                Action<object, object> del = mapper.TryGetNavigationMemberSetter(kv.Key);
+                Action<object, object> del = mapper.TryGetComplexMemberSetter(kv.Key);
                 IObjectActivator memberActivtor = kv.Value.CreateObjectActivator();
-                NavigationMemberBinder binder = new NavigationMemberBinder(del, memberActivtor);
+                ComplexMemberBinder binder = new ComplexMemberBinder(del, memberActivtor);
                 memberSetters.Add(binder);
             }
 

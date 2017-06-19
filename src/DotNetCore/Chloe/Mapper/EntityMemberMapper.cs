@@ -14,8 +14,8 @@ namespace Chloe.Mapper
 {
     public class EntityMemberMapper
     {
-        Dictionary<MemberInfo, IMRM> _mappingMemberMRMContainer;
-        Dictionary<MemberInfo, Action<object, object>> _navigationMemberSetters;
+        Dictionary<MemberInfo, IMRM> _mappingMemberMappers;
+        Dictionary<MemberInfo, Action<object, object>> _complexMemberSetters;
 
         EntityMemberMapper(Type t)
         {
@@ -28,8 +28,8 @@ namespace Chloe.Mapper
             Type t = this.Type;
             var members = t.GetMembers(BindingFlags.Public | BindingFlags.Instance);
 
-            Dictionary<MemberInfo, IMRM> mappingMemberMRMContainer = new Dictionary<MemberInfo, IMRM>();
-            Dictionary<MemberInfo, Action<object, object>> navigationMemberSetters = new Dictionary<MemberInfo, Action<object, object>>();
+            Dictionary<MemberInfo, IMRM> mappingMemberMappers = new Dictionary<MemberInfo, IMRM>();
+            Dictionary<MemberInfo, Action<object, object>> complexMemberSetters = new Dictionary<MemberInfo, Action<object, object>>();
 
             foreach (var member in members)
             {
@@ -53,19 +53,19 @@ namespace Chloe.Mapper
                 if (MappingTypeSystem.IsMappingType(memberType))
                 {
                     IMRM mrm = MRMHelper.CreateMRM(member);
-                    mappingMemberMRMContainer.Add(member, mrm);
+                    mappingMemberMappers.Add(member, mrm);
                 }
                 else
                 {
                     if (prop != null)
                     {
                         Action<object, object> valueSetter = DelegateGenerator.CreateValueSetter(prop);
-                        navigationMemberSetters.Add(member, valueSetter);
+                        complexMemberSetters.Add(member, valueSetter);
                     }
                     else if (field != null)
                     {
                         Action<object, object> valueSetter = DelegateGenerator.CreateValueSetter(field);
-                        navigationMemberSetters.Add(member, valueSetter);
+                        complexMemberSetters.Add(member, valueSetter);
                     }
                     else
                         continue;
@@ -74,24 +74,24 @@ namespace Chloe.Mapper
                 }
             }
 
-            this._mappingMemberMRMContainer = Utils.Clone(mappingMemberMRMContainer);
-            this._navigationMemberSetters = Utils.Clone(navigationMemberSetters);
+            this._mappingMemberMappers = Utils.Clone(mappingMemberMappers);
+            this._complexMemberSetters = Utils.Clone(complexMemberSetters);
         }
 
         public Type Type { get; private set; }
 
-        public IMRM TryGetMemberMapper(MemberInfo memberInfo)
+        public IMRM TryGetMappingMemberMapper(MemberInfo memberInfo)
         {
             memberInfo = memberInfo.AsReflectedMemberOf(this.Type);
             IMRM mapper = null;
-            this._mappingMemberMRMContainer.TryGetValue(memberInfo, out mapper);
+            this._mappingMemberMappers.TryGetValue(memberInfo, out mapper);
             return mapper;
         }
-        public Action<object, object> TryGetNavigationMemberSetter(MemberInfo memberInfo)
+        public Action<object, object> TryGetComplexMemberSetter(MemberInfo memberInfo)
         {
             memberInfo = memberInfo.AsReflectedMemberOf(this.Type);
             Action<object, object> valueSetter = null;
-            this._navigationMemberSetters.TryGetValue(memberInfo, out valueSetter);
+            this._complexMemberSetters.TryGetValue(memberInfo, out valueSetter);
             return valueSetter;
         }
 

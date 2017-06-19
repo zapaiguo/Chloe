@@ -14,11 +14,11 @@ namespace Chloe.Query
     {
         IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery);
         IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTable table);
-        void AddConstructorParameter(ParameterInfo p, DbExpression exp);
-        void AddConstructorEntityParameter(ParameterInfo p, IMappingObjectExpression exp);
-        void AddMemberExpression(MemberInfo memberInfo, DbExpression exp);
+        void AddMappingConstructorParameter(ParameterInfo p, DbExpression exp);
+        void AddComplexConstructorParameter(ParameterInfo p, IMappingObjectExpression exp);
+        void AddMappingMemberExpression(MemberInfo memberInfo, DbExpression exp);
         void AddComplexMemberExpression(MemberInfo memberInfo, IMappingObjectExpression moe);
-        DbExpression GetMemberExpression(MemberInfo memberInfo);
+        DbExpression GetMappingMemberExpression(MemberInfo memberInfo);
         IMappingObjectExpression GetComplexMemberExpression(MemberInfo memberInfo);
         DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter);
         IMappingObjectExpression GetComplexMemberExpression(MemberExpression exp);

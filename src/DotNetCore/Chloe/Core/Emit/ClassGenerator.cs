@@ -64,7 +64,7 @@ namespace Chloe.Core.Emit
 
             il.Emit(OpCodes.Ret);   // 即可 return
 
-            Type t = tb.CreateTypeInfo().AsType();
+            Type t = tb.CreateType();
 
             return t;
         }

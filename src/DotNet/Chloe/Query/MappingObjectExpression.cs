@@ -20,10 +20,10 @@ namespace Chloe.Query
         public MappingObjectExpression(EntityConstructorDescriptor constructorDescriptor)
         {
             this.ConstructorDescriptor = constructorDescriptor;
-            this.ConstructorParameters = new Dictionary<ParameterInfo, DbExpression>();
-            this.ConstructorEntityParameters = new Dictionary<ParameterInfo, IMappingObjectExpression>();
-            this.SelectedMembers = new Dictionary<MemberInfo, DbExpression>();
-            this.SubResultEntities = new Dictionary<MemberInfo, IMappingObjectExpression>();
+            this.MappingConstructorParameters = new Dictionary<ParameterInfo, DbExpression>();
+            this.ComplexConstructorParameters = new Dictionary<ParameterInfo, IMappingObjectExpression>();
+            this.MappingMembers = new Dictionary<MemberInfo, DbExpression>();
+            this.ComplexMembers = new Dictionary<MemberInfo, IMappingObjectExpression>();
         }
 
         public DbExpression PrimaryKey { get; set; }
@@ -33,39 +33,39 @@ namespace Chloe.Query
         /// 返回类型
         /// </summary>
         public EntityConstructorDescriptor ConstructorDescriptor { get; private set; }
-        public Dictionary<ParameterInfo, DbExpression> ConstructorParameters { get; private set; }
-        public Dictionary<ParameterInfo, IMappingObjectExpression> ConstructorEntityParameters { get; private set; }
-        public Dictionary<MemberInfo, DbExpression> SelectedMembers { get; protected set; }
-        public Dictionary<MemberInfo, IMappingObjectExpression> SubResultEntities { get; protected set; }
+        public Dictionary<ParameterInfo, DbExpression> MappingConstructorParameters { get; private set; }
+        public Dictionary<ParameterInfo, IMappingObjectExpression> ComplexConstructorParameters { get; private set; }
+        public Dictionary<MemberInfo, DbExpression> MappingMembers { get; protected set; }
+        public Dictionary<MemberInfo, IMappingObjectExpression> ComplexMembers { get; protected set; }
 
-        public void AddConstructorParameter(ParameterInfo p, DbExpression exp)
+        public void AddMappingConstructorParameter(ParameterInfo p, DbExpression exp)
         {
-            this.ConstructorParameters.Add(p, exp);
+            this.MappingConstructorParameters.Add(p, exp);
         }
-        public void AddConstructorEntityParameter(ParameterInfo p, IMappingObjectExpression exp)
+        public void AddComplexConstructorParameter(ParameterInfo p, IMappingObjectExpression exp)
         {
-            this.ConstructorEntityParameters.Add(p, exp);
+            this.ComplexConstructorParameters.Add(p, exp);
         }
-        public void AddMemberExpression(MemberInfo memberInfo, DbExpression exp)
+        public void AddMappingMemberExpression(MemberInfo memberInfo, DbExpression exp)
         {
             memberInfo = memberInfo.AsReflectedMemberOf(this.ConstructorDescriptor.ConstructorInfo.DeclaringType);
-            this.SelectedMembers.Add(memberInfo, exp);
+            this.MappingMembers.Add(memberInfo, exp);
         }
         public void AddComplexMemberExpression(MemberInfo memberInfo, IMappingObjectExpression moe)
         {
             memberInfo = memberInfo.AsReflectedMemberOf(this.ConstructorDescriptor.ConstructorInfo.DeclaringType);
-            this.SubResultEntities.Add(memberInfo, moe);
+            this.ComplexMembers.Add(memberInfo, moe);
         }
         /// <summary>
         /// 考虑匿名函数构造函数参数和其只读属性的对应
         /// </summary>
         /// <param name="memberInfo"></param>
         /// <returns></returns>
-        public DbExpression GetMemberExpression(MemberInfo memberInfo)
+        public DbExpression GetMappingMemberExpression(MemberInfo memberInfo)
         {
             memberInfo = memberInfo.AsReflectedMemberOf(this.ConstructorDescriptor.ConstructorInfo.DeclaringType);
             DbExpression ret = null;
-            if (!this.SelectedMembers.TryGetValue(memberInfo, out ret))
+            if (!this.MappingMembers.TryGetValue(memberInfo, out ret))
             {
                 ParameterInfo p = null;
                 if (!this.ConstructorDescriptor.MemberParameterMap.TryGetValue(memberInfo, out p))
@@ -73,7 +73,7 @@ namespace Chloe.Query
                     return null;
                 }
 
-                if (!this.ConstructorParameters.TryGetValue(p, out ret))
+                if (!this.MappingConstructorParameters.TryGetValue(p, out ret))
                 {
                     return null;
                 }
@@ -85,7 +85,7 @@ namespace Chloe.Query
         {
             memberInfo = memberInfo.AsReflectedMemberOf(this.ConstructorDescriptor.ConstructorInfo.DeclaringType);
             IMappingObjectExpression ret = null;
-            if (!this.SubResultEntities.TryGetValue(memberInfo, out ret))
+            if (!this.ComplexMembers.TryGetValue(memberInfo, out ret))
             {
                 //从构造函数中查
                 ParameterInfo p = null;
@@ -94,7 +94,7 @@ namespace Chloe.Query
                     return null;
                 }
 
-                if (!this.ConstructorEntityParameters.TryGetValue(p, out ret))
+                if (!this.ComplexConstructorParameters.TryGetValue(p, out ret))
                 {
                     return null;
                 }
@@ -120,7 +120,7 @@ namespace Chloe.Query
                 }
 
                 /* **.accessedMember */
-                DbExpression e = moe.GetMemberExpression(accessedMember);
+                DbExpression e = moe.GetMappingMemberExpression(accessedMember);
                 if (e == null)
                 {
                     /* Indicate current accessed member is not mapping member, then try get complex member like 'a.Order' */
@@ -194,9 +194,8 @@ namespace Chloe.Query
         public IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery)
         {
             MappingEntity mappingEntity = new MappingEntity(this.ConstructorDescriptor);
-            MappingObjectExpression mappingMembers = this;
 
-            foreach (var kv in this.ConstructorParameters)
+            foreach (var kv in this.MappingConstructorParameters)
             {
                 ParameterInfo pi = kv.Key;
                 DbExpression exp = kv.Value;
@@ -210,7 +209,7 @@ namespace Chloe.Query
                 mappingEntity.ConstructorParameters.Add(pi, ordinal);
             }
 
-            foreach (var kv in mappingMembers.ConstructorEntityParameters)
+            foreach (var kv in this.ComplexConstructorParameters)
             {
                 ParameterInfo pi = kv.Key;
                 IMappingObjectExpression val = kv.Value;
@@ -219,7 +218,7 @@ namespace Chloe.Query
                 mappingEntity.ConstructorEntityParameters.Add(pi, complexMappingMember);
             }
 
-            foreach (var kv in mappingMembers.SelectedMembers)
+            foreach (var kv in this.MappingMembers)
             {
                 MemberInfo member = kv.Key;
                 DbExpression exp = kv.Value;
@@ -230,16 +229,16 @@ namespace Chloe.Query
                 if (exp == this.NullChecking)
                     mappingEntity.CheckNullOrdinal = ordinal;
 
-                mappingEntity.Members.Add(member, ordinal);
+                mappingEntity.MappingMembers.Add(member, ordinal);
             }
 
-            foreach (var kv in mappingMembers.SubResultEntities)
+            foreach (var kv in this.ComplexMembers)
             {
                 MemberInfo member = kv.Key;
                 IMappingObjectExpression val = kv.Value;
 
                 IObjectActivatorCreator complexMappingMember = val.GenarateObjectActivatorCreator(sqlQuery);
-                mappingEntity.EntityMembers.Add(kv.Key, complexMappingMember);
+                mappingEntity.ComplexMembers.Add(kv.Key, complexMappingMember);
             }
 
             if (mappingEntity.CheckNullOrdinal == null)
@@ -250,10 +249,9 @@ namespace Chloe.Query
 
         public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTable table)
         {
-            MappingObjectExpression moe = new MappingObjectExpression(this.ConstructorDescriptor);
-            MappingObjectExpression mappingMembers = this;
+            MappingObjectExpression newMoe = new MappingObjectExpression(this.ConstructorDescriptor);
 
-            foreach (var kv in this.ConstructorParameters)
+            foreach (var kv in this.MappingConstructorParameters)
             {
                 ParameterInfo pi = kv.Key;
                 DbExpression exp = kv.Value;
@@ -261,19 +259,19 @@ namespace Chloe.Query
                 DbColumnAccessExpression cae = null;
                 cae = MappingObjectExpressionHelper.ParseColumnAccessExpression(sqlQuery, table, exp, pi.Name);
 
-                moe.AddConstructorParameter(pi, cae);
+                newMoe.AddMappingConstructorParameter(pi, cae);
             }
 
-            foreach (var kv in mappingMembers.ConstructorEntityParameters)
+            foreach (var kv in this.ComplexConstructorParameters)
             {
                 ParameterInfo pi = kv.Key;
                 IMappingObjectExpression val = kv.Value;
 
                 IMappingObjectExpression complexMappingMember = val.ToNewObjectExpression(sqlQuery, table);
-                moe.AddConstructorEntityParameter(pi, complexMappingMember);
+                newMoe.AddComplexConstructorParameter(pi, complexMappingMember);
             }
 
-            foreach (var kv in mappingMembers.SelectedMembers)
+            foreach (var kv in this.MappingMembers)
             {
                 MemberInfo member = kv.Key;
                 DbExpression exp = kv.Value;
@@ -281,29 +279,29 @@ namespace Chloe.Query
                 DbColumnAccessExpression cae = null;
                 cae = MappingObjectExpressionHelper.ParseColumnAccessExpression(sqlQuery, table, exp, member.Name);
 
-                moe.AddMemberExpression(member, cae);
+                newMoe.AddMappingMemberExpression(member, cae);
 
                 if (exp == this.PrimaryKey)
                 {
-                    moe.PrimaryKey = cae;
+                    newMoe.PrimaryKey = cae;
                     if (this.NullChecking == this.PrimaryKey)
-                        moe.NullChecking = cae;
+                        newMoe.NullChecking = cae;
                 }
             }
 
-            foreach (var kv in mappingMembers.SubResultEntities)
+            foreach (var kv in this.ComplexMembers)
             {
                 MemberInfo member = kv.Key;
                 IMappingObjectExpression val = kv.Value;
 
                 IMappingObjectExpression complexMappingMember = val.ToNewObjectExpression(sqlQuery, table);
-                moe.AddComplexMemberExpression(member, complexMappingMember);
+                newMoe.AddComplexMemberExpression(member, complexMappingMember);
             }
 
-            if (moe.NullChecking == null)
-                moe.NullChecking = MappingObjectExpressionHelper.TryGetOrAddNullChecking(sqlQuery, table, this.NullChecking);
+            if (newMoe.NullChecking == null)
+                newMoe.NullChecking = MappingObjectExpressionHelper.TryGetOrAddNullChecking(sqlQuery, table, this.NullChecking);
 
-            return moe;
+            return newMoe;
         }
 
         public void SetNullChecking(DbExpression exp)
@@ -316,12 +314,12 @@ namespace Chloe.Query
                     this.NullChecking = exp;
             }
 
-            foreach (var item in this.ConstructorEntityParameters.Values)
+            foreach (var item in this.ComplexConstructorParameters.Values)
             {
                 item.SetNullChecking(exp);
             }
 
-            foreach (var item in this.SubResultEntities.Values)
+            foreach (var item in this.ComplexMembers.Values)
             {
                 item.SetNullChecking(exp);
             }

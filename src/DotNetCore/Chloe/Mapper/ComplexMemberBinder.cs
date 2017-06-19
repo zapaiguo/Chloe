@@ -6,11 +6,11 @@ using System.Text;
 
 namespace Chloe.Mapper
 {
-    public class NavigationMemberBinder : IValueSetter
+    public class ComplexMemberBinder : IValueSetter
     {
         Action<object, object> _setter;
         IObjectActivator _activtor;
-        public NavigationMemberBinder(Action<object, object> setter, IObjectActivator activtor)
+        public ComplexMemberBinder(Action<object, object> setter, IObjectActivator activtor)
         {
             this._setter = setter;
             this._activtor = activtor;
