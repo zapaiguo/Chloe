@@ -81,12 +81,9 @@ q.Where(a => a.Id > 0).Where(a => a.Name.Contains("lu")).ToList();
 ```C#
 MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
-IQuery<User> users = context.Query<User>();
-IQuery<City> cities = context.Query<City>();
-IQuery<Province> provinces = context.Query<Province>();
-
-IJoiningQuery<User, City> user_city = users.InnerJoin(cities, (user, city) => user.CityId == city.Id);
-IJoiningQuery<User, City, Province> user_city_province = user_city.InnerJoin(provinces, (user, city, province) => city.ProvinceId == province.Id);
+var user_city_province = context.Query<User>()
+                         .InnerJoin<City>((user, city) => user.CityId == city.Id)
+                         .InnerJoin<Province>((user, city, province) => city.ProvinceId == province.Id);
 
 user_city_province.Select((user, city, province) => new { UserId = user.Id, CityName = city.Name, ProvinceName = province.Name }).Where(a => a.UserId == 1).ToList();
 /*
