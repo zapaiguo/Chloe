@@ -57,11 +57,10 @@ namespace ChloeDemo
         }
         public static void JoinQuery()
         {
-            IQuery<User> users = context.Query<User>();
-
             //建立连接
-            IJoiningQuery<User, City> user_city = users.InnerJoin<City>((user, city) => user.CityId == city.Id);
-            IJoiningQuery<User, City, Province> user_city_province = user_city.InnerJoin<Province>((user, city, province) => city.ProvinceId == province.Id);
+            var user_city_province = context.Query<User>()
+                                    .InnerJoin<City>((user, city) => user.CityId == city.Id)
+                                    .InnerJoin<Province>((user, city, province) => city.ProvinceId == province.Id);
 
             //查出用户及其隶属的城市和省份的所有信息
             var view = user_city_province.Select((user, city, province) => new { User = user, City = city, Province = province }).Where(a => a.User.Id > 1).ToList();
