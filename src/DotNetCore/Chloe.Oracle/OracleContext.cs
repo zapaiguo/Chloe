@@ -25,6 +25,9 @@ namespace Chloe.Oracle
             this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory, this);
         }
 
+        /// <summary>
+        /// 是否将 sql 中的表名/字段名转成大写。默认为 true。
+        /// </summary>
         public bool ConvertToUppercase { get { return this._convertToUppercase; } set { this._convertToUppercase = value; } }
         public override IDbContextServiceProvider DbContextServiceProvider
         {
@@ -125,7 +128,7 @@ namespace Chloe.Oracle
                     throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
 
                 if (memberDescriptor == defineSequenceMemberDescriptor)
-                    throw new ChloeException(string.Format("Can not insert value into the column '{0}',because it's mapping member has define a sequence.", memberDescriptor.Column.Name));
+                    throw new ChloeException(string.Format("Can not insert value into the column '{0}', because it's mapping member has define a sequence.", memberDescriptor.Column.Name));
 
                 if (memberDescriptor.IsPrimaryKey)
                 {

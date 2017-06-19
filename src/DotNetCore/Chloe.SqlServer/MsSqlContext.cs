@@ -30,6 +30,9 @@ namespace Chloe.SqlServer
             this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory, this);
         }
 
+        /// <summary>
+        /// 分页模式。
+        /// </summary>
         public PagingMode PagingMode { get; set; }
         public override IDbContextServiceProvider DbContextServiceProvider
         {
