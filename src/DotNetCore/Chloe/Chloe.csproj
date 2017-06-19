@@ -23,6 +23,10 @@
     <FileVersion>2.10.0.0</FileVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard1.6\Chloe.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Properties\AssemblyInfo.cs" />
     <Compile Remove="Utility\UtilExceptions.cs" />

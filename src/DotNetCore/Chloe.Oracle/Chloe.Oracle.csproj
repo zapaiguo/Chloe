@@ -7,6 +7,10 @@
     <Copyright>Copyright 2016-2017.</Copyright>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard1.6\.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Chloe\Chloe.csproj" />
   </ItemGroup>
