@@ -11,7 +11,7 @@ namespace ChloeDemo
 {
     class SQLiteDemo
     {
-        /* WARNING: DbContext 是非线程安全的，正式使用不能设置为 static */
+        /* WARNING: DbContext 是非线程安全的，正式使用不能设置为 static，并且用完务必要调用 Dispose 方法销毁对象 */
         static SQLiteContext context = new SQLiteContext(new SQLiteConnectionFactory("Data Source=..\\..\\..\\Chloe.db;"));
         public static void Test()
         {

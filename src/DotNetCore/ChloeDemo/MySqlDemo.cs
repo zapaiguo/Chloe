@@ -9,7 +9,7 @@ namespace ChloeDemo
 {
     class MySqlDemo
     {
-        /* WARNING: DbContext 是非线程安全的，正式使用不能设置为 static */
+        /* WARNING: DbContext 是非线程安全的，正式使用不能设置为 static，并且用完务必要调用 Dispose 方法销毁对象 */
         static MySqlContext context = new MySqlContext(new MySqlConnectionFactory("Database='Chloe';Data Source=localhost;User ID=root;Password=sasa;CharSet=utf8;SslMode=None"));
         public static void Test()
         {
