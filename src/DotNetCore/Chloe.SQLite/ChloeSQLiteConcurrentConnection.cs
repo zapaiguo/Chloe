@@ -51,6 +51,8 @@ namespace Chloe.SQLite
 
         public ReaderWriterLockWrapper RWLock { get { return this._rwLock; } }
 
+        public IDbConnection InnerDbConnection { get { return this._dbConnection; } }
+
         public string ConnectionString
         {
             get { return this._dbConnection.ConnectionString; }

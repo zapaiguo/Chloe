@@ -15,6 +15,8 @@ namespace Chloe.Oracle
             this._dbConnection = dbConnection;
         }
 
+        public IDbConnection InnerDbConnection { get { return this._dbConnection; } }
+
         public string ConnectionString
         {
             get { return this._dbConnection.ConnectionString; }

@@ -570,7 +570,8 @@ namespace Chloe
         {
             /*
              * Useage:
-             * var view = context.JoinQuery<User, City, Province, User, City>((user, city, province, user1, city1) => new object[] { 
+             * var view = context.JoinQuery<User, City, Province, User, City>((user, city, province, user1, city1) => new object[] 
+             * { 
              *     JoinType.LeftJoin, user.CityId == city.Id, 
              *     JoinType.RightJoin, city.ProvinceId == province.Id,
              *     JoinType.InnerJoin,user.Id==user1.Id,
@@ -619,7 +620,7 @@ namespace Chloe
                  */
                 Expression joinCondition = body.Expressions[indexOfJoinType + 1].StripConvert();
 
-                if (joinCondition.Type != typeof(bool))
+                if (joinCondition.Type != UtilConstants.TypeOfBoolean)
                 {
                     throw new ArgumentException(string.Format("Not support '{0}', please input correct join condition.", joinCondition));
                 }
@@ -627,7 +628,7 @@ namespace Chloe
                 ParameterExpression[] parameters = joinInfoExp.Parameters.Take(i + 2).ToArray();
 
                 List<Type> typeArguments = parameters.Select(a => a.Type).ToList();
-                typeArguments.Add(typeof(bool));
+                typeArguments.Add(UtilConstants.TypeOfBoolean);
 
                 Type delegateType = Utils.GetFuncDelegateType(typeArguments.ToArray());
                 LambdaExpression lambdaOfJoinCondition = Expression.Lambda(delegateType, joinCondition, parameters);
