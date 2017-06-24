@@ -15,7 +15,8 @@ namespace Chloe
         TEntity QueryByKey<TEntity>(object key, string table, bool tracking = false);
 
         /// <summary>
-        /// context.JoinQuery&lt;User, City&gt;((user, city) => new object[] { 
+        /// context.JoinQuery&lt;User, City&gt;((user, city) => new object[] 
+        /// { 
         ///     JoinType.LeftJoin, user.CityId == city.Id 
         /// })
         /// </summary>
@@ -25,7 +26,8 @@ namespace Chloe
         /// <returns></returns>
         IJoiningQuery<T1, T2> JoinQuery<T1, T2>(Expression<Func<T1, T2, object[]>> joinInfo);
         /// <summary>
-        /// context.JoinQuery&lt;User, City, Province&gt;((user, city, province) => new object[] { 
+        /// context.JoinQuery&lt;User, City, Province&gt;((user, city, province) => new object[] 
+        /// { 
         ///     JoinType.LeftJoin, user.CityId == city.Id, 
         ///     JoinType.LeftJoin, city.ProvinceId == province.Id 
         /// })
