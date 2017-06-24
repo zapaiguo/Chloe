@@ -53,11 +53,11 @@ namespace Chloe.Mapper
 
     public class ReaderOrdinalEnumerator
     {
-        public static readonly MethodInfo NextMethodInfo;
+        public static readonly MethodInfo MethodOfNext;
         static ReaderOrdinalEnumerator()
         {
             MethodInfo method = typeof(ReaderOrdinalEnumerator).GetMethod("Next");
-            NextMethodInfo = method;
+            MethodOfNext = method;
         }
 
         List<int> _readerOrdinals;
@@ -88,11 +88,11 @@ namespace Chloe.Mapper
         List<IObjectActivator> _objectActivators;
         int _next;
 
-        public static readonly MethodInfo NextMethodInfo;
+        public static readonly MethodInfo MethodOfNext;
         static ObjectActivatorEnumerator()
         {
             MethodInfo method = typeof(ObjectActivatorEnumerator).GetMethod("Next");
-            NextMethodInfo = method;
+            MethodOfNext = method;
         }
 
         public ObjectActivatorEnumerator(List<IObjectActivator> objectActivators)

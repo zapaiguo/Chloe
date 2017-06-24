@@ -52,7 +52,7 @@ namespace Chloe.Core.Visitors
             if (operandValue == null)
             {
                 //(int)null
-                if (exp.Type.IsValueType() && !ReflectionExtension.IsNullable(exp.Type))
+                if (exp.Type.IsValueType() && !exp.Type.IsNullable())
                     throw new NullReferenceException();
 
                 return null;
@@ -65,12 +65,12 @@ namespace Chloe.Core.Visitors
                 return operandValue;
             }
 
-            Type unType;
+            Type underlyingType;
 
-            if (ReflectionExtension.IsNullable(exp.Type, out unType))
+            if (exp.Type.IsNullable(out underlyingType))
             {
                 //(int?)int
-                if (unType == operandValueType)
+                if (underlyingType == operandValueType)
                 {
                     var constructor = exp.Type.GetConstructor(new Type[] { operandValueType });
                     var val = constructor.Invoke(new object[] { operandValue });
@@ -79,16 +79,16 @@ namespace Chloe.Core.Visitors
                 else
                 {
                     //如果不等，则诸如：(long?)int / (long?)int?  -->  (long?)((long)int) / (long?)((long)int?)
-                    var c = Expression.MakeUnary(ExpressionType.Convert, Expression.Constant(operandValue), unType);
+                    var c = Expression.MakeUnary(ExpressionType.Convert, Expression.Constant(operandValue), underlyingType);
                     var cc = Expression.MakeUnary(ExpressionType.Convert, c, exp.Type);
                     return this.Visit(cc);
                 }
             }
 
             //(int)int?
-            if (ReflectionExtension.IsNullable(operandValueType, out unType))
+            if (operandValueType.IsNullable(out underlyingType))
             {
-                if (unType == exp.Type)
+                if (underlyingType == exp.Type)
                 {
                     var pro = operandValueType.GetProperty("Value");
                     var val = pro.GetValue(operandValue, null);
@@ -97,7 +97,7 @@ namespace Chloe.Core.Visitors
                 else
                 {
                     //如果不等，则诸如：(long)int?  -->  (long)((long)int)
-                    var c = Expression.MakeUnary(ExpressionType.Convert, Expression.Constant(operandValue), unType);
+                    var c = Expression.MakeUnary(ExpressionType.Convert, Expression.Constant(operandValue), underlyingType);
                     var cc = Expression.MakeUnary(ExpressionType.Convert, c, exp.Type);
                     return this.Visit(cc);
                 }
