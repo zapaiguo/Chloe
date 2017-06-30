@@ -14,7 +14,7 @@ namespace ChloeDemo
         //static OracleContext context = new OracleContext(new OracleConnectionFactory("Data Source=localhost/orcl;User ID=system;Password=sa;"));
         static OracleContext context = new OracleContext(new OracleConnectionFactory("Data Source = (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST =localhost)(PORT = 1521))(CONNECT_DATA = (SERVICE_NAME =orcl))); User ID =system; Password=sa"));
 
-        public static void Test()
+        public static void Run()
         {
             BasicQuery();
             JoinQuery();

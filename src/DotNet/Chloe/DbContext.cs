@@ -396,7 +396,6 @@ namespace Chloe
                 return 0;
 
             return this.ExecuteSqlCommand(e);
-
         }
 
         public virtual int Delete<TEntity>(TEntity entity)
