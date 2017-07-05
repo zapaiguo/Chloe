@@ -188,7 +188,9 @@ namespace Chloe.Extensions
             Type fieldType = reader.GetFieldType(ordinal);
 
             object value;
-            if (fieldType == typeof(short))
+            if (fieldType == UtilConstants.TypeOfByte)
+                value = reader.GetByte(ordinal);
+            else if (fieldType == UtilConstants.TypeOfInt16)
                 value = reader.GetInt16(ordinal);
             else
                 value = reader.GetInt32(ordinal);

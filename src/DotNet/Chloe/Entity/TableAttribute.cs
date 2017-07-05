@@ -8,7 +8,7 @@ namespace Chloe.Entity
         public TableAttribute() { }
         public TableAttribute(string name)
         {
-            Name = name;
+            this.Name = name;
         }
         public string Name { get; set; }
         public string Schema { get; set; }
