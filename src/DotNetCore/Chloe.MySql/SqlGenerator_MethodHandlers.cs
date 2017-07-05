@@ -356,7 +356,14 @@ namespace Chloe.MySql
             EnsureMethodDeclaringType(exp, retType);
 
             DbExpression e = DbExpression.Convert(arg, retType);
-            e.Accept(generator);
+            if (retType == UtilConstants.TypeOfBoolean)
+            {
+                e.Accept(generator);
+                generator._sqlBuilder.Append(" = ");
+                DbConstantExpression.True.Accept(generator);
+            }
+            else
+                e.Accept(generator);
         }
 
         static void Method_Guid_NewGuid(DbMethodCallExpression exp, SqlGenerator generator)
