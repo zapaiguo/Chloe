@@ -1,4 +1,5 @@
 ﻿using Chloe.Infrastructure.Interception;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -16,6 +17,7 @@ namespace ChloeDemo
             //interceptionContext.DataBag.Add("startTime", DateTime.Now);
             Debug.WriteLine(AppendDbCommandInfo(command));
             Console.WriteLine(command.CommandText);
+            AmendParameter(command);
         }
         public void ReaderExecuted(IDbCommand command, DbCommandInterceptionContext<IDataReader> interceptionContext)
         {
@@ -29,6 +31,7 @@ namespace ChloeDemo
         {
             Debug.WriteLine(AppendDbCommandInfo(command));
             Console.WriteLine(command.CommandText);
+            AmendParameter(command);
         }
         public void NonQueryExecuted(IDbCommand command, DbCommandInterceptionContext<int> interceptionContext)
         {
@@ -41,6 +44,7 @@ namespace ChloeDemo
             //interceptionContext.DataBag.Add("startTime", DateTime.Now);
             Debug.WriteLine(AppendDbCommandInfo(command));
             Console.WriteLine(command.CommandText);
+            AmendParameter(command);
         }
         public void ScalarExecuted(IDbCommand command, DbCommandInterceptionContext<object> interceptionContext)
         {
@@ -50,6 +54,26 @@ namespace ChloeDemo
                 Console.WriteLine(interceptionContext.Result);
         }
 
+
+        static void AmendParameter(IDbCommand command)
+        {
+            foreach (var parameter in command.Parameters)
+            {
+                if (parameter is OracleParameter)
+                {
+                    OracleParameter oracleParameter = (OracleParameter)parameter;
+                    if (oracleParameter.Value is string)
+                    {
+                        /* 针对 oracle 长文本做处理 */
+                        string value = (string)oracleParameter.Value;
+                        if (value != null && value.Length > 4000)
+                        {
+                            oracleParameter.OracleDbType = OracleDbType.NClob;
+                        }
+                    }
+                }
+            }
+        }
 
         public static string AppendDbCommandInfo(IDbCommand command)
         {

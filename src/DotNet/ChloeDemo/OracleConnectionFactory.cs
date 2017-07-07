@@ -8,6 +8,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+namespace Chloe
+{
+    public static class OracleRefCursorParameterHelper
+    {
+        public static DbParam AsRefCursorParam(this DbParam param, string refCursorName = "p_cursor")
+        {
+            OracleParameter p_cur = new OracleParameter();
+            p_cur.ParameterName = refCursorName;
+            p_cur.OracleDbType = OracleDbType.RefCursor;
+            p_cur.Direction = ParameterDirection.Output;
+
+            param.ExplicitParameter = p_cur;
+
+            return param;
+        }
+    }
+}
+
 namespace ChloeDemo
 {
     public class OracleConnectionFactory : IDbConnectionFactory
@@ -69,6 +87,10 @@ namespace ChloeDemo
         {
             _oracleConnection.Close();
         }
+        /// <summary>
+        /// 驱动默认 BindByName 为 false，我们在这将它设置为 true
+        /// </summary>
+        /// <returns></returns>
         public IDbCommand CreateCommand()
         {
             var cmd = _oracleConnection.CreateCommand();
