@@ -14,7 +14,7 @@ using System.Text;
 
 namespace Chloe.Oracle
 {
-    public class OracleContext : DbContext
+    public partial class OracleContext : DbContext
     {
         DbContextServiceProvider _dbContextServiceProvider;
         bool _convertToUppercase = true;
@@ -40,10 +40,7 @@ namespace Chloe.Oracle
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
 
-            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
-            MemberInfo keyMember = typeDescriptor.PrimaryKey.MemberInfo;
-
-            object keyValue = null;
+            Dictionary<MappingMemberDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
 
             string sequenceName;
             object sequenceValue = null;
@@ -51,6 +48,12 @@ namespace Chloe.Oracle
 
             if (defineSequenceMemberDescriptor != null)
             {
+                if (defineSequenceMemberDescriptor.IsPrimaryKey && typeDescriptor.PrimaryKeys.Count > 1)
+                {
+                    /* 自增列不能作为联合主键成员 */
+                    throw new ChloeException("The member of marked sequence can not be union key.");
+                }
+
                 sequenceValue = ConvertIdentityType(this.GetSequenceNextValue(sequenceName), defineSequenceMemberDescriptor.MemberInfoType);
             }
 
@@ -68,18 +71,19 @@ namespace Chloe.Oracle
                 else
                     val = memberDescriptor.GetValue(entity);
 
-                if (memberDescriptor == keyMemberDescriptor)
+                if (keyValueMap.ContainsKey(memberDescriptor))
                 {
-                    keyValue = val;
+                    keyValueMap[memberDescriptor] = val;
                 }
 
                 DbExpression valExp = DbExpression.Parameter(val, memberDescriptor.MemberInfoType);
                 insertColumns.Add(memberDescriptor, valExp);
             }
 
-            if (keyMemberDescriptor != null && keyValue == null)
+            MappingMemberDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null).Select(a => a.Key).FirstOrDefault();
+            if (nullValueKey != null)
             {
-                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", nullValueKey.MemberInfo.Name));
             }
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -103,7 +107,13 @@ namespace Chloe.Oracle
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
 
-            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
+            if (typeDescriptor.PrimaryKeys.Count > 1)
+            {
+                /* 对于多主键的实体，暂时不支持调用这个方法进行插入 */
+                throw new NotSupportedException(string.Format("Can not call this method because entity '{0}' has multiple keys.", typeDescriptor.EntityType.FullName));
+            }
+
+            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
 
             string sequenceName;
             object sequenceValue = null;
@@ -170,10 +180,7 @@ namespace Chloe.Oracle
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
 
-            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
-            MemberInfo keyMember = keyMemberDescriptor.MemberInfo;
-
-            object keyVal = null;
+            Dictionary<MappingMemberDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
@@ -182,10 +189,9 @@ namespace Chloe.Oracle
                 MemberInfo member = kv.Key;
                 MappingMemberDescriptor memberDescriptor = kv.Value;
 
-                if (member == keyMember)
+                if (keyValueMap.ContainsKey(memberDescriptor))
                 {
-                    keyVal = memberDescriptor.GetValue(entity);
-                    keyMemberDescriptor = memberDescriptor;
+                    keyValueMap[memberDescriptor] = memberDescriptor.GetValue(entity);
                     continue;
                 }
 
@@ -202,17 +208,11 @@ namespace Chloe.Oracle
                 updateColumns.Add(memberDescriptor, valExp);
             }
 
-            if (keyVal == null)
-                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMember.Name));
-
             if (updateColumns.Count == 0)
                 return 0;
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-            DbExpression left = new DbColumnAccessExpression(dbTable, keyMemberDescriptor.Column);
-            DbExpression right = DbExpression.Parameter(keyVal, keyMemberDescriptor.MemberInfoType);
-            DbExpression conditionExp = new DbEqualExpression(left, right);
-
+            DbExpression conditionExp = MakeCondition(keyValueMap, dbTable);
             DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 
             foreach (var item in updateColumns)
@@ -291,50 +291,5 @@ namespace Chloe.Oracle
             return ret;
         }
 
-        static MappingMemberDescriptor GetDefineSequenceMemberDescriptor(TypeDescriptor typeDescriptor, out string sequenceName)
-        {
-            sequenceName = null;
-            MappingMemberDescriptor defineSequenceMemberDescriptor = null;
-
-            foreach (MappingMemberDescriptor memberDescriptor in typeDescriptor.MappingMemberDescriptors.Values)
-            {
-                SequenceAttribute attr = (SequenceAttribute)memberDescriptor.GetCustomAttribute(typeof(SequenceAttribute));
-                if (attr != null)
-                {
-                    if (defineSequenceMemberDescriptor != null)
-                        throw new ChloeException(string.Format("Mapping type '{0}' can not define multiple identity members.", typeDescriptor.EntityType.FullName));
-
-                    if (string.IsNullOrEmpty(attr.Name))
-                        throw new ChloeException("Sequence name can not be empty.");
-
-                    sequenceName = attr.Name;
-                    defineSequenceMemberDescriptor = memberDescriptor;
-                }
-            }
-
-            if (defineSequenceMemberDescriptor != null)
-                EnsureDefineSequenceMemberType(defineSequenceMemberDescriptor);
-
-            return defineSequenceMemberDescriptor;
-        }
-        static void EnsureDefineSequenceMemberType(MappingMemberDescriptor defineSequenceMemberDescriptor)
-        {
-            if (defineSequenceMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt16 && defineSequenceMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt32 && defineSequenceMemberDescriptor.MemberInfoType != UtilConstants.TypeOfInt64)
-            {
-                throw new ChloeException("Identity type must be Int16,Int32 or Int64.");
-            }
-        }
-        static void EnsureMappingTypeHasPrimaryKey(TypeDescriptor typeDescriptor)
-        {
-            if (!typeDescriptor.HasPrimaryKey())
-                throw new ChloeException(string.Format("Mapping type '{0}' does not define a primary key.", typeDescriptor.EntityType.FullName));
-        }
-        static object ConvertIdentityType(object identity, Type conversionType)
-        {
-            if (identity.GetType() != conversionType)
-                return Convert.ChangeType(identity, conversionType);
-
-            return identity;
-        }
     }
 }

@@ -17,7 +17,7 @@ using Chloe.Extensions;
 
 namespace Chloe
 {
-    public abstract class DbContext : IDbContext, IDisposable
+    public abstract partial class DbContext : IDbContext, IDisposable
     {
         bool _disposed = false;
         InternalAdoSession _adoSession;
@@ -140,10 +140,7 @@ namespace Chloe
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
 
-            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
-
-            object keyValue = null;
-
+            Dictionary<MappingMemberDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
             MappingMemberDescriptor autoIncrementMemberDescriptor = typeDescriptor.AutoIncrement;
 
             Dictionary<MappingMemberDescriptor, DbExpression> insertColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
@@ -156,22 +153,20 @@ namespace Chloe
 
                 object val = memberDescriptor.GetValue(entity);
 
-                if (memberDescriptor == keyMemberDescriptor)
+                if (keyValueMap.ContainsKey(memberDescriptor))
                 {
-                    keyValue = val;
+                    keyValueMap[memberDescriptor] = val;
                 }
 
                 DbExpression valExp = DbExpression.Parameter(val, memberDescriptor.MemberInfoType);
                 insertColumns.Add(memberDescriptor, valExp);
             }
 
-            if (keyMemberDescriptor != null)
+            MappingMemberDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null && a.Key != autoIncrementMemberDescriptor).Select(a => a.Key).FirstOrDefault();
+            if (nullValueKey != null)
             {
-                //主键为空并且主键又不是自增列
-                if (keyValue == null && keyMemberDescriptor != autoIncrementMemberDescriptor)
-                {
-                    throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
-                }
+                /* 主键为空并且主键又不是自增列 */
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", nullValueKey.MemberInfo.Name));
             }
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -216,7 +211,13 @@ namespace Chloe
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
 
-            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
+            if (typeDescriptor.PrimaryKeys.Count > 1)
+            {
+                /* 对于多主键的实体，暂时不支持调用这个方法进行插入 */
+                throw new NotSupportedException(string.Format("Can not call this method because entity '{0}' has multiple keys.", typeDescriptor.EntityType.FullName));
+            }
+
+            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
             MappingMemberDescriptor autoIncrementMemberDescriptor = typeDescriptor.AutoIncrement;
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
@@ -299,10 +300,7 @@ namespace Chloe
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
             EnsureEntityHasPrimaryKey(typeDescriptor);
 
-            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
-            MemberInfo keyMember = keyMemberDescriptor.MemberInfo;
-
-            object keyVal = null;
+            Dictionary<MappingMemberDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<MappingMemberDescriptor, DbExpression> updateColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
@@ -311,10 +309,9 @@ namespace Chloe
                 MemberInfo member = kv.Key;
                 MappingMemberDescriptor memberDescriptor = kv.Value;
 
-                if (member == keyMember)
+                if (keyValueMap.ContainsKey(memberDescriptor))
                 {
-                    keyVal = memberDescriptor.GetValue(entity);
-                    keyMemberDescriptor = memberDescriptor;
+                    keyValueMap[memberDescriptor] = memberDescriptor.GetValue(entity);
                     continue;
                 }
 
@@ -330,17 +327,11 @@ namespace Chloe
                 updateColumns.Add(memberDescriptor, valExp);
             }
 
-            if (keyVal == null)
-                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMember.Name));
-
             if (updateColumns.Count == 0)
                 return 0;
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-            DbExpression left = new DbColumnAccessExpression(dbTable, keyMemberDescriptor.Column);
-            DbExpression right = DbExpression.Parameter(keyVal, keyMemberDescriptor.MemberInfoType);
-            DbExpression conditionExp = new DbEqualExpression(left, right);
-
+            DbExpression conditionExp = MakeCondition(keyValueMap, dbTable);
             DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 
             foreach (var item in updateColumns)
@@ -409,19 +400,16 @@ namespace Chloe
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entity.GetType());
             EnsureEntityHasPrimaryKey(typeDescriptor);
 
-            MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKey;
-            MemberInfo keyMember = typeDescriptor.PrimaryKey.MemberInfo;
+            Dictionary<MappingMemberDescriptor, object> keyValueMap = new Dictionary<MappingMemberDescriptor, object>();
 
-            var keyVal = keyMemberDescriptor.GetValue(entity);
-
-            if (keyVal == null)
-                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyMember.Name));
+            foreach (MappingMemberDescriptor keyMemberDescriptor in typeDescriptor.PrimaryKeys)
+            {
+                object keyVal = keyMemberDescriptor.GetValue(entity);
+                keyValueMap.Add(keyMemberDescriptor, keyVal);
+            }
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-            DbExpression left = new DbColumnAccessExpression(dbTable, keyMemberDescriptor.Column);
-            DbExpression right = new DbParameterExpression(keyVal);
-            DbExpression conditionExp = new DbEqualExpression(left, right);
-
+            DbExpression conditionExp = MakeCondition(keyValueMap, dbTable);
             DbDeleteExpression e = new DbDeleteExpression(dbTable, conditionExp);
             return this.ExecuteSqlCommand(e);
         }
@@ -534,108 +522,6 @@ namespace Chloe
 
             int r = this.AdoSession.ExecuteNonQuery(cmdText, parameters.ToArray(), CommandType.Text);
             return r;
-        }
-
-        static Expression<Func<TEntity, bool>> BuildPredicate<TEntity>(object key)
-        {
-            Utils.CheckNull(key);
-
-            Type entityType = typeof(TEntity);
-            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entityType);
-            EnsureEntityHasPrimaryKey(typeDescriptor);
-
-            ParameterExpression parameter = Expression.Parameter(entityType, "a");
-            Expression propOrField = Expression.PropertyOrField(parameter, typeDescriptor.PrimaryKey.MemberInfo.Name);
-            Expression keyValue = Chloe.Extensions.ExpressionExtension.MakeWrapperAccess(key, typeDescriptor.PrimaryKey.MemberInfoType);
-            Expression lambdaBody = Expression.Equal(propOrField, keyValue);
-
-            Expression<Func<TEntity, bool>> predicate = Expression.Lambda<Func<TEntity, bool>>(lambdaBody, parameter);
-
-            return predicate;
-        }
-        static void EnsureEntityHasPrimaryKey(TypeDescriptor typeDescriptor)
-        {
-            if (!typeDescriptor.HasPrimaryKey())
-                throw new ChloeException(string.Format("The entity type '{0}' does not define a primary key.", typeDescriptor.EntityType.FullName));
-        }
-        static object ConvertIdentityType(object identity, Type conversionType)
-        {
-            if (identity.GetType() != conversionType)
-                return Convert.ChangeType(identity, conversionType);
-
-            return identity;
-        }
-        static List<Tuple<JoinType, Expression>> ResolveJoinInfo(LambdaExpression joinInfoExp)
-        {
-            /*
-             * Useage:
-             * var view = context.JoinQuery<User, City, Province, User, City>((user, city, province, user1, city1) => new object[] 
-             * { 
-             *     JoinType.LeftJoin, user.CityId == city.Id, 
-             *     JoinType.RightJoin, city.ProvinceId == province.Id,
-             *     JoinType.InnerJoin,user.Id==user1.Id,
-             *     JoinType.FullJoin,city.Id==city1.Id
-             * }).Select((user, city, province, user1, city1) => new { User = user, City = city, Province = province, User1 = user1, City1 = city1 });
-             * 
-             * To resolve join infomation:
-             * JoinType.LeftJoin, user.CityId == city.Id               index of joinType is 0
-             * JoinType.RightJoin, city.ProvinceId == province.Id      index of joinType is 2
-             * JoinType.InnerJoin,user.Id==user1.Id                    index of joinType is 4
-             * JoinType.FullJoin,city.Id==city1.Id                     index of joinType is 6
-            */
-
-            NewArrayExpression body = joinInfoExp.Body as NewArrayExpression;
-
-            if (body == null)
-            {
-                throw new ArgumentException(string.Format("Invalid join infomation '{0}'. The correct usage is like: {1}", joinInfoExp, "context.JoinQuery<User, City>((user, city) => new object[] { JoinType.LeftJoin, user.CityId == city.Id })"));
-            }
-
-            List<Tuple<JoinType, Expression>> ret = new List<Tuple<JoinType, Expression>>();
-
-            if ((joinInfoExp.Parameters.Count - 1) * 2 != body.Expressions.Count)
-            {
-                throw new ArgumentException(string.Format("Invalid join infomation '{0}'.", joinInfoExp));
-            }
-
-            for (int i = 0; i < joinInfoExp.Parameters.Count - 1; i++)
-            {
-                /*
-                 * 0  0
-                 * 1  2
-                 * 2  4
-                 * 3  6
-                 * ...
-                 */
-                int indexOfJoinType = i * 2;
-
-                Expression joinTypeExpression = body.Expressions[indexOfJoinType];
-                object inputJoinType = ExpressionEvaluator.Evaluate(joinTypeExpression);
-                if (inputJoinType == null || inputJoinType.GetType() != typeof(JoinType))
-                    throw new ArgumentException(string.Format("Not support '{0}', please input correct type of 'Chloe.JoinType'.", joinTypeExpression));
-
-                /*
-                 * The next expression of join type must be join condition.
-                 */
-                Expression joinCondition = body.Expressions[indexOfJoinType + 1].StripConvert();
-
-                if (joinCondition.Type != UtilConstants.TypeOfBoolean)
-                {
-                    throw new ArgumentException(string.Format("Not support '{0}', please input correct join condition.", joinCondition));
-                }
-
-                ParameterExpression[] parameters = joinInfoExp.Parameters.Take(i + 2).ToArray();
-
-                List<Type> typeArguments = parameters.Select(a => a.Type).ToList();
-                typeArguments.Add(UtilConstants.TypeOfBoolean);
-
-                Type delegateType = Utils.GetFuncDelegateType(typeArguments.ToArray());
-                LambdaExpression lambdaOfJoinCondition = Expression.Lambda(delegateType, joinCondition, parameters);
-
-                ret.Add(new Tuple<JoinType, Expression>((JoinType)inputJoinType, lambdaOfJoinCondition));
-            }
-
-            return ret;
         }
 
         class TrackEntityCollection

@@ -57,6 +57,7 @@
     <Compile Include="Core\Visitors\ExpressionVisitor`.cs" />
     <Compile Include="Core\Visitors\InitMemberExtractor.cs" />
     <Compile Include="DbContext.cs" />
+    <Compile Include="DbContext_Helper.cs" />
     <Compile Include="DbExpressions\DbAddExpression.cs" />
     <Compile Include="DbExpressions\DbAndExpression.cs" />
     <Compile Include="DbExpressions\DbBitAndExpression.cs" />
@@ -194,6 +195,7 @@
     <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\SelectorExpressionVisitor.cs" />
+    <Compile Include="Utility\KeyValuePairList.cs" />
     <Compile Include="Utility\UtilConstants.cs" />
     <Compile Include="Utility\Utils.cs" />
   </ItemGroup>

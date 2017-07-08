@@ -46,6 +46,7 @@
     <Compile Include="DbValueExpressionVisitor.cs" />
     <Compile Include="ISqlBuilder.cs" />
     <Compile Include="OracleContext.cs" />
+    <Compile Include="OracleContext_Helper.cs" />
     <Compile Include="OracleSemantics.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlGenerator.cs" />
