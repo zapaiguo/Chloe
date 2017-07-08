@@ -255,7 +255,7 @@ namespace Chloe.Oracle
 
                 SequenceAttribute attr = (SequenceAttribute)memberDescriptor.GetCustomAttribute(typeof(SequenceAttribute));
                 if (attr != null)
-                    throw new ChloeException(string.Format("Could not update the column '{0}',because it's mapping member has define a sequence.", memberDescriptor.Column.Name));
+                    throw new ChloeException(string.Format("Could not update the column '{0}', because it's mapping member has define a sequence.", memberDescriptor.Column.Name));
 
                 e.UpdateColumns.Add(memberDescriptor.Column, expressionParser.Parse(kv.Value));
             }
