@@ -89,16 +89,16 @@ namespace Chloe.Descriptors
 
                 if (autoIncrementMemberDescriptor.IsPrimaryKey && primaryKeys.Count > 1)
                 {
-                    /* 自增列不能作为联合主键成员 */
+                    /* 自增列不能作为联合主键 */
                     throw new ChloeException("Auto increment member can not be union key.");
                 }
 
                 autoIncrementMemberDescriptor.IsAutoIncrement = true;
                 this._autoIncrement = autoIncrementMemberDescriptor;
             }
-            else if (primaryKeys.Count == 1) /* 自增列不能作为联合主键成员，所以，只有主键个数为 1 的时候才会考虑默认自增规则 */
+            else if (primaryKeys.Count == 1)
             {
-                /* 如果没有显示定义自增成员，则使用默认自增规则 */
+                /* 如果没有显示定义自增成员，并且主键只有 1 个，如果该主键满足一定条件，则默认其是自增列 */
                 MappingMemberDescriptor primaryKeyDescriptor = primaryKeys[0];
                 if (IsAutoIncrementType(primaryKeyDescriptor.MemberInfoType) && !primaryKeyDescriptor.IsDefined(typeof(NonAutoIncrementAttribute)))
                 {
