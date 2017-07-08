@@ -60,7 +60,6 @@ namespace Chloe.Oracle
             Dictionary<MappingMemberDescriptor, DbExpression> insertColumns = new Dictionary<MappingMemberDescriptor, DbExpression>();
             foreach (var kv in typeDescriptor.MappingMemberDescriptors)
             {
-                MemberInfo member = kv.Key;
                 MappingMemberDescriptor memberDescriptor = kv.Value;
 
                 object val = null;
