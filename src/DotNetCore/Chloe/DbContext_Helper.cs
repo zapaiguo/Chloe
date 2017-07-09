@@ -21,6 +21,12 @@ namespace Chloe
     {
         static Expression<Func<TEntity, bool>> BuildPredicate<TEntity>(object key)
         {
+            /*
+             * key:
+             * 如果实体是单一主键，则传入的 key 与主键属性类型相同的值
+             * 如果实体是多主键，则传入的 key 须是包含了与实体主键类型相同的属性的对象，如：new { Key1 = "1", Key2 = "2" }
+             */
+
             Utils.CheckNull(key);
 
             Type entityType = typeof(TEntity);
@@ -47,7 +53,7 @@ namespace Chloe
                     MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKeys[i];
                     MemberInfo keyMember = multipleKeyObjectType.GetProperty(keyMemberDescriptor.MemberInfo.Name);
                     if (keyMember == null)
-                        throw new ArgumentException(string.Format("The input object does not define member for key '{0}'.", keyMemberDescriptor.MemberInfo.Name));
+                        throw new ArgumentException(string.Format("The input object does not define property for key '{0}'.", keyMemberDescriptor.MemberInfo.Name));
 
                     object value = keyMember.GetMemberValue(multipleKeyObject);
                     if (value == null)
@@ -75,7 +81,7 @@ namespace Chloe
         static void EnsureEntityHasPrimaryKey(TypeDescriptor typeDescriptor)
         {
             if (!typeDescriptor.HasPrimaryKey())
-                throw new ChloeException(string.Format("The entity type '{0}' does not define a primary key.", typeDescriptor.EntityType.FullName));
+                throw new ChloeException(string.Format("The entity type '{0}' does not define any primary key.", typeDescriptor.EntityType.FullName));
         }
         static object ConvertIdentityType(object identity, Type conversionType)
         {
@@ -84,7 +90,7 @@ namespace Chloe
 
             return identity;
         }
-        static List<Tuple<JoinType, Expression>> ResolveJoinInfo(LambdaExpression joinInfoExp)
+        static KeyValuePairList<JoinType, Expression> ResolveJoinInfo(LambdaExpression joinInfoExp)
         {
             /*
              * Useage:
@@ -110,7 +116,7 @@ namespace Chloe
                 throw new ArgumentException(string.Format("Invalid join infomation '{0}'. The correct usage is like: {1}", joinInfoExp, "context.JoinQuery<User, City>((user, city) => new object[] { JoinType.LeftJoin, user.CityId == city.Id })"));
             }
 
-            List<Tuple<JoinType, Expression>> ret = new List<Tuple<JoinType, Expression>>();
+            KeyValuePairList<JoinType, Expression> ret = new KeyValuePairList<JoinType, Expression>();
 
             if ((joinInfoExp.Parameters.Count - 1) * 2 != body.Expressions.Count)
             {
@@ -131,7 +137,7 @@ namespace Chloe
                 Expression joinTypeExpression = body.Expressions[indexOfJoinType];
                 object inputJoinType = ExpressionEvaluator.Evaluate(joinTypeExpression);
                 if (inputJoinType == null || inputJoinType.GetType() != typeof(JoinType))
-                    throw new ArgumentException(string.Format("Not support '{0}', please input correct type of 'Chloe.JoinType'.", joinTypeExpression));
+                    throw new ArgumentException(string.Format("Not support '{0}', please pass correct type of 'Chloe.JoinType'.", joinTypeExpression));
 
                 /*
                  * The next expression of join type must be join condition.
@@ -140,7 +146,7 @@ namespace Chloe
 
                 if (joinCondition.Type != UtilConstants.TypeOfBoolean)
                 {
-                    throw new ArgumentException(string.Format("Not support '{0}', please input correct join condition.", joinCondition));
+                    throw new ArgumentException(string.Format("Not support '{0}', please pass correct join condition.", joinCondition));
                 }
 
                 ParameterExpression[] parameters = joinInfoExp.Parameters.Take(i + 2).ToArray();
@@ -151,7 +157,7 @@ namespace Chloe
                 Type delegateType = Utils.GetFuncDelegateType(typeArguments.ToArray());
                 LambdaExpression lambdaOfJoinCondition = Expression.Lambda(delegateType, joinCondition, parameters);
 
-                ret.Add(new Tuple<JoinType, Expression>((JoinType)inputJoinType, lambdaOfJoinCondition));
+                ret.Add((JoinType)inputJoinType, lambdaOfJoinCondition);
             }
 
             return ret;

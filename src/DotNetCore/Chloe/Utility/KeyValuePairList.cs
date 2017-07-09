@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Chloe
+namespace System.Collections.Generic
 {
     class KeyValuePairList<TKey, TValue> : List<KeyValuePair<TKey, TValue>>
     {

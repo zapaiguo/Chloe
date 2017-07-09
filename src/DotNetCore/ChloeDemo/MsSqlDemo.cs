@@ -4,6 +4,7 @@ using Chloe.SqlServer;
 using Database;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -27,6 +28,9 @@ namespace ChloeDemo
             Update();
             Delete();
             Method();
+            ExecuteCommandText();
+            DoWithTransaction();
+            DoWithTransactionEx();
 
             ConsoleHelper.WriteLineAndReadKey();
         }
@@ -57,11 +61,12 @@ namespace ChloeDemo
         }
         public static void JoinQuery()
         {
+            //建立连接
             var user_city_province = context.Query<User>()
-                                     .InnerJoin<City>((user, city) => user.CityId == city.Id)
-                                     .InnerJoin<Province>((user, city, province) => city.ProvinceId == province.Id);
+                                    .InnerJoin<City>((user, city) => user.CityId == city.Id)
+                                    .InnerJoin<Province>((user, city, province) => city.ProvinceId == province.Id);
 
-            //查出一个用户及其隶属的城市和省份的所有信息
+            //查出用户及其隶属的城市和省份的所有信息
             var view = user_city_province.Select((user, city, province) => new { User = user, City = city, Province = province }).Where(a => a.User.Id > 1).ToList();
             /*
              * SELECT [Users].[Id] AS [Id],[Users].[Name] AS [Name],[Users].[Gender] AS [Gender],[Users].[Age] AS [Age],[Users].[CityId] AS [CityId],[Users].[OpTime] AS [OpTime],[City].[Id] AS [Id0],[City].[Name] AS [Name0],[City].[ProvinceId] AS [ProvinceId],[Province].[Id] AS [Id1],[Province].[Name] AS [Name1] FROM [Users] AS [Users] INNER JOIN [City] AS [City] ON [Users].[CityId] = [City].[Id] INNER JOIN [Province] AS [Province] ON [City].[ProvinceId] = [Province].[Id] WHERE [Users].[Id] > 1
@@ -247,7 +252,7 @@ namespace ChloeDemo
             //删除所有不男不女的用户
             context.Delete<User>(a => a.Gender == null);
             /*
-             * DELETE `Users` FROM `Users` WHERE `Users`.`Gender` IS NULL
+             * DELETE [Users] FROM [Users] WHERE [Users].[Gender] IS NULL
              */
 
             User user = new User();
@@ -337,6 +342,53 @@ namespace ChloeDemo
 
                 B = a.Age == null ? false : a.Age > 1,
             }).ToList();
+
+            ConsoleHelper.WriteLineAndReadKey();
+        }
+
+        public static void ExecuteCommandText()
+        {
+            List<User> users = context.SqlQuery<User>("select * from Users where Age > @age", DbParam.Create("@age", 12)).ToList();
+
+            int rowsAffected = context.Session.ExecuteNonQuery("update Users set name=@name where Id = 1", DbParam.Create("@name", "Chloe"));
+
+            /* 
+             * 执行存储过程:
+             * User user = context.SqlQuery<User>("Proc_GetUser", CommandType.StoredProcedure, DbParam.Create("@id", 1)).FirstOrDefault();
+             * rowsAffected = context.Session.ExecuteNonQuery("Proc_UpdateUserName", CommandType.StoredProcedure, DbParam.Create("@name", "Chloe"));
+             */
+
+            ConsoleHelper.WriteLineAndReadKey();
+        }
+
+        public static void DoWithTransactionEx()
+        {
+            context.DoWithTransaction(() =>
+            {
+                context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
+                context.Delete<User>(a => a.Id == 1024);
+            });
+
+            ConsoleHelper.WriteLineAndReadKey();
+        }
+        public static void DoWithTransaction()
+        {
+            try
+            {
+                context.Session.BeginTransaction();
+
+                /* do some things here */
+                context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
+                context.Delete<User>(a => a.Id == 1024);
+
+                context.Session.CommitTransaction();
+            }
+            catch
+            {
+                if (context.Session.IsInTransaction)
+                    context.Session.RollbackTransaction();
+                throw;
+            }
 
             ConsoleHelper.WriteLineAndReadKey();
         }

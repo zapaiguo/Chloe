@@ -23,6 +23,9 @@ namespace ChloeDemo
             Update();
             Delete();
             Method();
+            ExecuteCommandText();
+            DoWithTransaction();
+            DoWithTransactionEx();
 
             ConsoleHelper.WriteLineAndReadKey();
         }
@@ -326,6 +329,53 @@ namespace ChloeDemo
                 Bool_Parse = bool.Parse("1"),//CAST('1' AS INTEGER)
                 DateTime_Parse = DateTime.Parse("2014-01-01"),//DATETIME('2014-01-01')
             }).ToList();
+
+            ConsoleHelper.WriteLineAndReadKey();
+        }
+
+        public static void ExecuteCommandText()
+        {
+            List<User> users = context.SqlQuery<User>("select * from Users where Age > @age", DbParam.Create("@age", 12)).ToList();
+
+            int rowsAffected = context.Session.ExecuteNonQuery("update Users set name=@name where Id = 1", DbParam.Create("@name", "Chloe"));
+
+            /* 
+             * 执行存储过程:
+             * User user = context.SqlQuery<User>("Proc_GetUser", CommandType.StoredProcedure, DbParam.Create("@id", 1)).FirstOrDefault();
+             * rowsAffected = context.Session.ExecuteNonQuery("Proc_UpdateUserName", CommandType.StoredProcedure, DbParam.Create("@name", "Chloe"));
+             */
+
+            ConsoleHelper.WriteLineAndReadKey();
+        }
+
+        public static void DoWithTransactionEx()
+        {
+            context.DoWithTransaction(() =>
+            {
+                context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
+                context.Delete<User>(a => a.Id == 1024);
+            });
+
+            ConsoleHelper.WriteLineAndReadKey();
+        }
+        public static void DoWithTransaction()
+        {
+            try
+            {
+                context.Session.BeginTransaction();
+
+                /* do some things here */
+                context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
+                context.Delete<User>(a => a.Id == 1024);
+
+                context.Session.CommitTransaction();
+            }
+            catch
+            {
+                if (context.Session.IsInTransaction)
+                    context.Session.RollbackTransaction();
+                throw;
+            }
 
             ConsoleHelper.WriteLineAndReadKey();
         }

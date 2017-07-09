@@ -239,16 +239,16 @@ namespace Chloe.Query.Internals
 
         public class CacheInfo
         {
-            Tuple<string, Type>[] _readerFields;
+            ReaderFieldInfo[] _readerFields;
             ObjectActivator _objectActivator;
             public CacheInfo(ObjectActivator activator, IDataReader reader)
             {
                 int fieldCount = reader.FieldCount;
-                var readerFields = new Tuple<string, Type>[fieldCount];
+                var readerFields = new ReaderFieldInfo[fieldCount];
 
                 for (int i = 0; i < fieldCount; i++)
                 {
-                    readerFields[i] = new Tuple<string, Type>(reader.GetName(i), reader.GetFieldType(i));
+                    readerFields[i] = new ReaderFieldInfo(reader.GetName(i), reader.GetFieldType(i));
                 }
 
                 this._readerFields = readerFields;
@@ -259,7 +259,7 @@ namespace Chloe.Query.Internals
 
             public bool IsTheSameFields(IDataReader reader)
             {
-                Tuple<string, Type>[] readerFields = this._readerFields;
+                ReaderFieldInfo[] readerFields = this._readerFields;
                 int fieldCount = reader.FieldCount;
 
                 if (fieldCount != readerFields.Length)
@@ -267,14 +267,28 @@ namespace Chloe.Query.Internals
 
                 for (int i = 0; i < fieldCount; i++)
                 {
-                    Tuple<string, Type> tuple = readerFields[i];
-                    if (reader.GetFieldType(i) != tuple.Item2 || reader.GetName(i) != tuple.Item1)
+                    ReaderFieldInfo readerField = readerFields[i];
+                    if (reader.GetFieldType(i) != readerField.Type || reader.GetName(i) != readerField.Name)
                     {
                         return false;
                     }
                 }
 
                 return true;
+            }
+
+            class ReaderFieldInfo
+            {
+                string _name;
+                Type _type;
+                public ReaderFieldInfo(string name, Type type)
+                {
+                    this._name = name;
+                    this._type = type;
+                }
+
+                public string Name { get { return this._name; } }
+                public Type Type { get { return this._type; } }
             }
         }
 

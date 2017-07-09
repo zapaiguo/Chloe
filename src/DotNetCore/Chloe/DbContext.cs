@@ -83,39 +83,39 @@ namespace Chloe
 
         public virtual IJoiningQuery<T1, T2> JoinQuery<T1, T2>(Expression<Func<T1, T2, object[]>> joinInfo)
         {
-            List<Tuple<JoinType, Expression>> joinInfos = ResolveJoinInfo(joinInfo);
+            KeyValuePairList<JoinType, Expression> joinInfos = ResolveJoinInfo(joinInfo);
             var ret = this.Query<T1>()
-                .Join<T2>(joinInfos[0].Item1, (Expression<Func<T1, T2, bool>>)joinInfos[0].Item2);
+                .Join<T2>(joinInfos[0].Key, (Expression<Func<T1, T2, bool>>)joinInfos[0].Value);
 
             return ret;
         }
         public virtual IJoiningQuery<T1, T2, T3> JoinQuery<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> joinInfo)
         {
-            List<Tuple<JoinType, Expression>> joinInfos = ResolveJoinInfo(joinInfo);
+            KeyValuePairList<JoinType, Expression> joinInfos = ResolveJoinInfo(joinInfo);
             var ret = this.Query<T1>()
-                .Join<T2>(joinInfos[0].Item1, (Expression<Func<T1, T2, bool>>)joinInfos[0].Item2)
-                .Join<T3>(joinInfos[1].Item1, (Expression<Func<T1, T2, T3, bool>>)joinInfos[1].Item2);
+                .Join<T2>(joinInfos[0].Key, (Expression<Func<T1, T2, bool>>)joinInfos[0].Value)
+                .Join<T3>(joinInfos[1].Key, (Expression<Func<T1, T2, T3, bool>>)joinInfos[1].Value);
 
             return ret;
         }
         public virtual IJoiningQuery<T1, T2, T3, T4> JoinQuery<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, object[]>> joinInfo)
         {
-            List<Tuple<JoinType, Expression>> joinInfos = ResolveJoinInfo(joinInfo);
+            KeyValuePairList<JoinType, Expression> joinInfos = ResolveJoinInfo(joinInfo);
             var ret = this.Query<T1>()
-                .Join<T2>(joinInfos[0].Item1, (Expression<Func<T1, T2, bool>>)joinInfos[0].Item2)
-                .Join<T3>(joinInfos[1].Item1, (Expression<Func<T1, T2, T3, bool>>)joinInfos[1].Item2)
-                .Join<T4>(joinInfos[2].Item1, (Expression<Func<T1, T2, T3, T4, bool>>)joinInfos[2].Item2);
+                .Join<T2>(joinInfos[0].Key, (Expression<Func<T1, T2, bool>>)joinInfos[0].Value)
+                .Join<T3>(joinInfos[1].Key, (Expression<Func<T1, T2, T3, bool>>)joinInfos[1].Value)
+                .Join<T4>(joinInfos[2].Key, (Expression<Func<T1, T2, T3, T4, bool>>)joinInfos[2].Value);
 
             return ret;
         }
         public virtual IJoiningQuery<T1, T2, T3, T4, T5> JoinQuery<T1, T2, T3, T4, T5>(Expression<Func<T1, T2, T3, T4, T5, object[]>> joinInfo)
         {
-            List<Tuple<JoinType, Expression>> joinInfos = ResolveJoinInfo(joinInfo);
+            KeyValuePairList<JoinType, Expression> joinInfos = ResolveJoinInfo(joinInfo);
             var ret = this.Query<T1>()
-                .Join<T2>(joinInfos[0].Item1, (Expression<Func<T1, T2, bool>>)joinInfos[0].Item2)
-                .Join<T3>(joinInfos[1].Item1, (Expression<Func<T1, T2, T3, bool>>)joinInfos[1].Item2)
-                .Join<T4>(joinInfos[2].Item1, (Expression<Func<T1, T2, T3, T4, bool>>)joinInfos[2].Item2)
-                .Join<T5>(joinInfos[3].Item1, (Expression<Func<T1, T2, T3, T4, T5, bool>>)joinInfos[3].Item2);
+                .Join<T2>(joinInfos[0].Key, (Expression<Func<T1, T2, bool>>)joinInfos[0].Value)
+                .Join<T3>(joinInfos[1].Key, (Expression<Func<T1, T2, T3, bool>>)joinInfos[1].Value)
+                .Join<T4>(joinInfos[2].Key, (Expression<Func<T1, T2, T3, T4, bool>>)joinInfos[2].Value)
+                .Join<T5>(joinInfos[3].Key, (Expression<Func<T1, T2, T3, T4, T5, bool>>)joinInfos[3].Value);
 
             return ret;
         }

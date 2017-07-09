@@ -12,6 +12,14 @@ namespace Chloe
         IQuery<TEntity> Query<TEntity>();
         IQuery<TEntity> Query<TEntity>(string table);
         TEntity QueryByKey<TEntity>(object key, bool tracking = false);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="key">If the entity just has one primary key, input a value that it's type is same as the primary key. If the entity has multiple keys, input an instance that defines the same properties as the keys like 'new { Key1 = "1", Key2 = "2" }'.</param>
+        /// <param name="table"></param>
+        /// <param name="tracking"></param>
+        /// <returns></returns>
         TEntity QueryByKey<TEntity>(object key, string table, bool tracking = false);
 
         /// <summary>
@@ -78,6 +86,13 @@ namespace Chloe
         int Delete<TEntity>(Expression<Func<TEntity, bool>> condition);
         int Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table);
         int DeleteByKey<TEntity>(object key);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="key">If the entity just has one primary key, input a value that it's type is same as the primary key. If the entity has multiple keys, input an instance that defines the same properties as the keys like 'new { Key1 = "1", Key2 = "2" }'.</param>
+        /// <param name="table"></param>
+        /// <returns></returns>
         int DeleteByKey<TEntity>(object key, string table);
 
         void TrackEntity(object entity);
