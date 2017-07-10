@@ -77,8 +77,12 @@ namespace Chloe.InternalExtensions
         }
         public static bool IsAnonymousType(this Type type)
         {
+            const string csharpAnonPrefix = "<>f__AnonymousType";
+            const string vbAnonPrefix = "VB$Anonymous";
+
             string typeName = type.Name;
-            return typeName.Contains("<>") && typeName.Contains("__") && typeName.Contains("AnonymousType");
+            
+            return typeName.StartsWith(csharpAnonPrefix) || typeName.StartsWith(vbAnonPrefix);
         }
         public static bool IsClass(this Type type)
         {
