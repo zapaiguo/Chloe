@@ -188,8 +188,6 @@ namespace Chloe.SQLite
                     handler(exp, this);
                     return exp;
                 }
-
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
             }
 
             Stack<DbExpression> operands = GatherBinaryExpressionOperand(exp);
