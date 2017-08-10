@@ -16,7 +16,7 @@
 
     <dependencies>
       <group targetFramework=".NETStandard1.6">
-        <dependency id="ChloeCore" version="2.12.0" />
+        <dependency id="ChloeCore" version="2.13.0" />
       </group>
     </dependencies>
 

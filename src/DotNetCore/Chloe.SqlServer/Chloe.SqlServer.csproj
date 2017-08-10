@@ -8,7 +8,7 @@
     <Authors>Chloe</Authors>
     <TargetFramework>netstandard1.6</TargetFramework>
     <AssemblyName>Chloe.SqlServer</AssemblyName>
-    <PackageId>Chloe.SqlServer</PackageId>
+    <PackageId>ChloeCore.SqlServer</PackageId>
     <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
     <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
@@ -18,7 +18,7 @@
     <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
     <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
-    <Version>2.12.0.0</Version>
+    <Version>2.13.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -31,7 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Data.Common" Version="4.1.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.1.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>

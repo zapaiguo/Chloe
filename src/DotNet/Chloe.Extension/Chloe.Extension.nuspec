@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Chloe.Extension</id>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
     <title>Chloe.Extension</title>
     <authors>Shuxin Qin</authors>
     <owners>Shuxin Qin</owners>
@@ -15,7 +15,7 @@
     <tags>Chloe,ORM,Data</tags>
 
     <dependencies>
-      <dependency id="Chloe" version="2.12.0" />
+      <dependency id="Chloe" version="2.13.0" />
     </dependencies>
 
   </metadata>
