@@ -50,7 +50,7 @@ namespace Chloe.Query.QueryState
             if (exp.NodeType == QueryExpressionType.OrderBy || exp.NodeType == QueryExpressionType.OrderByDesc)
                 this._resultElement.Orderings.Clear();
 
-            DbOrdering ordering = VisistOrderExpression(this.MoeList, exp);
+            DbOrdering ordering = ParseOrderExpression(this.MoeList, exp);
 
             if (this._resultElement.InheritOrderings)
             {
@@ -111,6 +111,21 @@ namespace Chloe.Query.QueryState
             {
                 var havingCondition = FilterPredicateExpressionVisitor.ParseFilterPredicate(havingPredicate, moeList);
                 this._resultElement.AppendHavingCondition(havingCondition);
+            }
+
+            if (exp.Orderings.Count > 0)
+            {
+                this._resultElement.Orderings.Clear();
+                this._resultElement.InheritOrderings = false;
+
+                for (int i = 0; i < exp.Orderings.Count; i++)
+                {
+                    GroupingQueryOrdering groupOrdering = exp.Orderings[i];
+                    DbExpression orderingDbExp = GeneralExpressionVisitor.ParseLambda(groupOrdering.KeySelector, moeList);
+
+                    DbOrdering ordering = new DbOrdering(orderingDbExp, groupOrdering.OrderType);
+                    this._resultElement.Orderings.Add(ordering);
+                }
             }
 
             var newResult = this.CreateNewResult(exp.Selector);
@@ -218,7 +233,7 @@ namespace Chloe.Query.QueryState
             return sqlQuery;
         }
 
-        protected static DbOrdering VisistOrderExpression(List<IMappingObjectExpression> moeList, OrderExpression orderExp)
+        protected static DbOrdering ParseOrderExpression(List<IMappingObjectExpression> moeList, OrderExpression orderExp)
         {
             DbExpression dbExpression = GeneralExpressionVisitor.ParseLambda(orderExp.KeySelector, moeList);
             DbOrderType orderType;
