@@ -23,11 +23,6 @@ namespace Chloe.Query.QueryState
             IQueryState state = this.AsSubQueryState();
             return state.Accept(exp);
         }
-        public override IQueryState Accept(SelectExpression exp)
-        {
-            IQueryState queryState = this.AsSubQueryState();
-            return queryState.Accept(exp);
-        }
         public override IQueryState Accept(SkipExpression exp)
         {
             GeneralQueryState subQueryState = this.AsSubQueryState();

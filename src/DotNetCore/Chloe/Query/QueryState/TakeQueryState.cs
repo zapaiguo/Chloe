@@ -34,11 +34,6 @@ namespace Chloe.Query.QueryState
             }
         }
 
-        public override IQueryState Accept(SelectExpression exp)
-        {
-            ResultElement result = this.CreateNewResult(exp.Selector);
-            return this.CreateQueryState(result);
-        }
         public override IQueryState Accept(TakeExpression exp)
         {
             if (exp.Count < this.Count)
