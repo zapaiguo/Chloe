@@ -1,2 +1,2 @@
-nuget pack Chloe.SqlServer.nuspec
+..\..\nuget pack Chloe.SqlServer.nuspec
 pause

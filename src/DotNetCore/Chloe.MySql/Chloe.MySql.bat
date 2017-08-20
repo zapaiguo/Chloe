@@ -1,2 +1,2 @@
-nuget pack Chloe.MySql.nuspec
+..\..\nuget pack Chloe.MySql.nuspec
 pause

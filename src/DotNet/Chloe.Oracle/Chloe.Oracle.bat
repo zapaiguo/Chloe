@@ -1,2 +1,2 @@
-nuget pack Chloe.Oracle.nuspec
+..\..\nuget pack Chloe.Oracle.nuspec
 pause

@@ -1,2 +1,2 @@
-nuget pack Chloe.nuspec
+..\..\nuget pack Chloe.nuspec
 pause
