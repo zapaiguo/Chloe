@@ -21,7 +21,7 @@ namespace Chloe.Extensions
                 type = underlyingType;
             }
 
-            if (type.IsEnum())
+            if (type.IsEnum)
             {
                 result = (isNullable ? Reader_GetEnum_Nullable : Reader_GetEnum).MakeGenericMethod(type);
                 return result;

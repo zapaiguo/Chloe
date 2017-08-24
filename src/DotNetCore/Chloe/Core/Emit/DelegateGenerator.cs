@@ -147,7 +147,7 @@ namespace Chloe.Core.Emit
             Type type = ReflectionExtension.GetMemberType(propertyOrField);
 
             Expression body = memberAccess;
-            if (type.IsValueType())
+            if (type.IsValueType)
             {
                 body = Expression.Convert(memberAccess, typeof(object));
             }

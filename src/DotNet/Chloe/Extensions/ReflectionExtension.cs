@@ -81,32 +81,8 @@ namespace Chloe.InternalExtensions
             const string vbAnonPrefix = "VB$Anonymous";
 
             string typeName = type.Name;
-            
+
             return typeName.StartsWith(csharpAnonPrefix) || typeName.StartsWith(vbAnonPrefix);
-        }
-        public static bool IsClass(this Type type)
-        {
-            return type.IsClass;
-        }
-        public static bool IsInterface(this Type type)
-        {
-            return type.IsInterface;
-        }
-        public static bool IsAbstractOrInterface(this Type type)
-        {
-            return type.IsAbstract || type.IsInterface;
-        }
-        public static bool IsEnum(this Type type)
-        {
-            return type.IsEnum;
-        }
-        public static bool IsValueType(this Type type)
-        {
-            return type.IsValueType;
-        }
-        public static bool IsGenericType(this Type type)
-        {
-            return type.IsGenericType;
         }
 
         public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this Type type, bool inherit)

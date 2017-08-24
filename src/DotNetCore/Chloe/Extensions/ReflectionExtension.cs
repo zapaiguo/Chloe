@@ -39,7 +39,7 @@ namespace Chloe.InternalExtensions
 
         public static MemberInfo AsReflectedMemberOf(this MemberInfo propertyOrField, Type type)
         {
-            if (propertyOrField.DeclaringType != type)/* 最佳实现应该是用 memberInfo.ReflectedType，但 .net core 的 MemberInfo 暂没发现 ReflectedType，所以将就这样先 */
+            if (propertyOrField.ReflectedType != type)
             {
                 MemberInfo tempMember = null;
                 if (propertyOrField.MemberType == MemberTypes.Property)
@@ -79,36 +79,6 @@ namespace Chloe.InternalExtensions
         {
             string typeName = type.Name;
             return typeName.Contains("<>") && typeName.Contains("__") && typeName.Contains("AnonymousType");
-        }
-        public static bool IsClass(this Type type)
-        {
-            return type.GetTypeInfo().IsClass;
-        }
-        public static bool IsInterface(this Type type)
-        {
-            return type.GetTypeInfo().IsInterface;
-        }
-        public static bool IsAbstractOrInterface(this Type type)
-        {
-            TypeInfo typeInfo = type.GetTypeInfo();
-            return typeInfo.IsAbstract || typeInfo.IsInterface;
-        }
-        public static bool IsEnum(this Type type)
-        {
-            return type.GetTypeInfo().IsEnum;
-        }
-        public static bool IsValueType(this Type type)
-        {
-            return type.GetTypeInfo().IsValueType;
-        }
-        public static bool IsGenericType(this Type type)
-        {
-            return type.GetTypeInfo().IsGenericType;
-        }
-
-        public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this Type type, bool inherit)
-        {
-            return type.GetTypeInfo().GetCustomAttributes(typeof(TAttribute), inherit).Cast<TAttribute>();
         }
     }
 }

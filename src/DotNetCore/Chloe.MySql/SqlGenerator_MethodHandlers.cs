@@ -213,7 +213,7 @@ namespace Chloe.MySql
 
             Type declaringType = method.DeclaringType;
 
-            if (typeof(IList).IsAssignableFrom(declaringType) || (declaringType.IsGenericType() && typeof(ICollection<>).MakeGenericType(declaringType.GetGenericArguments()).IsAssignableFrom(declaringType)))
+            if (typeof(IList).IsAssignableFrom(declaringType) || (declaringType.IsGenericType && typeof(ICollection<>).MakeGenericType(declaringType.GetGenericArguments()).IsAssignableFrom(declaringType)))
             {
                 DbMemberExpression memberExp = exp.Object as DbMemberExpression;
 

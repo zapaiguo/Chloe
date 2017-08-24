@@ -25,7 +25,7 @@ namespace Chloe.InternalExtensions
 
             DbConvertExpression convertExpression = (DbConvertExpression)exp;
 
-            if (convertExpression.Type.IsEnum())
+            if (convertExpression.Type.IsEnum)
             {
                 //(enumType)123
                 if (typeof(int) == convertExpression.Operand.Type)
@@ -51,16 +51,16 @@ namespace Chloe.InternalExtensions
             if (exp.Type == typeof(int))
             {
                 //(int)enumTypeValue
-                if (convertExpression.Operand.Type.IsEnum())
+                if (convertExpression.Operand.Type.IsEnum)
                     return StripInvalidConvert(convertExpression.Operand);
 
                 //(int)NullableEnumTypeValue
-                if (ReflectionExtension.IsNullable(convertExpression.Operand.Type, out underlyingType) && underlyingType.IsEnum())
+                if (ReflectionExtension.IsNullable(convertExpression.Operand.Type, out underlyingType) && underlyingType.IsEnum)
                     return StripInvalidConvert(convertExpression.Operand);
             }
 
             //float long double and so on
-            if (exp.Type.IsValueType())
+            if (exp.Type.IsValueType)
             {
                 //(long)NullableValue
                 if (ReflectionExtension.IsNullable(convertExpression.Operand.Type, out underlyingType) && underlyingType == exp.Type)
@@ -213,7 +213,7 @@ namespace Chloe.InternalExtensions
 
                     /* 非静态成员，需要检查是否为空引用。Nullable<T>.HasValue 的情况比较特俗，暂不考虑 */
                     Type declaringType = m.Member.DeclaringType;
-                    if (declaringType.IsClass() || declaringType.IsInterface())
+                    if (declaringType.IsClass || declaringType.IsInterface)
                     {
                         if (instance == null)
                             throw new NullReferenceException(string.Format("There is an object reference not set to an instance of an object in expression tree.The type of null object is '{0}'.", declaringType.FullName));

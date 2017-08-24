@@ -52,7 +52,7 @@ namespace Chloe.Core.Visitors
             if (operandValue == null)
             {
                 //(int)null
-                if (exp.Type.IsValueType() && !exp.Type.IsNullable())
+                if (exp.Type.IsValueType && !exp.Type.IsNullable())
                     throw new NullReferenceException();
 
                 return null;

@@ -566,7 +566,7 @@ namespace Chloe.MySql
                 this._sqlBuilder.Append("N'", exp.Value, "'");
                 return exp;
             }
-            else if (objType.IsEnum())
+            else if (objType.IsEnum)
             {
                 this._sqlBuilder.Append(Convert.ChangeType(exp.Value, Enum.GetUnderlyingType(objType)).ToString());
                 return exp;
@@ -587,7 +587,7 @@ namespace Chloe.MySql
             object paramValue = exp.Value;
             Type paramType = exp.Type;
 
-            if (paramType.IsEnum())
+            if (paramType.IsEnum)
             {
                 paramType = Enum.GetUnderlyingType(paramType);
                 if (paramValue != null)

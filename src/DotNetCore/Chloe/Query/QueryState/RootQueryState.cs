@@ -30,7 +30,7 @@ namespace Chloe.Query.QueryState
 
         static ResultElement CreateResultElement(Type type, string explicitTableName)
         {
-            if (type.IsAbstractOrInterface())
+            if (type.IsAbstract || type.IsInterface)
                 throw new ArgumentException("The type of input can not be abstract class or interface.");
 
             //TODO init _resultElement

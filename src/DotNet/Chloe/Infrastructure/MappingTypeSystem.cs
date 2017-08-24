@@ -59,7 +59,7 @@ namespace Chloe.Infrastructure
                 return null;
 
             Type underlyingType = type.GetUnderlyingType();
-            if (underlyingType.IsEnum())
+            if (underlyingType.IsEnum)
                 underlyingType = UtilConstants.TypeOfInt32;
 
             DbType ret;
@@ -71,7 +71,7 @@ namespace Chloe.Infrastructure
         public static bool IsMappingType(Type type)
         {
             Type underlyingType = type.GetUnderlyingType();
-            if (underlyingType.IsEnum())
+            if (underlyingType.IsEnum)
                 return true;
 
             return _typeMap.ContainsKey(underlyingType);
