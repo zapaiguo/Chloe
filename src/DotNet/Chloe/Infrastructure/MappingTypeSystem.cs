@@ -32,7 +32,7 @@ namespace Chloe.Infrastructure
             defaultTypeMap[typeof(DateTimeOffset)] = DbType.DateTimeOffset;
             defaultTypeMap[typeof(TimeSpan)] = DbType.Time;
             defaultTypeMap[typeof(byte[])] = DbType.Binary;
-            defaultTypeMap[typeof(Object)] = DbType.Object;
+            //defaultTypeMap[typeof(Object)] = DbType.Object; // ignore typeof(Object).
 
             _defaultTypeMap = Utils.Clone(defaultTypeMap);
             _typeMap = Utils.Clone(defaultTypeMap);

@@ -152,6 +152,10 @@
     <Compile Include="Query\FromQueryResult.cs" />
     <Compile Include="Query\GroupingQuery.cs" />
     <Compile Include="Query\IMappingObjectExpression.cs" />
+    <Compile Include="Query\Internals\DapperRow.cs" />
+    <Compile Include="Query\Internals\DapperRowMetaObject.cs" />
+    <Compile Include="Query\Internals\DapperRowObjectActivator.cs" />
+    <Compile Include="Query\Internals\DapperTable.cs" />
     <Compile Include="Query\Internals\InternalQuery.cs" />
     <Compile Include="Query\Internals\InternalSqlQuery.cs" />
     <Compile Include="Query\Internals\QueryEnumerator.cs" />

@@ -120,7 +120,7 @@ namespace Chloe.Query.Internals
             {
                 Type type = typeof(T);
 
-                if (MappingTypeSystem.IsMappingType(type))
+                if (type != UtilConstants.TypeOfObject && MappingTypeSystem.IsMappingType(type))
                 {
                     MappingField mf = new MappingField(type, 0);
                     this._objectActivator = mf.CreateObjectActivator();
@@ -137,8 +137,13 @@ namespace Chloe.Query.Internals
                 return reader;
             }
 
-            static ObjectActivator GetObjectActivator(Type type, IDataReader reader)
+            static IObjectActivator GetObjectActivator(Type type, IDataReader reader)
             {
+                if (type == UtilConstants.TypeOfObject || type == typeof(DapperRow))
+                {
+                    return new DapperRowObjectActivator();
+                }
+
                 List<CacheInfo> caches;
                 if (!ObjectActivatorCache.TryGetValue(type, out caches))
                 {
