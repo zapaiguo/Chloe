@@ -29,6 +29,7 @@ namespace Chloe.Oracle
             methodHandlers.Add("ToLower", Method_String_ToLower);
             methodHandlers.Add("Substring", Method_String_Substring);
             methodHandlers.Add("IsNullOrEmpty", Method_String_IsNullOrEmpty);
+            methodHandlers.Add("ToString", Method_String_ToString);
 
             methodHandlers.Add("Contains", Method_Contains);
 
@@ -188,6 +189,27 @@ namespace Chloe.Oracle
             var eqExp = DbExpression.Equal(caseWhenExpression, DbConstantExpression.One);
             eqExp.Accept(generator);
         }
+        static void Method_String_ToString(DbMethodCallExpression exp, SqlGenerator generator)
+        {
+            if (exp.Method.Name != "ToString" && exp.Arguments.Count != 0)
+            {
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
+            }
+
+            if (exp.Object.Type == UtilConstants.TypeOfString)
+            {
+                exp.Object.Accept(generator);
+                return;
+            }
+
+            if (!NumericTypes.ContainsKey(exp.Object.Type.GetUnderlyingType()))
+            {
+                throw UtilExceptions.NotSupportedMethod(exp.Method);
+            }
+
+            DbConvertExpression c = DbExpression.Convert(exp.Object, UtilConstants.TypeOfString);
+            c.Accept(generator);
+        }
 
         static void Method_Contains(DbMethodCallExpression exp, SqlGenerator generator)
         {
@@ -230,7 +252,7 @@ namespace Chloe.Oracle
 
             throw UtilExceptions.NotSupportedMethod(exp.Method);
 
-        constructInState:
+            constructInState:
             foreach (object value in values)
             {
                 if (value == null)
