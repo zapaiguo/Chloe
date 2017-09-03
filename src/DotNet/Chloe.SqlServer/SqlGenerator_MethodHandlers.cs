@@ -29,8 +29,8 @@ namespace Chloe.SqlServer
             methodHandlers.Add("ToLower", Method_String_ToLower);
             methodHandlers.Add("Substring", Method_String_Substring);
             methodHandlers.Add("IsNullOrEmpty", Method_String_IsNullOrEmpty);
-            methodHandlers.Add("ToString", Method_String_ToString);
 
+            methodHandlers.Add("ToString", Method_ToString);
             methodHandlers.Add("Contains", Method_Contains);
 
             methodHandlers.Add("Count", Method_Count);
@@ -191,7 +191,8 @@ namespace Chloe.SqlServer
             var eqExp = DbExpression.Equal(caseWhenExpression, DbConstantExpression.One);
             eqExp.Accept(generator);
         }
-        static void Method_String_ToString(DbMethodCallExpression exp, SqlGenerator generator)
+
+        static void Method_ToString(DbMethodCallExpression exp, SqlGenerator generator)
         {
             if (exp.Method.Name != "ToString" && exp.Arguments.Count != 0)
             {
@@ -212,7 +213,6 @@ namespace Chloe.SqlServer
             DbConvertExpression c = DbExpression.Convert(exp.Object, UtilConstants.TypeOfString);
             c.Accept(generator);
         }
-
         static void Method_Contains(DbMethodCallExpression exp, SqlGenerator generator)
         {
             MethodInfo method = exp.Method;
