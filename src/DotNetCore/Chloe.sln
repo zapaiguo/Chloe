@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chloe", "Chloe\Chloe.csproj", "{6F1079AC-8197-4A0D-86BB-4BCF7ABE491A}"
 EndProject
@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chloe.SQLite", "Chloe.SQLit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChloeTest", "ChloeTest\ChloeTest.csproj", "{8AAEEE32-2AA1-4275-ACD0-15784302A1A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chloe.Extension", "Chloe.Extension\Chloe.Extension.csproj", "{77057F4F-6811-482E-8FC4-117B088B916C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chloe.Extension", "Chloe.Extension\Chloe.Extension.csproj", "{77057F4F-6811-482E-8FC4-117B088B916C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chloe.Oracle", "Chloe.Oracle\Chloe.Oracle.csproj", "{01834F04-15E7-4206-974B-C269BE1A5486}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chloe.Oracle", "Chloe.Oracle\Chloe.Oracle.csproj", "{01834F04-15E7-4206-974B-C269BE1A5486}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,5 +60,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D01D0708-578E-44A6-A931-9B3875F8D79B}
 	EndGlobalSection
 EndGlobal
