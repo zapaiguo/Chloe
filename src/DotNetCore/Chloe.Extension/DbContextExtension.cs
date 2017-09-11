@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Chloe
 {
-    public static class DbContextExtension
+    public static partial class DbContextExtension
     {
         public static IQuery<T> Query<T>(this IDbContext dbContext, Expression<Func<T, bool>> predicate)
         {
