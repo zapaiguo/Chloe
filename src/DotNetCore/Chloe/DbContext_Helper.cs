@@ -93,7 +93,7 @@ namespace Chloe
         static KeyValuePairList<JoinType, Expression> ResolveJoinInfo(LambdaExpression joinInfoExp)
         {
             /*
-             * Useage:
+             * Usage:
              * var view = context.JoinQuery<User, City, Province, User, City>((user, city, province, user1, city1) => new object[] 
              * { 
              *     JoinType.LeftJoin, user.CityId == city.Id, 
