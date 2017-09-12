@@ -152,8 +152,19 @@ namespace Chloe.Oracle
             generator._sqlBuilder.Append("SUBSTR(");
             exp.Object.Accept(generator);
             generator._sqlBuilder.Append(",");
-            exp.Arguments[0].Accept(generator);
-            generator._sqlBuilder.Append(" + 1");
+
+            DbExpression arg1 = exp.Arguments[0];
+            if (arg1.NodeType == DbExpressionType.Constant)
+            {
+                int startIndex = (int)(((DbConstantExpression)arg1).Value) + 1;
+                generator._sqlBuilder.Append(startIndex.ToString());
+            }
+            else
+            {
+                arg1.Accept(generator);
+                generator._sqlBuilder.Append(" + 1");
+            }
+
             generator._sqlBuilder.Append(",");
             if (exp.Method == UtilConstants.MethodInfo_String_Substring_Int32)
             {
