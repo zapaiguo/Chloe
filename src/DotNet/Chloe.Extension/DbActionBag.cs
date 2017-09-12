@@ -8,6 +8,9 @@ using System.Text;
 
 namespace Chloe
 {
+    /// <summary>
+    /// 暂存 CURD 操作，最后调用 ExecuteActions 执行。
+    /// </summary>
     public class DbActionBag
     {
         List<Func<int>> _actions = new List<Func<int>>();

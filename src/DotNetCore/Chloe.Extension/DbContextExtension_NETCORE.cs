@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Chloe
 {
@@ -15,7 +16,7 @@ namespace Chloe
     {
         /// <summary>
         /// int id = 1;
-        /// context.FormatSqlQuery&lt;User&gt;($"select Id,Name from Users where id={id}");
+        /// context.FormatSqlQuery&lt;User&gt;($"select Id,Name from Users where Id={id}");
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="dbContext"></param>
@@ -26,9 +27,34 @@ namespace Chloe
             /*
              * Usage:
              * int id = 1;
-             * context.FormatSqlQuery<User>($"select Id,Name from Users where id={id}").ToList();
+             * context.FormatSqlQuery<User>($"select Id,Name from Users where Id={id}").ToList();
              */
 
+            (string Sql, DbParam[] Parameters) r = BuildSqlAndParameters(dbContext, sql);
+            return dbContext.SqlQuery<T>(r.Sql, r.Parameters);
+        }
+        public static IEnumerable<T> FormatSqlQuery<T>(this IDbContext dbContext, FormattableString sql, CommandType cmdType)
+        {
+            /*
+             * Usage:
+             * int id = 1;
+             * context.FormatSqlQuery<User>($"select Id,Name from Users where Id={id}").ToList();
+             */
+
+            (string Sql, DbParam[] Parameters) r = BuildSqlAndParameters(dbContext, sql);
+            return dbContext.SqlQuery<T>(r.Sql, cmdType, r.Parameters);
+        }
+        public static Task<List<T>> FormatSqlQueryAsync<T>(this IDbContext dbContext, FormattableString sql)
+        {
+            return Utils.MakeTask(() => DbContextExtension.FormatSqlQuery<T>(dbContext, sql).ToList());
+        }
+        public static Task<List<T>> FormatSqlQueryAsync<T>(this IDbContext dbContext, FormattableString sql, CommandType cmdType)
+        {
+            return Utils.MakeTask(() => DbContextExtension.FormatSqlQuery<T>(dbContext, sql, cmdType).ToList());
+        }
+
+        static (string Sql, DbParam[] Parameters) BuildSqlAndParameters(IDbContext dbContext, FormattableString sql)
+        {
             List<string> formatArgs = new List<string>(sql.ArgumentCount);
             List<DbParam> parameters = new List<DbParam>(sql.ArgumentCount);
 
@@ -68,34 +94,7 @@ namespace Chloe
             }
 
             string runSql = string.Format(sql.Format, formatArgs.ToArray());
-            return dbContext.SqlQuery<T>(runSql, parameters.ToArray());
-        }
-
-        static string GetParameterPrefix(IDbContext dbContext)
-        {
-            Type dbContextType = dbContext.GetType();
-            while (true)
-            {
-                if (dbContextType == null)
-                    break;
-
-                string dbContextTypeName = dbContextType.Name;
-                switch (dbContextTypeName)
-                {
-                    case "MsSqlContext":
-                    case "SQLiteContext":
-                        return "@";
-                    case "MySqlContext":
-                        return "?";
-                    case "OracleContext":
-                        return ":";
-                    default:
-                        dbContextType = dbContextType.BaseType;
-                        break;
-                }
-            }
-
-            throw new NotSupportedException(dbContext.GetType().FullName);
+            return (runSql, parameters.ToArray());
         }
     }
 }
