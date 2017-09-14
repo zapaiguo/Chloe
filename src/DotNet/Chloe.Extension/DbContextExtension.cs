@@ -19,7 +19,7 @@ namespace Chloe
             return dbContext.Query<T>().Where(predicate);
         }
         /// <summary>
-        /// context.SqlQuery&lt;User&gt;("select * from Users where Id>@Id", new { Id = 1 }).ToList();
+        /// dbContext.SqlQuery&lt;User&gt;("select * from Users where Id>@Id", new { Id = 1 }).ToList();
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="dbContext"></param>
@@ -30,7 +30,7 @@ namespace Chloe
         {
             /*
              * Usage:
-             * context.SqlQuery<User>("select * from Users where Id>@Id", new { Id = 1 }).ToList();
+             * dbContext.SqlQuery<User>("select * from Users where Id>@Id", new { Id = 1 }).ToList();
             */
 
             return dbContext.SqlQuery<T>(sql, BuildParams(dbContext, parameter));
@@ -39,7 +39,7 @@ namespace Chloe
         {
             /*
              * Usage:
-             * context.SqlQuery<User>("select * from Users where Id>@Id", CommandType.Text, new { Id = 1 }).ToList();
+             * dbContext.SqlQuery<User>("select * from Users where Id>@Id", CommandType.Text, new { Id = 1 }).ToList();
             */
 
             return dbContext.SqlQuery<T>(sql, cmdType, BuildParams(dbContext, parameter));
@@ -64,7 +64,7 @@ namespace Chloe
         public static void DoWithTransaction(this IDbContext dbContext, Action action)
         {
             /*
-             * context.DoWithTransaction(() =>
+             * dbContext.DoWithTransaction(() =>
              * {
              *     context.Insert()...
              *     context.Update()...

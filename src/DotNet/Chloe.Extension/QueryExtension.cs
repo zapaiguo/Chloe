@@ -1,4 +1,5 @@
-﻿using Chloe.Extension;
+﻿using Chloe.Descriptors;
+using Chloe.Extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,6 +50,74 @@ namespace Chloe
             return source.WhereIfNotNull(val == string.Empty ? null : val, predicate);
         }
 
+        /// <summary>
+        /// dbContext.Query&lt;User&gt;().ToList&lt;User, UserModel&gt;();
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static List<TModel> ToList<TEntity, TModel>(this IQuery<TEntity> source)
+        {
+            return source.MapTo<TEntity, TModel>().ToList();
+        }
+        /// <summary>
+        /// dbContext.Query&lt;User&gt;().MapTo&lt;User, UserModel&gt;().ToList();
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static IQuery<TModel> MapTo<TEntity, TModel>(this IQuery<TEntity> source)
+        {
+            /*
+             * Usage:
+             * dbContext.Query<User>().MapTo<User, UserModel>().ToList();
+             */
+
+            /*
+             * 根据 TEntity 与 TModel 属性对应关系构建 selector 表达式树，最后调用 Select() 方法
+             * dbContext.Query<User>().Select(a => new UserModel() { Id = a.Id, Name = a.Name });
+             * ps: 只支持简单的映射，不支持复杂的对应关系
+             */
+
+            List<MemberBinding> bindings = new List<MemberBinding>();
+
+            Type modelType = typeof(TModel);
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
+            var mappingMemberDescriptors = typeDescriptor.MappingMemberDescriptors.Select(a => a.Value).ToDictionary(a => a.MemberInfo.Name, a => a);
+
+            var props = modelType.GetProperties();
+            ParameterExpression parameter = Expression.Parameter(typeDescriptor.EntityType, "a");
+            foreach (var prop in props)
+            {
+                if (prop.GetSetMethod() == null)
+                    continue;
+
+                MappingMemberDescriptor mapMemberDescriptor;
+                if (mappingMemberDescriptors.TryGetValue(prop.Name, out mapMemberDescriptor) == false)
+                {
+                    continue;
+                }
+
+                MemberAssignment bind = null;
+
+                Expression dtoMemberAccess = Expression.MakeMemberAccess(parameter, mapMemberDescriptor.MemberInfo);
+                if (prop.PropertyType != mapMemberDescriptor.MemberInfoType)
+                {
+                    dtoMemberAccess = Expression.Convert(dtoMemberAccess, prop.PropertyType);
+                }
+
+                bind = Expression.Bind(prop, dtoMemberAccess);
+                bindings.Add(bind);
+            }
+
+            NewExpression newExp = Expression.New(modelType);
+            Expression selectorBody = Expression.MemberInit(newExp, bindings);
+            Expression<Func<TEntity, TModel>> selector = Expression.Lambda<Func<TEntity, TModel>>(selectorBody, parameter);
+
+            return source.Select(selector);
+        }
 
         /// <summary>
         /// 
