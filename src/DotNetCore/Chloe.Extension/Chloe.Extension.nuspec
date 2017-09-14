@@ -23,5 +23,6 @@
   </metadata>
   <files>
     <file src="bin\Release\netstandard2.0\Chloe.Extension.dll" target="lib\netstandard2.0"></file>
+    <file src="bin\Release\netstandard2.0\Chloe.Extension.xml" target="lib\netstandard2.0"></file>
   </files>
 </package>

@@ -27,5 +27,6 @@ Requires:
 
   <files>
     <file src="bin\Release\Chloe.MySql.dll" target="lib\net40" />
+    <file src="bin\Release\Chloe.MySql.XML" target="lib\net40" />
   </files>
 </package>

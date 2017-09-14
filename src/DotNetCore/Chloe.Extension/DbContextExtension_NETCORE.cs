@@ -16,7 +16,7 @@ namespace Chloe
     {
         /// <summary>
         /// int id = 1;
-        /// context.FormatSqlQuery&lt;User&gt;($"select Id,Name from Users where Id={id}");
+        /// dbContext.FormatSqlQuery&lt;User&gt;($"select Id,Name from Users where Id={id}");
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="dbContext"></param>
@@ -27,7 +27,7 @@ namespace Chloe
             /*
              * Usage:
              * int id = 1;
-             * context.FormatSqlQuery<User>($"select Id,Name from Users where Id={id}").ToList();
+             * dbContext.FormatSqlQuery<User>($"select Id,Name from Users where Id={id}").ToList();
              */
 
             (string Sql, DbParam[] Parameters) r = BuildSqlAndParameters(dbContext, sql);
@@ -38,7 +38,7 @@ namespace Chloe
             /*
              * Usage:
              * int id = 1;
-             * context.FormatSqlQuery<User>($"select Id,Name from Users where Id={id}").ToList();
+             * dbContext.FormatSqlQuery<User>($"select Id,Name from Users where Id={id}").ToList();
              */
 
             (string Sql, DbParam[] Parameters) r = BuildSqlAndParameters(dbContext, sql);

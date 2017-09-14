@@ -27,5 +27,6 @@ Requires:
 
   <files>
     <file src="bin\Release\Chloe.Oracle.dll" target="lib\net40" />
+    <file src="bin\Release\Chloe.Oracle.XML" target="lib\net40" />
   </files>
 </package>
