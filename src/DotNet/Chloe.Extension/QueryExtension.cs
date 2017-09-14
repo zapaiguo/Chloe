@@ -100,15 +100,13 @@ namespace Chloe
                     continue;
                 }
 
-                MemberAssignment bind = null;
-
                 Expression sourceMemberAccess = Expression.MakeMemberAccess(parameter, mapMemberDescriptor.MemberInfo);
                 if (prop.PropertyType != mapMemberDescriptor.MemberInfoType)
                 {
                     sourceMemberAccess = Expression.Convert(sourceMemberAccess, prop.PropertyType);
                 }
 
-                bind = Expression.Bind(prop, sourceMemberAccess);
+                MemberAssignment bind = Expression.Bind(prop, sourceMemberAccess);
                 bindings.Add(bind);
             }
 
@@ -120,7 +118,7 @@ namespace Chloe
         }
 
         /// <summary>
-        /// 
+        /// dbContext.Query&lt;User&gt;().OrderBy("Id asc,Age desc");
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="q"></param>
