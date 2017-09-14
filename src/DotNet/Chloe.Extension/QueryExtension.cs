@@ -102,13 +102,13 @@ namespace Chloe
 
                 MemberAssignment bind = null;
 
-                Expression dtoMemberAccess = Expression.MakeMemberAccess(parameter, mapMemberDescriptor.MemberInfo);
+                Expression sourceMemberAccess = Expression.MakeMemberAccess(parameter, mapMemberDescriptor.MemberInfo);
                 if (prop.PropertyType != mapMemberDescriptor.MemberInfoType)
                 {
-                    dtoMemberAccess = Expression.Convert(dtoMemberAccess, prop.PropertyType);
+                    sourceMemberAccess = Expression.Convert(sourceMemberAccess, prop.PropertyType);
                 }
 
-                bind = Expression.Bind(prop, dtoMemberAccess);
+                bind = Expression.Bind(prop, sourceMemberAccess);
                 bindings.Add(bind);
             }
 
