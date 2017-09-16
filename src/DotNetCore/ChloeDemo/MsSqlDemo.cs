@@ -25,6 +25,7 @@ namespace ChloeDemo
             AggregateQuery();
             GroupQuery();
             Insert();
+            BulkInsert();
             Update();
             Delete();
             Method();
@@ -192,6 +193,17 @@ namespace ChloeDemo
              */
 
             ConsoleHelper.WriteLineAndReadKey();
+        }
+        public static void BulkInsert()
+        {
+            List<User> models = new List<User>();
+            models.Add(new User() { Name = "lu", Age = 18, Gender = Gender.Woman, CityId = 1, OpTime = DateTime.Now });
+            models.Add(new User() { Name = "shuxin", Age = 18, Gender = Gender.Man, CityId = 1, OpTime = DateTime.Now });
+
+            /* 利用 SqlBulkCopy 批量插入数据 */
+            context.BulkInsert(models, batchSize: null, bulkCopyTimeout: null, keepIdentity: false);
+
+            ConsoleHelper.WriteLineAndReadKey(1);
         }
         public static void Update()
         {
@@ -392,5 +404,6 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
+
     }
 }

@@ -27,6 +27,11 @@ namespace Chloe.Core
             this._dbConnection = conn;
         }
 
+        public IDbConnection DbConnection { get { return this._dbConnection; } }
+        /// <summary>
+        /// 如果未开启事务，则返回 null
+        /// </summary>
+        public IDbTransaction DbTransaction { get { return this._dbTransaction; } }
         public bool IsInTransaction { get { return this._isInTransaction; } }
         public int CommandTimeout { get { return this._commandTimeout; } set { this._commandTimeout = value; } }
         public List<IDbCommandInterceptor> DbCommandInterceptors

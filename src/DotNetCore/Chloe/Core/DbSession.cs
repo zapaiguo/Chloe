@@ -16,6 +16,11 @@ namespace Chloe.Core
         }
 
         public IDbContext DbContext { get { return this._dbContext; } }
+        public IDbConnection CurrentConnection { get { return this._dbContext.AdoSession.DbConnection; } }
+        /// <summary>
+        /// 如果未开启事务，则返回 null
+        /// </summary>
+        public IDbTransaction CurrentTransaction { get { return this._dbContext.AdoSession.DbTransaction; } }
         public bool IsInTransaction { get { return this._dbContext.AdoSession.IsInTransaction; } }
         public int CommandTimeout { get { return this._dbContext.AdoSession.CommandTimeout; } set { this._dbContext.AdoSession.CommandTimeout = value; } }
 

@@ -7,6 +7,11 @@ namespace Chloe
     public interface IDbSession : IDisposable
     {
         IDbContext DbContext { get; }
+        IDbConnection CurrentConnection { get; }
+        /// <summary>
+        /// 如果未开启事务，则返回 null
+        /// </summary>
+        IDbTransaction CurrentTransaction { get; }
         bool IsInTransaction { get; }
         int CommandTimeout { get; set; }
 

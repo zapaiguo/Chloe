@@ -25,6 +25,7 @@ namespace ChloeDemo
             AggregateQuery();
             GroupQuery();
             Insert();
+            BulkInsert();
             Update();
             Delete();
             Method();
@@ -80,8 +81,8 @@ namespace ChloeDemo
 
 
             /* quick join and paging. */
-            context.JoinQuery<User, City>((user, city) => new object[] 
-            { 
+            context.JoinQuery<User, City>((user, city) => new object[]
+            {
                 JoinType.LeftJoin, user.CityId == city.Id
             })
             .Select((user, city) => new { User = user, City = city })
@@ -90,8 +91,8 @@ namespace ChloeDemo
             .TakePage(1, 20)
             .ToList();
 
-            context.JoinQuery<User, City, Province>((user, city, province) => new object[] 
-            { 
+            context.JoinQuery<User, City, Province>((user, city, province) => new object[]
+            {
                 JoinType.LeftJoin, user.CityId == city.Id,          /* 表 User 和 City 进行Left连接 */
                 JoinType.LeftJoin, city.ProvinceId == province.Id   /* 表 City 和 Province 进行Left连接 */
             })
@@ -192,6 +193,17 @@ namespace ChloeDemo
              */
 
             ConsoleHelper.WriteLineAndReadKey();
+        }
+        public static void BulkInsert()
+        {
+            List<User> models = new List<User>();
+            models.Add(new User() { Name = "lu", Age = 18, Gender = Gender.Woman, CityId = 1, OpTime = DateTime.Now });
+            models.Add(new User() { Name = "shuxin", Age = 18, Gender = Gender.Man, CityId = 1, OpTime = DateTime.Now });
+
+            /* 利用 SqlBulkCopy 批量插入数据 */
+            context.BulkInsert(models, batchSize: null, bulkCopyTimeout: null, keepIdentity: false);
+
+            ConsoleHelper.WriteLineAndReadKey(1);
         }
         public static void Update()
         {
@@ -392,5 +404,6 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
+
     }
 }
