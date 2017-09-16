@@ -94,6 +94,8 @@ namespace Chloe.SqlServer
         /// <param name="keepIdentity">是否保留源标识值。false 由数据库分配标识值。</param>
         public virtual void BulkInsert<TEntity>(List<TEntity> entities, int? batchSize = null, int? bulkCopyTimeout = null, bool keepIdentity = false)
         {
+            Utils.CheckNull(entities);
+
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
 
             DataTable dtToWrite = ToSqlBulkCopyDataTable(entities, typeDescriptor);
@@ -117,7 +119,11 @@ namespace Chloe.SqlServer
                 {
                     if (batchSize != null)
                         sbc.BatchSize = batchSize.Value;
-                    sbc.DestinationTableName = typeDescriptor.Table.Name;
+
+                    if ((string.IsNullOrEmpty(typeDescriptor.Table.Schema)))
+                        sbc.DestinationTableName = typeDescriptor.Table.Name;
+                    else
+                        sbc.DestinationTableName = string.Format("[{0}].[{1}]", typeDescriptor.Table.Schema, typeDescriptor.Table.Name);
 
                     if (bulkCopyTimeout != null)
                         sbc.BulkCopyTimeout = bulkCopyTimeout.Value;
