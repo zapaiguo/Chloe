@@ -34,6 +34,7 @@ namespace Chloe.SqlServer
         }
 
         static Dictionary<string, SysType> SysTypes;
+        static readonly Dictionary<Type, Type> ToStringableNumericTypes;
         static MsSqlContext()
         {
             List<SysType> sysTypes = new List<SysType>();
@@ -73,6 +74,17 @@ namespace Chloe.SqlServer
             sysTypes.Add(new SysType<string>("sysname"));
 
             SysTypes = sysTypes.ToDictionary(a => a.TypeName, a => a);
+
+            List<Type> toStringableNumericTypes = new List<Type>();
+            toStringableNumericTypes.Add(typeof(byte));
+            toStringableNumericTypes.Add(typeof(sbyte));
+            toStringableNumericTypes.Add(typeof(short));
+            toStringableNumericTypes.Add(typeof(ushort));
+            toStringableNumericTypes.Add(typeof(int));
+            toStringableNumericTypes.Add(typeof(uint));
+            toStringableNumericTypes.Add(typeof(long));
+            toStringableNumericTypes.Add(typeof(ulong));
+            ToStringableNumericTypes = toStringableNumericTypes.ToDictionary(a => a, a => a);
         }
 
         /// <summary>
@@ -82,6 +94,151 @@ namespace Chloe.SqlServer
         public override IDbContextServiceProvider DbContextServiceProvider
         {
             get { return this._dbContextServiceProvider; }
+        }
+
+
+        public void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
+        {
+            /*
+             * 将 entities 分批插入数据库
+             * 每批生成 insert into TableName(...) values(...),(...)... 
+             */
+            int maxParameters = 2100;
+            int batchSize = 50; /* 每批实体大小，此值通过测试得出相对插入速度比较快的一个值 */
+
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
+
+            var e = typeDescriptor.MappingMemberDescriptors.Select(a => a.Value);
+            if (keepIdentity == false)
+                e = e.Where(a => a.IsAutoIncrement == false);
+            List<MappingMemberDescriptor> mappingMemberDescriptors = e.ToList();
+            int maxDbParamsCount = maxParameters - mappingMemberDescriptors.Count; /* 控制一个 sql 的参数个数 */
+
+            string sqlTemplate = AppendInsertRangeSqlTemplate(typeDescriptor, mappingMemberDescriptors);
+
+            Action insertAction = () =>
+            {
+                int batchCount = 0;
+                List<DbParam> dbParams = new List<DbParam>();
+                StringBuilder sqlBuilder = new StringBuilder();
+                for (int i = 0; i < entities.Count; i++)
+                {
+                    var entity = entities[i];
+
+                    if (batchCount > 0)
+                        sqlBuilder.Append(",");
+
+                    sqlBuilder.Append("(");
+                    for (int j = 0; j < mappingMemberDescriptors.Count; j++)
+                    {
+                        MappingMemberDescriptor mappingMemberDescriptor = mappingMemberDescriptors[j];
+                        if (j > 0)
+                            sqlBuilder.Append(",");
+                        object val = mappingMemberDescriptor.GetValue(entity);
+                        if (val == null)
+                        {
+                            sqlBuilder.Append("NULL");
+                            continue;
+                        }
+
+                        if (ToStringableNumericTypes.ContainsKey(val.GetType()))
+                        {
+                            sqlBuilder.Append(val.ToString());
+                            continue;
+                        }
+
+                        if (val is double)
+                        {
+                            double v = (double)val;
+                            if (v >= long.MinValue && v <= long.MaxValue)
+                            {
+                                sqlBuilder.Append(((long)v).ToString());
+                                continue;
+                            }
+                        }
+                        if (val is float)
+                        {
+                            float v = (float)val;
+                            if (v >= long.MinValue && v <= long.MaxValue)
+                            {
+                                sqlBuilder.Append(((long)v).ToString());
+                                continue;
+                            }
+                        }
+                        if (val is decimal)
+                        {
+                            decimal v = (decimal)val;
+                            if (v >= long.MinValue && v <= long.MaxValue)
+                            {
+                                sqlBuilder.Append(((long)v).ToString());
+                                continue;
+                            }
+                        }
+
+                        string paramName = "@P_" + dbParams.Count.ToString();
+                        DbParam dbParam = new DbParam(paramName, val) { DbType = mappingMemberDescriptor.Column.DbType };
+                        dbParams.Add(dbParam);
+                        sqlBuilder.Append(paramName);
+                    }
+                    sqlBuilder.Append(")");
+
+                    batchCount++;
+
+                    if ((batchCount >= 20 && dbParams.Count >= 120/*参数个数太多也会影响速度*/) || dbParams.Count >= maxDbParamsCount || batchCount >= batchSize || (i + 1) == entities.Count)
+                    {
+                        sqlBuilder.Insert(0, sqlTemplate);
+                        string sql = sqlBuilder.ToString();
+                        this.Session.ExecuteNonQuery(sql, dbParams.ToArray());
+
+                        sqlBuilder.Clear();
+                        dbParams.Clear();
+                        batchCount = 0;
+                    }
+                }
+            };
+
+            Action fAction = () =>
+            {
+                bool shouldClose_IDENTITY_INSERT = false;
+                string tableName = null;
+                if (keepIdentity == true)
+                {
+                    tableName = AppendTableName(typeDescriptor.Table);
+                    this.Session.ExecuteNonQuery(string.Format("SET IDENTITY_INSERT {0} ON ", tableName));
+                    shouldClose_IDENTITY_INSERT = true;
+                }
+
+                try
+                {
+                    insertAction();
+                }
+                finally
+                {
+                    if (shouldClose_IDENTITY_INSERT == true)
+                        this.Session.ExecuteNonQuery(string.Format("SET IDENTITY_INSERT {0} OFF ", tableName));
+                }
+            };
+
+            if (this.Session.IsInTransaction)
+            {
+                fAction();
+            }
+            else
+            {
+                /* 因为分批插入，所以需要开启事务保证数据一致性 */
+                this.Session.BeginTransaction();
+                try
+                {
+                    fAction();
+                    this.Session.CommitTransaction();
+                }
+                catch
+                {
+                    if (this.Session.IsInTransaction)
+                        this.Session.RollbackTransaction();
+                    throw;
+                }
+            }
         }
 
         /// <summary>
@@ -120,10 +277,7 @@ namespace Chloe.SqlServer
                     if (batchSize != null)
                         sbc.BatchSize = batchSize.Value;
 
-                    if ((string.IsNullOrEmpty(typeDescriptor.Table.Schema)))
-                        sbc.DestinationTableName = typeDescriptor.Table.Name;
-                    else
-                        sbc.DestinationTableName = string.Format("[{0}].[{1}]", typeDescriptor.Table.Schema, typeDescriptor.Table.Name);
+                    sbc.DestinationTableName = AppendTableName(typeDescriptor.Table);
 
                     if (bulkCopyTimeout != null)
                         sbc.BulkCopyTimeout = bulkCopyTimeout.Value;
@@ -147,6 +301,29 @@ namespace Chloe.SqlServer
             }
         }
 
+
+        static string AppendInsertRangeSqlTemplate(TypeDescriptor typeDescriptor, List<MappingMemberDescriptor> mappingMemberDescriptors)
+        {
+            StringBuilder sqlBuilder = new StringBuilder();
+
+            sqlBuilder.Append("INSERT INTO ");
+            sqlBuilder.Append(AppendTableName(typeDescriptor.Table));
+            sqlBuilder.Append("(");
+
+            for (int i = 0; i < mappingMemberDescriptors.Count; i++)
+            {
+                MappingMemberDescriptor mappingMemberDescriptor = mappingMemberDescriptors[i];
+                if (i > 0)
+                    sqlBuilder.Append(",");
+                sqlBuilder.Append(mappingMemberDescriptor.Column.Name);
+            }
+
+            sqlBuilder.Append(") VALUES");
+
+            string sqlTemplate = sqlBuilder.ToString();
+
+            return sqlTemplate;
+        }
 
         DataTable ToSqlBulkCopyDataTable<TModel>(List<TModel> modelList, TypeDescriptor typeDescriptor)
         {
@@ -261,7 +438,13 @@ namespace Chloe.SqlServer
 
             return (T)Convert.ChangeType(val, typeof(T).GetUnderlyingType());
         }
+        static string AppendTableName(DbTable table)
+        {
+            if (string.IsNullOrEmpty(table.Schema))
+                return string.Format("[{0}]", table.Name);
 
+            return string.Format("[{0}].[{1}]", table.Schema, table.Name);
+        }
 
         class SysType<TCSharpType> : SysType
         {
