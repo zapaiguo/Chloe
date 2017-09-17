@@ -8,6 +8,10 @@ namespace Chloe.MySql
 {
     internal static class Utils
     {
+        public static string QuoteName(string name)
+        {
+            return string.Concat("`", name, "`");
+        }
         public static void CheckNull(object obj, string paramName = null)
         {
             if (obj == null)

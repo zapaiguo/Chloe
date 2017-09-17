@@ -62,6 +62,13 @@ namespace Chloe
         /// <returns>It will return null if an entity does not define primary key,other wise return primary key value.</returns>
         object Insert<TEntity>(Expression<Func<TEntity>> content);
         object Insert<TEntity>(Expression<Func<TEntity>> content, string table);
+        /// <summary>
+        /// 批量插入操作
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="entities"></param>
+        /// <param name="keepIdentity"></param>
+        void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false);
 
         int Update<TEntity>(TEntity entity);
         int Update<TEntity>(TEntity entity, string table);

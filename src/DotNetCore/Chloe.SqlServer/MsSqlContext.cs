@@ -97,12 +97,18 @@ namespace Chloe.SqlServer
         }
 
 
-        public void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
+        public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
         {
             /*
              * 将 entities 分批插入数据库
              * 每批生成 insert into TableName(...) values(...),(...)... 
+             * 该方法相对循环一条一条插入，速度提升 2/3 这样
              */
+
+            Utils.CheckNull(entities);
+            if (entities.Count == 0)
+                return;
+
             int maxParameters = 2100;
             int batchSize = 50; /* 每批实体大小，此值通过测试得出相对插入速度比较快的一个值 */
 
@@ -131,9 +137,10 @@ namespace Chloe.SqlServer
                     sqlBuilder.Append("(");
                     for (int j = 0; j < mappingMemberDescriptors.Count; j++)
                     {
-                        MappingMemberDescriptor mappingMemberDescriptor = mappingMemberDescriptors[j];
                         if (j > 0)
                             sqlBuilder.Append(",");
+
+                        MappingMemberDescriptor mappingMemberDescriptor = mappingMemberDescriptors[j];
                         object val = mappingMemberDescriptor.GetValue(entity);
                         if (val == null)
                         {
@@ -141,13 +148,28 @@ namespace Chloe.SqlServer
                             continue;
                         }
 
-                        if (ToStringableNumericTypes.ContainsKey(val.GetType()))
+                        Type valType = val.GetType();
+                        if (valType.IsEnum)
+                        {
+                            val = Convert.ChangeType(val, Enum.GetUnderlyingType(valType));
+                            valType = val.GetType();
+                        }
+
+                        if (ToStringableNumericTypes.ContainsKey(valType))
                         {
                             sqlBuilder.Append(val.ToString());
                             continue;
                         }
 
-                        if (val is double)
+                        if (val is bool)
+                        {
+                            if ((bool)val == true)
+                                sqlBuilder.AppendFormat("1");
+                            else
+                                sqlBuilder.AppendFormat("0");
+                            continue;
+                        }
+                        else if (val is double)
                         {
                             double v = (double)val;
                             if (v >= long.MinValue && v <= long.MaxValue)
@@ -156,7 +178,7 @@ namespace Chloe.SqlServer
                                 continue;
                             }
                         }
-                        if (val is float)
+                        else if (val is float)
                         {
                             float v = (float)val;
                             if (v >= long.MinValue && v <= long.MaxValue)
@@ -165,7 +187,7 @@ namespace Chloe.SqlServer
                                 continue;
                             }
                         }
-                        if (val is decimal)
+                        else if (val is decimal)
                         {
                             decimal v = (decimal)val;
                             if (v >= long.MinValue && v <= long.MaxValue)
@@ -199,24 +221,18 @@ namespace Chloe.SqlServer
 
             Action fAction = () =>
             {
-                bool shouldClose_IDENTITY_INSERT = false;
+                bool shouldTurnOff_IDENTITY_INSERT = false;
                 string tableName = null;
                 if (keepIdentity == true)
                 {
                     tableName = AppendTableName(typeDescriptor.Table);
                     this.Session.ExecuteNonQuery(string.Format("SET IDENTITY_INSERT {0} ON ", tableName));
-                    shouldClose_IDENTITY_INSERT = true;
+                    shouldTurnOff_IDENTITY_INSERT = true;
                 }
 
-                try
-                {
-                    insertAction();
-                }
-                finally
-                {
-                    if (shouldClose_IDENTITY_INSERT == true)
-                        this.Session.ExecuteNonQuery(string.Format("SET IDENTITY_INSERT {0} OFF ", tableName));
-                }
+                insertAction();
+                if (shouldTurnOff_IDENTITY_INSERT == true)
+                    this.Session.ExecuteNonQuery(string.Format("SET IDENTITY_INSERT {0} OFF ", tableName));
             };
 
             if (this.Session.IsInTransaction)
@@ -301,30 +317,6 @@ namespace Chloe.SqlServer
             }
         }
 
-
-        static string AppendInsertRangeSqlTemplate(TypeDescriptor typeDescriptor, List<MappingMemberDescriptor> mappingMemberDescriptors)
-        {
-            StringBuilder sqlBuilder = new StringBuilder();
-
-            sqlBuilder.Append("INSERT INTO ");
-            sqlBuilder.Append(AppendTableName(typeDescriptor.Table));
-            sqlBuilder.Append("(");
-
-            for (int i = 0; i < mappingMemberDescriptors.Count; i++)
-            {
-                MappingMemberDescriptor mappingMemberDescriptor = mappingMemberDescriptors[i];
-                if (i > 0)
-                    sqlBuilder.Append(",");
-                sqlBuilder.Append(mappingMemberDescriptor.Column.Name);
-            }
-
-            sqlBuilder.Append(") VALUES");
-
-            string sqlTemplate = sqlBuilder.ToString();
-
-            return sqlTemplate;
-        }
-
         DataTable ToSqlBulkCopyDataTable<TModel>(List<TModel> modelList, TypeDescriptor typeDescriptor)
         {
             DataTable dt = new DataTable();
@@ -379,7 +371,7 @@ namespace Chloe.SqlServer
                         if (member.GetMemberType().GetUnderlyingType().IsEnum)
                         {
                             if (value != null)
-                                value = (int)value;
+                                value = Convert.ChangeType(value, Enum.GetUnderlyingType(value.GetType()));
                         }
                     }
 
@@ -438,12 +430,34 @@ namespace Chloe.SqlServer
 
             return (T)Convert.ChangeType(val, typeof(T).GetUnderlyingType());
         }
+        static string AppendInsertRangeSqlTemplate(TypeDescriptor typeDescriptor, List<MappingMemberDescriptor> mappingMemberDescriptors)
+        {
+            StringBuilder sqlBuilder = new StringBuilder();
+
+            sqlBuilder.Append("INSERT INTO ");
+            sqlBuilder.Append(AppendTableName(typeDescriptor.Table));
+            sqlBuilder.Append("(");
+
+            for (int i = 0; i < mappingMemberDescriptors.Count; i++)
+            {
+                MappingMemberDescriptor mappingMemberDescriptor = mappingMemberDescriptors[i];
+                if (i > 0)
+                    sqlBuilder.Append(",");
+                sqlBuilder.Append(Utils.QuoteName(mappingMemberDescriptor.Column.Name));
+            }
+
+            sqlBuilder.Append(") VALUES");
+
+            string sqlTemplate = sqlBuilder.ToString();
+
+            return sqlTemplate;
+        }
         static string AppendTableName(DbTable table)
         {
             if (string.IsNullOrEmpty(table.Schema))
-                return string.Format("[{0}]", table.Name);
+                return Utils.QuoteName(table.Name);
 
-            return string.Format("[{0}].[{1}]", table.Schema, table.Name);
+            return string.Format("{0}.{1}", Utils.QuoteName(table.Schema), Utils.QuoteName(table.Name));
         }
 
         class SysType<TCSharpType> : SysType

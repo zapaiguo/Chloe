@@ -25,6 +25,22 @@ namespace Chloe.Oracle
             this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory, this);
         }
 
+        static readonly Dictionary<Type, Type> ToStringableNumericTypes;
+        static OracleContext()
+        {
+            List<Type> toStringableNumericTypes = new List<Type>();
+            toStringableNumericTypes.Add(typeof(byte));
+            toStringableNumericTypes.Add(typeof(sbyte));
+            toStringableNumericTypes.Add(typeof(short));
+            toStringableNumericTypes.Add(typeof(ushort));
+            toStringableNumericTypes.Add(typeof(int));
+            toStringableNumericTypes.Add(typeof(uint));
+            toStringableNumericTypes.Add(typeof(long));
+            toStringableNumericTypes.Add(typeof(ulong));
+            ToStringableNumericTypes = toStringableNumericTypes.ToDictionary(a => a, a => a);
+        }
+
+
         /// <summary>
         /// 是否将 sql 中的表名/字段名转成大写。默认为 true。
         /// </summary>
@@ -172,6 +188,166 @@ namespace Chloe.Oracle
             this.ExecuteSqlCommand(e);
             return keyVal; /* It will return null if an entity does not define primary key. */
         }
+        public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
+        {
+            /*
+             * 将 entities 分批插入数据库
+             * 每批生成 insert into TableName(...) select ... from dual union all select ... from dual...
+             * 对于 oracle，貌似速度提升不了...- -
+             * #期待各码友的优化建议#
+             */
+
+            Utils.CheckNull(entities);
+            if (entities.Count == 0)
+                return;
+
+            int maxParameters = 1000;
+            int batchSize = 40; /* 每批实体大小，此值通过测试得出相对插入速度比较快的一个值 */
+
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
+
+            var e = typeDescriptor.MappingMemberDescriptors.Select(a => a.Value);
+
+            List<MappingMemberDescriptor> mappingMemberDescriptors = e.ToList();
+            int maxDbParamsCount = maxParameters - mappingMemberDescriptors.Count; /* 控制一个 sql 的参数个数 */
+
+            string sqlTemplate = AppendInsertRangeSqlTemplate(typeDescriptor, mappingMemberDescriptors, keepIdentity);
+
+            Action insertAction = () =>
+            {
+                int batchCount = 0;
+                List<DbParam> dbParams = new List<DbParam>();
+                StringBuilder sqlBuilder = new StringBuilder();
+                for (int i = 0; i < entities.Count; i++)
+                {
+                    var entity = entities[i];
+
+                    if (batchCount > 0)
+                        sqlBuilder.Append(" UNION ALL ");
+
+                    sqlBuilder.Append(" SELECT ");
+                    for (int j = 0; j < mappingMemberDescriptors.Count; j++)
+                    {
+                        if (j > 0)
+                            sqlBuilder.Append(",");
+
+                        MappingMemberDescriptor mappingMemberDescriptor = mappingMemberDescriptors[j];
+
+                        string sequenceName;
+                        if (keepIdentity == false && HasSequenceAttribute(mappingMemberDescriptor, out sequenceName))
+                        {
+                            sqlBuilder.AppendFormat("1");
+                            continue;
+                        }
+
+                        object val = mappingMemberDescriptor.GetValue(entity);
+                        if (val == null)
+                        {
+                            sqlBuilder.Append("NULL");
+                            sqlBuilder.Append(" C").Append(j.ToString());
+                            continue;
+                        }
+
+                        Type valType = val.GetType();
+                        if (valType.IsEnum)
+                        {
+                            val = Convert.ChangeType(val, Enum.GetUnderlyingType(valType));
+                            valType = val.GetType();
+                        }
+
+                        if (ToStringableNumericTypes.ContainsKey(valType))
+                        {
+                            sqlBuilder.Append(val.ToString());
+                        }
+                        else if (val is bool)
+                        {
+                            if ((bool)val == true)
+                                sqlBuilder.AppendFormat("1");
+                            else
+                                sqlBuilder.AppendFormat("0");
+                        }
+                        else if (val is double)
+                        {
+                            double v = (double)val;
+                            if (v >= long.MinValue && v <= long.MaxValue)
+                            {
+                                sqlBuilder.Append(((long)v).ToString());
+                            }
+                        }
+                        else if (val is float)
+                        {
+                            float v = (float)val;
+                            if (v >= long.MinValue && v <= long.MaxValue)
+                            {
+                                sqlBuilder.Append(((long)v).ToString());
+                            }
+                        }
+                        else if (val is decimal)
+                        {
+                            decimal v = (decimal)val;
+                            if (v >= long.MinValue && v <= long.MaxValue)
+                            {
+                                sqlBuilder.Append(((long)v).ToString());
+                            }
+                        }
+                        else
+                        {
+                            string paramName = ":P_" + dbParams.Count.ToString();
+                            DbParam dbParam = new DbParam(paramName, val) { DbType = mappingMemberDescriptor.Column.DbType };
+                            dbParams.Add(dbParam);
+                            sqlBuilder.Append(paramName);
+                        }
+
+                        sqlBuilder.Append(" C").Append(j.ToString());
+                    }
+
+                    sqlBuilder.Append(" FROM DUAL");
+
+                    batchCount++;
+
+                    if ((batchCount >= 20 && dbParams.Count >= 400/*参数个数太多也会影响速度*/) || dbParams.Count >= maxDbParamsCount || batchCount >= batchSize || (i + 1) == entities.Count)
+                    {
+                        sqlBuilder.Insert(0, sqlTemplate);
+
+                        if (keepIdentity == false)
+                        {
+                            sqlBuilder.Append(") T");
+                        }
+
+                        string sql = sqlBuilder.ToString();
+                        this.Session.ExecuteNonQuery(sql, dbParams.ToArray());
+
+                        sqlBuilder.Clear();
+                        dbParams.Clear();
+                        batchCount = 0;
+                    }
+                }
+            };
+
+            Action fAction = insertAction;
+
+            if (this.Session.IsInTransaction)
+            {
+                fAction();
+            }
+            else
+            {
+                /* 因为分批插入，所以需要开启事务保证数据一致性 */
+                this.Session.BeginTransaction();
+                try
+                {
+                    fAction();
+                    this.Session.CommitTransaction();
+                }
+                catch
+                {
+                    if (this.Session.IsInTransaction)
+                        this.Session.RollbackTransaction();
+                    throw;
+                }
+            }
+        }
+
 
         public override int Update<TEntity>(TEntity entity, string table)
         {
@@ -290,5 +466,61 @@ namespace Chloe.Oracle
             return ret;
         }
 
+        string AppendInsertRangeSqlTemplate(TypeDescriptor typeDescriptor, List<MappingMemberDescriptor> mappingMemberDescriptors, bool keepIdentity)
+        {
+            StringBuilder sqlBuilder = new StringBuilder();
+
+            sqlBuilder.Append("INSERT INTO ");
+            sqlBuilder.Append(this.AppendTableName(typeDescriptor.Table));
+            sqlBuilder.Append("(");
+
+            for (int i = 0; i < mappingMemberDescriptors.Count; i++)
+            {
+                MappingMemberDescriptor mappingMemberDescriptor = mappingMemberDescriptors[i];
+                if (i > 0)
+                    sqlBuilder.Append(",");
+                sqlBuilder.Append(this.QuoteName(mappingMemberDescriptor.Column.Name));
+            }
+
+            sqlBuilder.Append(")");
+
+            if (keepIdentity == false)
+            {
+                sqlBuilder.Append(" SELECT ");
+                for (int i = 0; i < mappingMemberDescriptors.Count; i++)
+                {
+                    MappingMemberDescriptor mappingMemberDescriptor = mappingMemberDescriptors[i];
+                    if (i > 0)
+                        sqlBuilder.Append(",");
+
+                    string sequenceName;
+                    if (HasSequenceAttribute(mappingMemberDescriptor, out sequenceName))
+                        sqlBuilder.AppendFormat("{0}.{1}", this.QuoteName(sequenceName), this.QuoteName("NEXTVAL"));
+                    else
+                    {
+                        sqlBuilder.Append("C").Append(i.ToString());
+                    }
+                }
+                sqlBuilder.Append(" FROM (");
+            }
+
+            string sqlTemplate = sqlBuilder.ToString();
+
+            return sqlTemplate;
+        }
+        string AppendTableName(DbTable table)
+        {
+            if (string.IsNullOrEmpty(table.Schema))
+                return this.QuoteName(table.Name);
+
+            return string.Format("{0}.{1}", this.QuoteName(table.Schema), this.QuoteName(table.Name));
+        }
+        string QuoteName(string name)
+        {
+            if (this._convertToUppercase)
+                return string.Concat("\"", name.ToUpper(), "\"");
+
+            return string.Concat("\"", name, "\"");
+        }
     }
 }

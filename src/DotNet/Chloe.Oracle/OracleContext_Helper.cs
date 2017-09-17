@@ -23,24 +23,39 @@ namespace Chloe.Oracle
 
             foreach (MappingMemberDescriptor memberDescriptor in typeDescriptor.MappingMemberDescriptors.Values)
             {
-                SequenceAttribute attr = (SequenceAttribute)memberDescriptor.GetCustomAttribute(typeof(SequenceAttribute));
-                if (attr != null)
+                string sequenceNameT;
+                if (!HasSequenceAttribute(memberDescriptor, out sequenceNameT))
                 {
-                    if (defineSequenceMemberDescriptor != null)
-                        throw new ChloeException(string.Format("Mapping type '{0}' can not define multiple identity members.", typeDescriptor.EntityType.FullName));
-
-                    if (string.IsNullOrEmpty(attr.Name))
-                        throw new ChloeException("Sequence name can not be empty.");
-
-                    sequenceName = attr.Name;
-                    defineSequenceMemberDescriptor = memberDescriptor;
+                    continue;
                 }
+
+                if (defineSequenceMemberDescriptor != null)
+                    throw new ChloeException(string.Format("Mapping type '{0}' can not define multiple identity members.", typeDescriptor.EntityType.FullName));
+
+                sequenceName = sequenceNameT;
+                defineSequenceMemberDescriptor = memberDescriptor;
             }
 
             if (defineSequenceMemberDescriptor != null)
                 EnsureDefineSequenceMemberType(defineSequenceMemberDescriptor);
 
             return defineSequenceMemberDescriptor;
+        }
+        static bool HasSequenceAttribute(MappingMemberDescriptor memberDescriptor, out string sequenceName)
+        {
+            sequenceName = null;
+
+            SequenceAttribute attr = (SequenceAttribute)memberDescriptor.GetCustomAttribute(typeof(SequenceAttribute));
+            if (attr != null)
+            {
+                if (string.IsNullOrEmpty(attr.Name))
+                    throw new ChloeException("Sequence name can not be empty.");
+
+                sequenceName = attr.Name;
+                return true;
+            }
+
+            return false;
         }
         static void EnsureDefineSequenceMemberType(MappingMemberDescriptor defineSequenceMemberDescriptor)
         {

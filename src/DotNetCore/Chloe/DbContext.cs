@@ -288,6 +288,10 @@ namespace Chloe
             retIdentity = ConvertIdentityType(retIdentity, autoIncrementMemberDescriptor.MemberInfoType);
             return retIdentity;
         }
+        public virtual void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
+        {
+            throw new NotImplementedException();
+        }
 
         public virtual int Update<TEntity>(TEntity entity)
         {
