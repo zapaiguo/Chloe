@@ -292,7 +292,7 @@ namespace Chloe.Oracle
                         }
                         else
                         {
-                            string paramName = ":P_" + dbParams.Count.ToString();
+                            string paramName = UtilConstants.ParameterNamePrefix + dbParams.Count.ToString();
                             DbParam dbParam = new DbParam(paramName, val) { DbType = mappingMemberDescriptor.Column.DbType };
                             dbParams.Add(dbParam);
                             sqlBuilder.Append(paramName);
@@ -505,7 +505,6 @@ namespace Chloe.Oracle
             }
 
             string sqlTemplate = sqlBuilder.ToString();
-
             return sqlTemplate;
         }
         string AppendTableName(DbTable table)

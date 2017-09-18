@@ -20,7 +20,7 @@ namespace Chloe.MySql
                 return CacheParameterNames[ordinal];
             }
 
-            return ParameterPrefix + ordinal.ToString();
+            return UtilConstants.ParameterNamePrefix + ordinal.ToString();
         }
         static void AmendDbInfo(DbExpression exp1, DbExpression exp2)
         {

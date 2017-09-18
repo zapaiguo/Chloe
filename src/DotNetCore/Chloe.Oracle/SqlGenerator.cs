@@ -14,7 +14,6 @@ namespace Chloe.Oracle
 {
     partial class SqlGenerator : DbExpressionVisitor<DbExpression>
     {
-        public const string ParameterPrefix = ":P_";
         static readonly object Boxed_1 = 1;
         static readonly object Boxed_0 = 0;
 
@@ -77,7 +76,7 @@ namespace Chloe.Oracle
             List<string> cacheParameterNames = new List<string>(cacheParameterNameCount);
             for (int i = 0; i < cacheParameterNameCount; i++)
             {
-                string paramName = ParameterPrefix + i.ToString();
+                string paramName = UtilConstants.ParameterNamePrefix + i.ToString();
                 cacheParameterNames.Add(paramName);
             }
             CacheParameterNames = cacheParameterNames;

@@ -9,6 +9,9 @@ namespace Chloe.MySql
 {
     static class UtilConstants
     {
+        public const string DbParameterNamePrefix = "?";
+        public static readonly string ParameterNamePrefix = DbParameterNamePrefix + "P_";
+
         public static readonly Type TypeOfVoid = typeof(void);
         public static readonly Type TypeOfInt16 = typeof(Int16);
         public static readonly Type TypeOfInt32 = typeof(Int32);

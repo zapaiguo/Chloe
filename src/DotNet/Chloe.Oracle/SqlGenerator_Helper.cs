@@ -29,7 +29,7 @@ namespace Chloe.Oracle
                 return CacheParameterNames[ordinal];
             }
 
-            return ParameterPrefix + ordinal.ToString();
+            return UtilConstants.ParameterNamePrefix + ordinal.ToString();
         }
         static string GenRowNumberName(List<DbColumnSegment> columns)
         {

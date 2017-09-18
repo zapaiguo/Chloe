@@ -14,8 +14,6 @@ namespace Chloe.SqlServer
 {
     partial class SqlGenerator : DbExpressionVisitor<DbExpression>
     {
-        public const string ParameterPrefix = "@P_";
-
         internal ISqlBuilder _sqlBuilder = new SqlBuilder();
         List<DbParam> _parameters = new List<DbParam>();
 
@@ -75,7 +73,7 @@ namespace Chloe.SqlServer
             List<string> cacheParameterNames = new List<string>(cacheParameterNameCount);
             for (int i = 0; i < cacheParameterNameCount; i++)
             {
-                string paramName = ParameterPrefix + i.ToString();
+                string paramName = UtilConstants.ParameterNamePrefix + i.ToString();
                 cacheParameterNames.Add(paramName);
             }
             CacheParameterNames = cacheParameterNames;

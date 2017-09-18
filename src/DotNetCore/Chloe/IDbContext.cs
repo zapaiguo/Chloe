@@ -67,7 +67,7 @@ namespace Chloe
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="entities"></param>
-        /// <param name="keepIdentity"></param>
+        /// <param name="keepIdentity">是否要把自增属性值插入到数据库</param>
         void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false);
 
         int Update<TEntity>(TEntity entity);

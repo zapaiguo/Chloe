@@ -150,7 +150,6 @@ namespace Chloe.InternalExtensions
                 return c.Value == null || c.Value == DBNull.Value;
             }
 
-
             if (exp.NodeType == DbExpressionType.Parameter)
             {
                 var p = (DbParameterExpression)exp;

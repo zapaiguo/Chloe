@@ -20,7 +20,7 @@ namespace Chloe.SqlServer
                 return CacheParameterNames[ordinal];
             }
 
-            return ParameterPrefix + ordinal.ToString();
+            return UtilConstants.ParameterNamePrefix + ordinal.ToString();
         }
         static string GenRowNumberName(List<DbColumnSegment> columns)
         {
