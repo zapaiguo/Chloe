@@ -12,7 +12,7 @@ namespace ChloeDemo
     {
         /* WARNING: DbContext 是非线程安全的，正式使用不能设置为 static，并且用完务必要调用 Dispose 方法销毁对象 */
         //static OracleContext context = new OracleContext(new OracleConnectionFactory("Data Source=localhost/orcl;User ID=system;Password=sa;"));
-        static OracleContext context = new OracleContext(new OracleConnectionFactory("Data Source = (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST =localhost)(PORT = 1521))(CONNECT_DATA = (SERVICE_NAME =orcl))); User ID =system; Password=sa"));
+        static OracleContext context = new OracleContext(new OracleConnectionFactory("Data Source = (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST =localhost)(PORT = 1521))(CONNECT_DATA = (SERVICE_NAME =chloe))); User ID =system; Password=sa"));
 
         public static void Run()
         {

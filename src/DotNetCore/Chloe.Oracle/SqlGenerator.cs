@@ -109,15 +109,15 @@ namespace Chloe.Oracle
             left = DbExpressionHelper.OptimizeDbExpression(left);
             right = DbExpressionHelper.OptimizeDbExpression(right);
 
-            //明确 left right 其中一边一定为 null
-            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(right))
+            //明确 left right 其中一边一定为 null 或 空字符串。
+            if (DbExpressionHelper.AffirmExpressionRetValueIsNullOrEmpty(right))
             {
                 left.Accept(this);
                 this._sqlBuilder.Append(" IS NULL");
                 return exp;
             }
 
-            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(left))
+            if (DbExpressionHelper.AffirmExpressionRetValueIsNullOrEmpty(left))
             {
                 right.Accept(this);
                 this._sqlBuilder.Append(" IS NULL");
@@ -141,14 +141,14 @@ namespace Chloe.Oracle
             right = DbExpressionHelper.OptimizeDbExpression(right);
 
             //明确 left right 其中一边一定为 null
-            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(right))
+            if (DbExpressionHelper.AffirmExpressionRetValueIsNullOrEmpty(right))
             {
                 left.Accept(this);
                 this._sqlBuilder.Append(" IS NOT NULL");
                 return exp;
             }
 
-            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(left))
+            if (DbExpressionHelper.AffirmExpressionRetValueIsNullOrEmpty(left))
             {
                 right.Accept(this);
                 this._sqlBuilder.Append(" IS NOT NULL");
