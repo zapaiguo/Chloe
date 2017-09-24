@@ -463,6 +463,28 @@ namespace Chloe.SqlServer
             return exp;
         }
 
+        public override DbExpression Visit(DbExistsExpression exp)
+        {
+            this._sqlBuilder.Append("Exists ");
+
+            DbSqlQueryExpression rawSqlQuery = exp.SqlQuery;
+            DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression()
+            {
+                TakeCount = rawSqlQuery.TakeCount,
+                SkipCount = rawSqlQuery.SkipCount,
+                Table = rawSqlQuery.Table,
+                Condition = rawSqlQuery.Condition,
+                HavingCondition = rawSqlQuery.HavingCondition,
+            };
+
+            sqlQuery.GroupSegments.AddRange(rawSqlQuery.GroupSegments);
+
+            DbColumnSegment columnSegment = new DbColumnSegment(DbExpression.Constant("1"), "C");
+            sqlQuery.ColumnSegments.Add(columnSegment);
+
+            DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
+            return subQuery.Accept(this);
+        }
 
         public override DbExpression Visit(DbCoalesceExpression exp)
         {

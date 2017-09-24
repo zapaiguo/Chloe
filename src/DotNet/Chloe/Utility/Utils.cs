@@ -44,7 +44,12 @@ namespace Chloe
 
         public static Dictionary<TKey, TValue> Clone<TKey, TValue>(Dictionary<TKey, TValue> source)
         {
-            Dictionary<TKey, TValue> ret = new Dictionary<TKey, TValue>(source.Count);
+            Dictionary<TKey, TValue> ret = Clone<TKey, TValue>(source, source.Count);
+            return ret;
+        }
+        public static Dictionary<TKey, TValue> Clone<TKey, TValue>(Dictionary<TKey, TValue> source, int capacity)
+        {
+            Dictionary<TKey, TValue> ret = new Dictionary<TKey, TValue>(capacity);
 
             foreach (var kv in source)
             {

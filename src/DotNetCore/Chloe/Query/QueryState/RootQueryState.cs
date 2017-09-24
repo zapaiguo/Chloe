@@ -3,23 +3,26 @@ using System;
 using Chloe.Descriptors;
 using System.Reflection;
 using Chloe.InternalExtensions;
+using System.Linq.Expressions;
+using System.Collections.Generic;
+using Chloe.Utility;
 
 namespace Chloe.Query.QueryState
 {
     internal sealed class RootQueryState : QueryStateBase
     {
         Type _elementType;
-        public RootQueryState(Type elementType, string explicitTableName)
-            : base(CreateResultElement(elementType, explicitTableName))
+        public RootQueryState(Type elementType, string explicitTableName, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+            : base(CreateResultElement(elementType, explicitTableName, scopeParameters, scopeTables))
         {
             this._elementType = elementType;
         }
 
-        public override FromQueryResult ToFromQueryResult()
+        public override ResultElement ToFromQueryResult()
         {
             if (this.Result.Condition == null)
             {
-                FromQueryResult result = new FromQueryResult();
+                ResultElement result = new ResultElement(this.Result.ScopeParameters, this.Result.ScopeTables);
                 result.FromTable = this.Result.FromTable;
                 result.MappingObjectExpression = this.Result.MappingObjectExpression;
                 return result;
@@ -28,13 +31,13 @@ namespace Chloe.Query.QueryState
             return base.ToFromQueryResult();
         }
 
-        static ResultElement CreateResultElement(Type type, string explicitTableName)
+        static ResultElement CreateResultElement(Type type, string explicitTableName, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
             if (type.IsAbstract || type.IsInterface)
                 throw new ArgumentException("The type of input can not be abstract class or interface.");
 
             //TODO init _resultElement
-            ResultElement resultElement = new ResultElement();
+            ResultElement resultElement = new ResultElement(scopeParameters, scopeTables);
 
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(type);
 

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Chloe.Core.Visitors;
 using Chloe.Extensions;
 using Chloe.Infrastructure;
+using Chloe.Utility;
 
 namespace Chloe.Query
 {
@@ -15,27 +16,24 @@ namespace Chloe.Query
     {
         ExpressionVisitorBase _visitor;
         LambdaExpression _lambda;
-        List<IMappingObjectExpression> _moeList;
-        SelectorExpressionVisitor(List<IMappingObjectExpression> moeList)
+        ScopeParameterDictionary _scopeParameters;
+        KeyDictionary<string> _scopeTables;
+        SelectorExpressionVisitor(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
-            this._moeList = moeList;
+            this._scopeParameters = scopeParameters;
+            this._scopeTables = scopeTables;
         }
 
-        public static IMappingObjectExpression ResolveSelectorExpression(LambdaExpression selector, List<IMappingObjectExpression> moeList)
+        public static IMappingObjectExpression ResolveSelectorExpression(LambdaExpression selector, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
-            SelectorExpressionVisitor visitor = new SelectorExpressionVisitor(moeList);
+            SelectorExpressionVisitor visitor = new SelectorExpressionVisitor(scopeParameters, scopeTables);
             return visitor.Visit(selector);
         }
 
-        int FindParameterIndex(ParameterExpression exp)
+        IMappingObjectExpression FindMoe(ParameterExpression exp)
         {
-            int idx = this._lambda.Parameters.IndexOf(exp);
-            if (idx == -1)
-            {
-                throw new Exception("Can not find the ParameterExpression index");
-            }
-
-            return idx;
+            IMappingObjectExpression moe = this._scopeParameters.Get(exp);
+            return moe;
         }
         DbExpression ResolveExpression(Expression exp)
         {
@@ -46,8 +44,7 @@ namespace Chloe.Query
             ParameterExpression p;
             if (ExpressionExtension.IsDerivedFromParameter(exp, out p))
             {
-                int idx = this.FindParameterIndex(p);
-                IMappingObjectExpression moe = this._moeList[idx];
+                IMappingObjectExpression moe = this.FindMoe(p);
                 return moe.GetComplexMemberExpression(exp);
             }
             else
@@ -80,7 +77,7 @@ namespace Chloe.Query
         protected override IMappingObjectExpression VisitLambda(LambdaExpression exp)
         {
             this._lambda = exp;
-            this._visitor = new GeneralExpressionVisitor(exp, this._moeList);
+            this._visitor = new GeneralExpressionVisitor(exp, this._scopeParameters, this._scopeTables);
             return this.Visit(exp.Body);
         }
         protected override IMappingObjectExpression VisitNew(NewExpression exp)
@@ -156,8 +153,7 @@ namespace Chloe.Query
         }
         protected override IMappingObjectExpression VisitParameter(ParameterExpression exp)
         {
-            int idx = this.FindParameterIndex(exp);
-            IMappingObjectExpression moe = this._moeList[idx];
+            IMappingObjectExpression moe = this.FindMoe(exp);
             return moe;
         }
 

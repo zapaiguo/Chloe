@@ -177,6 +177,11 @@ namespace Chloe.SqlServer
             return exp.Accept(this._generator);
         }
 
+        public override DbExpression Visit(DbExistsExpression exp)
+        {
+            return this.VisistDbBooleanExpression(exp);
+        }
+
         DbExpression VisistDbBooleanExpression(DbExpression exp)
         {
             DbCaseWhenExpression caseWhenExpression = SqlGenerator.ConstructReturnCSharpBooleanCaseWhenExpression(exp);

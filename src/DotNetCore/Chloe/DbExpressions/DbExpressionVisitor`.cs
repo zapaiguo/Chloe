@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+
 namespace Chloe.DbExpressions
 {
     public abstract class DbExpressionVisitor<T>
@@ -48,5 +49,7 @@ namespace Chloe.DbExpressions
         public abstract T Visit(DbInsertExpression exp);
         public abstract T Visit(DbUpdateExpression exp);
         public abstract T Visit(DbDeleteExpression exp);
+
+        public abstract T Visit(DbExistsExpression exp);
     }
 }

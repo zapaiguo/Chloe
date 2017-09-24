@@ -13,7 +13,7 @@ using Chloe.DbExpressions;
 
 namespace Chloe.Query
 {
-    class Query<T> : QueryBase, IQuery<T>
+    class Query<T> : QueryBase, IQuery<T>, IQuery
     {
         static readonly List<Expression> EmptyArgumentList = new List<Expression>(0);
 
@@ -22,6 +22,8 @@ namespace Chloe.Query
 
         internal bool _trackEntity = false;
         public DbContext DbContext { get { return this._dbContext; } }
+
+        Type IQuery.ElementType { get { return typeof(T); } }
 
         public Query(DbContext dbContext, string explicitTable)
             : this(dbContext, new RootQueryExpression(typeof(T), explicitTable), false)
@@ -296,16 +298,22 @@ namespace Chloe.Query
                 Utils.CheckNull(argument);
 
             List<Expression> arguments = argument == null ? EmptyArgumentList : new List<Expression>(1) { argument };
-
-            IEnumerable<TResult> iterator = this.CreateAggregateQuery<TResult>(method, arguments);
+            var q = this.CreateAggregateQuery<TResult>(method, arguments);
+            InternalQuery<TResult> iterator = q.GenerateIterator();
             return iterator.Single();
         }
-        InternalQuery<TResult> CreateAggregateQuery<TResult>(MethodInfo method, List<Expression> arguments)
+        /// <summary>
+        /// 类<see cref="Chloe.Query.Visitors.GeneralExpressionVisitor"/>有引用该方法[反射]
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="method"></param>
+        /// <param name="arguments"></param>
+        /// <returns></returns>
+        public Query<TResult> CreateAggregateQuery<TResult>(MethodInfo method, List<Expression> arguments)
         {
             AggregateQueryExpression e = new AggregateQueryExpression(this._expression, method, arguments);
             var q = new Query<TResult>(this._dbContext, e, false);
-            InternalQuery<TResult> iterator = q.GenerateIterator();
-            return iterator;
+            return q;
         }
         MethodInfo GetCalledMethod<TResult>(Expression<Func<TResult>> exp)
         {

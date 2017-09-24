@@ -1,22 +1,40 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
 namespace Chloe.Query
 {
-    public class ResultElement
+    /// <summary>
+    /// 查询的结果集
+    /// </summary>
+    class ResultElement
     {
-        public ResultElement()
+        public ResultElement(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
             this.Orderings = new List<DbOrdering>();
             this.GroupSegments = new List<DbExpression>();
+
+            if (scopeTables == null)
+                this.ScopeTables = new KeyDictionary<string>();
+            else
+                this.ScopeTables = scopeTables.Clone();
+
+            if (scopeParameters == null)
+                this.ScopeParameters = new ScopeParameterDictionary();
+            else
+                this.ScopeParameters = scopeParameters.Clone();
         }
 
         public IMappingObjectExpression MappingObjectExpression { get; set; }
 
+        /// <summary>
+        /// Orderings 是否是传承下来的
+        /// </summary>
         public bool InheritOrderings { get; set; }
 
         public List<DbOrdering> Orderings { get; private set; }
@@ -29,6 +47,8 @@ namespace Chloe.Query
         public DbExpression Condition { get; set; }
         public DbExpression HavingCondition { get; set; }
 
+        public KeyDictionary<string> ScopeTables { get; private set; }
+        public ScopeParameterDictionary ScopeParameters { get; private set; }
         public void AppendCondition(DbExpression condition)
         {
             if (this.Condition == null)
@@ -46,23 +66,25 @@ namespace Chloe.Query
 
         public string GenerateUniqueTableAlias(string prefix = UtilConstants.DefaultTableAlias)
         {
-            if (this.FromTable == null)
-                return prefix;
-
             string alias = prefix;
             int i = 0;
             DbFromTableExpression fromTable = this.FromTable;
-            while (ExistTableAlias(fromTable, alias))
+            while (this.ScopeTables.ContainsKey(alias) || ExistTableAlias(fromTable, alias))
             {
                 alias = prefix + i.ToString();
                 i++;
             }
+
+            this.ScopeTables[alias] = alias;
 
             return alias;
         }
 
         static bool ExistTableAlias(DbMainTableExpression mainTable, string alias)
         {
+            if (mainTable == null)
+                return false;
+
             if (string.Equals(mainTable.Table.Alias, alias, StringComparison.OrdinalIgnoreCase))
                 return true;
 

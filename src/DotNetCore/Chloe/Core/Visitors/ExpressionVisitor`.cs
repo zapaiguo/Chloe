@@ -20,10 +20,12 @@ namespace Chloe.Core.Visitors
                 case ExpressionType.Convert:
                 case ExpressionType.ConvertChecked:
                     return this.VisitUnary_Convert((UnaryExpression)exp);
+                case ExpressionType.Quote:
+                    return this.VisitUnary_Quote((UnaryExpression)exp);
                 case ExpressionType.Negate:
                 case ExpressionType.NegateChecked:
                 case ExpressionType.ArrayLength:
-                case ExpressionType.Quote:
+
                 case ExpressionType.TypeAs:
                     return this.VisitUnary((UnaryExpression)exp);
                 case ExpressionType.Add:
@@ -105,6 +107,10 @@ namespace Chloe.Core.Visitors
             throw new NotImplementedException(exp.ToString());
         }
         protected virtual T VisitUnary_Convert(UnaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitUnary_Quote(UnaryExpression exp)
         {
             throw new NotImplementedException(exp.ToString());
         }

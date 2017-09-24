@@ -1,24 +1,30 @@
 ﻿using Chloe.DbExpressions;
 using Chloe.Query.QueryExpressions;
 using Chloe.Query.QueryState;
+using Chloe.Utility;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Chloe.Query.Visitors
 {
     class QueryExpressionVisitor : QueryExpressionVisitor<IQueryState>
     {
-        static QueryExpressionVisitor _reducer = new QueryExpressionVisitor();
-        QueryExpressionVisitor()
+        ScopeParameterDictionary _scopeParameters;
+        KeyDictionary<string> _scopeTables;
+        QueryExpressionVisitor(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
+            this._scopeParameters = scopeParameters;
+            this._scopeTables = scopeTables;
         }
-        public static IQueryState VisitQueryExpression(QueryExpression queryExpression)
+        public static IQueryState VisitQueryExpression(QueryExpression queryExpression, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
-            return queryExpression.Accept(_reducer);
+            QueryExpressionVisitor reducer = new QueryExpressionVisitor(scopeParameters, scopeTables);
+            return queryExpression.Accept(reducer);
         }
 
         public override IQueryState Visit(RootQueryExpression exp)
         {
-            IQueryState queryState = new RootQueryState(exp.ElementType, exp.ExplicitTable);
+            IQueryState queryState = new RootQueryState(exp.ElementType, exp.ExplicitTable, this._scopeParameters, this._scopeTables);
             return queryState;
         }
         public override IQueryState Visit(WhereExpression exp)
@@ -59,20 +65,23 @@ namespace Chloe.Query.Visitors
         }
         public override IQueryState Visit(JoinQueryExpression exp)
         {
-            ResultElement resultElement = new ResultElement();
+            IQueryState qs = QueryExpressionVisitor.VisitQueryExpression(exp.PrevExpression, this._scopeParameters, this._scopeTables);
 
-            IQueryState qs = QueryExpressionVisitor.VisitQueryExpression(exp.PrevExpression);
-            FromQueryResult fromQueryResult = qs.ToFromQueryResult();
-
-            DbFromTableExpression fromTable = fromQueryResult.FromTable;
-            resultElement.FromTable = fromTable;
+            ResultElement resultElement = qs.ToFromQueryResult();
 
             List<IMappingObjectExpression> moeList = new List<IMappingObjectExpression>();
-            moeList.Add(fromQueryResult.MappingObjectExpression);
+            moeList.Add(resultElement.MappingObjectExpression);
 
             foreach (JoiningQueryInfo joiningQueryInfo in exp.JoinedQueries)
             {
-                JoinQueryResult joinQueryResult = JoinQueryExpressionVisitor.VisitQueryExpression(joiningQueryInfo.Query.QueryExpression, resultElement, joiningQueryInfo.JoinType, joiningQueryInfo.Condition, moeList);
+                ScopeParameterDictionary scopeParameters = resultElement.ScopeParameters.Clone(resultElement.ScopeParameters.Count + moeList.Count);
+                for (int i = 0; i < moeList.Count; i++)
+                {
+                    ParameterExpression p = joiningQueryInfo.Condition.Parameters[i];
+                    scopeParameters[p] = moeList[i];
+                }
+
+                JoinQueryResult joinQueryResult = JoinQueryExpressionVisitor.VisitQueryExpression(joiningQueryInfo.Query.QueryExpression, resultElement, joiningQueryInfo.JoinType, joiningQueryInfo.Condition, scopeParameters);
 
                 var nullChecking = DbExpression.CaseWhen(new DbCaseWhenExpression.WhenThenExpressionPair(joinQueryResult.JoinTable.Condition, DbConstantExpression.One), DbConstantExpression.Null, DbConstantExpression.One.Type);
 
@@ -96,11 +105,17 @@ namespace Chloe.Query.Visitors
                     }
                 }
 
-                fromTable.JoinTables.Add(joinQueryResult.JoinTable);
+                resultElement.FromTable.JoinTables.Add(joinQueryResult.JoinTable);
                 moeList.Add(joinQueryResult.MappingObjectExpression);
             }
 
-            IMappingObjectExpression moe = SelectorExpressionVisitor.ResolveSelectorExpression(exp.Selector, moeList);
+            ScopeParameterDictionary scopeParameters1 = resultElement.ScopeParameters.Clone(resultElement.ScopeParameters.Count + moeList.Count);
+            for (int i = 0; i < moeList.Count; i++)
+            {
+                ParameterExpression p = exp.Selector.Parameters[i];
+                scopeParameters1[p] = moeList[i];
+            }
+            IMappingObjectExpression moe = SelectorExpressionVisitor.ResolveSelectorExpression(exp.Selector, scopeParameters1, resultElement.ScopeTables);
             resultElement.MappingObjectExpression = moe;
 
             GeneralQueryState queryState = new GeneralQueryState(resultElement);

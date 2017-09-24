@@ -8,11 +8,11 @@ namespace Chloe.Query.QueryState
         {
         }
 
-        public override FromQueryResult ToFromQueryResult()
+        public override ResultElement ToFromQueryResult()
         {
             if (this.Result.Condition == null)
             {
-                FromQueryResult result = new FromQueryResult();
+                ResultElement result = new ResultElement(this.Result.ScopeParameters, this.Result.ScopeTables);
                 result.FromTable = this.Result.FromTable;
                 result.MappingObjectExpression = this.Result.MappingObjectExpression;
                 return result;

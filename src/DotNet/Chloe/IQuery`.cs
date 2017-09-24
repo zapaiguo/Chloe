@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace Chloe
 {
-    public interface IQuery<T> //:   IEnumerable<T>, IEnumerable
+    public interface IQuery<T> : IQuery
     {
         IQuery<T> AsTracking();
         IEnumerable<T> AsEnumerable();

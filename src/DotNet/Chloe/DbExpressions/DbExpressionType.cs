@@ -43,5 +43,7 @@ namespace Chloe.DbExpressions
         Insert,
         Update,
         Delete,
+
+        Exists,
     }
 }

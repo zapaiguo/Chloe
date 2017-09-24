@@ -1,25 +1,25 @@
-﻿
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Chloe.DbExpressions
 {
-    public class DbSubQueryExpression : DbExpression
+    public class DbExistsExpression : DbExpression
     {
         DbSqlQueryExpression _sqlQuery;
 
-        public DbSubQueryExpression(DbSqlQueryExpression sqlQuery)
-            : base(DbExpressionType.SubQuery)
+        public DbExistsExpression(DbSqlQueryExpression sqlQuery)
+            : base(DbExpressionType.Exists, UtilConstants.TypeOfBoolean)
         {
             this._sqlQuery = sqlQuery;
         }
 
         public DbSqlQueryExpression SqlQuery { get { return this._sqlQuery; } }
-        public override Type Type { get { return this.SqlQuery.Type; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {
             return visitor.Visit(this);
         }
-
     }
 }

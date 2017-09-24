@@ -10,7 +10,5 @@ namespace Chloe.Query
     {
         public IMappingObjectExpression MappingObjectExpression { get; set; }
         public DbJoinTableExpression JoinTable { get; set; }
-        //public DbExpression LeftKeySelector { get; set; }
-        //public DbExpression RightKeySelector { get; set; }
     }
 }

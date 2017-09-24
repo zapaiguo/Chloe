@@ -238,6 +238,15 @@ namespace Chloe.SQLite
 
             if (typeof(IList).IsAssignableFrom(declaringType) || (declaringType.IsGenericType && typeof(ICollection<>).MakeGenericType(declaringType.GetGenericArguments()).IsAssignableFrom(declaringType)))
             {
+                if (exp.Object.NodeType == DbExpressionType.SqlQuery)
+                {
+                    /* where Id in(select id from T) */
+
+                    operand = exp.Arguments[0];
+                    In(generator, (DbSqlQueryExpression)exp.Object, operand);
+                    return;
+                }
+
                 DbMemberExpression memberExp = exp.Object as DbMemberExpression;
 
                 if (memberExp == null || !memberExp.IsEvaluable())
@@ -249,7 +258,17 @@ namespace Chloe.SQLite
             }
             if (method.IsStatic && declaringType == typeof(Enumerable) && exp.Arguments.Count == 2)
             {
-                DbMemberExpression memberExp = exp.Arguments[0] as DbMemberExpression;
+                DbExpression arg0 = exp.Arguments[0];
+                if (arg0.NodeType == DbExpressionType.SqlQuery)
+                {
+                    /* where Id in(select id from T) */
+
+                    operand = exp.Arguments[1];
+                    In(generator, (DbSqlQueryExpression)arg0, operand);
+                    return;
+                }
+
+                DbMemberExpression memberExp = arg0 as DbMemberExpression;
 
                 if (memberExp == null || !memberExp.IsEvaluable())
                     throw new NotSupportedException(exp.ToString());
@@ -292,6 +311,15 @@ namespace Chloe.SQLite
                 elementExps[i].Accept(generator);
             }
 
+            generator._sqlBuilder.Append(")");
+
+            return;
+        }
+        static void In(SqlGenerator generator, DbSqlQueryExpression sqlQuery, DbExpression operand)
+        {
+            operand.Accept(generator);
+            generator._sqlBuilder.Append(" IN (");
+            sqlQuery.Accept(generator);
             generator._sqlBuilder.Append(")");
 
             return;
