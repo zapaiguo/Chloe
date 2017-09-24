@@ -292,8 +292,16 @@ namespace Chloe.Core
                     }
                     else
                     {
-                        parameter.Value = param.Value;
                         parameterType = param.Value.GetType();
+                        if (parameterType.IsEnum)
+                        {
+                            parameterType = Enum.GetUnderlyingType(parameterType);
+                            parameter.Value = Convert.ChangeType(param.Value, parameterType);
+                        }
+                        else
+                        {
+                            parameter.Value = param.Value;
+                        }
                     }
 
                     if (param.Precision != null)

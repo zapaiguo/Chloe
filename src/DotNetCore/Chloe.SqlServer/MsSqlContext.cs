@@ -300,8 +300,8 @@ namespace Chloe.SqlServer
 
                     if (conn.State != ConnectionState.Open)
                     {
-                        shouldCloseConnection = true;
                         conn.Open();
+                        shouldCloseConnection = true;
                     }
 
                     sbc.WriteToServer(dtToWrite);
@@ -338,7 +338,7 @@ namespace Chloe.SqlServer
                      */
 
                     SysType sysType = GetSysTypeByTypeName(column.TypeName);
-                    columnMapping.DefaultValue = column.IsNullable ? null : sysType.DetaultValue;
+                    columnMapping.DefaultValue = column.IsNullable ? null : sysType.DefaultValue;
                     dataType = sysType.CSharpType;
                 }
                 else
@@ -465,14 +465,14 @@ namespace Chloe.SqlServer
             {
                 this.TypeName = typeName;
                 this.CSharpType = typeof(TCSharpType);
-                this.DetaultValue = default(TCSharpType);
+                this.DefaultValue = default(TCSharpType);
             }
         }
         class SysType
         {
             public string TypeName { get; set; }
             public Type CSharpType { get; set; }
-            public object DetaultValue { get; set; }
+            public object DefaultValue { get; set; }
         }
         class SysColumn
         {

@@ -23,7 +23,7 @@ namespace Chloe
         {
             /*
              * key:
-             * 如果实体是单一主键，则传入的 key 与主键属性类型相同的值
+             * 如果实体是单一主键，可以传入的 key 与主键属性类型相同的值，亦可以传一个包含了与实体主键类型相同的属性的对象，如：new { Id = 1 }
              * 如果实体是多主键，则传入的 key 须是包含了与实体主键类型相同的属性的对象，如：new { Key1 = "1", Key2 = "2" }
              */
 
@@ -35,7 +35,8 @@ namespace Chloe
 
             KeyValuePairList<MemberInfo, object> keyValueMap = new KeyValuePairList<MemberInfo, object>();
 
-            if (typeDescriptor.PrimaryKeys.Count == 1)
+            Type keyType = key.GetType();
+            if (typeDescriptor.PrimaryKeys.Count == 1 && MappingTypeSystem.IsMappingType(keyType))
             {
                 keyValueMap.Add(typeDescriptor.PrimaryKeys[0].MemberInfo, key);
             }
@@ -46,7 +47,7 @@ namespace Chloe
                  */
 
                 object multipleKeyObject = key;
-                Type multipleKeyObjectType = multipleKeyObject.GetType();
+                Type multipleKeyObjectType = keyType;
 
                 for (int i = 0; i < typeDescriptor.PrimaryKeys.Count; i++)
                 {

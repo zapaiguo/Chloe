@@ -60,7 +60,7 @@ namespace Chloe.Infrastructure
 
             Type underlyingType = type.GetUnderlyingType();
             if (underlyingType.IsEnum)
-                underlyingType = UtilConstants.TypeOfInt32;
+                underlyingType = Enum.GetUnderlyingType(underlyingType);
 
             DbType ret;
             if (_typeMap.TryGetValue(underlyingType, out ret))
