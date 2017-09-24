@@ -16,6 +16,9 @@ namespace Chloe.DbExpressions
         public abstract T Visit(DbDivideExpression exp);
         // %
         public abstract T Visit(DbModuloExpression exp);
+
+        public abstract T Visit(DbNegateExpression exp);
+
         // <
         public abstract T Visit(DbLessThanExpression exp);
         // <=

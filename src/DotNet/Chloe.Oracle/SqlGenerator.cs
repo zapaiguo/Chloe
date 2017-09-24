@@ -257,6 +257,16 @@ namespace Chloe.Oracle
 
             return exp;
         }
+        public override DbExpression Visit(DbNegateExpression exp)
+        {
+            this._sqlBuilder.Append("(");
+
+            this._sqlBuilder.Append("-");
+            exp.Operand.Accept(this);
+
+            this._sqlBuilder.Append(")");
+            return exp;
+        }
         // <
         public override DbExpression Visit(DbLessThanExpression exp)
         {

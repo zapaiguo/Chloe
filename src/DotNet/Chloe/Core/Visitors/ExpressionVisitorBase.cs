@@ -74,6 +74,12 @@ namespace Chloe.Core.Visitors
         {
             return DbExpression.Modulo(this.Visit(exp.Left), this.Visit(exp.Right), exp.Type);
         }
+
+        protected override DbExpression VisitUnary_Negate(UnaryExpression exp)
+        {
+            return new DbNegateExpression(exp.Type, this.Visit(exp.Operand));
+        }
+
         // <
         protected override DbExpression VisitBinary_LessThan(BinaryExpression exp)
         {

@@ -24,8 +24,8 @@ namespace Chloe.Core.Visitors
                     return this.VisitUnary_Quote((UnaryExpression)exp);
                 case ExpressionType.Negate:
                 case ExpressionType.NegateChecked:
+                    return this.VisitUnary_Negate((UnaryExpression)exp);
                 case ExpressionType.ArrayLength:
-
                 case ExpressionType.TypeAs:
                     return this.VisitUnary((UnaryExpression)exp);
                 case ExpressionType.Add:
@@ -111,6 +111,10 @@ namespace Chloe.Core.Visitors
             throw new NotImplementedException(exp.ToString());
         }
         protected virtual T VisitUnary_Quote(UnaryExpression exp)
+        {
+            throw new NotImplementedException(exp.ToString());
+        }
+        protected virtual T VisitUnary_Negate(UnaryExpression exp)
         {
             throw new NotImplementedException(exp.ToString());
         }

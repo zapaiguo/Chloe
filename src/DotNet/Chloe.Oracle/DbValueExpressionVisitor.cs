@@ -78,6 +78,10 @@ namespace Chloe.Oracle
         {
             return exp.Accept(this._generator);
         }
+        public override DbExpression Visit(DbNegateExpression exp)
+        {
+            return exp.Accept(this._generator);
+        }
         // <
         public override DbExpression Visit(DbLessThanExpression exp)
         {
