@@ -18,6 +18,7 @@ namespace Chloe
         IQuery<T> TakePage(int pageNumber, int pageSize);
 
         IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> keySelector);
+        IQuery<T> Distinct();
 
 
         IJoiningQuery<T, TOther> Join<TOther>(JoinType joinType, Expression<Func<T, TOther, bool>> on);

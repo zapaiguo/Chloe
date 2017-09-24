@@ -44,6 +44,9 @@ namespace Chloe.Query.QueryExpressions
         {
             throw new NotImplementedException();
         }
-
+        public virtual T Visit(DistinctExpression exp)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

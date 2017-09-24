@@ -13,6 +13,8 @@ namespace Chloe.SqlServer
             //order by number offset 10 rows fetch next 20 rows only;
             this._sqlBuilder.Append("SELECT ");
 
+            this.AppendDistinct(exp.IsDistinct);
+
             List<DbColumnSegment> columns = exp.ColumnSegments;
             for (int i = 0; i < columns.Count; i++)
             {

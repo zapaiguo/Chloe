@@ -22,5 +22,6 @@ namespace Chloe.Query.QueryState
         IQueryState Accept(TakeExpression exp);
         IQueryState Accept(AggregateQueryExpression exp);
         IQueryState Accept(GroupingQueryExpression exp);
+        IQueryState Accept(DistinctExpression exp);
     }
 }

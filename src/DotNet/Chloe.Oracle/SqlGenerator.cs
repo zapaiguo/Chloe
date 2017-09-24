@@ -401,6 +401,7 @@ namespace Chloe.Oracle
                     newSqlQuery.SkipCount = exp.SkipCount.Value;
                 }
 
+                newSqlQuery.IsDistinct = exp.IsDistinct;
                 newSqlQuery.Accept(this);
                 return exp;
             }
@@ -418,6 +419,7 @@ namespace Chloe.Oracle
                 DbColumnAccessExpression columnAccessExp = new DbColumnAccessExpression(table, DbColumn.MakeColumn(row_numberSeg.Body, row_numberName));
                 newSqlQuery.Condition = DbExpression.GreaterThan(columnAccessExp, DbExpression.Constant(exp.SkipCount.Value));
 
+                newSqlQuery.IsDistinct = exp.IsDistinct;
                 newSqlQuery.Accept(this);
                 return exp;
             }
@@ -815,6 +817,9 @@ namespace Chloe.Oracle
                 throw new ArgumentException();
 
             this._sqlBuilder.Append("SELECT ");
+
+            if (exp.IsDistinct)
+                this._sqlBuilder.Append("DISTINCT ");
 
             List<DbColumnSegment> columns = exp.ColumnSegments;
             for (int i = 0; i < columns.Count; i++)

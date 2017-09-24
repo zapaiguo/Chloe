@@ -126,6 +126,11 @@ namespace Chloe.Query.QueryState
             var newResult = this.CreateNewResult(exp.Selector);
             return new GroupingQueryState(newResult);
         }
+        public virtual IQueryState Accept(DistinctExpression exp)
+        {
+            DistinctQueryState state = new DistinctQueryState(this.Result);
+            return state;
+        }
 
         public virtual ResultElement CreateNewResult(LambdaExpression selector)
         {

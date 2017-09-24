@@ -743,6 +743,9 @@ namespace Chloe.SqlServer
         void BuildGeneralSql(DbSqlQueryExpression exp)
         {
             this._sqlBuilder.Append("SELECT ");
+
+            this.AppendDistinct(exp.IsDistinct);
+
             if (exp.TakeCount != null)
                 this._sqlBuilder.Append("TOP (", exp.TakeCount.ToString(), ") ");
 
@@ -765,6 +768,9 @@ namespace Chloe.SqlServer
         protected virtual void BuildLimitSql(DbSqlQueryExpression exp)
         {
             this._sqlBuilder.Append("SELECT ");
+
+            this.AppendDistinct(exp.IsDistinct);
+
             if (exp.TakeCount != null)
                 this._sqlBuilder.Append("TOP (", exp.TakeCount.ToString(), ") ");
 
@@ -828,6 +834,11 @@ namespace Chloe.SqlServer
             this.QuoteName(row_numberName);
             this._sqlBuilder.Append(" > ");
             this._sqlBuilder.Append(exp.SkipCount.ToString());
+        }
+        protected void AppendDistinct(bool isDistinct)
+        {
+            if (isDistinct)
+                this._sqlBuilder.Append("DISTINCT ");
         }
 
 

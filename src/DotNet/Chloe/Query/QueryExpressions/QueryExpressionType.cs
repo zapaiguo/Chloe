@@ -16,5 +16,6 @@ namespace Chloe.Query.QueryExpressions
         Aggregate,
         JoinQuery,
         GroupingQuery,
+        Distinct,
     }
 }

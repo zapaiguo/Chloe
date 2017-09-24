@@ -7,7 +7,7 @@ namespace Chloe.Query.QueryExpressions
     class WhereExpression : QueryExpression
     {
         LambdaExpression _predicate;
-        public WhereExpression(QueryExpression prevExpression, Type elementType, LambdaExpression predicate)
+        public WhereExpression(Type elementType, QueryExpression prevExpression, LambdaExpression predicate)
             : base(QueryExpressionType.Where, elementType, prevExpression)
         {
             this._predicate = predicate;

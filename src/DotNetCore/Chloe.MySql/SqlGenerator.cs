@@ -442,7 +442,7 @@ namespace Chloe.MySql
                 SkipCount = rawSqlQuery.SkipCount,
                 Table = rawSqlQuery.Table,
                 Condition = rawSqlQuery.Condition,
-                HavingCondition = rawSqlQuery.HavingCondition,
+                HavingCondition = rawSqlQuery.HavingCondition
             };
 
             sqlQuery.GroupSegments.AddRange(rawSqlQuery.GroupSegments);
@@ -701,6 +701,9 @@ namespace Chloe.MySql
         void BuildGeneralSql(DbSqlQueryExpression exp)
         {
             this._sqlBuilder.Append("SELECT ");
+
+            if (exp.IsDistinct)
+                this._sqlBuilder.Append("DISTINCT ");
 
             List<DbColumnSegment> columns = exp.ColumnSegments;
             for (int i = 0; i < columns.Count; i++)

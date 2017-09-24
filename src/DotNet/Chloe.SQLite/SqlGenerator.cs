@@ -704,6 +704,9 @@ namespace Chloe.SQLite
         {
             this._sqlBuilder.Append("SELECT ");
 
+            if (exp.IsDistinct)
+                this._sqlBuilder.Append("DISTINCT ");
+
             List<DbColumnSegment> columns = exp.ColumnSegments;
             for (int i = 0; i < columns.Count; i++)
             {

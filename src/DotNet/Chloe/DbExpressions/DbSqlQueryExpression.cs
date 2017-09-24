@@ -21,6 +21,7 @@ namespace Chloe.DbExpressions
             this.GroupSegments = new List<DbExpression>();
             this.Orderings = new List<DbOrdering>();
         }
+        public bool IsDistinct { get; set; }
         public int? TakeCount { get; set; }
         public int? SkipCount { get; set; }
         public List<DbColumnSegment> ColumnSegments { get; private set; }
@@ -43,7 +44,8 @@ namespace Chloe.DbExpressions
                 SkipCount = this.SkipCount,
                 Table = this.Table,
                 Condition = this.Condition,
-                HavingCondition = this.HavingCondition
+                HavingCondition = this.HavingCondition,
+                IsDistinct = this.IsDistinct
             };
 
             sqlQuery.ColumnSegments.AddRange(this.ColumnSegments);
