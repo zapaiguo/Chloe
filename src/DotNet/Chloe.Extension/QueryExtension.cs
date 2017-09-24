@@ -50,24 +50,23 @@ namespace Chloe
             return source.WhereIfNotNull(val == string.Empty ? null : val, predicate);
         }
 
-        /// <summary>
-        /// dbContext.Query&lt;User&gt;().ToList&lt;User, UserModel&gt;();
-        /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <typeparam name="TModel"></typeparam>
-        /// <param name="source"></param>
-        /// <returns></returns>
+        [Obsolete("Instead of using 'ToList<TModel>(this IQuery source)'")]
         public static List<TModel> ToList<TEntity, TModel>(this IQuery<TEntity> source)
         {
             return source.MapTo<TEntity, TModel>().ToList();
         }
         /// <summary>
-        /// dbContext.Query&lt;User&gt;().MapTo&lt;User, UserModel&gt;().ToList();
+        /// dbContext.Query&lt;User&gt;().ToList&lt;UserModel&gt;();
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TModel"></typeparam>
         /// <param name="source"></param>
         /// <returns></returns>
+        public static List<TModel> ToList<TModel>(this IQuery source)
+        {
+            return source.MapTo<TModel>().ToList();
+        }
+        [Obsolete("Instead of using 'MapTo<TModel>(this IQuery source)'")]
         public static IQuery<TModel> MapTo<TEntity, TModel>(this IQuery<TEntity> source)
         {
             /*
@@ -75,16 +74,30 @@ namespace Chloe
              * dbContext.Query<User>().MapTo<User, UserModel>().ToList();
              */
 
+            return source.MapTo<TModel>();
+        }
+        /// <summary>
+        /// dbContext.Query&lt;User&gt;().MapTo&lt;UserModel&gt;()
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static IQuery<TModel> MapTo<TModel>(this IQuery source)
+        {
             /*
              * 根据 TEntity 与 TModel 属性对应关系构建 selector 表达式树，最后调用 Select() 方法
              * dbContext.Query<User>().Select(a => new UserModel() { Id = a.Id, Name = a.Name });
              * ps: 只支持简单的映射，不支持复杂的对应关系
              */
 
+            Utils.CheckNull(source);
+
             List<MemberBinding> bindings = new List<MemberBinding>();
 
+            Type entityType = source.ElementType;
             Type modelType = typeof(TModel);
-            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(typeof(TEntity));
+
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entityType);
             var mappingMemberDescriptors = typeDescriptor.MappingMemberDescriptors.Select(a => a.Value).ToDictionary(a => a.MemberInfo.Name, a => a);
 
             var props = modelType.GetProperties();
@@ -112,7 +125,68 @@ namespace Chloe
 
             NewExpression newExp = Expression.New(modelType);
             Expression selectorBody = Expression.MemberInit(newExp, bindings);
-            Expression<Func<TEntity, TModel>> selector = Expression.Lambda<Func<TEntity, TModel>>(selectorBody, parameter);
+
+            Type funcType = typeof(Func<,>).MakeGenericType(entityType, modelType);
+            LambdaExpression selector = Expression.Lambda(funcType, selectorBody, parameter);
+
+            MethodInfo methodInfo_Select = source.GetType().GetMethod("Select").MakeGenericMethod(modelType);
+            var obj = methodInfo_Select.Invoke(source, new object[] { selector });
+            return (IQuery<TModel>)obj;
+        }
+
+        /// <summary>
+        /// dbContext.Query&lt;User&gt;().Ignore&lt;User&gt;(a => new object[] { a.Name, a.Age })
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        public static IQuery<TEntity> Ignore<TEntity>(this IQuery<TEntity> source, Expression<Func<TEntity, object[]>> fields)
+        {
+            Utils.CheckNull(fields);
+
+            List<string> fieldList = IgnoreFieldsPicker.Pick(fields);
+            return source.Ignore(fieldList.ToArray());
+        }
+        /// <summary>
+        /// dbContext.Query&lt;User&gt;().Ignore&lt;User&gt;("Age", "Name")
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        public static IQuery<TEntity> Ignore<TEntity>(this IQuery<TEntity> source, params string[] fields)
+        {
+            Utils.CheckNull(source);
+
+            if (fields == null || fields.Length == 0)
+                return source;
+
+            List<MemberBinding> bindings = new List<MemberBinding>();
+
+            Type entityType = source.ElementType;
+
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entityType);
+            var mappingMemberDescriptors = typeDescriptor.MappingMemberDescriptors.Select(a => a.Value).ToList();
+
+            ParameterExpression parameter = Expression.Parameter(entityType, "a");
+            foreach (var mappingMemberDescriptor in mappingMemberDescriptors)
+            {
+                if (fields.Any(a => a == mappingMemberDescriptor.MemberInfo.Name))
+                    continue;
+
+                Expression sourceMemberAccess = Expression.MakeMemberAccess(parameter, mappingMemberDescriptor.MemberInfo);
+                MemberAssignment bind = Expression.Bind(mappingMemberDescriptor.MemberInfo, sourceMemberAccess);
+                bindings.Add(bind);
+            }
+
+            if (bindings.Count == 0)
+                throw new Exception("There are not fields to map after ignore.");
+
+            NewExpression newExp = Expression.New(entityType);
+            Expression selectorBody = Expression.MemberInit(newExp, bindings);
+
+            Expression<Func<TEntity, TEntity>> selector = Expression.Lambda<Func<TEntity, TEntity>>(selectorBody, parameter);
 
             return source.Select(selector);
         }
