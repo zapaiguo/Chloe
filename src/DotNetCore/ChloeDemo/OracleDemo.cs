@@ -248,7 +248,7 @@ namespace ChloeDemo
             users = userQuery.Where(a => cityQuery.Where(c => c.Id == a.CityId).Any()).ToList();
             /*
              * SELECT 
-             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" \
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME"
              * FROM "USERS" "USERS" 
              * WHERE Exists (SELECT N'1' AS "C" FROM "CITY" "CITY" WHERE "CITY"."ID" = "USERS"."CITYID")
              */
