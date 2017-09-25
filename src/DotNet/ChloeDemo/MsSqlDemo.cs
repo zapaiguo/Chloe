@@ -20,10 +20,10 @@ namespace ChloeDemo
 
         public static void Run()
         {
-            //BasicQuery();
-            //JoinQuery();
-            //AggregateQuery();
-            //GroupQuery();
+            BasicQuery();
+            JoinQuery();
+            AggregateQuery();
+            GroupQuery();
             ComplexQuery();  /* v2.18复杂查询 */
             Insert();
             BulkInsert();
