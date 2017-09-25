@@ -19,6 +19,7 @@ namespace ChloeDemo
             JoinQuery();
             AggregateQuery();
             GroupQuery();
+            ComplexQuery();  /* v2.18复杂查询 */
             Insert();
             Update();
             Delete();
@@ -40,16 +41,57 @@ namespace ChloeDemo
              * SELECT "USERS"."ID" AS "ID","USERS"."NAME" AS "NAME","USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME" FROM "USERS" "USERS" WHERE ("USERS"."ID" = 1 AND ROWNUM < 2)
              */
 
+
             //可以选取指定的字段
             q.Where(a => a.Id == 1).Select(a => new { a.Id, a.Name }).FirstOrDefault();
             /*
              * SELECT "USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" FROM "USERS" "USERS" WHERE ("USERS"."ID" = 1 AND ROWNUM < 2)
              */
 
+
             //分页
             q.Where(a => a.Id > 0).OrderBy(a => a.Age).Skip(20).Take(10).ToList();
             /*
              * SELECT "T"."ID" AS "ID","T"."NAME" AS "NAME","T"."GENDER" AS "GENDER","T"."AGE" AS "AGE","T"."CITYID" AS "CITYID","T"."OPTIME" AS "OPTIME" FROM (SELECT "TTAKE"."ID" AS "ID","TTAKE"."NAME" AS "NAME","TTAKE"."GENDER" AS "GENDER","TTAKE"."AGE" AS "AGE","TTAKE"."CITYID" AS "CITYID","TTAKE"."OPTIME" AS "OPTIME",ROWNUM AS "ROW_NUMBER_0" FROM (SELECT "USERS"."ID" AS "ID","USERS"."NAME" AS "NAME","USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME" FROM "USERS" "USERS" WHERE "USERS"."ID" > 0 ORDER BY "USERS"."AGE" ASC) "TTAKE" WHERE ROWNUM < 31) "T" WHERE "T"."ROW_NUMBER_0" > 20
+             */
+
+
+            /* like 查询 */
+            q.Where(a => a.Name.Contains("so") || a.Name.StartsWith("s") || a.Name.EndsWith("o")).ToList();
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS" 
+             * WHERE ("USERS"."NAME" LIKE '%' || N'so' || '%' OR "USERS"."NAME" LIKE N's' || '%' OR "USERS"."NAME" LIKE '%' || N'o')
+             */
+
+
+            /* in 一个数组 */
+            List<User> users = null;
+            List<int> userIds = new List<int>() { 1, 2, 3 };
+            users = q.Where(a => userIds.Contains(a.Id)).ToList(); /* list.Contains() 方法组合就会生成 in一个数组 sql 语句 */
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS" 
+             * WHERE "USERS"."ID" IN (1,2,3)
+             */
+
+
+            /* in 子查询 */
+            users = q.Where(a => context.Query<City>().Select(c => c.Id).ToList().Contains((int)a.CityId)).ToList(); /* IQuery<T>.ToList().Contains() 方法组合就会生成 in 子查询 sql 语句 */
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS" 
+             * WHERE "USERS"."CITYID" IN (SELECT "CITY"."ID" AS "C" FROM "CITY" "CITY")
+             */
+
+
+            /* distinct 查询 */
+            q.Select(a => new { a.Name }).Distinct().ToList();
+            /*
+             * SELECT DISTINCT "USERS"."NAME" AS "NAME" FROM "USERS" "USERS"
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -74,8 +116,8 @@ namespace ChloeDemo
 
 
             /* quick join and paging. */
-            context.JoinQuery<User, City>((user, city) => new object[] 
-            { 
+            context.JoinQuery<User, City>((user, city) => new object[]
+            {
                 JoinType.LeftJoin, user.CityId == city.Id
             })
             .Select((user, city) => new { User = user, City = city })
@@ -84,8 +126,8 @@ namespace ChloeDemo
             .TakePage(1, 20)
             .ToList();
 
-            context.JoinQuery<User, City, Province>((user, city, province) => new object[] 
-            { 
+            context.JoinQuery<User, City, Province>((user, city, province) => new object[]
+            {
                 JoinType.LeftJoin, user.CityId == city.Id,          /* 表 User 和 City 进行Left连接 */
                 JoinType.LeftJoin, city.ProvinceId == province.Id   /* 表 City 和 Province 进行Left连接 */
             })
@@ -154,6 +196,90 @@ namespace ChloeDemo
             g.Select(a => new { a.Age, Count = AggregateFunctions.Count(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Avg = AggregateFunctions.Average(a.Age) }).ToList();
             /*
              * SELECT "USERS"."AGE" AS "AGE",COUNT(1) AS "COUNT",SUM("USERS"."AGE") AS "SUM",MAX("USERS"."AGE") AS "MAX",MIN("USERS"."AGE") AS "MIN",AVG("USERS"."AGE") AS "AVG" FROM "USERS" "USERS" WHERE "USERS"."ID" > 0 GROUP BY "USERS"."AGE" HAVING ("USERS"."AGE" > 1 AND COUNT(1) > 0)
+             */
+
+            ConsoleHelper.WriteLineAndReadKey();
+        }
+
+        /*复杂查询*/
+        public static void ComplexQuery()
+        {
+            /*
+             * 支持 select * from Users where CityId in (1,2,3)    --in一个数组
+             * 支持 select * from Users where CityId in (select Id from City)    --in子查询
+             * 支持 select * from Users exists (select 1 from City where City.Id=Users.CityId)    --exists查询
+             * 支持 select (select top 1 CityName from City where Users.CityId==City.Id) as CityName, Users.Id, Users.Name from Users    --select子查询
+             * 支持 select 
+             *            (select count(*) from Users where Users.CityId=City.Id) as UserCount,     --总数
+             *            (select max(Users.Age) from Users where Users.CityId=City.Id) as MaxAge,  --最大年龄
+             *            (select avg(Users.Age) from Users where Users.CityId=City.Id) as AvgAge   --平均年龄
+             *      from City
+             *      --统计查询
+             */
+
+            IQuery<User> userQuery = context.Query<User>();
+            IQuery<City> cityQuery = context.Query<City>();
+
+            List<User> users = null;
+
+            /* in 一个数组 */
+            List<int> userIds = new List<int>() { 1, 2, 3 };
+            users = userQuery.Where(a => userIds.Contains(a.Id)).ToList();  /* list.Contains() 方法组合就会生成 in一个数组 sql 语句 */
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS" 
+             * WHERE "USERS"."ID" IN (1,2,3)
+             */
+
+
+            /* in 子查询 */
+            users = userQuery.Where(a => cityQuery.Select(c => c.Id).ToList().Contains((int)a.CityId)).ToList();  /* IQuery<T>.ToList().Contains() 方法组合就会生成 in 子查询 sql 语句 */
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS" 
+             * WHERE "USERS"."CITYID" IN (SELECT "CITY"."ID" AS "C" FROM "CITY" "CITY")
+             */
+
+
+            /* IQuery<T>.Any() 方法组合就会生成 exists 子查询 sql 语句 */
+            users = userQuery.Where(a => cityQuery.Where(c => c.Id == a.CityId).Any()).ToList();
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" \
+             * FROM "USERS" "USERS" 
+             * WHERE Exists (SELECT N'1' AS "C" FROM "CITY" "CITY" WHERE "CITY"."ID" = "USERS"."CITYID")
+             */
+
+
+            /* select 子查询 */
+            var result = userQuery.Select(a => new
+            {
+                CityName = cityQuery.Where(c => c.Id == a.CityId).First().Name,
+                User = a
+            }).ToList();
+            /*
+             * SELECT 
+             *      (SELECT "CITY"."NAME" AS "C" FROM "CITY" "CITY" WHERE ("CITY"."ID" = "USERS"."CITYID" AND ROWNUM < 2)) AS "CITYNAME",
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS"
+             */
+
+
+            /* 统计 */
+            var statisticsResult = cityQuery.Select(a => new
+            {
+                UserCount = userQuery.Where(u => u.CityId == a.Id).Count(),
+                MaxAge = userQuery.Where(u => u.CityId == a.Id).Max(c => c.Age),
+                AvgAge = userQuery.Where(u => u.CityId == a.Id).Average(c => c.Age),
+            }).ToList();
+            /*
+             * SELECT 
+             *      (SELECT COUNT(1) AS "C" FROM "USERS" "USERS" WHERE "USERS"."CITYID" = "CITY"."ID") AS "USERCOUNT",
+             *      (SELECT MAX("USERS"."AGE") AS "C" FROM "USERS" "USERS" WHERE "USERS"."CITYID" = "CITY"."ID") AS "MAXAGE",
+             *      (SELECT AVG("USERS"."AGE") AS "C" FROM "USERS" "USERS" WHERE "USERS"."CITYID" = "CITY"."ID") AS "AVGAGE" 
+             * FROM "CITY" "CITY"
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -271,74 +397,74 @@ namespace ChloeDemo
             DateTime startTime = DateTime.Now;
             DateTime endTime = startTime.AddDays(1);
             var ret = q.Select(a => new
-                 {
-                     Id = a.Id,
+            {
+                Id = a.Id,
 
-                     String_Length = (int?)a.Name.Length,//LENGTH("USERS"."NAME")
-                     Substring = a.Name.Substring(0),//SUBSTR("USERS"."NAME",0 + 1,LENGTH("USERS"."NAME"))
-                     Substring1 = a.Name.Substring(1),//SUBSTR("USERS"."NAME",1 + 1,LENGTH("USERS"."NAME"))
-                     Substring1_2 = a.Name.Substring(1, 2),//SUBSTR("USERS"."NAME",1 + 1,2)
-                     ToLower = a.Name.ToLower(),//LOWER("USERS"."NAME")
-                     ToUpper = a.Name.ToUpper(),//UPPER("USERS"."NAME")
-                     IsNullOrEmpty = string.IsNullOrEmpty(a.Name),//too long
-                     Contains = (bool?)a.Name.Contains("s"),//
-                     Trim = a.Name.Trim(),//TRIM("USERS"."NAME")
-                     TrimStart = a.Name.TrimStart(space),//LTRIM("USERS"."NAME")
-                     TrimEnd = a.Name.TrimEnd(space),//RTRIM("USERS"."NAME")
-                     StartsWith = (bool?)a.Name.StartsWith("s"),//
-                     EndsWith = (bool?)a.Name.EndsWith("s"),//
+                String_Length = (int?)a.Name.Length,//LENGTH("USERS"."NAME")
+                Substring = a.Name.Substring(0),//SUBSTR("USERS"."NAME",0 + 1,LENGTH("USERS"."NAME"))
+                Substring1 = a.Name.Substring(1),//SUBSTR("USERS"."NAME",1 + 1,LENGTH("USERS"."NAME"))
+                Substring1_2 = a.Name.Substring(1, 2),//SUBSTR("USERS"."NAME",1 + 1,2)
+                ToLower = a.Name.ToLower(),//LOWER("USERS"."NAME")
+                ToUpper = a.Name.ToUpper(),//UPPER("USERS"."NAME")
+                IsNullOrEmpty = string.IsNullOrEmpty(a.Name),//too long
+                Contains = (bool?)a.Name.Contains("s"),//
+                Trim = a.Name.Trim(),//TRIM("USERS"."NAME")
+                TrimStart = a.Name.TrimStart(space),//LTRIM("USERS"."NAME")
+                TrimEnd = a.Name.TrimEnd(space),//RTRIM("USERS"."NAME")
+                StartsWith = (bool?)a.Name.StartsWith("s"),//
+                EndsWith = (bool?)a.Name.EndsWith("s"),//
 
-                     /* oracle is not supported DbFunctions.Diffxx. */
-                     //DiffYears = DbFunctions.DiffYears(startTime, endTime),//
-                     //DiffMonths = DbFunctions.DiffMonths(startTime, endTime),//
-                     //DiffDays = DbFunctions.DiffDays(startTime, endTime),//
-                     //DiffHours = DbFunctions.DiffHours(startTime, endTime),//
-                     //DiffMinutes = DbFunctions.DiffMinutes(startTime, endTime),//
-                     //DiffSeconds = DbFunctions.DiffSeconds(startTime, endTime),//
-                     //DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),//
-                     //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//
+                /* oracle is not supported DbFunctions.Diffxx. */
+                //DiffYears = DbFunctions.DiffYears(startTime, endTime),//
+                //DiffMonths = DbFunctions.DiffMonths(startTime, endTime),//
+                //DiffDays = DbFunctions.DiffDays(startTime, endTime),//
+                //DiffHours = DbFunctions.DiffHours(startTime, endTime),//
+                //DiffMinutes = DbFunctions.DiffMinutes(startTime, endTime),//
+                //DiffSeconds = DbFunctions.DiffSeconds(startTime, endTime),//
+                //DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),//
+                //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//
 
-                     /* ((CAST(:P_0 AS DATE)-CAST(:P_1 AS DATE)) * 86400000 + CAST(TO_CHAR(CAST(:P_0 AS TIMESTAMP),'ff3') AS NUMBER) - CAST(TO_CHAR(CAST(:P_1 AS TIMESTAMP),'ff3') AS NUMBER)) / 86400000 */
-                     SubtractTotalDays = endTime.Subtract(startTime).TotalDays,//
-                     SubtractTotalHours = endTime.Subtract(startTime).TotalHours,//...
-                     SubtractTotalMinutes = endTime.Subtract(startTime).TotalMinutes,//...
-                     SubtractTotalSeconds = endTime.Subtract(startTime).TotalSeconds,//...
-                     SubtractTotalMilliseconds = endTime.Subtract(startTime).TotalMilliseconds,//...
+                /* ((CAST(:P_0 AS DATE)-CAST(:P_1 AS DATE)) * 86400000 + CAST(TO_CHAR(CAST(:P_0 AS TIMESTAMP),'ff3') AS NUMBER) - CAST(TO_CHAR(CAST(:P_1 AS TIMESTAMP),'ff3') AS NUMBER)) / 86400000 */
+                SubtractTotalDays = endTime.Subtract(startTime).TotalDays,//
+                SubtractTotalHours = endTime.Subtract(startTime).TotalHours,//...
+                SubtractTotalMinutes = endTime.Subtract(startTime).TotalMinutes,//...
+                SubtractTotalSeconds = endTime.Subtract(startTime).TotalSeconds,//...
+                SubtractTotalMilliseconds = endTime.Subtract(startTime).TotalMilliseconds,//...
 
-                     AddYears = startTime.AddYears(1),//ADD_MONTHS(:P_0,12 * 1)
-                     AddMonths = startTime.AddMonths(1),//ADD_MONTHS(:P_0,1)
-                     AddDays = startTime.AddDays(1),//(:P_0 + 1)
-                     AddHours = startTime.AddHours(1),//(:P_0 + NUMTODSINTERVAL(1,'HOUR'))
-                     AddMinutes = startTime.AddMinutes(2),//(:P_0 + NUMTODSINTERVAL(2,'MINUTE'))
-                     AddSeconds = startTime.AddSeconds(120),//(:P_0 + NUMTODSINTERVAL(120,'SECOND'))
-                     //AddMilliseconds = startTime.AddMilliseconds(20000),//不支持
+                AddYears = startTime.AddYears(1),//ADD_MONTHS(:P_0,12 * 1)
+                AddMonths = startTime.AddMonths(1),//ADD_MONTHS(:P_0,1)
+                AddDays = startTime.AddDays(1),//(:P_0 + 1)
+                AddHours = startTime.AddHours(1),//(:P_0 + NUMTODSINTERVAL(1,'HOUR'))
+                AddMinutes = startTime.AddMinutes(2),//(:P_0 + NUMTODSINTERVAL(2,'MINUTE'))
+                AddSeconds = startTime.AddSeconds(120),//(:P_0 + NUMTODSINTERVAL(120,'SECOND'))
+                                                       //AddMilliseconds = startTime.AddMilliseconds(20000),//不支持
 
-                     Now = DateTime.Now,//SYSTIMESTAMP
-                     UtcNow = DateTime.UtcNow,//SYS_EXTRACT_UTC(SYSTIMESTAMP)
-                     Today = DateTime.Today,//TRUNC(SYSDATE,'DD')
-                     Date = DateTime.Now.Date,//TRUNC(SYSTIMESTAMP,'DD')
-                     Year = DateTime.Now.Year,//CAST(TO_CHAR(SYSTIMESTAMP,'yyyy') AS NUMBER)
-                     Month = DateTime.Now.Month,//CAST(TO_CHAR(SYSTIMESTAMP,'mm') AS NUMBER)
-                     Day = DateTime.Now.Day,//CAST(TO_CHAR(SYSTIMESTAMP,'dd') AS NUMBER)
-                     Hour = DateTime.Now.Hour,//CAST(TO_CHAR(SYSTIMESTAMP,'hh24') AS NUMBER)
-                     Minute = DateTime.Now.Minute,//CAST(TO_CHAR(SYSTIMESTAMP,'mi') AS NUMBER)
-                     Second = DateTime.Now.Second,//CAST(TO_CHAR(SYSTIMESTAMP,'ss') AS NUMBER)
-                     Millisecond = DateTime.Now.Millisecond,//CAST(TO_CHAR(SYSTIMESTAMP,'ff3') AS NUMBER)
-                     DayOfWeek = DateTime.Now.DayOfWeek,//(CAST(TO_CHAR(SYSTIMESTAMP,'D') AS NUMBER) - 1)
+                Now = DateTime.Now,//SYSTIMESTAMP
+                UtcNow = DateTime.UtcNow,//SYS_EXTRACT_UTC(SYSTIMESTAMP)
+                Today = DateTime.Today,//TRUNC(SYSDATE,'DD')
+                Date = DateTime.Now.Date,//TRUNC(SYSTIMESTAMP,'DD')
+                Year = DateTime.Now.Year,//CAST(TO_CHAR(SYSTIMESTAMP,'yyyy') AS NUMBER)
+                Month = DateTime.Now.Month,//CAST(TO_CHAR(SYSTIMESTAMP,'mm') AS NUMBER)
+                Day = DateTime.Now.Day,//CAST(TO_CHAR(SYSTIMESTAMP,'dd') AS NUMBER)
+                Hour = DateTime.Now.Hour,//CAST(TO_CHAR(SYSTIMESTAMP,'hh24') AS NUMBER)
+                Minute = DateTime.Now.Minute,//CAST(TO_CHAR(SYSTIMESTAMP,'mi') AS NUMBER)
+                Second = DateTime.Now.Second,//CAST(TO_CHAR(SYSTIMESTAMP,'ss') AS NUMBER)
+                Millisecond = DateTime.Now.Millisecond,//CAST(TO_CHAR(SYSTIMESTAMP,'ff3') AS NUMBER)
+                DayOfWeek = DateTime.Now.DayOfWeek,//(CAST(TO_CHAR(SYSTIMESTAMP,'D') AS NUMBER) - 1)
 
-                     Int_Parse = int.Parse("1"),//CAST(N'1' AS NUMBER)
-                     Int16_Parse = Int16.Parse("11"),//CAST(N'11' AS NUMBER)
-                     Long_Parse = long.Parse("2"),//CAST(N'2' AS NUMBER)
-                     Double_Parse = double.Parse("3"),//CAST(N'3' AS BINARY_DOUBLE)
-                     Float_Parse = float.Parse("4"),//CAST(N'4' AS BINARY_FLOAT)
-                     Decimal_Parse = decimal.Parse("5"),//CAST(N'5' AS NUMBER)
-                     //Guid_Parse = Guid.Parse("D544BC4C-739E-4CD3-A3D3-7BF803FCE179"),//不支持
+                Int_Parse = int.Parse("1"),//CAST(N'1' AS NUMBER)
+                Int16_Parse = Int16.Parse("11"),//CAST(N'11' AS NUMBER)
+                Long_Parse = long.Parse("2"),//CAST(N'2' AS NUMBER)
+                Double_Parse = double.Parse("3"),//CAST(N'3' AS BINARY_DOUBLE)
+                Float_Parse = float.Parse("4"),//CAST(N'4' AS BINARY_FLOAT)
+                Decimal_Parse = decimal.Parse("5"),//CAST(N'5' AS NUMBER)
+                                                   //Guid_Parse = Guid.Parse("D544BC4C-739E-4CD3-A3D3-7BF803FCE179"),//不支持
 
-                     Bool_Parse = bool.Parse("1"),//
-                     DateTime_Parse = DateTime.Parse("1992-1-16"),//TO_TIMESTAMP(N'1992-1-16','yyyy-mm-dd hh24:mi:ssxff')
+                Bool_Parse = bool.Parse("1"),//
+                DateTime_Parse = DateTime.Parse("1992-1-16"),//TO_TIMESTAMP(N'1992-1-16','yyyy-mm-dd hh24:mi:ssxff')
 
-                     B = a.Age == null ? false : a.Age > 1,
-                 }).ToList();
+                B = a.Age == null ? false : a.Age > 1,
+            }).ToList();
 
             ConsoleHelper.WriteLineAndReadKey();
         }

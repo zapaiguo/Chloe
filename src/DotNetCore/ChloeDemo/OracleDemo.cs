@@ -20,6 +20,7 @@ namespace ChloeDemo
             JoinQuery();
             AggregateQuery();
             GroupQuery();
+            ComplexQuery();  /* v2.18复杂查询 */
             Insert();
             Update();
             Delete();
@@ -41,16 +42,57 @@ namespace ChloeDemo
              * SELECT "USERS"."ID" AS "ID","USERS"."NAME" AS "NAME","USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME" FROM "USERS" "USERS" WHERE ("USERS"."ID" = 1 AND ROWNUM < 2)
              */
 
+
             //可以选取指定的字段
             q.Where(a => a.Id == 1).Select(a => new { a.Id, a.Name }).FirstOrDefault();
             /*
              * SELECT "USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" FROM "USERS" "USERS" WHERE ("USERS"."ID" = 1 AND ROWNUM < 2)
              */
 
+
             //分页
             q.Where(a => a.Id > 0).OrderBy(a => a.Age).Skip(20).Take(10).ToList();
             /*
              * SELECT "T"."ID" AS "ID","T"."NAME" AS "NAME","T"."GENDER" AS "GENDER","T"."AGE" AS "AGE","T"."CITYID" AS "CITYID","T"."OPTIME" AS "OPTIME" FROM (SELECT "TTAKE"."ID" AS "ID","TTAKE"."NAME" AS "NAME","TTAKE"."GENDER" AS "GENDER","TTAKE"."AGE" AS "AGE","TTAKE"."CITYID" AS "CITYID","TTAKE"."OPTIME" AS "OPTIME",ROWNUM AS "ROW_NUMBER_0" FROM (SELECT "USERS"."ID" AS "ID","USERS"."NAME" AS "NAME","USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME" FROM "USERS" "USERS" WHERE "USERS"."ID" > 0 ORDER BY "USERS"."AGE" ASC) "TTAKE" WHERE ROWNUM < 31) "T" WHERE "T"."ROW_NUMBER_0" > 20
+             */
+
+
+            /* like 查询 */
+            q.Where(a => a.Name.Contains("so") || a.Name.StartsWith("s") || a.Name.EndsWith("o")).ToList();
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS" 
+             * WHERE ("USERS"."NAME" LIKE '%' || N'so' || '%' OR "USERS"."NAME" LIKE N's' || '%' OR "USERS"."NAME" LIKE '%' || N'o')
+             */
+
+
+            /* in 一个数组 */
+            List<User> users = null;
+            List<int> userIds = new List<int>() { 1, 2, 3 };
+            users = q.Where(a => userIds.Contains(a.Id)).ToList(); /* list.Contains() 方法组合就会生成 in一个数组 sql 语句 */
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS" 
+             * WHERE "USERS"."ID" IN (1,2,3)
+             */
+
+
+            /* in 子查询 */
+            users = q.Where(a => context.Query<City>().Select(c => c.Id).ToList().Contains((int)a.CityId)).ToList(); /* IQuery<T>.ToList().Contains() 方法组合就会生成 in 子查询 sql 语句 */
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS" 
+             * WHERE "USERS"."CITYID" IN (SELECT "CITY"."ID" AS "C" FROM "CITY" "CITY")
+             */
+
+
+            /* distinct 查询 */
+            q.Select(a => new { a.Name }).Distinct().ToList();
+            /*
+             * SELECT DISTINCT "USERS"."NAME" AS "NAME" FROM "USERS" "USERS"
              */
 
             ConsoleHelper.WriteLineAndReadKey();
@@ -160,6 +202,90 @@ namespace ChloeDemo
             ConsoleHelper.WriteLineAndReadKey();
         }
 
+        /*复杂查询*/
+        public static void ComplexQuery()
+        {
+            /*
+             * 支持 select * from Users where CityId in (1,2,3)    --in一个数组
+             * 支持 select * from Users where CityId in (select Id from City)    --in子查询
+             * 支持 select * from Users exists (select 1 from City where City.Id=Users.CityId)    --exists查询
+             * 支持 select (select top 1 CityName from City where Users.CityId==City.Id) as CityName, Users.Id, Users.Name from Users    --select子查询
+             * 支持 select 
+             *            (select count(*) from Users where Users.CityId=City.Id) as UserCount,     --总数
+             *            (select max(Users.Age) from Users where Users.CityId=City.Id) as MaxAge,  --最大年龄
+             *            (select avg(Users.Age) from Users where Users.CityId=City.Id) as AvgAge   --平均年龄
+             *      from City
+             *      --统计查询
+             */
+
+            IQuery<User> userQuery = context.Query<User>();
+            IQuery<City> cityQuery = context.Query<City>();
+
+            List<User> users = null;
+
+            /* in 一个数组 */
+            List<int> userIds = new List<int>() { 1, 2, 3 };
+            users = userQuery.Where(a => userIds.Contains(a.Id)).ToList();  /* list.Contains() 方法组合就会生成 in一个数组 sql 语句 */
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS" 
+             * WHERE "USERS"."ID" IN (1,2,3)
+             */
+
+
+            /* in 子查询 */
+            users = userQuery.Where(a => cityQuery.Select(c => c.Id).ToList().Contains((int)a.CityId)).ToList();  /* IQuery<T>.ToList().Contains() 方法组合就会生成 in 子查询 sql 语句 */
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS" 
+             * WHERE "USERS"."CITYID" IN (SELECT "CITY"."ID" AS "C" FROM "CITY" "CITY")
+             */
+
+
+            /* IQuery<T>.Any() 方法组合就会生成 exists 子查询 sql 语句 */
+            users = userQuery.Where(a => cityQuery.Where(c => c.Id == a.CityId).Any()).ToList();
+            /*
+             * SELECT 
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" \
+             * FROM "USERS" "USERS" 
+             * WHERE Exists (SELECT N'1' AS "C" FROM "CITY" "CITY" WHERE "CITY"."ID" = "USERS"."CITYID")
+             */
+
+
+            /* select 子查询 */
+            var result = userQuery.Select(a => new
+            {
+                CityName = cityQuery.Where(c => c.Id == a.CityId).First().Name,
+                User = a
+            }).ToList();
+            /*
+             * SELECT 
+             *      (SELECT "CITY"."NAME" AS "C" FROM "CITY" "CITY" WHERE ("CITY"."ID" = "USERS"."CITYID" AND ROWNUM < 2)) AS "CITYNAME",
+             *      "USERS"."GENDER" AS "GENDER","USERS"."AGE" AS "AGE","USERS"."CITYID" AS "CITYID","USERS"."OPTIME" AS "OPTIME","USERS"."ID" AS "ID","USERS"."NAME" AS "NAME" 
+             * FROM "USERS" "USERS"
+             */
+
+
+            /* 统计 */
+            var statisticsResult = cityQuery.Select(a => new
+            {
+                UserCount = userQuery.Where(u => u.CityId == a.Id).Count(),
+                MaxAge = userQuery.Where(u => u.CityId == a.Id).Max(c => c.Age),
+                AvgAge = userQuery.Where(u => u.CityId == a.Id).Average(c => c.Age),
+            }).ToList();
+            /*
+             * SELECT 
+             *      (SELECT COUNT(1) AS "C" FROM "USERS" "USERS" WHERE "USERS"."CITYID" = "CITY"."ID") AS "USERCOUNT",
+             *      (SELECT MAX("USERS"."AGE") AS "C" FROM "USERS" "USERS" WHERE "USERS"."CITYID" = "CITY"."ID") AS "MAXAGE",
+             *      (SELECT AVG("USERS"."AGE") AS "C" FROM "USERS" "USERS" WHERE "USERS"."CITYID" = "CITY"."ID") AS "AVGAGE" 
+             * FROM "CITY" "CITY"
+             */
+
+            ConsoleHelper.WriteLineAndReadKey();
+        }
+
         public static void Insert()
         {
             /* User 实体打了序列标签，会自动获取序列值。返回主键 Id */
@@ -193,8 +319,7 @@ namespace ChloeDemo
         }
         public static void Update()
         {
-            int id = 1;
-            context.Update<User>(a => a.Id == id, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
+            context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
             /*
              * UPDATE "USERS" SET "NAME"="USERS"."NAME","AGE"=("USERS"."AGE" + 1),"GENDER"=1,"OPTIME"=SYSTIMESTAMP WHERE "USERS"."ID" = 1
              */

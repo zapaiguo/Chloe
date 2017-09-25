@@ -14,12 +14,12 @@ namespace ChloeDemo
             IDbCommandInterceptor interceptor = new DbCommandInterceptor();
             DbInterception.Add(interceptor);
 
-            SQLiteDemo.Run();
-            MsSqlDemo.Run();
-            MySqlDemo.Run();
+            //SQLiteDemo.Run();
+            //MsSqlDemo.Run();
+            //MySqlDemo.Run();
             OracleDemo.Run();
 
-            RegisterMappingTypeDemo.RunDemo();
+            //RegisterMappingTypeDemo.RunDemo();
         }
     }
 }
