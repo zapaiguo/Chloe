@@ -346,7 +346,7 @@ namespace Chloe.SqlServer
                     columnMapping.MapMember = mappingMemberDescriptor.MemberInfo;
                     dataType = mappingMemberDescriptor.MemberInfoType.GetUnderlyingType();
                     if (dataType.IsEnum)
-                        dataType = typeof(int);
+                        dataType = Enum.GetUnderlyingType(dataType);
                 }
 
                 columnMappings.Add(columnMapping);
