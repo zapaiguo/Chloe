@@ -328,7 +328,10 @@ namespace Chloe.SqlServer
             for (int i = 0; i < columns.Count; i++)
             {
                 var column = columns[i];
-                MappingMemberDescriptor mappingMemberDescriptor = mappingMemberDescriptors.Where(a => a.Column.Name == column.Name).FirstOrDefault();
+                MappingMemberDescriptor mappingMemberDescriptor = mappingMemberDescriptors.Where(a => string.Equals(a.Column.Name, column.Name)).FirstOrDefault();
+                if (mappingMemberDescriptor == null)
+                    mappingMemberDescriptor = mappingMemberDescriptors.Where(a => string.Equals(a.Column.Name, column.Name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+
                 ColumnMapping columnMapping = new ColumnMapping(column);
                 Type dataType;
                 if (mappingMemberDescriptor == null)
