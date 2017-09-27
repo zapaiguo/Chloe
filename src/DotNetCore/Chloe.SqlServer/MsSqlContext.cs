@@ -264,7 +264,7 @@ namespace Chloe.SqlServer
         /// <param name="entities"></param>
         /// <param name="batchSize">设置 SqlBulkCopy.BatchSize 的值</param>
         /// <param name="bulkCopyTimeout">设置 SqlBulkCopy.BulkCopyTimeout 的值</param>
-        /// <param name="keepIdentity">是否保留源标识值。false 由数据库分配标识值。</param>
+        /// <param name="keepIdentity">是否保留源自增值。false 由数据库分配自增值</param>
         public virtual void BulkInsert<TEntity>(List<TEntity> entities, int? batchSize = null, int? bulkCopyTimeout = null, bool keepIdentity = false)
         {
             Utils.CheckNull(entities);
