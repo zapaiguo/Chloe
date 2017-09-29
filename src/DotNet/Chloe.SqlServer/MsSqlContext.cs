@@ -285,7 +285,10 @@ namespace Chloe.SqlServer
                     externalTransaction = this.Session.CurrentTransaction as SqlTransaction;
                 }
 
-                SqlBulkCopyOptions sqlBulkCopyOptions = keepIdentity ? (SqlBulkCopyOptions.KeepNulls | SqlBulkCopyOptions.KeepIdentity) : SqlBulkCopyOptions.KeepNulls;
+                SqlBulkCopyOptions sqlBulkCopyOptions = SqlBulkCopyOptions.CheckConstraints | SqlBulkCopyOptions.KeepNulls | SqlBulkCopyOptions.FireTriggers;
+                if (keepIdentity)
+                    sqlBulkCopyOptions = SqlBulkCopyOptions.KeepIdentity | sqlBulkCopyOptions;
+
                 sbc = new SqlBulkCopy(conn, sqlBulkCopyOptions, externalTransaction);
 
                 using (sbc)
