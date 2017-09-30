@@ -18,9 +18,8 @@ namespace ChloeDemo
         }
         public IDbConnection CreateConnection()
         {
-            MySqlConnection conn = new MySqlConnection(this._connString);
+            IDbConnection conn = new MySqlConnection(this._connString);
             return conn;
         }
     }
-
 }
