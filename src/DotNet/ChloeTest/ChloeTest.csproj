@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5A2788F4-BFA4-4975-872E-3F5C2D0BB3CC}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ChloeTest</RootNamespace>
+    <AssemblyName>ChloeTest</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>2920f6a9</NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>..\lib\AutoMapper.3.3.1\net40\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper.Net4">
+      <HintPath>..\lib\AutoMapper.3.3.1\net40\AutoMapper.Net4.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNet.Utilities, Version=1.0.0.4, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\DotNet.Utilities.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data, Version=6.7.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>C:\Users\Administrator\Documents\Visual Studio 2012\Projects\MyStudy\packages\Newtonsoft.Json.4.5.6\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess, Version=4.121.1.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite, Version=1.0.102.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.102.0\lib\net45\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChloeExtensions.cs" />
+    <Compile Include="ConsoleHelper.cs" />
+    <Compile Include="SqlConnectionExtension.cs" />
+    <Compile Include="SqlQueryDynamic.cs" />
+    <Compile Include="DbCommandInterceptor.cs" />
+    <Compile Include="DbHelper.cs" />
+    <Compile Include="EFContext.cs" />
+    <Compile Include="EFTest.cs" />
+    <Compile Include="FeatureTest_Oracle.cs" />
+    <Compile Include="FeatureTest.cs" />
+    <Compile Include="FeatureTest_MySql.cs" />
+    <Compile Include="FeatureTest_SQLite.cs" />
+    <Compile Include="LatLonHelper.cs" />
+    <Compile Include="MultKeyTable.cs" />
+    <Compile Include="MySqlConnectionFactory.cs" />
+    <Compile Include="MySqlDev.cs" />
+    <Compile Include="OracleConnectionFactory.cs" />
+    <Compile Include="OracleTest.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegisterMappingTypeDemo.cs" />
+    <Compile Include="Sql.cs" />
+    <Compile Include="SQLiteConnectionFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SqliteTest.cs" />
+    <Compile Include="SqlMapper.cs" />
+    <Compile Include="SW.cs" />
+    <Compile Include="TestEntity.cs" />
+    <Compile Include="User.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Chloe.Extension\Chloe.Extension.csproj">
+      <Project>{d86e8ba3-41db-4cdd-a84b-b3919974fdac}</Project>
+      <Name>Chloe.Extension</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chloe.MySql\Chloe.MySql.csproj">
+      <Project>{d2f4970b-35ba-4855-befa-75adb44bc196}</Project>
+      <Name>Chloe.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chloe.Oracle\Chloe.Oracle.csproj">
+      <Project>{ae9ac627-1674-47c9-9de4-a80664c5ee0a}</Project>
+      <Name>Chloe.Oracle</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chloe.SQLite\Chloe.SQLite.csproj">
+      <Project>{a89888e2-7ee1-4490-b860-d6dbf5601958}</Project>
+      <Name>Chloe.SQLite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chloe.SqlServer\Chloe.SqlServer.csproj">
+      <Project>{c77e3e54-36cf-4ae9-bad7-6c5c524fffcf}</Project>
+      <Name>Chloe.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chloe\Chloe.csproj">
+      <Project>{251cae99-2279-4b09-afe1-123c69030457}</Project>
+      <Name>Chloe</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.102.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.102.0\build\net45\System.Data.SQLite.Core.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。启用“NuGet 程序包还原”可下载这些程序包。有关详细信息，请参阅 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.102.0\build\net45\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.102.0\build\net45\System.Data.SQLite.Core.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

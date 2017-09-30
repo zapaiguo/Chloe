@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ShuxinTest</id>
+    <version>1.1.0</version>
+    <title>ShuxinTest</title>
+    <authors>Shuxin Qin</authors>
+    <owners>Shuxin Qin</owners>
+    <licenseUrl>https://github.com/shuxinqin/Chloe/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/shuxinqin/Chloe</projectUrl>
+    <iconUrl>http://images.cnblogs.com/cnblogs_com/so9527/860154/o_ORMicon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+A lightweight and high-performance Object/Relational Mapping(ORM) library.
+
+Requires:
+- .NET Framework(>=4.0)
+- Chloe(>=2.8.0)
+    </description>
+    <copyright>Copyright 2016-2017</copyright>
+    <tags>ShuxinTest</tags>
+
+    <dependencies>
+      <dependency id="Chloe.SqlServer" version="2.7.0" />
+    </dependencies>
+
+  </metadata>
+
+  <files>
+    <file src="bin\Release\Chloe.Extension.dll" target="lib\net40" />
+  </files>
+</package>
