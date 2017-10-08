@@ -10,7 +10,7 @@ namespace Chloe
     public static class DbSessionExtension
     {
         /// <summary>
-        /// dbSession.ExecuteDataTable("select Age from Users where Id=@Id", new { Id = 1 }).ToList()
+        /// dbSession.ExecuteDataTable("select Age from Users where Id=@Id", new { Id = 1 })
         /// </summary>
         /// <param name="dbSession"></param>
         /// <param name="cmdText"></param>
@@ -30,7 +30,7 @@ namespace Chloe
         }
 
         /// <summary>
-        /// dbSession.ExecuteDataTable("select Age from Users where Id=@Id", CommandType.Text, new { Id = 1 }).ToList()
+        /// dbSession.ExecuteDataTable("select Age from Users where Id=@Id", CommandType.Text, new { Id = 1 })
         /// </summary>
         /// <param name="dbSession"></param>
         /// <param name="cmdText"></param>
@@ -51,7 +51,7 @@ namespace Chloe
         }
 
         /// <summary>
-        /// dbSession.ExecuteDataSet("select Age from Users where Id=@Id", new { Id = 1 }).ToList()
+        /// dbSession.ExecuteDataSet("select Age from Users where Id=@Id", new { Id = 1 })
         /// </summary>
         /// <param name="dbSession"></param>
         /// <param name="cmdText"></param>
@@ -71,7 +71,7 @@ namespace Chloe
         }
 
         /// <summary>
-        /// dbSession.ExecuteDataSet("select Age from Users where Id=@Id", CommandType.Text, new { Id = 1 }).ToList()
+        /// dbSession.ExecuteDataSet("select Age from Users where Id=@Id", CommandType.Text, new { Id = 1 })
         /// </summary>
         /// <param name="dbSession"></param>
         /// <param name="cmdText"></param>
@@ -92,7 +92,7 @@ namespace Chloe
         }
 
         /// <summary>
-        /// dbSession.ExecuteNonQuery("update Users set Age=18 where Id=@Id", new { Id = 1 }).ToList();
+        /// dbSession.ExecuteNonQuery("update Users set Age=18 where Id=@Id", new { Id = 1 })
         /// </summary>
         /// <param name="dbSession"></param>
         /// <param name="cmdText"></param>
@@ -103,7 +103,7 @@ namespace Chloe
             return dbSession.ExecuteNonQuery(cmdText, Utils.BuildParams(dbSession.DbContext, parameter));
         }
         /// <summary>
-        /// dbSession.ExecuteNonQuery("update Users set Age=18 where Id=@Id", CommandType.Text, new { Id = 1 }).ToList();
+        /// dbSession.ExecuteNonQuery("update Users set Age=18 where Id=@Id", CommandType.Text, new { Id = 1 })
         /// </summary>
         /// <param name="dbSession"></param>
         /// <param name="cmdText"></param>
@@ -116,7 +116,7 @@ namespace Chloe
         }
 
         /// <summary>
-        /// dbSession.ExecuteScalar("select Age from Users where Id=@Id", new { Id = 1 }).ToList()
+        /// dbSession.ExecuteScalar("select Age from Users where Id=@Id", new { Id = 1 })
         /// </summary>
         /// <param name="dbSession"></param>
         /// <param name="cmdText"></param>
@@ -127,7 +127,7 @@ namespace Chloe
             return dbSession.ExecuteScalar(cmdText, Utils.BuildParams(dbSession.DbContext, parameter));
         }
         /// <summary>
-        /// dbSession.ExecuteScalar("select Age from Users where Id=@Id", CommandType.Text, new { Id = 1 }).ToList()
+        /// dbSession.ExecuteScalar("select Age from Users where Id=@Id", CommandType.Text, new { Id = 1 })
         /// </summary>
         /// <param name="dbSession"></param>
         /// <param name="cmdText"></param>
@@ -140,7 +140,7 @@ namespace Chloe
         }
 
         /// <summary>
-        /// dbSession.ExecuteReader("select Age from Users where Id=@Id", new { Id = 1 }).ToList()
+        /// dbSession.ExecuteReader("select Age from Users where Id=@Id", new { Id = 1 })
         /// </summary>
         /// <param name="dbSession"></param>
         /// <param name="cmdText"></param>
@@ -151,7 +151,7 @@ namespace Chloe
             return dbSession.ExecuteReader(cmdText, Utils.BuildParams(dbSession.DbContext, parameter));
         }
         /// <summary>
-        /// dbSession.ExecuteReader("select Age from Users where Id=@Id", CommandType.Text, new { Id = 1 }).ToList()
+        /// dbSession.ExecuteReader("select Age from Users where Id=@Id", CommandType.Text, new { Id = 1 })
         /// </summary>
         /// <param name="dbSession"></param>
         /// <param name="cmdText"></param>
