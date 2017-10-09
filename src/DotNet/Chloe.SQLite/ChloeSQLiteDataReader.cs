@@ -58,7 +58,8 @@ namespace Chloe.SQLite
         {
             try
             {
-                this._reader.Dispose();
+                if (this._reader != null)
+                    this._reader.Dispose();
             }
             finally
             {

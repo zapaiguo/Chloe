@@ -191,3 +191,4 @@ ModelManifest.xml
 /src/DotNetCore/ChloeTest
 *.nupkg
 /src/DotNet/ChloeTest
+/src/DotNet/.vs
