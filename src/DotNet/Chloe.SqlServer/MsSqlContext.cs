@@ -169,33 +169,6 @@ namespace Chloe.SqlServer
                                 sqlBuilder.AppendFormat("0");
                             continue;
                         }
-                        else if (val is double)
-                        {
-                            double v = (double)val;
-                            if (v >= long.MinValue && v <= long.MaxValue)
-                            {
-                                sqlBuilder.Append(((long)v).ToString());
-                                continue;
-                            }
-                        }
-                        else if (val is float)
-                        {
-                            float v = (float)val;
-                            if (v >= long.MinValue && v <= long.MaxValue)
-                            {
-                                sqlBuilder.Append(((long)v).ToString());
-                                continue;
-                            }
-                        }
-                        else if (val is decimal)
-                        {
-                            decimal v = (decimal)val;
-                            if (v >= long.MinValue && v <= long.MaxValue)
-                            {
-                                sqlBuilder.Append(((long)v).ToString());
-                                continue;
-                            }
-                        }
 
                         string paramName = UtilConstants.ParameterNamePrefix + dbParams.Count.ToString();
                         DbParam dbParam = new DbParam(paramName, val) { DbType = mappingMemberDescriptor.Column.DbType };

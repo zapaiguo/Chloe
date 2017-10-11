@@ -266,30 +266,6 @@ namespace Chloe.Oracle
                             else
                                 sqlBuilder.AppendFormat("0");
                         }
-                        else if (val is double)
-                        {
-                            double v = (double)val;
-                            if (v >= long.MinValue && v <= long.MaxValue)
-                            {
-                                sqlBuilder.Append(((long)v).ToString());
-                            }
-                        }
-                        else if (val is float)
-                        {
-                            float v = (float)val;
-                            if (v >= long.MinValue && v <= long.MaxValue)
-                            {
-                                sqlBuilder.Append(((long)v).ToString());
-                            }
-                        }
-                        else if (val is decimal)
-                        {
-                            decimal v = (decimal)val;
-                            if (v >= long.MinValue && v <= long.MaxValue)
-                            {
-                                sqlBuilder.Append(((long)v).ToString());
-                            }
-                        }
                         else
                         {
                             string paramName = UtilConstants.ParameterNamePrefix + dbParams.Count.ToString();
