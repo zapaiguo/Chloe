@@ -192,6 +192,8 @@ namespace Chloe.Extensions
                 value = reader.GetByte(ordinal);
             else if (fieldType == UtilConstants.TypeOfInt16)
                 value = reader.GetInt16(ordinal);
+            else if (fieldType == UtilConstants.TypeOfInt64)
+                value = reader.GetInt64(ordinal);
             else
                 value = reader.GetInt32(ordinal);
 
