@@ -204,6 +204,7 @@
     <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\SelectorExpressionVisitor.cs" />
+    <Compile Include="Utility\ConstantWrapper`.cs" />
     <Compile Include="Utility\KeyDictionary.cs" />
     <Compile Include="Utility\KeyValuePairList.cs" />
     <Compile Include="Utility\UtilConstants.cs" />

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Chloe.Extensions
 {
-    internal static class ExpressionExtension
+    public static class ExpressionExtension
     {
         public static BinaryExpression Assign(MemberInfo propertyOrField, Expression instance, Expression value)
         {
@@ -30,13 +30,12 @@ namespace Chloe.Extensions
             throw new ArgumentException();
         }
 
-        public static bool IsDerivedFromParameter(this MemberExpression exp)
+        internal static bool IsDerivedFromParameter(this MemberExpression exp)
         {
             ParameterExpression p;
             return IsDerivedFromParameter(exp, out p);
         }
-
-        public static bool IsDerivedFromParameter(this MemberExpression exp, out ParameterExpression p)
+        internal static bool IsDerivedFromParameter(this MemberExpression exp, out ParameterExpression p)
         {
             p = null;
             Expression prevExp = exp.Expression;
@@ -147,14 +146,5 @@ namespace Chloe.Extensions
             ConstructorInfo constructor = wrapperType.GetConstructor(new Type[] { valueType });
             return constructor.Invoke(new object[] { value });
         }
-    }
-
-    internal class ConstantWrapper<T>
-    {
-        public ConstantWrapper(T value)
-        {
-            this.Value = value;
-        }
-        public T Value { get; private set; }
     }
 }
