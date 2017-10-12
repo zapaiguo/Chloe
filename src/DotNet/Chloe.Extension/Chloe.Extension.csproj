@@ -37,7 +37,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConstantWrapper.cs" />
     <Compile Include="DbActionBag.cs" />
     <Compile Include="DbContextAsyncExtension.cs" />
     <Compile Include="DbContextExtension.cs" />

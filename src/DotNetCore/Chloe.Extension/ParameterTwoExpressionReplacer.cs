@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -42,7 +43,7 @@ namespace Chloe.Extension
             if (parameter == this._lambda.Parameters[1])
             {
                 if (this._expToReplace == null)
-                    this._expToReplace = Utils.MakeWrapperAccess(this._replaceObj, parameter.Type);
+                    this._expToReplace = ExpressionExtension.MakeWrapperAccess(this._replaceObj, parameter.Type);
                 ret = this._expToReplace;
             }
 
