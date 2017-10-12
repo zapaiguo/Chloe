@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace ChloeDemo
 {
+    /// <summary>
+    /// sql 拦截器。可以输出 sql 语句极其相应的参数
+    /// </summary>
     class DbCommandInterceptor : IDbCommandInterceptor
     {
         public void ReaderExecuting(IDbCommand command, DbCommandInterceptionContext<IDataReader> interceptionContext)
