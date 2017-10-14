@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Chloe.Extension
 {
-    class IgnoreFieldsPicker
+    class IgnoreFieldsResolver
     {
         /// <summary>
         /// 

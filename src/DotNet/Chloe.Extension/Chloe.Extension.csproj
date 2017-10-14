@@ -42,7 +42,7 @@
     <Compile Include="DbContextExtension.cs" />
     <Compile Include="DbHelper.cs" />
     <Compile Include="DbSessionExtension.cs" />
-    <Compile Include="IgnoreFieldsPicker.cs" />
+    <Compile Include="IgnoreFieldsResolver.cs" />
     <Compile Include="ParameterTwoExpressionReplacer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryAsyncExtension.cs" />

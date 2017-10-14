@@ -145,7 +145,7 @@ namespace Chloe
         {
             Utils.CheckNull(fields);
 
-            List<string> fieldList = IgnoreFieldsPicker.Pick(fields);
+            List<string> fieldList = IgnoreFieldsResolver.Pick(fields);
             return source.Ignore(fieldList.ToArray());
         }
         /// <summary>
