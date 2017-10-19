@@ -1,4 +1,5 @@
 ﻿using Chloe.Descriptors;
+using Chloe.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace Chloe.Extension
 
             foreach (var item in newArrayExpression.Expressions)
             {
-                MemberExpression memberExp = Utils.StripConvert(item) as MemberExpression;
+                MemberExpression memberExp = ExpressionExtension.StripConvert(item) as MemberExpression;
                 if (memberExp == null)
                     throw new NotSupportedException(item.ToString());
 

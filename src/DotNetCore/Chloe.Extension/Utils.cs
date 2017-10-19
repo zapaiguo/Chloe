@@ -93,15 +93,5 @@ namespace Chloe.Extension
 
             return parameters.ToArray();
         }
-
-        public static Expression StripConvert(this Expression exp)
-        {
-            Expression operand = exp;
-            while (operand.NodeType == ExpressionType.Convert || operand.NodeType == ExpressionType.ConvertChecked)
-            {
-                operand = ((UnaryExpression)operand).Operand;
-            }
-            return operand;
-        }
     }
 }
