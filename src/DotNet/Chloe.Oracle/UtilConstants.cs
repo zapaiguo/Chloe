@@ -11,6 +11,7 @@ namespace Chloe.Oracle
     {
         public const string DbParameterNamePrefix = ":";
         public static readonly string ParameterNamePrefix = DbParameterNamePrefix + "P_";
+        public const int InElements = 1000; /* oracle 限定 in 表达式的最大个数 */
 
         public static readonly Type TypeOfVoid = typeof(void);
         public static readonly Type TypeOfInt16 = typeof(Int16);

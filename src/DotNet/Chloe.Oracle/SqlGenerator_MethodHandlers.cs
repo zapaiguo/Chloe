@@ -288,7 +288,16 @@ namespace Chloe.Oracle
                 if (value == null)
                     exps.Add(DbExpression.Constant(null, operand.Type));
                 else
-                    exps.Add(DbExpression.Parameter(value));
+                {
+                    Type valueType = value.GetType();
+                    if (valueType.IsEnum)
+                        valueType = Enum.GetUnderlyingType(valueType);
+
+                    if (Utils.IsToStringableNumericType(valueType))
+                        exps.Add(DbExpression.Constant(value));
+                    else
+                        exps.Add(DbExpression.Parameter(value));
+                }
             }
             In(generator, exps, operand);
         }
@@ -302,18 +311,34 @@ namespace Chloe.Oracle
                 return;
             }
 
-            operand.Accept(generator);
-            generator._sqlBuilder.Append(" IN (");
+            List<List<DbExpression>> batches = Utils.InBatches(elementExps, UtilConstants.InElements);
 
-            for (int i = 0; i < elementExps.Count; i++)
+            if (batches.Count > 1)
+                generator._sqlBuilder.Append("(");
+
+            for (int batchIndex = 0; batchIndex < batches.Count; batchIndex++)
             {
-                if (i > 0)
-                    generator._sqlBuilder.Append(",");
+                if (batchIndex > 0)
+                    generator._sqlBuilder.Append(" OR ");
 
-                elementExps[i].Accept(generator);
+                List<DbExpression> batch = batches[batchIndex];
+
+                operand.Accept(generator);
+                generator._sqlBuilder.Append(" IN (");
+
+                for (int i = 0; i < batch.Count; i++)
+                {
+                    if (i > 0)
+                        generator._sqlBuilder.Append(",");
+
+                    batch[i].Accept(generator);
+                }
+
+                generator._sqlBuilder.Append(")");
             }
 
-            generator._sqlBuilder.Append(")");
+            if (batches.Count > 1)
+                generator._sqlBuilder.Append(")");
 
             return;
         }

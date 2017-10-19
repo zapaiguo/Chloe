@@ -286,7 +286,16 @@ namespace Chloe.SQLite
                 if (value == null)
                     exps.Add(DbExpression.Constant(null, operand.Type));
                 else
-                    exps.Add(DbExpression.Parameter(value));
+                {
+                    Type valueType = value.GetType();
+                    if (valueType.IsEnum)
+                        valueType = Enum.GetUnderlyingType(valueType);
+
+                    if (Utils.IsToStringableNumericType(valueType))
+                        exps.Add(DbExpression.Constant(value));
+                    else
+                        exps.Add(DbExpression.Parameter(value));
+                }
             }
             In(generator, exps, operand);
         }

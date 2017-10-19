@@ -25,21 +25,6 @@ namespace Chloe.Oracle
             this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory, this);
         }
 
-        static readonly Dictionary<Type, Type> ToStringableNumericTypes;
-        static OracleContext()
-        {
-            List<Type> toStringableNumericTypes = new List<Type>();
-            toStringableNumericTypes.Add(typeof(byte));
-            toStringableNumericTypes.Add(typeof(sbyte));
-            toStringableNumericTypes.Add(typeof(short));
-            toStringableNumericTypes.Add(typeof(ushort));
-            toStringableNumericTypes.Add(typeof(int));
-            toStringableNumericTypes.Add(typeof(uint));
-            toStringableNumericTypes.Add(typeof(long));
-            toStringableNumericTypes.Add(typeof(ulong));
-            ToStringableNumericTypes = toStringableNumericTypes.ToDictionary(a => a, a => a);
-        }
-
 
         /// <summary>
         /// 是否将 sql 中的表名/字段名转成大写。默认为 true。
@@ -255,7 +240,7 @@ namespace Chloe.Oracle
                             valType = val.GetType();
                         }
 
-                        if (ToStringableNumericTypes.ContainsKey(valType))
+                        if (Utils.IsToStringableNumericType(valType))
                         {
                             sqlBuilder.Append(val.ToString());
                         }

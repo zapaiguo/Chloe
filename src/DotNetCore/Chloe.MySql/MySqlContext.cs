@@ -24,20 +24,6 @@ namespace Chloe.MySql
             this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory);
         }
 
-        static readonly Dictionary<Type, Type> ToStringableNumericTypes;
-        static MySqlContext()
-        {
-            List<Type> toStringableNumericTypes = new List<Type>();
-            toStringableNumericTypes.Add(typeof(byte));
-            toStringableNumericTypes.Add(typeof(sbyte));
-            toStringableNumericTypes.Add(typeof(short));
-            toStringableNumericTypes.Add(typeof(ushort));
-            toStringableNumericTypes.Add(typeof(int));
-            toStringableNumericTypes.Add(typeof(uint));
-            toStringableNumericTypes.Add(typeof(long));
-            toStringableNumericTypes.Add(typeof(ulong));
-            ToStringableNumericTypes = toStringableNumericTypes.ToDictionary(a => a, a => a);
-        }
 
         public override IDbContextServiceProvider DbContextServiceProvider
         {
@@ -103,7 +89,7 @@ namespace Chloe.MySql
                             valType = val.GetType();
                         }
 
-                        if (ToStringableNumericTypes.ContainsKey(valType))
+                        if (Utils.IsToStringableNumericType(valType))
                         {
                             sqlBuilder.Append(val.ToString());
                             continue;
