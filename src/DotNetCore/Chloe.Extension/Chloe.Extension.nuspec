@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>ChloeCore.Extension</id>
-    <version>1.7.0</version>
+    <version>1.8.0</version>
     <title>ChloeCore.Extension</title>
     <authors>Shuxin Qin</authors>
     <owners>Shuxin Qin</owners>
@@ -16,7 +16,7 @@
 
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="ChloeCore" version="2.18.0" />
+        <dependency id="ChloeCore" version="2.21.0" />
       </group>
     </dependencies>
 

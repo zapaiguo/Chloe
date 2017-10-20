@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>ChloeCore.SQLite</id>
-    <version>2.19.0</version>
+    <version>2.21.0</version>
     <title>ChloeCore.SQLite</title>
     <authors>Shuxin Qin</authors>
     <owners>Shuxin Qin</owners>
@@ -16,7 +16,7 @@
 
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="ChloeCore" version="2.19.0" />
+        <dependency id="ChloeCore" version="2.21.0" />
       </group>
     </dependencies>
 
