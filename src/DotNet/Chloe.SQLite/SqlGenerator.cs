@@ -15,7 +15,7 @@ namespace Chloe.SQLite
     partial class SqlGenerator : DbExpressionVisitor<DbExpression>
     {
         internal ISqlBuilder _sqlBuilder = new SqlBuilder();
-        List<DbParam> _parameters = new List<DbParam>();
+        DbParamCollection _parameters = new DbParamCollection();
 
         static readonly Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>> MethodHandlers = InitMethodHandlers();
         static readonly Dictionary<string, Action<DbAggregateExpression, SqlGenerator>> AggregateHandlers = InitAggregateHandlers();
@@ -65,7 +65,7 @@ namespace Chloe.SQLite
         }
 
         public ISqlBuilder SqlBuilder { get { return this._sqlBuilder; } }
-        public List<DbParam> Parameters { get { return this._parameters; } }
+        public List<DbParam> Parameters { get { return this._parameters.ToParameterList(); } }
 
         public static SqlGenerator CreateInstance()
         {
@@ -629,13 +629,7 @@ namespace Chloe.SQLite
             if (paramValue == null)
                 paramValue = DBNull.Value;
 
-            DbParam p;
-            if (paramValue == DBNull.Value)
-            {
-                p = this._parameters.Where(a => Utils.AreEqual(a.Value, paramValue) && a.Type == paramType).FirstOrDefault();
-            }
-            else
-                p = this._parameters.Where(a => a.DbType == exp.DbType && Utils.AreEqual(a.Value, paramValue)).FirstOrDefault();
+            DbParam p = this._parameters.Find(paramValue, paramType, exp.DbType);
 
             if (p != null)
             {

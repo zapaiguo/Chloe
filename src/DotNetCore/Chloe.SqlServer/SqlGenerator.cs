@@ -15,7 +15,7 @@ namespace Chloe.SqlServer
     partial class SqlGenerator : DbExpressionVisitor<DbExpression>
     {
         internal ISqlBuilder _sqlBuilder = new SqlBuilder();
-        List<DbParam> _parameters = new List<DbParam>();
+        DbParamCollection _parameters = new DbParamCollection();
 
         DbValueExpressionVisitor _valueExpressionVisitor;
 
@@ -80,7 +80,7 @@ namespace Chloe.SqlServer
         }
 
         public ISqlBuilder SqlBuilder { get { return this._sqlBuilder; } }
-        public List<DbParam> Parameters { get { return this._parameters; } }
+        public List<DbParam> Parameters { get { return this._parameters.ToParameterList(); } }
 
         DbValueExpressionVisitor ValueExpressionVisitor
         {
@@ -669,13 +669,7 @@ namespace Chloe.SqlServer
             if (paramValue == null)
                 paramValue = DBNull.Value;
 
-            DbParam p;
-            if (paramValue == DBNull.Value)
-            {
-                p = this._parameters.Where(a => Utils.AreEqual(a.Value, paramValue) && a.Type == paramType).FirstOrDefault();
-            }
-            else
-                p = this._parameters.Where(a => a.DbType == exp.DbType && Utils.AreEqual(a.Value, paramValue)).FirstOrDefault();
+            DbParam p = this._parameters.Find(paramValue, paramType, exp.DbType);
 
             if (p != null)
             {

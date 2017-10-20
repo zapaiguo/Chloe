@@ -42,6 +42,7 @@
     <Compile Include="DbContextServiceProvider.cs" />
     <Compile Include="DbExpressionHelper.cs" />
     <Compile Include="DbExpressionTranslator.cs" />
+    <Compile Include="DbParamCollection.cs" />
     <Compile Include="DbValueExpressionVisitor.cs" />
     <Compile Include="DefaultDbConnectionFactory.cs" />
     <Compile Include="ISqlBuilder.cs" />
