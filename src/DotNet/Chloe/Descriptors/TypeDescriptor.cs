@@ -58,7 +58,7 @@ namespace Chloe.Descriptors
             if (primaryKeys.Count == 0)
             {
                 //如果没有定义任何主键，则从所有映射的属性中查找名为 id 的属性作为主键
-                MappingMemberDescriptor idNameMemberDescriptor = mappingMemberDescriptors.Where(a => a.MemberInfo.Name.ToLower() == "id" && !a.IsDefined(typeof(ColumnAttribute))).FirstOrDefault();
+                MappingMemberDescriptor idNameMemberDescriptor = mappingMemberDescriptors.Find(a => a.MemberInfo.Name.ToLower() == "id" && !a.IsDefined(typeof(ColumnAttribute)));
 
                 if (idNameMemberDescriptor != null)
                 {

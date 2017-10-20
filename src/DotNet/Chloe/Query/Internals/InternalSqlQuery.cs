@@ -205,10 +205,10 @@ namespace Chloe.Query.Internals
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
                     string name = reader.GetName(i);
-                    var member = members.Where(a => a.Name == name).FirstOrDefault();
+                    var member = members.Find(a => a.Name == name);
                     if (member == null)
                     {
-                        member = members.Where(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                        member = members.Find(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
                         if (member == null)
                             continue;
                     }
