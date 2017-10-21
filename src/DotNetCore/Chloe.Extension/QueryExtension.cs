@@ -55,10 +55,10 @@ namespace Chloe
         {
             return source.MapTo<TEntity, TModel>().ToList();
         }
+
         /// <summary>
-        /// dbContext.Query&lt;User&gt;().ToList&lt;UserModel&gt;();
+        /// dbContext.Query&lt;User&gt;().ToList&lt;UserModel&gt;()
         /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
         /// <typeparam name="TModel"></typeparam>
         /// <param name="source"></param>
         /// <returns></returns>
