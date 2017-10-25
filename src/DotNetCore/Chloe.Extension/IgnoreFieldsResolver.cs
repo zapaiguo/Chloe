@@ -15,7 +15,7 @@ namespace Chloe.Extension
         /// </summary>
         /// <param name="fieldsLambdaExpression">a => new object[] { a.Name, a.Age }</param>
         /// <returns></returns>
-        public static List<string> Pick(LambdaExpression fieldsLambdaExpression)
+        public static List<string> Resolve(LambdaExpression fieldsLambdaExpression)
         {
             ParameterExpression parameterExpression = fieldsLambdaExpression.Parameters[0];
 

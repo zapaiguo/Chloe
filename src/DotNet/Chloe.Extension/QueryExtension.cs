@@ -50,12 +50,6 @@ namespace Chloe
             return source.WhereIfNotNull(val == string.Empty ? null : val, predicate);
         }
 
-        [Obsolete("Instead of using 'ToList<TModel>(this IQuery source)'")]
-        public static List<TModel> ToList<TEntity, TModel>(this IQuery<TEntity> source)
-        {
-            return source.MapTo<TEntity, TModel>().ToList();
-        }
-
         /// <summary>
         /// dbContext.Query&lt;User&gt;().ToList&lt;UserModel&gt;()
         /// </summary>
@@ -65,16 +59,6 @@ namespace Chloe
         public static List<TModel> ToList<TModel>(this IQuery source)
         {
             return source.MapTo<TModel>().ToList();
-        }
-        [Obsolete("Instead of using 'MapTo<TModel>(this IQuery source)'")]
-        public static IQuery<TModel> MapTo<TEntity, TModel>(this IQuery<TEntity> source)
-        {
-            /*
-             * Usage:
-             * dbContext.Query<User>().MapTo<User, UserModel>().ToList();
-             */
-
-            return source.MapTo<TModel>();
         }
         /// <summary>
         /// dbContext.Query&lt;User&gt;().MapTo&lt;UserModel&gt;()
@@ -145,7 +129,7 @@ namespace Chloe
         {
             Utils.CheckNull(fields);
 
-            List<string> fieldList = IgnoreFieldsResolver.Pick(fields);
+            List<string> fieldList = IgnoreFieldsResolver.Resolve(fields);
             return source.Ignore(fieldList.ToArray());
         }
         /// <summary>
