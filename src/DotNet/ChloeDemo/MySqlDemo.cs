@@ -13,14 +13,14 @@ namespace ChloeDemo
         static MySqlContext context = new MySqlContext(new MySqlConnectionFactory("Database='Chloe';Data Source=localhost;User ID=root;Password=sasa;CharSet=utf8;SslMode=None"));
         public static void Run()
         {
-            BasicQuery();
-            JoinQuery();
-            AggregateQuery();
-            GroupQuery();
-            ComplexQuery();  /* v2.18复杂查询 */
-            Insert();
-            Update();
-            Delete();
+            //BasicQuery();
+            //JoinQuery();
+            //AggregateQuery();
+            //GroupQuery();
+            //ComplexQuery();  /* v2.18复杂查询 */
+            //Insert();
+            //Update();
+            //Delete();
             Method();
             ExecuteCommandText();
             DoWithTransaction();
@@ -410,6 +410,7 @@ namespace ChloeDemo
                 TrimEnd = a.Name.TrimEnd(space),//RTRIM(`Users`.`Name`)
                 StartsWith = (bool?)a.Name.StartsWith("s"),//`Users`.`Name` LIKE CONCAT(N's','%')
                 EndsWith = (bool?)a.Name.EndsWith("s"),//`Users`.`Name` LIKE CONCAT('%',N's')
+                Replace = a.Name.Replace("l", "L"),
 
                 DiffYears = DbFunctions.DiffYears(startTime, endTime),//TIMESTAMPDIFF(YEAR,?P_0,?P_1)
                 DiffMonths = DbFunctions.DiffMonths(startTime, endTime),//TIMESTAMPDIFF(MONTH,?P_0,?P_1)

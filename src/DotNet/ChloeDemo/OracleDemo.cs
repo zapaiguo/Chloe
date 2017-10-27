@@ -413,6 +413,7 @@ namespace ChloeDemo
                 TrimEnd = a.Name.TrimEnd(space),//RTRIM("USERS"."NAME")
                 StartsWith = (bool?)a.Name.StartsWith("s"),//
                 EndsWith = (bool?)a.Name.EndsWith("s"),//
+                Replace = a.Name.Replace("l", "L"),
 
                 /* oracle is not supported DbFunctions.Diffxx. */
                 //DiffYears = DbFunctions.DiffYears(startTime, endTime),//

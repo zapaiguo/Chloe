@@ -429,6 +429,7 @@ namespace ChloeDemo
                 TrimEnd = a.Name.TrimEnd(space),//RTRIM([Users].[Name])
                 StartsWith = (bool?)a.Name.StartsWith("s"),//
                 EndsWith = (bool?)a.Name.EndsWith("s"),//
+                Replace = a.Name.Replace("l", "L"),
 
                 DiffYears = DbFunctions.DiffYears(startTime, endTime),//DATEDIFF(YEAR,@P_0,@P_1)
                 DiffMonths = DbFunctions.DiffMonths(startTime, endTime),//DATEDIFF(MONTH,@P_0,@P_1)

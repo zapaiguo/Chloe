@@ -28,6 +28,7 @@ namespace Chloe.MySql
             methodHandlers.Add("ToLower", Method_String_ToLower);
             methodHandlers.Add("Substring", Method_String_Substring);
             methodHandlers.Add("IsNullOrEmpty", Method_String_IsNullOrEmpty);
+            methodHandlers.Add("Replace", Method_String_Replace);
 
             methodHandlers.Add("ToString", Method_ToString);
             methodHandlers.Add("Contains", Method_Contains);
@@ -207,6 +208,18 @@ namespace Chloe.MySql
 
             var eqExp = DbExpression.Equal(caseWhenExpression, DbConstantExpression.One);
             eqExp.Accept(generator);
+        }
+        static void Method_String_Replace(DbMethodCallExpression exp, SqlGenerator generator)
+        {
+            EnsureMethod(exp, UtilConstants.MethodInfo_String_Replace);
+
+            generator._sqlBuilder.Append("REPLACE(");
+            exp.Object.Accept(generator);
+            generator._sqlBuilder.Append(",");
+            exp.Arguments[0].Accept(generator);
+            generator._sqlBuilder.Append(",");
+            exp.Arguments[1].Accept(generator);
+            generator._sqlBuilder.Append(")");
         }
 
         static void Method_ToString(DbMethodCallExpression exp, SqlGenerator generator)

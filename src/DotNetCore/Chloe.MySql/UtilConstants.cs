@@ -69,6 +69,7 @@ namespace Chloe.MySql
         public static readonly MethodInfo MethodInfo_String_ToLower = typeof(string).GetMethod("ToLower", Type.EmptyTypes);
         public static readonly MethodInfo MethodInfo_String_Substring_Int32 = typeof(string).GetMethod("Substring", new Type[] { typeof(Int32) });
         public static readonly MethodInfo MethodInfo_String_Substring_Int32_Int32 = typeof(string).GetMethod("Substring", new Type[] { typeof(Int32), typeof(Int32) });
+        public static readonly MethodInfo MethodInfo_String_Replace = typeof(string).GetMethod("Replace", new Type[] { typeof(string), typeof(string) });
 
         public static readonly MethodInfo MethodInfo_Guid_NewGuid = typeof(Guid).GetMethod("NewGuid");
 

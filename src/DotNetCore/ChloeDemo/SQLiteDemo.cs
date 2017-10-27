@@ -412,6 +412,7 @@ namespace ChloeDemo
                 Trim = a.Name.Trim(),//TRIM([Users].[Name])
                 TrimStart = a.Name.TrimStart(space),//LTRIM([Users].[Name])
                 TrimEnd = a.Name.TrimEnd(space),//RTRIM([Users].[Name])
+                Replace = a.Name.Replace("l", "L"),
 
                 DiffYears = DbFunctions.DiffYears(startTime, endTime),//(CAST(STRFTIME('%Y',@P_0) AS INTEGER) - CAST(STRFTIME('%Y',@P_1) AS INTEGER))
                 DiffMonths = DbFunctions.DiffMonths(startTime, endTime),//((CAST(STRFTIME('%Y',@P_0) AS INTEGER) - CAST(STRFTIME('%Y',@P_1) AS INTEGER)) * 12 + (CAST(STRFTIME('%m',@P_0) AS INTEGER) - CAST(STRFTIME('%m',@P_1) AS INTEGER)))
