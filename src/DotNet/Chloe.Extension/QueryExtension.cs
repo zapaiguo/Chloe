@@ -165,7 +165,7 @@ namespace Chloe
             }
 
             if (bindings.Count == 0)
-                throw new Exception("There are not fields to map after ignore.");
+                throw new Exception("There are no fields to map after ignore.");
 
             NewExpression newExp = Expression.New(entityType);
             Expression selectorBody = Expression.MemberInit(newExp, bindings);
@@ -176,7 +176,7 @@ namespace Chloe
         }
 
         /// <summary>
-        /// dbContext.Query&lt;User&gt;().OrderBy("Id asc,Age desc");
+        /// dbContext.Query&lt;User&gt;().OrderBy("Id asc,Age desc")
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="q"></param>
