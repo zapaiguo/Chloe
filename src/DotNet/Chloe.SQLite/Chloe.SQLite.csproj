@@ -46,6 +46,7 @@
     <Compile Include="DbExpressionTranslator.cs" />
     <Compile Include="DbParamCollection.cs" />
     <Compile Include="ISqlBuilder.cs" />
+    <Compile Include="JoinConditionExpressionParser.cs" />
     <Compile Include="ReaderWriterLockWrapper.cs" />
     <Compile Include="SqlGenerator_BinaryWithMethodHandlers.cs" />
     <Compile Include="SQLiteContext.cs" />

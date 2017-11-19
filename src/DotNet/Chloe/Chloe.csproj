@@ -75,6 +75,7 @@
     <Compile Include="DbExpressions\DbExistsExpression.cs" />
     <Compile Include="DbExpressions\DbExpression.cs" />
     <Compile Include="DbExpressions\DbExpressionType.cs" />
+    <Compile Include="DbExpressions\DbExpressionVisitor.cs" />
     <Compile Include="DbExpressions\DbExpressionVisitor`.cs" />
     <Compile Include="DbExpressions\DbFromTableExpression.cs" />
     <Compile Include="DbExpressions\DbAggregateExpression.cs" />
@@ -204,6 +205,7 @@
     <Compile Include="Query\Visitors\JoinQueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\QueryExpressionVisitor.cs" />
     <Compile Include="Query\Visitors\SelectorExpressionVisitor.cs" />
+    <Compile Include="Sql.cs" />
     <Compile Include="Utility\ConstantWrapper`.cs" />
     <Compile Include="Utility\KeyDictionary.cs" />
     <Compile Include="Utility\KeyValuePairList.cs" />

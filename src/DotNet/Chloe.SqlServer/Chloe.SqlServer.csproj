@@ -46,6 +46,7 @@
     <Compile Include="DbValueExpressionVisitor.cs" />
     <Compile Include="DefaultDbConnectionFactory.cs" />
     <Compile Include="ISqlBuilder.cs" />
+    <Compile Include="JoinConditionExpressionParser.cs" />
     <Compile Include="MsSqlContext.cs" />
     <Compile Include="PagingMode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

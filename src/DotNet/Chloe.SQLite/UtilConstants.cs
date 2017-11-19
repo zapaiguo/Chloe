@@ -29,6 +29,8 @@ namespace Chloe.SQLite
         public static readonly Type TypeOfObject = typeof(Object);
         public static readonly Type TypeOfTimeSpan = typeof(TimeSpan);
 
+        public static readonly Type TypeOfSql = typeof(Sql);
+
         #region DbExpression constants
 
         public static readonly DbParameterExpression DbParameter_1 = DbExpression.Parameter(1);
@@ -82,6 +84,10 @@ namespace Chloe.SQLite
         public static readonly MethodInfo MethodInfo_DbFunctions_DiffSeconds = typeof(DbFunctions).GetMethod("DiffSeconds");
         public static readonly MethodInfo MethodInfo_DbFunctions_DiffMilliseconds = typeof(DbFunctions).GetMethod("DiffMilliseconds");
         public static readonly MethodInfo MethodInfo_DbFunctions_DiffMicroseconds = typeof(DbFunctions).GetMethod("DiffMicroseconds");
+
+        /* Sql */
+        public static readonly MethodInfo MethodInfo_Sql_Equals = typeof(Sql).GetMethods().Where(a => a.Name == "Equals" && a.IsStatic && a.IsGenericMethod).First();
+        public static readonly MethodInfo MethodInfo_Sql_NotEquals = typeof(Sql).GetMethod("NotEquals");
         #endregion
 
     }

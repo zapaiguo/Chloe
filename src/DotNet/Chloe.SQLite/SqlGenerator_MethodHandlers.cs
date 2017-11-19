@@ -19,6 +19,7 @@ namespace Chloe.SQLite
             var methodHandlers = new Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>>();
 
             methodHandlers.Add("Equals", Method_Equals);
+            methodHandlers.Add("NotEquals", Method_NotEquals);
 
             methodHandlers.Add("Trim", Method_Trim);
             methodHandlers.Add("TrimStart", Method_TrimStart);
@@ -67,8 +68,15 @@ namespace Chloe.SQLite
 
         static void Method_Equals(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            if (exp.Method.ReturnType != UtilConstants.TypeOfBoolean || exp.Method.IsStatic || exp.Method.GetParameters().Length != 1)
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
+            MethodInfo method = exp.Method;
+            if (method.DeclaringType == UtilConstants.TypeOfSql)
+            {
+                Method_Sql_Equals(exp, generator);
+                return;
+            }
+
+            if (method.ReturnType != UtilConstants.TypeOfBoolean || method.IsStatic || method.GetParameters().Length != 1)
+                throw UtilExceptions.NotSupportedMethod(method);
 
             DbExpression right = exp.Arguments[0];
             if (right.Type != exp.Object.Type)
@@ -77,6 +85,75 @@ namespace Chloe.SQLite
             }
 
             DbExpression.Equal(exp.Object, right).Accept(generator);
+        }
+        static void Method_Sql_Equals(DbMethodCallExpression exp, SqlGenerator generator)
+        {
+            DbExpression left = exp.Arguments[0];
+            DbExpression right = exp.Arguments[1];
+
+            left = DbExpressionHelper.OptimizeDbExpression(left);
+            right = DbExpressionHelper.OptimizeDbExpression(right);
+
+            //明确 left right 其中一边一定为 null
+            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(right))
+            {
+                left.Accept(generator);
+                generator._sqlBuilder.Append(" IS NULL");
+                return;
+            }
+
+            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(left))
+            {
+                right.Accept(generator);
+                generator._sqlBuilder.Append(" IS NULL");
+                return;
+            }
+
+            AmendDbInfo(left, right);
+
+            left.Accept(generator);
+            generator._sqlBuilder.Append(" = ");
+            right.Accept(generator);
+
+            return;
+        }
+
+        static void Method_NotEquals(DbMethodCallExpression exp, SqlGenerator generator)
+        {
+            MethodInfo method = exp.Method;
+            if (method.DeclaringType != UtilConstants.TypeOfSql)
+            {
+                throw UtilExceptions.NotSupportedMethod(method);
+            }
+
+            DbExpression left = exp.Arguments[0];
+            DbExpression right = exp.Arguments[1];
+
+            left = DbExpressionHelper.OptimizeDbExpression(left);
+            right = DbExpressionHelper.OptimizeDbExpression(right);
+
+            //明确 left right 其中一边一定为 null
+            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(right))
+            {
+                left.Accept(generator);
+                generator._sqlBuilder.Append(" IS NOT NULL");
+                return;
+            }
+
+            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(left))
+            {
+                right.Accept(generator);
+                generator._sqlBuilder.Append(" IS NOT NULL");
+                return;
+            }
+
+            AmendDbInfo(left, right);
+
+            left.Accept(generator);
+            generator._sqlBuilder.Append(" <> ");
+            right.Accept(generator);
+
+            return;
         }
 
         static void Method_Trim(DbMethodCallExpression exp, SqlGenerator generator)

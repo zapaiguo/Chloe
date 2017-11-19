@@ -106,26 +106,39 @@ namespace Chloe.SqlServer
             left = DbExpressionHelper.OptimizeDbExpression(left);
             right = DbExpressionHelper.OptimizeDbExpression(right);
 
-            //明确 left right 其中一边一定为 null
-            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(right))
+            MethodInfo method_Sql_Equals = UtilConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
+
+            /* Sql.Equals(left, right) */
+            DbMethodCallExpression left_equals_right = DbExpression.MethodCall(null, method_Sql_Equals, new List<DbExpression>(2) { left, right });
+
+            if (right.NodeType == DbExpressionType.Parameter || right.NodeType == DbExpressionType.Constant || left.NodeType == DbExpressionType.Parameter || left.NodeType == DbExpressionType.Constant)
             {
-                left.Accept(this);
-                this._sqlBuilder.Append(" IS NULL");
+                /*
+                 * a.Name == name --> a.Name == name
+                 */
+
+                left_equals_right.Accept(this);
                 return exp;
             }
 
-            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(left))
-            {
-                right.Accept(this);
-                this._sqlBuilder.Append(" IS NULL");
-                return exp;
-            }
 
-            AmendDbInfo(left, right);
+            /*
+             * a.Name == a.XName --> a.Name == a.XName or (a.Name is null and a.XName is null)
+             */
 
-            left.Accept(this);
-            this._sqlBuilder.Append(" = ");
-            right.Accept(this);
+            /* Sql.Equals(left, null) */
+            var left_is_null = DbExpression.MethodCall(null, method_Sql_Equals, new List<DbExpression>(2) { left, DbExpression.Constant(null, left.Type) });
+
+            /* Sql.Equals(right, null) */
+            var right_is_null = DbExpression.MethodCall(null, method_Sql_Equals, new List<DbExpression>(2) { right, DbExpression.Constant(null, right.Type) });
+
+            /* Sql.Equals(left, null) && Sql.Equals(right, null) */
+            var left_is_null_and_right_is_null = DbExpression.And(left_is_null, right_is_null);
+
+            /* Sql.Equals(left, right) || (Sql.Equals(left, null) && Sql.Equals(right, null)) */
+            var left_equals_right_or_left_is_null_and_right_is_null = DbExpression.Or(left_equals_right, left_is_null_and_right_is_null);
+
+            left_equals_right_or_left_is_null_and_right_is_null.Accept(this);
 
             return exp;
         }
@@ -137,26 +150,94 @@ namespace Chloe.SqlServer
             left = DbExpressionHelper.OptimizeDbExpression(left);
             right = DbExpressionHelper.OptimizeDbExpression(right);
 
+            MethodInfo method_Sql_NotEquals = UtilConstants.MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
+
+            /* Sql.NotEquals(left, right) */
+            DbMethodCallExpression left_not_equals_right = DbExpression.MethodCall(null, method_Sql_NotEquals, new List<DbExpression>(2) { left, right });
+
             //明确 left right 其中一边一定为 null
-            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(right))
+            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(right) || DbExpressionExtension.AffirmExpressionRetValueIsNull(left))
             {
-                left.Accept(this);
-                this._sqlBuilder.Append(" IS NOT NULL");
+                /*
+                 * a.Name != null --> a.Name != null
+                 */
+
+                left_not_equals_right.Accept(this);
                 return exp;
             }
 
-            if (DbExpressionExtension.AffirmExpressionRetValueIsNull(left))
+            MethodInfo method_Sql_Equals = UtilConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
+
+            if (left.NodeType == DbExpressionType.Parameter || left.NodeType == DbExpressionType.Constant)
             {
-                right.Accept(this);
-                this._sqlBuilder.Append(" IS NOT NULL");
+                var t = right;
+                right = left;
+                left = t;
+            }
+            if (right.NodeType == DbExpressionType.Parameter || right.NodeType == DbExpressionType.Constant)
+            {
+                /*
+                 * Case: name 不可能为 null
+                 * a.Name == name --> a.Name != name or a.Name is null
+                 */
+
+                if (left.NodeType != DbExpressionType.Parameter && left.NodeType != DbExpressionType.Constant)
+                {
+                    /*
+                     * a.Name == name --> a.Name != name or a.Name is null
+                     */
+
+                    /* Sql.Equals(left, null) */
+                    var left_is_null1 = DbExpression.MethodCall(null, method_Sql_Equals, new List<DbExpression>(2) { left, DbExpression.Constant(null, left.Type) });
+
+                    /* Sql.NotEquals(left, right) || Sql.Equals(left, null) */
+                    var left_not_equals_right_or_left_is_null = DbExpression.Or(left_not_equals_right, left_is_null1);
+                    left_not_equals_right_or_left_is_null.Accept(this);
+                }
+                else
+                {
+                    /*
+                     * name == name1 --> name != name，其中 name 和 name1 都为变量且都不可能为 null
+                     */
+
+                    left_not_equals_right.Accept(this);
+                }
+
                 return exp;
             }
 
-            AmendDbInfo(left, right);
 
-            left.Accept(this);
-            this._sqlBuilder.Append(" <> ");
-            right.Accept(this);
+            /*
+             * a.Name != a.XName --> a.Name <> a.XName or (a.Name is null and a.XName is not null) or (a.Name is not null and a.XName is null)
+             * ## a.Name != a.XName 不能翻译成：not (a.Name == a.XName or (a.Name is null and a.XName is null))，因为数据库里的 not 有时候并非真正意义上的“取反”！
+             * 当 a.Name 或者 a.XName 其中一个字段有为 NULL，另一个字段有值时，会查不出此条数据 ##
+             */
+
+            DbConstantExpression null_Constant = DbExpression.Constant(null, left.Type);
+
+            /* Sql.Equals(left, null) */
+            var left_is_null = DbExpression.MethodCall(null, method_Sql_Equals, new List<DbExpression>(2) { left, null_Constant });
+            /* Sql.NotEquals(left, null) */
+            var left_is_not_null = DbExpression.MethodCall(null, method_Sql_NotEquals, new List<DbExpression>(2) { left, null_Constant });
+
+            /* Sql.Equals(right, null) */
+            var right_is_null = DbExpression.MethodCall(null, method_Sql_Equals, new List<DbExpression>(2) { right, null_Constant });
+            /* Sql.NotEquals(right, null) */
+            var right_is_not_null = DbExpression.MethodCall(null, method_Sql_NotEquals, new List<DbExpression>(2) { right, null_Constant });
+
+            /* Sql.Equals(left, null) && Sql.NotEquals(right, null) */
+            var left_is_null_and_right_is_not_null = DbExpression.And(left_is_null, right_is_not_null);
+
+            /* Sql.NotEquals(left, null) && Sql.Equals(right, null) */
+            var left_is_not_null_and_right_is_null = DbExpression.And(left_is_not_null, right_is_null);
+
+            /* (Sql.Equals(left, null) && Sql.NotEquals(right, null)) || (Sql.NotEquals(left, null) && Sql.Equals(right, null)) */
+            var left_is_null_and_right_is_not_null_or_left_is_not_null_and_right_is_null = DbExpression.Or(left_is_null_and_right_is_not_null, left_is_not_null_and_right_is_null);
+
+            /* Sql.NotEquals(left, right) || (Sql.Equals(left, null) && Sql.NotEquals(right, null)) || (Sql.NotEquals(left, null) && Sql.Equals(right, null)) */
+            var e = DbExpression.Or(left_not_equals_right, left_is_null_and_right_is_not_null_or_left_is_not_null_and_right_is_null);
+
+            e.Accept(this);
 
             return exp;
         }
@@ -366,7 +447,7 @@ namespace Chloe.SqlServer
             this._sqlBuilder.Append(joinString);
             this.AppendTableSegment(joinTablePart.Table);
             this._sqlBuilder.Append(" ON ");
-            joinTablePart.Condition.Accept(this);
+            JoinConditionExpressionParser.Parse(joinTablePart.Condition).Accept(this);
             this.VisitDbJoinTableExpressions(joinTablePart.JoinTables);
 
             return exp;

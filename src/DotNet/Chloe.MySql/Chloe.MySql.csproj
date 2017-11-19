@@ -44,6 +44,7 @@
     <Compile Include="DbExpressionTranslator.cs" />
     <Compile Include="DbParamCollection.cs" />
     <Compile Include="ISqlBuilder.cs" />
+    <Compile Include="JoinConditionExpressionParser.cs" />
     <Compile Include="MySqlContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlGenerator.cs" />

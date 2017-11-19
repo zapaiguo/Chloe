@@ -30,6 +30,7 @@ namespace Chloe.SqlServer
         public static readonly Type TypeOfTimeSpan = typeof(TimeSpan);
 
         public static readonly Type TypeOfMath = typeof(Math);
+        public static readonly Type TypeOfSql = typeof(Sql);
 
         #region DbExpression constants
 
@@ -84,6 +85,10 @@ namespace Chloe.SqlServer
         public static readonly MethodInfo MethodInfo_DbFunctions_DiffSeconds = typeof(DbFunctions).GetMethod("DiffSeconds");
         public static readonly MethodInfo MethodInfo_DbFunctions_DiffMilliseconds = typeof(DbFunctions).GetMethod("DiffMilliseconds");
         public static readonly MethodInfo MethodInfo_DbFunctions_DiffMicroseconds = typeof(DbFunctions).GetMethod("DiffMicroseconds");
+
+        /* Sql */
+        public static readonly MethodInfo MethodInfo_Sql_Equals = typeof(Sql).GetMethods().Where(a => a.Name == "Equals" && a.IsStatic && a.IsGenericMethod).First();
+        public static readonly MethodInfo MethodInfo_Sql_NotEquals = typeof(Sql).GetMethod("NotEquals");
         #endregion
 
     }
