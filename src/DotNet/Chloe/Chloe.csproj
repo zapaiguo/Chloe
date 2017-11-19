@@ -164,7 +164,9 @@
     <Compile Include="Query\Internals\QueryEnumerator.cs" />
     <Compile Include="Query\JoiningQueryInfo.cs" />
     <Compile Include="Query\JoiningQuery`.cs" />
+    <Compile Include="Query\JoinQueryParameterExpressionReplacer.cs" />
     <Compile Include="Query\JoinQueryResult.cs" />
+    <Compile Include="Query\JoinResult.cs" />
     <Compile Include="Query\MappingFieldExpression.cs" />
     <Compile Include="Query\MappingObjectExpression.cs" />
     <Compile Include="Query\Mapping\IObjectActivatorCreator.cs" />
@@ -186,6 +188,7 @@
     <Compile Include="Query\QueryExpressions\SkipExpression.cs" />
     <Compile Include="Query\QueryExpressions\TakeExpression.cs" />
     <Compile Include="Query\QueryExpressions\WhereExpression.cs" />
+    <Compile Include="Query\QueryHelper.cs" />
     <Compile Include="Query\QueryState\AggregateQueryState.cs" />
     <Compile Include="Query\QueryState\DistinctQueryState.cs" />
     <Compile Include="Query\QueryState\GeneralQueryState.cs" />

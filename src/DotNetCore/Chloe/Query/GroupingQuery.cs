@@ -18,11 +18,9 @@ namespace Chloe.Query
         public GroupingQuery(Query<T> fromQuery, LambdaExpression keySelector)
         {
             this._fromQuery = fromQuery;
-            this._groupKeySelectors = new List<LambdaExpression>(1);
+            this._groupKeySelectors = new List<LambdaExpression>(1) { keySelector };
             this._havingPredicates = new List<LambdaExpression>();
             this._orderings = new List<GroupingQueryOrdering>();
-
-            this._groupKeySelectors.Add(keySelector);
         }
         public GroupingQuery(Query<T> fromQuery, List<LambdaExpression> groupKeySelectors, List<LambdaExpression> havingPredicates, List<GroupingQueryOrdering> orderings)
         {
@@ -34,24 +32,20 @@ namespace Chloe.Query
 
         public IGroupingQuery<T> AndBy<K>(Expression<Func<T, K>> keySelector)
         {
-            List<LambdaExpression> groupKeySelectors = new List<LambdaExpression>(this._groupKeySelectors.Count + 1);
-            groupKeySelectors.AddRange(this._groupKeySelectors);
-            groupKeySelectors.Add(keySelector);
+            List<LambdaExpression> groupKeySelectors = Utils.CloneAndAppendOne(this._groupKeySelectors, keySelector);
 
-            List<LambdaExpression> havingPredicates = new List<LambdaExpression>(this._havingPredicates);
-            List<GroupingQueryOrdering> orderings = new List<GroupingQueryOrdering>(this._orderings);
+            List<LambdaExpression> havingPredicates = Utils.Clone(this._havingPredicates);
+            List<GroupingQueryOrdering> orderings = Utils.Clone(this._orderings);
 
             return new GroupingQuery<T>(this._fromQuery, groupKeySelectors, havingPredicates, orderings);
         }
         public IGroupingQuery<T> Having(Expression<Func<T, bool>> predicate)
         {
-            List<LambdaExpression> groupKeySelectors = new List<LambdaExpression>(this._groupKeySelectors);
+            List<LambdaExpression> groupKeySelectors = Utils.Clone(this._groupKeySelectors);
 
-            List<LambdaExpression> havingPredicates = new List<LambdaExpression>(this._havingPredicates.Count + 1);
-            havingPredicates.AddRange(this._havingPredicates);
-            havingPredicates.Add(predicate);
+            List<LambdaExpression> havingPredicates = Utils.CloneAndAppendOne(this._havingPredicates, predicate);
 
-            List<GroupingQueryOrdering> orderings = new List<GroupingQueryOrdering>(this._orderings);
+            List<GroupingQueryOrdering> orderings = Utils.Clone(this._orderings);
 
             return new GroupingQuery<T>(this._fromQuery, groupKeySelectors, havingPredicates, orderings);
         }
@@ -74,8 +68,8 @@ namespace Chloe.Query
 
         protected IOrderedGroupingQuery<T> CreateOrderedGroupingQuery<K>(Expression<Func<T, K>> keySelector, DbExpressions.DbOrderType orderType, bool append)
         {
-            List<LambdaExpression> groupKeySelectors = new List<LambdaExpression>(this._groupKeySelectors);
-            List<LambdaExpression> havingPredicates = new List<LambdaExpression>(this._havingPredicates);
+            List<LambdaExpression> groupKeySelectors = Utils.Clone(this._groupKeySelectors);
+            List<LambdaExpression> havingPredicates = Utils.Clone(this._havingPredicates);
 
             List<GroupingQueryOrdering> orderings = new List<GroupingQueryOrdering>();
             if (append)

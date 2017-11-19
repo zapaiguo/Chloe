@@ -59,6 +59,20 @@ namespace Chloe
             return ret;
         }
 
+        public static List<T> Clone<T>(List<T> source, int? capacity = null)
+        {
+            List<T> ret = new List<T>(capacity ?? source.Count);
+            ret.AddRange(source);
+            return ret;
+        }
+        public static List<T> CloneAndAppendOne<T>(List<T> source, T t)
+        {
+            List<T> ret = new List<T>(source.Count + 1);
+            ret.AddRange(source);
+            ret.Add(t);
+            return ret;
+        }
+
         public static DbJoinType AsDbJoinType(this JoinType joinType)
         {
             switch (joinType)
