@@ -151,14 +151,14 @@ namespace Chloe.SQLite
             if (right.NodeType == DbExpressionType.Parameter || right.NodeType == DbExpressionType.Constant)
             {
                 /*
-                 * Case: name 不可能为 null
-                 * a.Name == name --> a.Name != name or a.Name is null
+                 * 走到这说明 name 不可能为 null
+                 * a.Name != name --> a.Name <> name or a.Name is null
                  */
 
                 if (left.NodeType != DbExpressionType.Parameter && left.NodeType != DbExpressionType.Constant)
                 {
                     /*
-                     * a.Name == name --> a.Name != name or a.Name is null
+                     * a.Name != name --> a.Name <> name or a.Name is null
                      */
 
                     /* Sql.Equals(left, null) */
@@ -171,7 +171,7 @@ namespace Chloe.SQLite
                 else
                 {
                     /*
-                     * name == name1 --> name != name，其中 name 和 name1 都为变量且都不可能为 null
+                     * name != name1 --> name <> name，其中 name 和 name1 都为变量且都不可能为 null
                      */
 
                     left_not_equals_right.Accept(this);
