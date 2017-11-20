@@ -13,14 +13,14 @@ namespace ChloeDemo
         static MySqlContext context = new MySqlContext(new MySqlConnectionFactory("Database='Chloe';Data Source=localhost;User ID=root;Password=sasa;CharSet=utf8;SslMode=None"));
         public static void Run()
         {
-            //BasicQuery();
-            //JoinQuery();
-            //AggregateQuery();
-            //GroupQuery();
-            //ComplexQuery();  /* v2.18复杂查询 */
-            //Insert();
-            //Update();
-            //Delete();
+            BasicQuery();
+            JoinQuery();
+            AggregateQuery();
+            GroupQuery();
+            ComplexQuery();  /* v2.18复杂查询 */
+            Insert();
+            Update();
+            Delete();
             Method();
             ExecuteCommandText();
             DoWithTransaction();
