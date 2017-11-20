@@ -8,12 +8,12 @@ The query interface is similar to LINQ.You can query data like LINQ and do any t
 
 # NuGet Install Command
 
-|              | .NET Framework  | .NET Core  |
-| ------------ | --------------- | ---------- |
-| SqlServer  | Install-Package Chloe.SqlServer  | Install-Package ChloeCore.SqlServer  |
-| MySql  | Install-Package Chloe.MySql  |  Install-Package ChloeCore.MySql |
-| Oracle  | Install-Package Chloe.Oracle  |  - |
-| SQLite  | Install-Package Chloe.SQLite  |  Install-Package ChloeCore.SQLite |
+|     Database         | Install Command  |
+| ------------ | --------------- |
+| SqlServer  | Install-Package Chloe.SqlServer  |
+| MySql  | Install-Package Chloe.MySql  |
+| Oracle  | Install-Package Chloe.Oracle  |
+| SQLite  | Install-Package Chloe.SQLite  |
 
 # Usage
 * **Entity**
