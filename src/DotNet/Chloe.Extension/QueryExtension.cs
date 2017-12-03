@@ -52,6 +52,7 @@ namespace Chloe
 
         /// <summary>
         /// dbContext.Query&lt;User&gt;().ToList&lt;UserModel&gt;()
+        /// <para>该方法调用者的 IQuery.ElementType 必须是实体类型</para> 
         /// </summary>
         /// <typeparam name="TModel"></typeparam>
         /// <param name="source"></param>
@@ -62,6 +63,7 @@ namespace Chloe
         }
         /// <summary>
         /// dbContext.Query&lt;User&gt;().MapTo&lt;UserModel&gt;()
+        /// <para>该方法调用者的 IQuery.ElementType 必须是实体类型</para> 
         /// </summary>
         /// <typeparam name="TModel"></typeparam>
         /// <param name="source"></param>

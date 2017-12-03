@@ -45,7 +45,10 @@ namespace Chloe
         public int? Size { get; set; }
         public Type Type { get { return this._type; } set { this._type = value; } }
         public ParamDirection Direction { get { return this._direction; } set { this._direction = value; } }
-        public IDbDataParameter ExplicitParameter { get; set; }/* 如果设置了该自定义参数，框架内部就会忽视 DbParam 类的其他属性，使用该属性值 */
+        /// <summary>
+        /// 如果设置了该自定义参数，框架内部就会忽视 DbParam 类的其他属性，使用该属性值
+        /// </summary>
+        public IDbDataParameter ExplicitParameter { get; set; }
 
         public static DbParam Create<T>(string name, T value)
         {

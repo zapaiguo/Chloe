@@ -41,7 +41,7 @@ namespace Chloe.MySql
 
             MethodInfo method_Sql_NotEquals = UtilConstants.MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
 
-            /* Sql.Equals(left, right) */
+            /* Sql.NotEquals(left, right) */
             DbMethodCallExpression left_not_equals_right = DbExpression.MethodCall(null, method_Sql_NotEquals, new List<DbExpression>(2) { left.Accept(this), right.Accept(this) });
 
             return left_not_equals_right;

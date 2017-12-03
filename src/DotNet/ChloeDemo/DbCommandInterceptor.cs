@@ -69,9 +69,12 @@ namespace ChloeDemo
                     {
                         /* 针对 oracle 长文本做处理 */
                         string value = (string)oracleParameter.Value;
-                        if (value != null && value.Length > 4000)
+                        if (value != null && value.Length > 2000)
                         {
-                            oracleParameter.OracleDbType = OracleDbType.NClob;
+                            if (oracleParameter.DbType == DbType.String || oracleParameter.DbType == DbType.StringFixedLength)
+                                oracleParameter.OracleDbType = OracleDbType.NClob;
+                            else if (oracleParameter.DbType == DbType.AnsiString || oracleParameter.DbType == DbType.AnsiStringFixedLength)
+                                oracleParameter.OracleDbType = OracleDbType.Clob;
                         }
                     }
                 }
