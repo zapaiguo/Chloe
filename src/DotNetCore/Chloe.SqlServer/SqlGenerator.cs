@@ -822,7 +822,7 @@ namespace Chloe.SqlServer
             this.AppendDistinct(exp.IsDistinct);
 
             if (exp.TakeCount != null)
-                this._sqlBuilder.Append("TOP (", exp.TakeCount.ToString(), ") ");
+                this._sqlBuilder.Append("TOP ", exp.TakeCount.ToString(), " ");
 
             List<DbColumnSegment> columns = exp.ColumnSegments;
             for (int i = 0; i < columns.Count; i++)
@@ -847,7 +847,7 @@ namespace Chloe.SqlServer
             this.AppendDistinct(exp.IsDistinct);
 
             if (exp.TakeCount != null)
-                this._sqlBuilder.Append("TOP (", exp.TakeCount.ToString(), ") ");
+                this._sqlBuilder.Append("TOP ", exp.TakeCount.ToString(), " ");
 
             string tableAlias = "T";
 
