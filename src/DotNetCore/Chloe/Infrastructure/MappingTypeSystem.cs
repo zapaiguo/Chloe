@@ -9,8 +9,6 @@ namespace Chloe.Infrastructure
     public static class MappingTypeSystem
     {
         static readonly object _lockObj = new object();
-        static readonly Dictionary<Type, DbType> _defaultTypeMap;
-        static readonly Dictionary<Type, DbType> _typeMap;
 
         static readonly Dictionary<Type, MappingTypeInfo> _defaultTypeInfos;
         static readonly Dictionary<Type, MappingTypeInfo> _typeInfos;
