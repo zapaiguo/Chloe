@@ -46,6 +46,7 @@
     <Compile Include="Core\Emit\ClassGenerator.cs" />
     <Compile Include="Core\Emit\DelegateGenerator.cs" />
     <Compile Include="Core\Emit\EmitHelper.cs" />
+    <Compile Include="Core\IDbValueConverter.cs" />
     <Compile Include="Core\IEntityState.cs" />
     <Compile Include="Core\InternalDataReader.cs" />
     <Compile Include="Core\InternalAdoSession.cs" />

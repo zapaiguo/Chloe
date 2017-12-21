@@ -31,8 +31,8 @@ namespace ChloeDemo
         {
             //step 1:
             /* 原生 Chloe 不支持 char 和 TimeSpan 类型映射，需要我们自己注册，注册映射类必须在程序启动时进行 */
-            MappingTypeSystem.Register(typeof(char), DbType.StringFixedLength);
-            MappingTypeSystem.Register(typeof(TimeSpan), DbType.Time);
+            MappingTypeSystem.Configure(typeof(char), DbType.StringFixedLength);
+            MappingTypeSystem.Configure(typeof(TimeSpan), DbType.Time);
 
             //step 2:
             /* 因为我们新增了 MappingType，所以需要对原生的 SqlConnection、SqlServerCommand、SqlServerDataReader、SqlServerParameter 包装处理，所以，我们需要自个儿实现 IDbConnectionFactory 工厂  */

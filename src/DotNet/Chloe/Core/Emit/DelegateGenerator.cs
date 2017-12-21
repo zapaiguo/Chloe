@@ -19,6 +19,26 @@ namespace Chloe.Core.Emit
         {
             Action<object, IDataReader, int> del = null;
 
+            var p = Expression.Parameter(typeof(object), "instance");
+            var instance = Expression.Convert(p, member.DeclaringType);
+            var reader = Expression.Parameter(typeof(IDataReader), "reader");
+            var ordinal = Expression.Parameter(typeof(int), "ordinal");
+
+            var readerMethod = DataReaderConstant.GetReaderMethod(member.GetMemberType());
+
+            var getValue = Expression.Call(null, readerMethod, reader, ordinal);
+
+            var assign = ExpressionExtension.Assign(member, instance, getValue);
+
+            var lambda = Expression.Lambda<Action<object, IDataReader, int>>(assign, p, reader, ordinal);
+            del = lambda.Compile();
+
+            return del;
+        }
+        public static Action<object, IDataReader, int> CreateSetValueFromReaderDelegate1(MemberInfo member)
+        {
+            Action<object, IDataReader, int> del = null;
+
             DynamicMethod dm = new DynamicMethod("SetValueFromReader_" + Guid.NewGuid().ToString("N"), null, new Type[] { typeof(object), typeof(IDataReader), typeof(int) }, true);
             ILGenerator il = dm.GetILGenerator();
 
@@ -37,26 +57,6 @@ namespace Chloe.Core.Emit
             il.Emit(OpCodes.Ret);   // 即可 return
 
             del = (Action<object, IDataReader, int>)dm.CreateDelegate(typeof(Action<object, IDataReader, int>));
-            return del;
-        }
-        public static Action<object, IDataReader, int> CreateSetValueFromReaderDelegate1(MemberInfo member)
-        {
-            Action<object, IDataReader, int> del = null;
-
-            var p = Expression.Parameter(typeof(object), "instance");
-            var instance = Expression.Convert(p, member.DeclaringType);
-            var reader = Expression.Parameter(typeof(IDataReader), "reader");
-            var ordinal = Expression.Parameter(typeof(int), "ordinal");
-
-            var readerMethod = DataReaderConstant.GetReaderMethod(member.GetMemberType());
-
-            var getValue = Expression.Call(null, readerMethod, reader, ordinal);
-
-            var assign = ExpressionExtension.Assign(member, instance, getValue);
-
-            var lambda = Expression.Lambda<Action<object, IDataReader, int>>(assign, p, reader, ordinal);
-            del = lambda.Compile();
-
             return del;
         }
 

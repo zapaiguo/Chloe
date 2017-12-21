@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using Chloe.Core;
 using Chloe.InternalExtensions;
 
 namespace Chloe.Infrastructure
@@ -8,51 +9,62 @@ namespace Chloe.Infrastructure
     public static class MappingTypeSystem
     {
         static readonly object _lockObj = new object();
-        static readonly Dictionary<Type, DbType> _defaultTypeMap;
-        static readonly Dictionary<Type, DbType> _typeMap;
+
+        static readonly Dictionary<Type, MappingTypeInfo> _defaultTypeInfos;
+        static readonly Dictionary<Type, MappingTypeInfo> _typeInfos;
 
         static MappingTypeSystem()
         {
-            Dictionary<Type, DbType> defaultTypeMap = new Dictionary<Type, DbType>();
-            defaultTypeMap[typeof(byte)] = DbType.Byte;
-            defaultTypeMap[typeof(sbyte)] = DbType.SByte;
-            defaultTypeMap[typeof(short)] = DbType.Int16;
-            defaultTypeMap[typeof(ushort)] = DbType.UInt16;
-            defaultTypeMap[typeof(int)] = DbType.Int32;
-            defaultTypeMap[typeof(uint)] = DbType.UInt32;
-            defaultTypeMap[typeof(long)] = DbType.Int64;
-            defaultTypeMap[typeof(ulong)] = DbType.UInt64;
-            defaultTypeMap[typeof(float)] = DbType.Single;
-            defaultTypeMap[typeof(double)] = DbType.Double;
-            defaultTypeMap[typeof(decimal)] = DbType.Decimal;
-            defaultTypeMap[typeof(bool)] = DbType.Boolean;
-            defaultTypeMap[typeof(string)] = DbType.String;
-            defaultTypeMap[typeof(Guid)] = DbType.Guid;
-            defaultTypeMap[typeof(DateTime)] = DbType.DateTime;
-            defaultTypeMap[typeof(DateTimeOffset)] = DbType.DateTimeOffset;
-            defaultTypeMap[typeof(TimeSpan)] = DbType.Time;
-            defaultTypeMap[typeof(byte[])] = DbType.Binary;
-            //defaultTypeMap[typeof(Object)] = DbType.Object; // ignore typeof(Object).
+            Dictionary<Type, MappingTypeInfo> defaultTypeInfos = new Dictionary<Type, MappingTypeInfo>();
+            SetItem(defaultTypeInfos, typeof(byte), DbType.Byte);
+            SetItem(defaultTypeInfos, typeof(sbyte), DbType.SByte);
+            SetItem(defaultTypeInfos, typeof(short), DbType.Int16);
+            SetItem(defaultTypeInfos, typeof(ushort), DbType.UInt16);
+            SetItem(defaultTypeInfos, typeof(int), DbType.Int32);
+            SetItem(defaultTypeInfos, typeof(uint), DbType.UInt32);
+            SetItem(defaultTypeInfos, typeof(long), DbType.Int64);
+            SetItem(defaultTypeInfos, typeof(ulong), DbType.UInt64);
+            SetItem(defaultTypeInfos, typeof(float), DbType.Single);
+            SetItem(defaultTypeInfos, typeof(double), DbType.Double);
+            SetItem(defaultTypeInfos, typeof(decimal), DbType.Decimal);
+            SetItem(defaultTypeInfos, typeof(bool), DbType.Boolean);
+            SetItem(defaultTypeInfos, typeof(string), DbType.String);
+            SetItem(defaultTypeInfos, typeof(Guid), DbType.Guid);
+            SetItem(defaultTypeInfos, typeof(DateTime), DbType.DateTime);
+            SetItem(defaultTypeInfos, typeof(DateTimeOffset), DbType.DateTimeOffset);
+            SetItem(defaultTypeInfos, typeof(TimeSpan), DbType.Time);
+            SetItem(defaultTypeInfos, typeof(byte[]), DbType.Binary);
 
-            _defaultTypeMap = Utils.Clone(defaultTypeMap);
-            _typeMap = Utils.Clone(defaultTypeMap);
+            _typeInfos = Utils.Clone(defaultTypeInfos);
+            _defaultTypeInfos = Utils.Clone(defaultTypeInfos);
         }
+
+        static void SetItem(Dictionary<Type, MappingTypeInfo> map, Type type, DbType mapDbType, IDbValueConverter dbValueConverter = null)
+        {
+            map[type] = new MappingTypeInfo(type, mapDbType, dbValueConverter);
+        }
+
         /// <summary>
-        /// 注册一个需要映射的类型。
+        /// 配置映射的类型。
         /// </summary>
-        /// <param name="type">新增的映射类型</param>
-        /// <param name="dbTypeToMap">映射的 DbType。如果是扩展的 DbType，务必对原生的 System.Data.IDataParameter 进行包装，拦截 IDataParameter.DbType 属性的 setter 以对 dbTypeToMap 处理。</param>
-        public static void Register(Type type, DbType dbTypeToMap)
+        /// <param name="type"></param>
+        /// <param name="dbTypeToMap">类型 type 对应的 DbType。如果是扩展的 DbType，务必对原生的 System.Data.IDataParameter 进行包装，拦截 IDataParameter.DbType 属性的 setter 以对 dbTypeToMap 处理。</param>
+        /// <param name="dbValueConverter">指定一个转换器。可为 null。</param>
+        public static void Configure(Type type, DbType dbTypeToMap, IDbValueConverter dbValueConverter)
         {
             Utils.CheckNull(type);
 
             type = type.GetUnderlyingType();
             lock (_lockObj)
             {
-                if (!_typeMap.ContainsKey(type))
-                    _typeMap.Add(type, dbTypeToMap);
+                SetItem(_typeInfos, type, dbTypeToMap, dbValueConverter);
             }
         }
+        public static void Configure(Type type, DbType dbTypeToMap, Func<object, object> dbValueConverter = null)
+        {
+            Configure(type, dbTypeToMap, dbValueConverter == null ? null : new DbValueConverter(dbValueConverter));
+        }
+
         public static DbType? GetDbType(Type type)
         {
             if (type == null)
@@ -62,9 +74,9 @@ namespace Chloe.Infrastructure
             if (underlyingType.IsEnum)
                 underlyingType = Enum.GetUnderlyingType(underlyingType);
 
-            DbType ret;
-            if (_typeMap.TryGetValue(underlyingType, out ret))
-                return ret;
+            MappingTypeInfo mappingTypeInfo;
+            if (_typeInfos.TryGetValue(underlyingType, out mappingTypeInfo))
+                return mappingTypeInfo.MapDbType;
 
             return null;
         }
@@ -74,7 +86,41 @@ namespace Chloe.Infrastructure
             if (underlyingType.IsEnum)
                 return true;
 
-            return _typeMap.ContainsKey(underlyingType);
+            return _typeInfos.ContainsKey(underlyingType);
+        }
+        public static bool IsMappingType(Type type, out MappingTypeInfo mappingTypeInfo)
+        {
+            Type underlyingType = type.GetUnderlyingType();
+            if (underlyingType.IsEnum)
+                underlyingType = Enum.GetUnderlyingType(underlyingType);
+
+            return _typeInfos.TryGetValue(underlyingType, out mappingTypeInfo);
+        }
+    }
+
+    public class MappingTypeInfo
+    {
+        public MappingTypeInfo(Type type, DbType mapDbType, IDbValueConverter dbValueConverter)
+        {
+            this.Type = type;
+            this.MapDbType = mapDbType;
+            this.DbValueConverter = dbValueConverter;
+        }
+        public Type Type { get; private set; }
+        public DbType MapDbType { get; private set; }
+        public IDbValueConverter DbValueConverter { get; private set; }
+    }
+
+    class DbValueConverter : IDbValueConverter
+    {
+        Func<object, object> _dbValueConverter;
+        public DbValueConverter(Func<object, object> dbValueConverter)
+        {
+            this._dbValueConverter = dbValueConverter;
+        }
+        public object Convert(object readerValue)
+        {
+            return this._dbValueConverter(readerValue);
         }
     }
 }

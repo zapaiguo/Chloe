@@ -50,9 +50,10 @@ namespace Chloe.Mapper
                 else
                     continue;//只支持公共属性和字段
 
-                if (MappingTypeSystem.IsMappingType(memberType))
+                MappingTypeInfo mappingTypeInfo;
+                if (MappingTypeSystem.IsMappingType(memberType, out mappingTypeInfo))
                 {
-                    IMRM mrm = MRMHelper.CreateMRM(member);
+                    IMRM mrm = MRMHelper.CreateMRM(member, mappingTypeInfo);
                     mappingMemberMappers.Add(member, mrm);
                 }
                 else

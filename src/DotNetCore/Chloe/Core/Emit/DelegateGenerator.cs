@@ -15,7 +15,7 @@ namespace Chloe.Core.Emit
 {
     public static class DelegateGenerator
     {
-        public static Action<object, IDataReader, int> CreateSetValueFromReaderDelegate1(MemberInfo member)
+        public static Action<object, IDataReader, int> CreateSetValueFromReaderDelegate(MemberInfo member)
         {
             Action<object, IDataReader, int> del = null;
 
