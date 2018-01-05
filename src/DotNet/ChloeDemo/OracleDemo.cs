@@ -143,12 +143,12 @@ namespace ChloeDemo
         {
             IQuery<User> q = context.Query<User>();
 
-            q.Select(a => AggregateFunctions.Count()).First();
+            q.Select(a => Sql.Count()).First();
             /*
              * SELECT COUNT(1) AS "C" FROM "USERS" "USERS" WHERE ROWNUM < 2
              */
 
-            q.Select(a => new { Count = AggregateFunctions.Count(), LongCount = AggregateFunctions.LongCount(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Average = AggregateFunctions.Average(a.Age) }).First();
+            q.Select(a => new { Count = Sql.Count(), LongCount = Sql.LongCount(), Sum = Sql.Sum(a.Age), Max = Sql.Max(a.Age), Min = Sql.Min(a.Age), Average = Sql.Average(a.Age) }).First();
             /*
              * SELECT COUNT(1) AS "COUNT",COUNT(1) AS "LONGCOUNT",SUM("USERS"."AGE") AS "SUM",MAX("USERS"."AGE") AS "MAX",MIN("USERS"."AGE") AS "MIN",AVG("USERS"."AGE") AS "AVERAGE" FROM "USERS" "USERS" WHERE ROWNUM < 2
              */

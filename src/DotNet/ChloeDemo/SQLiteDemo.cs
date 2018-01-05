@@ -414,14 +414,14 @@ namespace ChloeDemo
                 TrimEnd = a.Name.TrimEnd(space),//RTRIM([Users].[Name])
                 Replace = a.Name.Replace("l", "L"),
 
-                DiffYears = DbFunctions.DiffYears(startTime, endTime),//(CAST(STRFTIME('%Y',@P_0) AS INTEGER) - CAST(STRFTIME('%Y',@P_1) AS INTEGER))
-                DiffMonths = DbFunctions.DiffMonths(startTime, endTime),//((CAST(STRFTIME('%Y',@P_0) AS INTEGER) - CAST(STRFTIME('%Y',@P_1) AS INTEGER)) * 12 + (CAST(STRFTIME('%m',@P_0) AS INTEGER) - CAST(STRFTIME('%m',@P_1) AS INTEGER)))
-                DiffDays = DbFunctions.DiffDays(startTime, endTime),//CAST((JULIANDAY(@P_0) - JULIANDAY(@P_1)) AS INTEGER)
-                DiffHours = DbFunctions.DiffHours(startTime, endTime),//CAST((JULIANDAY(@P_0) - JULIANDAY(@P_1)) * 24 AS INTEGER)
-                DiffMinutes = DbFunctions.DiffMinutes(startTime, endTime),//CAST((JULIANDAY(@P_0) - JULIANDAY(@P_1)) * 1440 AS INTEGER)
-                DiffSeconds = DbFunctions.DiffSeconds(startTime, endTime),//CAST((JULIANDAY(@P_0) - JULIANDAY(@P_1)) * 86400 AS INTEGER)
-                //DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),//不支持 Millisecond
-                //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//不支持 Microseconds
+                DiffYears = Sql.DiffYears(startTime, endTime),//(CAST(STRFTIME('%Y',@P_0) AS INTEGER) - CAST(STRFTIME('%Y',@P_1) AS INTEGER))
+                DiffMonths = Sql.DiffMonths(startTime, endTime),//((CAST(STRFTIME('%Y',@P_0) AS INTEGER) - CAST(STRFTIME('%Y',@P_1) AS INTEGER)) * 12 + (CAST(STRFTIME('%m',@P_0) AS INTEGER) - CAST(STRFTIME('%m',@P_1) AS INTEGER)))
+                DiffDays = Sql.DiffDays(startTime, endTime),//CAST((JULIANDAY(@P_0) - JULIANDAY(@P_1)) AS INTEGER)
+                DiffHours = Sql.DiffHours(startTime, endTime),//CAST((JULIANDAY(@P_0) - JULIANDAY(@P_1)) * 24 AS INTEGER)
+                DiffMinutes = Sql.DiffMinutes(startTime, endTime),//CAST((JULIANDAY(@P_0) - JULIANDAY(@P_1)) * 1440 AS INTEGER)
+                DiffSeconds = Sql.DiffSeconds(startTime, endTime),//CAST((JULIANDAY(@P_0) - JULIANDAY(@P_1)) * 86400 AS INTEGER)
+                //DiffMilliseconds = Sql.DiffMilliseconds(startTime, endTime),//不支持 Millisecond
+                //DiffMicroseconds = Sql.DiffMicroseconds(startTime, endTime),//不支持 Microseconds
 
                 AddYears = startTime.AddYears(1),//DATETIME(@P_0,'+' || 1 || ' years')
                 AddMonths = startTime.AddMonths(1),//DATETIME(@P_0,'+' || 1 || ' months')

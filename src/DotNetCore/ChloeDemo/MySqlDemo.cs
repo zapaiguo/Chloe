@@ -141,12 +141,12 @@ namespace ChloeDemo
         {
             IQuery<User> q = context.Query<User>();
 
-            q.Select(a => AggregateFunctions.Count()).First();
+            q.Select(a => Sql.Count()).First();
             /*
              * SELECT COUNT(1) AS `C` FROM `Users` AS `Users` LIMIT 0,1
              */
 
-            q.Select(a => new { Count = AggregateFunctions.Count(), LongCount = AggregateFunctions.LongCount(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Average = AggregateFunctions.Average(a.Age) }).First();
+            q.Select(a => new { Count = Sql.Count(), LongCount = Sql.LongCount(), Sum = Sql.Sum(a.Age), Max = Sql.Max(a.Age), Min = Sql.Min(a.Age), Average = Sql.Average(a.Age) }).First();
             /*
              * SELECT COUNT(1) AS `Count`,COUNT(1) AS `LongCount`,CAST(SUM(`Users`.`Age`) AS SIGNED) AS `Sum`,MAX(`Users`.`Age`) AS `Max`,MIN(`Users`.`Age`) AS `Min`,AVG(`Users`.`Age`) AS `Average` FROM `Users` AS `Users` LIMIT 0,1
              */
@@ -189,9 +189,9 @@ namespace ChloeDemo
 
             IGroupingQuery<User> g = q.Where(a => a.Id > 0).GroupBy(a => a.Age);
 
-            g = g.Having(a => a.Age > 1 && AggregateFunctions.Count() > 0);
+            g = g.Having(a => a.Age > 1 && Sql.Count() > 0);
 
-            g.Select(a => new { a.Age, Count = AggregateFunctions.Count(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Avg = AggregateFunctions.Average(a.Age) }).ToList();
+            g.Select(a => new { a.Age, Count = Sql.Count(), Sum = Sql.Sum(a.Age), Max = Sql.Max(a.Age), Min = Sql.Min(a.Age), Avg = Sql.Average(a.Age) }).ToList();
             /*
              * SELECT `Users`.`Age` AS `Age`,COUNT(1) AS `Count`,CAST(SUM(`Users`.`Age`) AS SIGNED) AS `Sum`,MAX(`Users`.`Age`) AS `Max`,MIN(`Users`.`Age`) AS `Min`,AVG(`Users`.`Age`) AS `Avg` FROM `Users` AS `Users` WHERE `Users`.`Id` > 0 GROUP BY `Users`.`Age` HAVING (`Users`.`Age` > 1 AND COUNT(1) > 0)
              */
@@ -412,14 +412,14 @@ namespace ChloeDemo
                 EndsWith = (bool?)a.Name.EndsWith("s"),//`Users`.`Name` LIKE CONCAT('%',N's')
                 Replace = a.Name.Replace("l", "L"),
 
-                DiffYears = DbFunctions.DiffYears(startTime, endTime),//TIMESTAMPDIFF(YEAR,?P_0,?P_1)
-                DiffMonths = DbFunctions.DiffMonths(startTime, endTime),//TIMESTAMPDIFF(MONTH,?P_0,?P_1)
-                DiffDays = DbFunctions.DiffDays(startTime, endTime),//TIMESTAMPDIFF(DAY,?P_0,?P_1)
-                DiffHours = DbFunctions.DiffHours(startTime, endTime),//TIMESTAMPDIFF(HOUR,?P_0,?P_1)
-                DiffMinutes = DbFunctions.DiffMinutes(startTime, endTime),//TIMESTAMPDIFF(MINUTE,?P_0,?P_1)
-                DiffSeconds = DbFunctions.DiffSeconds(startTime, endTime),//TIMESTAMPDIFF(SECOND,?P_0,?P_1)
-                //DiffMilliseconds = DbFunctions.DiffMilliseconds(startTime, endTime),//MySql 不支持 Millisecond
-                //DiffMicroseconds = DbFunctions.DiffMicroseconds(startTime, endTime),//ex
+                DiffYears = Sql.DiffYears(startTime, endTime),//TIMESTAMPDIFF(YEAR,?P_0,?P_1)
+                DiffMonths = Sql.DiffMonths(startTime, endTime),//TIMESTAMPDIFF(MONTH,?P_0,?P_1)
+                DiffDays = Sql.DiffDays(startTime, endTime),//TIMESTAMPDIFF(DAY,?P_0,?P_1)
+                DiffHours = Sql.DiffHours(startTime, endTime),//TIMESTAMPDIFF(HOUR,?P_0,?P_1)
+                DiffMinutes = Sql.DiffMinutes(startTime, endTime),//TIMESTAMPDIFF(MINUTE,?P_0,?P_1)
+                DiffSeconds = Sql.DiffSeconds(startTime, endTime),//TIMESTAMPDIFF(SECOND,?P_0,?P_1)
+                //DiffMilliseconds = Sql.DiffMilliseconds(startTime, endTime),//MySql 不支持 Millisecond
+                //DiffMicroseconds = Sql.DiffMicroseconds(startTime, endTime),//ex
 
                 Now = DateTime.Now,//NOW()
                 UtcNow = DateTime.UtcNow,//UTC_TIMESTAMP()

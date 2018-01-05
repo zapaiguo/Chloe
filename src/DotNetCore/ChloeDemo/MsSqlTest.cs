@@ -42,9 +42,9 @@ namespace ChloeDemo
 
             var gq = q.GroupBy(a => a.F_Int32);
 
-            gq = gq.Having(a => a.F_Int32 > 1 && AggregateFunctions.Count() > 1);
+            gq = gq.Having(a => a.F_Int32 > 1 && Sql.Count() > 1);
 
-            ret = gq.Select(a => new { a.F_Int32, Count = AggregateFunctions.Count(), Sum = AggregateFunctions.Sum(a.F_Int32), Max = AggregateFunctions.Max(a.F_Int32), Min = AggregateFunctions.Min(a.F_Int32), Avg = AggregateFunctions.Average(a.F_Int32) }).ToList();
+            ret = gq.Select(a => new { a.F_Int32, Count = Sql.Count(), Sum = Sql.Sum(a.F_Int32), Max = Sql.Max(a.F_Int32), Min = Sql.Min(a.F_Int32), Avg = Sql.Average(a.F_Int32) }).ToList();
 
 
             ConsoleHelper.WriteLineAndReadKey();
