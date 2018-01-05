@@ -238,15 +238,15 @@ namespace Chloe.Query
 
         public double? Average(Expression<Func<T, int>> selector)
         {
-            return this.ExecuteAggregateQuery<double>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, int>>))), selector);
+            return this.ExecuteAggregateQuery<double?>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, int>>))), selector);
         }
         public double? Average(Expression<Func<T, int?>> selector)
         {
-            return this.ExecuteAggregateQuery<double>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, int?>>))), selector);
+            return this.ExecuteAggregateQuery<double?>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, int?>>))), selector);
         }
         public double? Average(Expression<Func<T, long>> selector)
         {
-            return this.ExecuteAggregateQuery<double>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, long>>))), selector);
+            return this.ExecuteAggregateQuery<double?>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, long>>))), selector);
         }
         public double? Average(Expression<Func<T, long?>> selector)
         {
@@ -254,7 +254,7 @@ namespace Chloe.Query
         }
         public decimal? Average(Expression<Func<T, decimal>> selector)
         {
-            return this.ExecuteAggregateQuery<decimal>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, decimal>>))), selector);
+            return this.ExecuteAggregateQuery<decimal?>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, decimal>>))), selector);
         }
         public decimal? Average(Expression<Func<T, decimal?>> selector)
         {
@@ -262,7 +262,7 @@ namespace Chloe.Query
         }
         public double? Average(Expression<Func<T, double>> selector)
         {
-            return this.ExecuteAggregateQuery<double>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, double>>))), selector);
+            return this.ExecuteAggregateQuery<double?>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, double>>))), selector);
         }
         public double? Average(Expression<Func<T, double?>> selector)
         {
@@ -270,7 +270,7 @@ namespace Chloe.Query
         }
         public float? Average(Expression<Func<T, float>> selector)
         {
-            return this.ExecuteAggregateQuery<float>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, float>>))), selector);
+            return this.ExecuteAggregateQuery<float?>(GetCalledMethod(() => default(IQuery<T>).Average(default(Expression<Func<T, float>>))), selector);
         }
         public float? Average(Expression<Func<T, float?>> selector)
         {
