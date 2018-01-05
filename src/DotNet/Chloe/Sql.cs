@@ -28,5 +28,152 @@ namespace Chloe
         {
             throw new NotSupportedException();
         }
+
+
+        public static int Count()
+        {
+            return 0;
+        }
+        public static long LongCount()
+        {
+            return 0;
+        }
+
+        /// <summary>
+        /// 求最大值。考虑到满足条件的数据个数为零的情况，为避免报错，可在 lambda 中将相应字段强转成可空类型，如 query.Select(a => Sql.Max((double?)a.Price))。
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static TResult Max<TResult>(TResult p)
+        {
+            return p;
+        }
+        /// <summary>
+        /// 求最小值。考虑到满足条件的数据个数为零的情况，为避免报错，可在 lambda 中将相应字段强转成可空类型，如 query.Select(a => Sql.Min((double?)a.Price))。
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static TResult Min<TResult>(TResult p)
+        {
+            return p;
+        }
+
+        public static int Sum(int p)
+        {
+            return p;
+        }
+        public static int? Sum(int? p)
+        {
+            return p;
+        }
+        public static long Sum(long p)
+        {
+            return p;
+        }
+        public static long? Sum(long? p)
+        {
+            return p;
+        }
+        public static decimal Sum(decimal p)
+        {
+            return p;
+        }
+        public static decimal? Sum(decimal? p)
+        {
+            return p;
+        }
+        public static double Sum(double p)
+        {
+            return p;
+        }
+        public static double? Sum(double? p)
+        {
+            return p;
+        }
+        public static float Sum(float p)
+        {
+            return p;
+        }
+        public static float? Sum(float? p)
+        {
+            return p;
+        }
+
+        public static double? Average(int p)
+        {
+            return p;
+        }
+        public static double? Average(int? p)
+        {
+            return p;
+        }
+        public static double? Average(long p)
+        {
+            return p;
+        }
+        public static double? Average(long? p)
+        {
+            return p;
+        }
+        public static decimal? Average(decimal p)
+        {
+            return p;
+        }
+        public static decimal? Average(decimal? p)
+        {
+            return p;
+        }
+        public static double? Average(double p)
+        {
+            return p;
+        }
+        public static double? Average(double? p)
+        {
+            return p;
+        }
+        public static float? Average(float p)
+        {
+            return p;
+        }
+        public static float? Average(float? p)
+        {
+            return p;
+        }
+
+
+        public static int? DiffYears(DateTime? dateTime1, DateTime? dateTime2)
+        {
+            throw new NotSupportedException();
+        }
+        public static int? DiffMonths(DateTime? dateTime1, DateTime? dateTime2)
+        {
+            throw new NotSupportedException();
+        }
+        public static int? DiffDays(DateTime? dateTime1, DateTime? ddateTime2)
+        {
+            throw new NotSupportedException();
+        }
+        public static int? DiffHours(DateTime? dateTime1, DateTime? dateTime2)
+        {
+            throw new NotSupportedException();
+        }
+        public static int? DiffMinutes(DateTime? dateTime1, DateTime? dateTime2)
+        {
+            throw new NotSupportedException();
+        }
+        public static int? DiffSeconds(DateTime? dateTime1, DateTime? dateTime2)
+        {
+            throw new NotSupportedException();
+        }
+        public static int? DiffMilliseconds(DateTime? dateTime1, DateTime? dateTime2)
+        {
+            throw new NotSupportedException();
+        }
+        public static int? DiffMicroseconds(DateTime? dateTime1, DateTime? dateTime2)
+        {
+            throw new NotSupportedException();
+        }
     }
 }

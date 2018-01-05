@@ -46,7 +46,20 @@ namespace Chloe
         int Count();
         long LongCount();
 
+        /// <summary>
+        /// 求最大值。考虑到满足条件的数据个数为零的情况，为避免报错，可在 lambda 中将相应字段强转成可空类型，如 query.Max(a => (double?)a.Price)。
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="selector"></param>
+        /// <returns></returns>
         TResult Max<TResult>(Expression<Func<T, TResult>> selector);
+
+        /// <summary>
+        /// 求最小值。考虑到满足条件的数据个数为零的情况，为避免报错，可在 lambda 中将相应字段强转成可空类型，如 query.Min(a => (double?)a.Price)。
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="selector"></param>
+        /// <returns></returns>
         TResult Min<TResult>(Expression<Func<T, TResult>> selector);
 
         int Sum(Expression<Func<T, int>> selector);
@@ -60,15 +73,15 @@ namespace Chloe
         float Sum(Expression<Func<T, float>> selector);
         float? Sum(Expression<Func<T, float?>> selector);
 
-        double Average(Expression<Func<T, int>> selector);
+        double? Average(Expression<Func<T, int>> selector);
         double? Average(Expression<Func<T, int?>> selector);
-        double Average(Expression<Func<T, long>> selector);
+        double? Average(Expression<Func<T, long>> selector);
         double? Average(Expression<Func<T, long?>> selector);
-        decimal Average(Expression<Func<T, decimal>> selector);
+        decimal? Average(Expression<Func<T, decimal>> selector);
         decimal? Average(Expression<Func<T, decimal?>> selector);
-        double Average(Expression<Func<T, double>> selector);
+        double? Average(Expression<Func<T, double>> selector);
         double? Average(Expression<Func<T, double?>> selector);
-        float Average(Expression<Func<T, float>> selector);
+        float? Average(Expression<Func<T, float>> selector);
         float? Average(Expression<Func<T, float?>> selector);
     }
 }

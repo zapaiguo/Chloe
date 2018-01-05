@@ -99,7 +99,7 @@ namespace Chloe
             return Utils.MakeTask(() => q.Sum(selector));
         }
 
-        public static Task<double> AverageAsync<T>(this IQuery<T> q, Expression<Func<T, int>> selector)
+        public static Task<double?> AverageAsync<T>(this IQuery<T> q, Expression<Func<T, int>> selector)
         {
             return Utils.MakeTask(() => q.Average(selector));
         }
@@ -107,7 +107,7 @@ namespace Chloe
         {
             return Utils.MakeTask(() => q.Average(selector));
         }
-        public static Task<double> AverageAsync<T>(this IQuery<T> q, Expression<Func<T, long>> selector)
+        public static Task<double?> AverageAsync<T>(this IQuery<T> q, Expression<Func<T, long>> selector)
         {
             return Utils.MakeTask(() => q.Average(selector));
         }
@@ -115,7 +115,7 @@ namespace Chloe
         {
             return Utils.MakeTask(() => q.Average(selector));
         }
-        public static Task<decimal> AverageAsync<T>(this IQuery<T> q, Expression<Func<T, decimal>> selector)
+        public static Task<decimal?> AverageAsync<T>(this IQuery<T> q, Expression<Func<T, decimal>> selector)
         {
             return Utils.MakeTask(() => q.Average(selector));
         }
@@ -123,7 +123,7 @@ namespace Chloe
         {
             return Utils.MakeTask(() => q.Average(selector));
         }
-        public static Task<double> AverageAsync<T>(this IQuery<T> q, Expression<Func<T, double>> selector)
+        public static Task<double?> AverageAsync<T>(this IQuery<T> q, Expression<Func<T, double>> selector)
         {
             return Utils.MakeTask(() => q.Average(selector));
         }
@@ -131,7 +131,7 @@ namespace Chloe
         {
             return Utils.MakeTask(() => q.Average(selector));
         }
-        public static Task<float> AverageAsync<T>(this IQuery<T> q, Expression<Func<T, float>> selector)
+        public static Task<float?> AverageAsync<T>(this IQuery<T> q, Expression<Func<T, float>> selector)
         {
             return Utils.MakeTask(() => q.Average(selector));
         }

@@ -2,6 +2,7 @@
 
 namespace Chloe
 {
+    [Obsolete("Current class will be removed in future releases. Instead of using 'Chloe.Sql'.")]
     public static class AggregateFunctions
     {
         public static int Count()
@@ -63,7 +64,7 @@ namespace Chloe
             return p;
         }
 
-        public static double Average(int p)
+        public static double? Average(int p)
         {
             return p;
         }
@@ -71,7 +72,7 @@ namespace Chloe
         {
             return p;
         }
-        public static double Average(long p)
+        public static double? Average(long p)
         {
             return p;
         }
@@ -79,7 +80,7 @@ namespace Chloe
         {
             return p;
         }
-        public static decimal Average(decimal p)
+        public static decimal? Average(decimal p)
         {
             return p;
         }
@@ -87,7 +88,7 @@ namespace Chloe
         {
             return p;
         }
-        public static double Average(double p)
+        public static double? Average(double p)
         {
             return p;
         }
@@ -95,7 +96,7 @@ namespace Chloe
         {
             return p;
         }
-        public static float Average(float p)
+        public static float? Average(float p)
         {
             return p;
         }

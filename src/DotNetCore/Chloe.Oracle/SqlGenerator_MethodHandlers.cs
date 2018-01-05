@@ -54,14 +54,14 @@ namespace Chloe.Oracle
 
             methodHandlers.Add("NewGuid", Method_Guid_NewGuid);
 
-            methodHandlers.Add("DiffYears", Method_DbFunctions_DiffYears);
-            methodHandlers.Add("DiffMonths", Method_DbFunctions_DiffMonths);
-            methodHandlers.Add("DiffDays", Method_DbFunctions_DiffDays);
-            methodHandlers.Add("DiffHours", Method_DbFunctions_DiffHours);
-            methodHandlers.Add("DiffMinutes", Method_DbFunctions_DiffMinutes);
-            methodHandlers.Add("DiffSeconds", Method_DbFunctions_DiffSeconds);
-            methodHandlers.Add("DiffMilliseconds", Method_DbFunctions_DiffMilliseconds);
-            methodHandlers.Add("DiffMicroseconds", Method_DbFunctions_DiffMicroseconds);
+            methodHandlers.Add("DiffYears", Method_DiffYears);
+            methodHandlers.Add("DiffMonths", Method_DiffMonths);
+            methodHandlers.Add("DiffDays", Method_DiffDays);
+            methodHandlers.Add("DiffHours", Method_DiffHours);
+            methodHandlers.Add("DiffMinutes", Method_DiffMinutes);
+            methodHandlers.Add("DiffSeconds", Method_DiffSeconds);
+            methodHandlers.Add("DiffMilliseconds", Method_DiffMilliseconds);
+            methodHandlers.Add("DiffMicroseconds", Method_DiffMicroseconds);
 
             var ret = Utils.Clone(methodHandlers);
             return ret;
@@ -444,32 +444,32 @@ namespace Chloe.Oracle
 
         static void Method_Count(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions), UtilConstants.TypeOfSql);
             Aggregate_Count(generator);
         }
         static void Method_LongCount(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions), UtilConstants.TypeOfSql);
             Aggregate_LongCount(generator);
         }
         static void Method_Sum(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions), UtilConstants.TypeOfSql);
             Aggregate_Sum(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Method_Max(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions), UtilConstants.TypeOfSql);
             Aggregate_Max(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Method_Min(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions), UtilConstants.TypeOfSql);
             Aggregate_Min(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
         static void Method_Average(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions));
+            EnsureMethodDeclaringType(exp, typeof(AggregateFunctions), UtilConstants.TypeOfSql);
             Aggregate_Average(generator, exp.Arguments.First(), exp.Method.ReturnType);
         }
 
@@ -566,51 +566,51 @@ namespace Chloe.Oracle
         }
 
 
-        static void Method_DbFunctions_DiffYears(DbMethodCallExpression exp, SqlGenerator generator)
+        static void Method_DiffYears(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffYears);
+            EnsureMethodDeclaringType(exp, typeof(DbFunctions), UtilConstants.TypeOfSql);
 
             throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
-        static void Method_DbFunctions_DiffMonths(DbMethodCallExpression exp, SqlGenerator generator)
+        static void Method_DiffMonths(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffMonths);
+            EnsureMethodDeclaringType(exp, typeof(DbFunctions), UtilConstants.TypeOfSql);
 
             throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
-        static void Method_DbFunctions_DiffDays(DbMethodCallExpression exp, SqlGenerator generator)
+        static void Method_DiffDays(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffDays);
+            EnsureMethodDeclaringType(exp, typeof(DbFunctions), UtilConstants.TypeOfSql);
 
             throw new NotSupportedException(AppendNotSupportedDbFunctionsMsg(exp.Method, "TotalDays"));
         }
-        static void Method_DbFunctions_DiffHours(DbMethodCallExpression exp, SqlGenerator generator)
+        static void Method_DiffHours(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffHours);
+            EnsureMethodDeclaringType(exp, typeof(DbFunctions), UtilConstants.TypeOfSql);
 
             throw new NotSupportedException(AppendNotSupportedDbFunctionsMsg(exp.Method, "TotalHours"));
         }
-        static void Method_DbFunctions_DiffMinutes(DbMethodCallExpression exp, SqlGenerator generator)
+        static void Method_DiffMinutes(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffMinutes);
+            EnsureMethodDeclaringType(exp, typeof(DbFunctions), UtilConstants.TypeOfSql);
 
             throw new NotSupportedException(AppendNotSupportedDbFunctionsMsg(exp.Method, "TotalMinutes"));
         }
-        static void Method_DbFunctions_DiffSeconds(DbMethodCallExpression exp, SqlGenerator generator)
+        static void Method_DiffSeconds(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffSeconds);
+            EnsureMethodDeclaringType(exp, typeof(DbFunctions), UtilConstants.TypeOfSql);
 
             throw new NotSupportedException(AppendNotSupportedDbFunctionsMsg(exp.Method, "TotalSeconds"));
         }
-        static void Method_DbFunctions_DiffMilliseconds(DbMethodCallExpression exp, SqlGenerator generator)
+        static void Method_DiffMilliseconds(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffMilliseconds);
+            EnsureMethodDeclaringType(exp, typeof(DbFunctions), UtilConstants.TypeOfSql);
 
             throw new NotSupportedException(AppendNotSupportedDbFunctionsMsg(exp.Method, "TotalMilliseconds"));
         }
-        static void Method_DbFunctions_DiffMicroseconds(DbMethodCallExpression exp, SqlGenerator generator)
+        static void Method_DiffMicroseconds(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            EnsureMethod(exp, UtilConstants.MethodInfo_DbFunctions_DiffMicroseconds);
+            EnsureMethodDeclaringType(exp, typeof(DbFunctions), UtilConstants.TypeOfSql);
 
             throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
