@@ -191,9 +191,9 @@ namespace ChloeDemo
 
             IGroupingQuery<User> g = q.Where(a => a.Id > 0).GroupBy(a => a.Age);
 
-            g = g.Having(a => a.Age > 1 && AggregateFunctions.Count() > 0);
+            g = g.Having(a => a.Age > 1 && Sql.Count() > 0);
 
-            g.Select(a => new { a.Age, Count = AggregateFunctions.Count(), Sum = AggregateFunctions.Sum(a.Age), Max = AggregateFunctions.Max(a.Age), Min = AggregateFunctions.Min(a.Age), Avg = AggregateFunctions.Average(a.Age) }).ToList();
+            g.Select(a => new { a.Age, Count = Sql.Count(), Sum = Sql.Sum(a.Age), Max = Sql.Max(a.Age), Min = Sql.Min(a.Age), Avg = Sql.Average(a.Age) }).ToList();
             /*
              * SELECT "USERS"."AGE" AS "AGE",COUNT(1) AS "COUNT",SUM("USERS"."AGE") AS "SUM",MAX("USERS"."AGE") AS "MAX",MIN("USERS"."AGE") AS "MIN",AVG("USERS"."AGE") AS "AVG" FROM "USERS" "USERS" WHERE "USERS"."ID" > 0 GROUP BY "USERS"."AGE" HAVING ("USERS"."AGE" > 1 AND COUNT(1) > 0)
              */
