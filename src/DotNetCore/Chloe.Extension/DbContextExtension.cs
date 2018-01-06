@@ -45,6 +45,88 @@ namespace Chloe
             return dbContext.SqlQuery<T>(sql, cmdType, Utils.BuildParams(dbContext, parameter));
         }
 
+        /// <summary>
+        /// dbContext.UpdateOnly&lt;User&gt;(user, a =&gt; new { a.Name, a.Age })
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="dbContext"></param>
+        /// <param name="entity"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        public static int UpdateOnly<TEntity>(this IDbContext dbContext, TEntity entity, Expression<Func<TEntity, object>> fields)
+        {
+            Utils.CheckNull(fields);
+
+            List<string> fieldList = FieldsResolver.Resolve(fields);
+            return dbContext.UpdateOnly(entity, fieldList.ToArray());
+        }
+        /// <summary>
+        /// dbContext.UpdateOnly&lt;User&gt;(user, "Name,Age", "NickName")
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="dbContext"></param>
+        /// <param name="entity"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        public static int UpdateOnly<TEntity>(this IDbContext dbContext, TEntity entity, params string[] fields)
+        {
+            Utils.CheckNull(dbContext);
+            Utils.CheckNull(entity);
+            Utils.CheckNull(fields);
+
+            /* 支持 context.UpdateOnly<User>(user, "Name,Age", "NickName"); */
+            fields = fields.SelectMany(a => a.Split(',')).Select(a => a.Trim()).ToArray();
+
+            if (fields.Length == 0)
+                throw new ArgumentException("fields");
+
+            Type entityType = entity.GetType();
+            TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entityType);
+
+            List<MemberBinding> bindings = new List<MemberBinding>();
+
+            ConstantExpression entityConstantExp = Expression.Constant(entity);
+            foreach (string field in fields)
+            {
+                MemberInfo memberInfo = entityType.GetMember(field)[0];
+                var memberDescriptor = typeDescriptor.TryGetMappingMemberDescriptor(memberInfo);
+
+                if (memberDescriptor == null)
+                    throw new ArgumentException(string.Format("Could not find the member '{0}' from entity.", memberDescriptor.Column.Name));
+
+                Expression entityMemberAccess = Expression.MakeMemberAccess(entityConstantExp, memberInfo);
+                MemberAssignment bind = Expression.Bind(memberInfo, entityMemberAccess);
+
+                bindings.Add(bind);
+            }
+
+            ParameterExpression parameter = Expression.Parameter(entityType, "a");
+            Expression conditionBody = null;
+            foreach (MappingMemberDescriptor primaryKey in typeDescriptor.PrimaryKeys)
+            {
+                Expression propOrField = Expression.PropertyOrField(parameter, primaryKey.MemberInfo.Name);
+                Expression keyValue = Expression.MakeMemberAccess(entityConstantExp, primaryKey.MemberInfo);
+                Expression e = Expression.Equal(propOrField, keyValue);
+                conditionBody = conditionBody == null ? e : Expression.AndAlso(conditionBody, e);
+            }
+
+            Expression<Func<TEntity, bool>> condition = Expression.Lambda<Func<TEntity, bool>>(conditionBody, parameter);
+
+            return UpdateOnly(dbContext, condition, bindings);
+        }
+        static int UpdateOnly<TEntity>(this IDbContext dbContext, Expression<Func<TEntity, bool>> condition, List<MemberBinding> bindings)
+        {
+            Type entityType = typeof(TEntity);
+            NewExpression newExp = Expression.New(entityType);
+
+            ParameterExpression parameter = Expression.Parameter(entityType, "a");
+            Expression lambdaBody = Expression.MemberInit(newExp, bindings);
+
+            Expression<Func<TEntity, TEntity>> lambda = Expression.Lambda<Func<TEntity, TEntity>>(lambdaBody, parameter);
+
+            return dbContext.Update(condition, lambda);
+        }
+
         public static void BeginTransaction(this IDbContext dbContext)
         {
             dbContext.Session.BeginTransaction();
