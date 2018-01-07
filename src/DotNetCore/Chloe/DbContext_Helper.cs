@@ -19,7 +19,7 @@ namespace Chloe
 {
     public abstract partial class DbContext : IDbContext, IDisposable
     {
-        static Expression<Func<TEntity, bool>> BuildPredicate<TEntity>(object key)
+        static Expression<Func<TEntity, bool>> BuildCondition<TEntity>(object key)
         {
             /*
              * key:
@@ -33,12 +33,16 @@ namespace Chloe
             TypeDescriptor typeDescriptor = TypeDescriptor.GetDescriptor(entityType);
             EnsureEntityHasPrimaryKey(typeDescriptor);
 
-            KeyValuePairList<MemberInfo, object> keyValueMap = new KeyValuePairList<MemberInfo, object>();
+            ParameterExpression parameter = Expression.Parameter(entityType, "a");
+            Expression conditionBody = null;
 
             Type keyType = key.GetType();
             if (typeDescriptor.PrimaryKeys.Count == 1 && MappingTypeSystem.IsMappingType(keyType))
             {
-                keyValueMap.Add(typeDescriptor.PrimaryKeys[0].MemberInfo, key);
+                MappingMemberDescriptor keyDescriptor = typeDescriptor.PrimaryKeys[0];
+                Expression propOrField = Expression.PropertyOrField(parameter, keyDescriptor.MemberInfo.Name);
+                Expression wrappedValue = Chloe.Extensions.ExpressionExtension.MakeWrapperAccess(key, keyDescriptor.MemberInfoType);
+                conditionBody = Expression.Equal(propOrField, wrappedValue);
             }
             else
             {
@@ -46,38 +50,33 @@ namespace Chloe
                  * key: new { Key1 = "1", Key2 = "2" }
                  */
 
-                object multipleKeyObject = key;
-                Type multipleKeyObjectType = keyType;
+                Type keyObjectType = keyType;
+
+                ConstantExpression keyConstantExp = Expression.Constant(key);
 
                 for (int i = 0; i < typeDescriptor.PrimaryKeys.Count; i++)
                 {
                     MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKeys[i];
-                    MemberInfo keyMember = multipleKeyObjectType.GetProperty(keyMemberDescriptor.MemberInfo.Name);
-                    if (keyMember == null)
-                        throw new ArgumentException(string.Format("The input object does not define property for key '{0}'.", keyMemberDescriptor.MemberInfo.Name));
+                    MemberInfo keyMember = keyMemberDescriptor.MemberInfo;
+                    MemberInfo inputKeyMember = keyObjectType.GetMember(keyMember.Name).FirstOrDefault();
+                    if (inputKeyMember == null)
+                        throw new ArgumentException(string.Format("The input object does not define property for key '{0}'.", keyMember.Name));
 
-                    object value = keyMember.GetMemberValue(multipleKeyObject);
-                    if (value == null)
-                        throw new ArgumentException(string.Format("The primary key '{0}' could not be null.", keyMemberDescriptor.MemberInfo.Name));
+                    Expression propOrField = Expression.PropertyOrField(parameter, keyMember.Name);
+                    Expression keyValueExp = Expression.MakeMemberAccess(keyConstantExp, inputKeyMember);
 
-                    keyValueMap.Add(keyMemberDescriptor.MemberInfo, value);
+                    Type keyMemberType = keyMember.GetMemberType();
+                    if (inputKeyMember.GetMemberType() != keyMemberType)
+                    {
+                        keyValueExp = Expression.Convert(keyValueExp, keyMemberType);
+                    }
+                    Expression e = Expression.Equal(propOrField, keyValueExp);
+                    conditionBody = conditionBody == null ? e : Expression.AndAlso(conditionBody, e);
                 }
             }
 
-            ParameterExpression parameter = Expression.Parameter(entityType, "a");
-            Expression lambdaBody = null;
-
-            foreach (var keyValue in keyValueMap)
-            {
-                Expression propOrField = Expression.PropertyOrField(parameter, keyValue.Key.Name);
-                Expression wrappedValue = Chloe.Extensions.ExpressionExtension.MakeWrapperAccess(keyValue.Value, keyValue.Key.GetMemberType());
-                Expression e = Expression.Equal(propOrField, wrappedValue);
-                lambdaBody = lambdaBody == null ? e : Expression.AndAlso(lambdaBody, e);
-            }
-
-            Expression<Func<TEntity, bool>> predicate = Expression.Lambda<Func<TEntity, bool>>(lambdaBody, parameter);
-
-            return predicate;
+            Expression<Func<TEntity, bool>> condition = Expression.Lambda<Func<TEntity, bool>>(conditionBody, parameter);
+            return condition;
         }
         static void EnsureEntityHasPrimaryKey(TypeDescriptor typeDescriptor)
         {

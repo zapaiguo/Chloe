@@ -72,8 +72,8 @@ namespace Chloe
         }
         public virtual TEntity QueryByKey<TEntity>(object key, string table, bool tracking = false)
         {
-            Expression<Func<TEntity, bool>> predicate = BuildPredicate<TEntity>(key);
-            var q = this.Query<TEntity>(table).Where(predicate);
+            Expression<Func<TEntity, bool>> condition = BuildCondition<TEntity>(key);
+            var q = this.Query<TEntity>(table).Where(condition);
 
             if (tracking)
                 q = q.AsTracking();
@@ -443,8 +443,8 @@ namespace Chloe
         }
         public virtual int DeleteByKey<TEntity>(object key, string table)
         {
-            Expression<Func<TEntity, bool>> predicate = BuildPredicate<TEntity>(key);
-            return this.Delete<TEntity>(predicate, table);
+            Expression<Func<TEntity, bool>> condition = BuildCondition<TEntity>(key);
+            return this.Delete<TEntity>(condition, table);
         }
 
 
