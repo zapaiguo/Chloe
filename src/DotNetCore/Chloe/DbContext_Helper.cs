@@ -39,9 +39,11 @@ namespace Chloe
             Type keyType = key.GetType();
             if (typeDescriptor.PrimaryKeys.Count == 1 && MappingTypeSystem.IsMappingType(keyType))
             {
+                /* a => a.Key == key */
+
                 MappingMemberDescriptor keyDescriptor = typeDescriptor.PrimaryKeys[0];
                 Expression propOrField = Expression.PropertyOrField(parameter, keyDescriptor.MemberInfo.Name);
-                Expression wrappedValue = Chloe.Extensions.ExpressionExtension.MakeWrapperAccess(key, keyDescriptor.MemberInfoType);
+                Expression wrappedValue = ExpressionExtension.MakeWrapperAccess(key, keyDescriptor.MemberInfoType);
                 conditionBody = Expression.Equal(propOrField, wrappedValue);
             }
             else
@@ -50,28 +52,41 @@ namespace Chloe
                  * key: new { Key1 = "1", Key2 = "2" }
                  */
 
+                /* a => a.Key1 == key.Key1 && a.Key2 == key.Key2 */
+
                 Type keyObjectType = keyType;
-
                 ConstantExpression keyConstantExp = Expression.Constant(key);
-
-                for (int i = 0; i < typeDescriptor.PrimaryKeys.Count; i++)
+                if (keyObjectType == entityType)
                 {
-                    MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKeys[i];
-                    MemberInfo keyMember = keyMemberDescriptor.MemberInfo;
-                    MemberInfo inputKeyMember = keyObjectType.GetMember(keyMember.Name).FirstOrDefault();
-                    if (inputKeyMember == null)
-                        throw new ArgumentException(string.Format("The input object does not define property for key '{0}'.", keyMember.Name));
-
-                    Expression propOrField = Expression.PropertyOrField(parameter, keyMember.Name);
-                    Expression keyValueExp = Expression.MakeMemberAccess(keyConstantExp, inputKeyMember);
-
-                    Type keyMemberType = keyMember.GetMemberType();
-                    if (inputKeyMember.GetMemberType() != keyMemberType)
+                    foreach (MappingMemberDescriptor primaryKey in typeDescriptor.PrimaryKeys)
                     {
-                        keyValueExp = Expression.Convert(keyValueExp, keyMemberType);
+                        Expression propOrField = Expression.PropertyOrField(parameter, primaryKey.MemberInfo.Name);
+                        Expression keyValue = Expression.MakeMemberAccess(keyConstantExp, primaryKey.MemberInfo);
+                        Expression e = Expression.Equal(propOrField, keyValue);
+                        conditionBody = conditionBody == null ? e : Expression.AndAlso(conditionBody, e);
                     }
-                    Expression e = Expression.Equal(propOrField, keyValueExp);
-                    conditionBody = conditionBody == null ? e : Expression.AndAlso(conditionBody, e);
+                }
+                else
+                {
+                    for (int i = 0; i < typeDescriptor.PrimaryKeys.Count; i++)
+                    {
+                        MappingMemberDescriptor keyMemberDescriptor = typeDescriptor.PrimaryKeys[i];
+                        MemberInfo keyMember = keyMemberDescriptor.MemberInfo;
+                        MemberInfo inputKeyMember = keyObjectType.GetMember(keyMember.Name).FirstOrDefault();
+                        if (inputKeyMember == null)
+                            throw new ArgumentException(string.Format("The input object does not define property for key '{0}'.", keyMember.Name));
+
+                        Expression propOrField = Expression.PropertyOrField(parameter, keyMember.Name);
+                        Expression keyValueExp = Expression.MakeMemberAccess(keyConstantExp, inputKeyMember);
+
+                        Type keyMemberType = keyMember.GetMemberType();
+                        if (inputKeyMember.GetMemberType() != keyMemberType)
+                        {
+                            keyValueExp = Expression.Convert(keyValueExp, keyMemberType);
+                        }
+                        Expression e = Expression.Equal(propOrField, keyValueExp);
+                        conditionBody = conditionBody == null ? e : Expression.AndAlso(conditionBody, e);
+                    }
                 }
             }
 
