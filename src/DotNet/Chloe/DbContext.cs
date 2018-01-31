@@ -129,13 +129,6 @@ namespace Chloe
             Utils.CheckNull(sql, "sql");
             return new InternalSqlQuery<T>(this, sql, cmdType, parameters);
         }
-        /// <summary>
-        /// dbContext.SqlQuery&lt;User&gt;("select * from Users where Id=@Id", new { Id = 1 }).ToList();
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sql"></param>
-        /// <param name="parameter"></param>
-        /// <returns></returns>
         public IEnumerable<T> SqlQuery<T>(string sql, object parameter)
         {
             /*

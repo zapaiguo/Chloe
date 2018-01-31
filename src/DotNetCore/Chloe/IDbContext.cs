@@ -51,6 +51,15 @@ namespace Chloe
 
         IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters);
         IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters);
+        /// <summary>
+        /// dbContext.SqlQuery&lt;User&gt;("select * from Users where Id=@Id", new { Id = 1 }).ToList();
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        IEnumerable<T> SqlQuery<T>(string sql, object parameter);
+        IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, object parameter);
 
         TEntity Insert<TEntity>(TEntity entity);
         TEntity Insert<TEntity>(TEntity entity, string table);
