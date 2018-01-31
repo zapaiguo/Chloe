@@ -39,7 +39,7 @@
     <Compile Include="ChloeMySqlCommand.cs" />
     <Compile Include="ChloeMySqlConnection.cs" />
     <Compile Include="ChloeMySqlDataReader.cs" />
-    <Compile Include="DbContextServiceProvider.cs" />
+    <Compile Include="DatabaseProvider.cs" />
     <Compile Include="DbExpressionHelper.cs" />
     <Compile Include="DbExpressionTranslator.cs" />
     <Compile Include="DbParamCollection.cs" />

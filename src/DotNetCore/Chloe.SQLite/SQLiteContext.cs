@@ -17,7 +17,7 @@ namespace Chloe.SQLite
 {
     public class SQLiteContext : DbContext
     {
-        DbContextServiceProvider _dbContextServiceProvider;
+        DatabaseProvider _databaseProvider;
         public SQLiteContext(IDbConnectionFactory dbConnectionFactory)
             : this(dbConnectionFactory, true)
         {
@@ -34,13 +34,13 @@ namespace Chloe.SQLite
             if (concurrencyMode == true)
                 dbConnectionFactory = new ConcurrentDbConnectionFactory(dbConnectionFactory);
 
-            this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory);
+            this._databaseProvider = new DatabaseProvider(dbConnectionFactory);
         }
 
 
-        public override IDbContextServiceProvider DbContextServiceProvider
+        public override IDatabaseProvider DatabaseProvider
         {
-            get { return this._dbContextServiceProvider; }
+            get { return this._databaseProvider; }
         }
         protected override string GetSelectLastInsertIdClause()
         {

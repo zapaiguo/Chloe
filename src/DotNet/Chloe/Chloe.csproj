@@ -133,7 +133,7 @@
     <Compile Include="Infrastructure\MappingTypeSystem.cs" />
     <Compile Include="Infrastructure\Interception\DbCommandInterceptionContext`.cs" />
     <Compile Include="Infrastructure\IDbConnectionFactory.cs" />
-    <Compile Include="Infrastructure\IDbContextServiceProvider.cs" />
+    <Compile Include="Infrastructure\IDatabaseProvider.cs" />
     <Compile Include="Infrastructure\IDbExpressionTranslator.cs" />
     <Compile Include="Infrastructure\Interception\DbInterception.cs" />
     <Compile Include="Infrastructure\Interception\IDbCommandInterceptor.cs" />

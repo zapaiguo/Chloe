@@ -1,4 +1,5 @@
-﻿using Chloe.InternalExtensions;
+﻿using Chloe.Infrastructure;
+using Chloe.InternalExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,55 +41,34 @@ namespace Chloe.Extension
             return task;
         }
 
-        public static string GetParameterPrefix(IDbContext dbContext)
-        {
-            Type dbContextType = dbContext.GetType();
-            while (true)
-            {
-                if (dbContextType == null)
-                    break;
-
-                string dbContextTypeName = dbContextType.Name;
-                switch (dbContextTypeName)
-                {
-                    case "MsSqlContext":
-                    case "SQLiteContext":
-                        return "@";
-                    case "MySqlContext":
-                        return "?";
-                    case "OracleContext":
-                        return ":";
-                    default:
-                        dbContextType = dbContextType.BaseType;
-                        break;
-                }
-            }
-
-            throw new NotSupportedException(dbContext.GetType().FullName);
-        }
         public static DbParam[] BuildParams(IDbContext dbContext, object parameter)
         {
-            List<DbParam> parameters = new List<DbParam>();
+            if (parameter == null)
+                return new DbParam[0];
 
-            if (parameter != null)
+            if (parameter is IEnumerable<DbParam>)
             {
-                string parameterPrefix = GetParameterPrefix(dbContext);
-                Type parameterType = parameter.GetType();
-                var props = parameterType.GetProperties();
-                foreach (var prop in props)
+                return ((IEnumerable<DbParam>)parameter).ToArray();
+            }
+
+            IDatabaseProvider databaseProvider = ((DbContext)dbContext).DatabaseProvider;
+
+            List<DbParam> parameters = new List<DbParam>();
+            Type parameterType = parameter.GetType();
+            var props = parameterType.GetProperties();
+            foreach (var prop in props)
+            {
+                if (prop.GetGetMethod() == null)
                 {
-                    if (prop.GetGetMethod() == null)
-                    {
-                        continue;
-                    }
-
-                    object value = ReflectionExtension.GetMemberValue(prop, parameter);
-
-                    string paramName = parameterPrefix + prop.Name;
-
-                    DbParam p = new DbParam(paramName, value, prop.PropertyType);
-                    parameters.Add(p);
+                    continue;
                 }
+
+                object value = ReflectionExtension.GetMemberValue(prop, parameter);
+
+                string paramName = databaseProvider.CreateParameterName(prop.Name);
+
+                DbParam p = new DbParam(paramName, value, prop.PropertyType);
+                parameters.Add(p);
             }
 
             return parameters.ToArray();

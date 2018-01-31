@@ -9,12 +9,12 @@ using System.Text;
 
 namespace Chloe.Oracle
 {
-    class DbContextServiceProvider : IDbContextServiceProvider
+    class DatabaseProvider : IDatabaseProvider
     {
         IDbConnectionFactory _dbConnectionFactory;
         OracleContext _oracleContext;
 
-        public DbContextServiceProvider(IDbConnectionFactory dbConnectionFactory, OracleContext oracleContext)
+        public DatabaseProvider(IDbConnectionFactory dbConnectionFactory, OracleContext oracleContext)
         {
             this._dbConnectionFactory = dbConnectionFactory;
             this._oracleContext = oracleContext;
@@ -38,6 +38,18 @@ namespace Chloe.Oracle
             }
 
             throw new NotSupportedException();
+        }
+        public string CreateParameterName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException("name");
+
+            if (name[0] == UtilConstants.DbParameterNamePrefix[0])
+            {
+                return name;
+            }
+
+            return UtilConstants.DbParameterNamePrefix + name;
         }
     }
 }

@@ -16,18 +16,18 @@ namespace Chloe.MySql
 {
     public class MySqlContext : DbContext
     {
-        DbContextServiceProvider _dbContextServiceProvider;
+        DatabaseProvider _databaseProvider;
         public MySqlContext(IDbConnectionFactory dbConnectionFactory)
         {
             Utils.CheckNull(dbConnectionFactory);
 
-            this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory);
+            this._databaseProvider = new DatabaseProvider(dbConnectionFactory);
         }
 
 
-        public override IDbContextServiceProvider DbContextServiceProvider
+        public override IDatabaseProvider DatabaseProvider
         {
-            get { return this._dbContextServiceProvider; }
+            get { return this._databaseProvider; }
         }
 
         public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)

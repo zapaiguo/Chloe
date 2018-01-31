@@ -10,12 +10,12 @@ using System.Text;
 
 namespace Chloe.SqlServer
 {
-    class DbContextServiceProvider : IDbContextServiceProvider
+    class DatabaseProvider : IDatabaseProvider
     {
         IDbConnectionFactory _dbConnectionFactory;
         MsSqlContext _msSqlContext;
 
-        public DbContextServiceProvider(IDbConnectionFactory dbConnectionFactory, MsSqlContext msSqlContext)
+        public DatabaseProvider(IDbConnectionFactory dbConnectionFactory, MsSqlContext msSqlContext)
         {
             this._dbConnectionFactory = dbConnectionFactory;
             this._msSqlContext = msSqlContext;
@@ -36,6 +36,18 @@ namespace Chloe.SqlServer
             }
 
             throw new NotSupportedException();
+        }
+        public string CreateParameterName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException("name");
+
+            if (name[0] == UtilConstants.DbParameterNamePrefix[0])
+            {
+                return name;
+            }
+
+            return UtilConstants.DbParameterNamePrefix + name;
         }
     }
 }

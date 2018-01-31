@@ -1,6 +1,7 @@
 ﻿using Chloe.Descriptors;
 using Chloe.Exceptions;
 using Chloe.Extension;
+using Chloe.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -58,7 +59,8 @@ namespace Chloe
             List<string> formatArgs = new List<string>(sql.ArgumentCount);
             List<DbParam> parameters = new List<DbParam>(sql.ArgumentCount);
 
-            string parameterPrefix = Utils.GetParameterPrefix(dbContext) + "P_";
+            IDatabaseProvider databaseProvider = ((DbContext)dbContext).DatabaseProvider;
+            string parameterPrefix = "P_";
 
             foreach (var arg in sql.GetArguments())
             {
@@ -87,7 +89,7 @@ namespace Chloe
                     continue;
                 }
 
-                string paramName = parameterPrefix + parameters.Count.ToString();
+                string paramName = databaseProvider.CreateParameterName(parameterPrefix + parameters.Count.ToString());
                 p = DbParam.Create(paramName, paramValue, paramType);
                 parameters.Add(p);
                 formatArgs.Add(p.Name);

@@ -33,7 +33,7 @@ namespace Chloe.Query.Internals
             else
                 objectActivator = data.ObjectActivatorCreator.CreateObjectActivator();
 
-            IDbExpressionTranslator translator = this._query.DbContext.DbContextServiceProvider.CreateDbExpressionTranslator();
+            IDbExpressionTranslator translator = this._query.DbContext.DatabaseProvider.CreateDbExpressionTranslator();
             List<DbParam> parameters;
             string cmdText = translator.Translate(data.SqlQuery, out parameters);
 

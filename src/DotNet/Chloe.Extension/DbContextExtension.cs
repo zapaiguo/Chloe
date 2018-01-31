@@ -18,32 +18,6 @@ namespace Chloe
         {
             return dbContext.Query<T>().Where(predicate);
         }
-        /// <summary>
-        /// dbContext.SqlQuery&lt;User&gt;("select * from Users where Id>@Id", new { Id = 1 }).ToList();
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="dbContext"></param>
-        /// <param name="sql"></param>
-        /// <param name="parameter"></param>
-        /// <returns></returns>
-        public static IEnumerable<T> SqlQuery<T>(this IDbContext dbContext, string sql, object parameter)
-        {
-            /*
-             * Usage:
-             * dbContext.SqlQuery<User>("select * from Users where Id>@Id", new { Id = 1 }).ToList();
-             */
-
-            return dbContext.SqlQuery<T>(sql, Utils.BuildParams(dbContext, parameter));
-        }
-        public static IEnumerable<T> SqlQuery<T>(this IDbContext dbContext, string sql, CommandType cmdType, object parameter)
-        {
-            /*
-             * Usage:
-             * dbContext.SqlQuery<User>("select * from Users where Id>@Id", CommandType.Text, new { Id = 1 }).ToList();
-             */
-
-            return dbContext.SqlQuery<T>(sql, cmdType, Utils.BuildParams(dbContext, parameter));
-        }
 
         /// <summary>
         /// dbContext.UpdateOnly&lt;User&gt;(user, a =&gt; new { a.Name, a.Age })

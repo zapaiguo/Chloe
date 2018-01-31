@@ -41,7 +41,7 @@
     <Compile Include="ChloeSQLiteConcurrentConnection.cs" />
     <Compile Include="ChloeSQLiteDataReader.cs" />
     <Compile Include="ChloeSQLiteTransaction.cs" />
-    <Compile Include="DbContextServiceProvider.cs" />
+    <Compile Include="DatabaseProvider.cs" />
     <Compile Include="DbExpressionHelper.cs" />
     <Compile Include="DbExpressionTranslator.cs" />
     <Compile Include="DbParamCollection.cs" />

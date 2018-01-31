@@ -19,7 +19,7 @@ namespace Chloe.SqlServer
 {
     public class MsSqlContext : DbContext
     {
-        DbContextServiceProvider _dbContextServiceProvider;
+        DatabaseProvider _databaseProvider;
         public MsSqlContext(string connString)
             : this(new DefaultDbConnectionFactory(connString))
         {
@@ -30,7 +30,7 @@ namespace Chloe.SqlServer
             Utils.CheckNull(dbConnectionFactory);
 
             this.PagingMode = PagingMode.ROW_NUMBER;
-            this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory, this);
+            this._databaseProvider = new DatabaseProvider(dbConnectionFactory, this);
         }
 
         static Dictionary<string, SysType> SysTypes;
@@ -80,9 +80,9 @@ namespace Chloe.SqlServer
         /// 分页模式。
         /// </summary>
         public PagingMode PagingMode { get; set; }
-        public override IDbContextServiceProvider DbContextServiceProvider
+        public override IDatabaseProvider DatabaseProvider
         {
-            get { return this._dbContextServiceProvider; }
+            get { return this._databaseProvider; }
         }
 
 

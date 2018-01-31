@@ -16,13 +16,13 @@ namespace Chloe.Oracle
 {
     public partial class OracleContext : DbContext
     {
-        DbContextServiceProvider _dbContextServiceProvider;
+        DatabaseProvider _databaseProvider;
         bool _convertToUppercase = true;
         public OracleContext(IDbConnectionFactory dbConnectionFactory)
         {
             Utils.CheckNull(dbConnectionFactory);
 
-            this._dbContextServiceProvider = new DbContextServiceProvider(dbConnectionFactory, this);
+            this._databaseProvider = new DatabaseProvider(dbConnectionFactory, this);
         }
 
 
@@ -30,9 +30,9 @@ namespace Chloe.Oracle
         /// 是否将 sql 中的表名/字段名转成大写。默认为 true。
         /// </summary>
         public bool ConvertToUppercase { get { return this._convertToUppercase; } set { this._convertToUppercase = value; } }
-        public override IDbContextServiceProvider DbContextServiceProvider
+        public override IDatabaseProvider DatabaseProvider
         {
-            get { return this._dbContextServiceProvider; }
+            get { return this._databaseProvider; }
         }
 
         public override TEntity Insert<TEntity>(TEntity entity, string table)
@@ -405,7 +405,7 @@ namespace Chloe.Oracle
 
         int ExecuteSqlCommand(DbExpression e)
         {
-            IDbExpressionTranslator translator = this.DbContextServiceProvider.CreateDbExpressionTranslator();
+            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
             List<DbParam> parameters;
             string cmdText = translator.Translate(e, out parameters);
 

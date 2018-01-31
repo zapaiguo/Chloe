@@ -7,13 +7,13 @@ using System.Data;
 using System.Linq;
 using System.Text;
 
-namespace Chloe.MySql
+namespace Chloe.SQLite
 {
-    class DbContextServiceProvider : IDbContextServiceProvider
+    class DatabaseProvider : IDatabaseProvider
     {
         IDbConnectionFactory _dbConnectionFactory;
 
-        public DbContextServiceProvider(IDbConnectionFactory dbConnectionFactory)
+        public DatabaseProvider(IDbConnectionFactory dbConnectionFactory)
         {
             this._dbConnectionFactory = dbConnectionFactory;
         }
@@ -24,6 +24,18 @@ namespace Chloe.MySql
         public IDbExpressionTranslator CreateDbExpressionTranslator()
         {
             return DbExpressionTranslator.Instance;
+        }
+        public string CreateParameterName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException("name");
+
+            if (name[0] == UtilConstants.DbParameterNamePrefix[0])
+            {
+                return name;
+            }
+
+            return UtilConstants.DbParameterNamePrefix + name;
         }
     }
 }
