@@ -14,6 +14,8 @@ namespace Chloe.Oracle
         IDbConnectionFactory _dbConnectionFactory;
         OracleContext _oracleContext;
 
+        public string DatabaseType { get { return "Oracle"; } }
+
         public DatabaseProvider(IDbConnectionFactory dbConnectionFactory, OracleContext oracleContext)
         {
             this._dbConnectionFactory = dbConnectionFactory;

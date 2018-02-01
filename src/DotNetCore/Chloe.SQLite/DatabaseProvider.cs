@@ -13,6 +13,8 @@ namespace Chloe.SQLite
     {
         IDbConnectionFactory _dbConnectionFactory;
 
+        public string DatabaseType { get { return "SQLite"; } }
+
         public DatabaseProvider(IDbConnectionFactory dbConnectionFactory)
         {
             this._dbConnectionFactory = dbConnectionFactory;

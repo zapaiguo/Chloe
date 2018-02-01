@@ -13,6 +13,8 @@ namespace Chloe.MySql
     {
         IDbConnectionFactory _dbConnectionFactory;
 
+        public string DatabaseType { get { return "MySql"; } }
+
         public DatabaseProvider(IDbConnectionFactory dbConnectionFactory)
         {
             this._dbConnectionFactory = dbConnectionFactory;

@@ -15,6 +15,8 @@ namespace Chloe.SqlServer
         IDbConnectionFactory _dbConnectionFactory;
         MsSqlContext _msSqlContext;
 
+        public string DatabaseType { get { return "SqlServer"; } }
+
         public DatabaseProvider(IDbConnectionFactory dbConnectionFactory, MsSqlContext msSqlContext)
         {
             this._dbConnectionFactory = dbConnectionFactory;
