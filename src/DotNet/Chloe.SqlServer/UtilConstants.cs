@@ -9,8 +9,8 @@ namespace Chloe.SqlServer
 {
     static class UtilConstants
     {
-        public const string DbParameterNamePrefix = "@";
-        public static readonly string ParameterNamePrefix = DbParameterNamePrefix + "P_";
+        public const string ParameterNamePlaceholer = "@";
+        public static readonly string ParameterNamePrefix = ParameterNamePlaceholer + "P_";
 
         public static readonly Type TypeOfVoid = typeof(void);
         public static readonly Type TypeOfInt16 = typeof(Int16);

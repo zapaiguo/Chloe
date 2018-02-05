@@ -32,12 +32,12 @@ namespace Chloe.MySql
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException("name");
 
-            if (name[0] == UtilConstants.DbParameterNamePrefix[0])
+            if (name[0] == UtilConstants.ParameterNamePlaceholer[0])
             {
                 return name;
             }
 
-            return UtilConstants.DbParameterNamePrefix + name;
+            return UtilConstants.ParameterNamePlaceholer + name;
         }
     }
 }
