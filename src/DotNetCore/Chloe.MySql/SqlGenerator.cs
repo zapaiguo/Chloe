@@ -87,10 +87,11 @@ namespace Chloe.MySql
             /* Sql.Equals(left, right) */
             DbMethodCallExpression left_equals_right = DbExpression.MethodCall(null, method_Sql_Equals, new List<DbExpression>(2) { left, right });
 
-            if (right.NodeType == DbExpressionType.Parameter || right.NodeType == DbExpressionType.Constant || left.NodeType == DbExpressionType.Parameter || left.NodeType == DbExpressionType.Constant)
+            if (right.NodeType == DbExpressionType.Parameter || right.NodeType == DbExpressionType.Constant || left.NodeType == DbExpressionType.Parameter || left.NodeType == DbExpressionType.Constant || right.NodeType == DbExpressionType.SubQuery || left.NodeType == DbExpressionType.SubQuery)
             {
                 /*
                  * a.Name == name --> a.Name == name
+                 * a.Id == (select top 1 T.Id from T) --> a.Id == (select top 1 T.Id from T)，对于这种查询，我们不考虑 null
                  */
 
                 left_equals_right.Accept(this);
@@ -136,6 +137,16 @@ namespace Chloe.MySql
             {
                 /*
                  * a.Name != null --> a.Name != null
+                 */
+
+                left_not_equals_right.Accept(this);
+                return exp;
+            }
+
+            if (right.NodeType == DbExpressionType.SubQuery || left.NodeType == DbExpressionType.SubQuery)
+            {
+                /*
+                 * a.Id != (select top 1 T.Id from T) --> a.Id <> (select top 1 T.Id from T)，对于这种查询，我们不考虑 null
                  */
 
                 left_not_equals_right.Accept(this);
