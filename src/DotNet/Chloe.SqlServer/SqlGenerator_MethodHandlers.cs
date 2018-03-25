@@ -34,6 +34,7 @@ namespace Chloe.SqlServer
 
             methodHandlers.Add("ToString", Method_ToString);
             methodHandlers.Add("Contains", Method_Contains);
+            methodHandlers.Add("In", Method_In);
 
             methodHandlers.Add("Count", Method_Count);
             methodHandlers.Add("LongCount", Method_LongCount);
@@ -392,6 +393,31 @@ namespace Chloe.SqlServer
                 }
             }
             In(generator, exps, operand);
+        }
+        static void Method_In(DbMethodCallExpression exp, SqlGenerator generator)
+        {
+            MethodInfo method = exp.Method;
+            /* public static bool In<T>(this T obj, IEnumerable<T> source) */
+            if (method.IsGenericMethod && method.ReturnType == UtilConstants.TypeOfBoolean)
+            {
+                Type[] genericArguments = method.GetGenericArguments();
+                ParameterInfo[] parameters = method.GetParameters();
+                Type genericType = genericArguments[0];
+                if (genericArguments.Length == 1 && parameters.Length == 2 && parameters[0].ParameterType == genericType)
+                {
+                    Type secondParameterType = parameters[1].ParameterType;
+                    if (typeof(IEnumerable<>).MakeGenericType(genericType).IsAssignableFrom(secondParameterType))
+                    {
+                        MethodInfo method_Contains = UtilConstants.MethodInfo_Enumerable_Contains.MakeGenericMethod(genericType);
+                        List<DbExpression> arguments = new List<DbExpression>(2) { exp.Arguments[1], exp.Arguments[0] };
+                        DbMethodCallExpression newExp = new DbMethodCallExpression(null, method_Contains, arguments);
+                        newExp.Accept(generator);
+                        return;
+                    }
+                }
+            }
+
+            throw UtilExceptions.NotSupportedMethod(method);
         }
 
 

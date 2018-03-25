@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -11,6 +12,13 @@ namespace Chloe.MySql
     {
         public const string ParameterNamePlaceholer = "?";
         public static readonly string ParameterNamePrefix = ParameterNamePlaceholer + "P_";
+
+        static UtilConstants()
+        {
+            Expression<Func<bool>> e = () => Enumerable.Contains((IEnumerable<int>)null, 0);
+            MethodInfo method_Enumerable_Contains = (e.Body as MethodCallExpression).Method.GetGenericMethodDefinition();
+            MethodInfo_Enumerable_Contains = method_Enumerable_Contains;
+        }
 
         public static readonly Type TypeOfVoid = typeof(void);
         public static readonly Type TypeOfInt16 = typeof(Int16);
@@ -75,15 +83,7 @@ namespace Chloe.MySql
 
         public static readonly MethodInfo MethodInfo_Guid_NewGuid = typeof(Guid).GetMethod("NewGuid");
 
-        /* DbFunctions */
-        //public static readonly MethodInfo MethodInfo_DbFunctions_DiffYears = typeof(DbFunctions).GetMethod("DiffYears");
-        //public static readonly MethodInfo MethodInfo_DbFunctions_DiffMonths = typeof(DbFunctions).GetMethod("DiffMonths");
-        //public static readonly MethodInfo MethodInfo_DbFunctions_DiffDays = typeof(DbFunctions).GetMethod("DiffDays");
-        //public static readonly MethodInfo MethodInfo_DbFunctions_DiffHours = typeof(DbFunctions).GetMethod("DiffHours");
-        //public static readonly MethodInfo MethodInfo_DbFunctions_DiffMinutes = typeof(DbFunctions).GetMethod("DiffMinutes");
-        //public static readonly MethodInfo MethodInfo_DbFunctions_DiffSeconds = typeof(DbFunctions).GetMethod("DiffSeconds");
-        //public static readonly MethodInfo MethodInfo_DbFunctions_DiffMilliseconds = typeof(DbFunctions).GetMethod("DiffMilliseconds");
-        //public static readonly MethodInfo MethodInfo_DbFunctions_DiffMicroseconds = typeof(DbFunctions).GetMethod("DiffMicroseconds");
+        public static MethodInfo MethodInfo_Enumerable_Contains { get; private set; }
 
         /* Sql */
         public static readonly MethodInfo MethodInfo_Sql_Equals = typeof(Sql).GetMethods().Where(a => a.Name == "Equals" && a.IsStatic && a.IsGenericMethod).First();
