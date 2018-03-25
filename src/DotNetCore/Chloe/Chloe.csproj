@@ -18,6 +18,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AggregateFunctions.cs" />
+    <Compile Remove="DbFunctions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
   </ItemGroup>
 
