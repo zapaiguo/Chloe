@@ -1,9 +1,9 @@
 ﻿using Chloe.Infrastructure;
 using Chloe.Oracle;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.OracleClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -72,7 +72,7 @@ namespace ChloeDemo
         public IDbCommand CreateCommand()
         {
             var cmd = _oracleConnection.CreateCommand();
-            //cmd.BindByName = true;
+            cmd.BindByName = true;
             return cmd;
         }
         public void Open()
