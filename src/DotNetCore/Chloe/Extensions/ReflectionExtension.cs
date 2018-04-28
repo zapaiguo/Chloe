@@ -24,8 +24,8 @@ namespace Chloe.InternalExtensions
                 ((PropertyInfo)propertyOrField).SetValue(obj, value, null);
             else if (propertyOrField.MemberType == MemberTypes.Field)
                 ((FieldInfo)propertyOrField).SetValue(obj, value);
-
-            throw new ArgumentException();
+            else
+                throw new ArgumentException();
         }
         public static object GetMemberValue(this MemberInfo propertyOrField, object obj)
         {
