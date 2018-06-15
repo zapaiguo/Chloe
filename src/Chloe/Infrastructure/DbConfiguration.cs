@@ -23,7 +23,8 @@ namespace Chloe.Infrastructure
 
         public static void UseInterceptors(params IDbCommandInterceptor[] interceptors)
         {
-            Utils.CheckNull(interceptors);
+            if (interceptors == null)
+                return;
 
             foreach (var interceptor in interceptors)
             {

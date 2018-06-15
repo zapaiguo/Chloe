@@ -33,13 +33,15 @@ namespace Chloe.Infrastructure
 
         public static void UseBuilders(params IEntityTypeBuilder[] entityTypeBuilders)
         {
-            Utils.CheckNull(entityTypeBuilders, nameof(entityTypeBuilders));
+            if (entityTypeBuilders == null)
+                return;
 
             Configure(entityTypeBuilders.Select(a => a.EntityType.MakeDefinition()).ToArray());
         }
         public static void UseBuilders(params Type[] entityTypeBuilderTypes)
         {
-            Utils.CheckNull(entityTypeBuilderTypes, nameof(entityTypeBuilderTypes));
+            if (entityTypeBuilderTypes == null)
+                return;
 
             List<TypeDefinition> typeDefinitions = new List<TypeDefinition>(entityTypeBuilderTypes.Length);
 
@@ -53,7 +55,8 @@ namespace Chloe.Infrastructure
         }
         public static void Configure(params TypeDefinition[] typeDefinitions)
         {
-            Utils.CheckNull(typeDefinitions, nameof(typeDefinitions));
+            if (typeDefinitions == null)
+                return;
 
             foreach (var typeDefinition in typeDefinitions)
             {
