@@ -192,3 +192,4 @@ ModelManifest.xml
 *.nupkg
 /src/DotNet/ChloeTest
 /src/DotNet/.vs
+/src/.vs
