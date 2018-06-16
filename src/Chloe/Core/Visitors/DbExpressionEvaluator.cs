@@ -1,28 +1,33 @@
-﻿using Chloe.Extensions;
+﻿using Chloe.DbExpressions;
 using Chloe.InternalExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 
 namespace Chloe.Core.Visitors
 {
-    public class ExpressionEvaluator : ExpressionVisitor<object>
+    public class DbExpressionEvaluator : DbExpressionVisitor<object>
     {
-        static ExpressionEvaluator _evaluator = new ExpressionEvaluator();
-        public static object Evaluate(Expression exp)
+        static DbExpressionEvaluator _evaluator = new DbExpressionEvaluator();
+        public static object Evaluate(DbExpression exp)
         {
-            return _evaluator.Visit(exp);
+            if (exp == null)
+                throw new ArgumentNullException();
+
+            return exp.Accept(_evaluator);
         }
 
-        protected override object VisitMemberAccess(MemberExpression exp)
+        public override object Visit(DbConstantExpression exp)
+        {
+            return exp.Value;
+        }
+        public override object Visit(DbMemberExpression exp)
         {
             object instance = null;
             if (exp.Expression != null)
             {
-                instance = this.Visit(exp.Expression);
+                instance = exp.Expression.Accept(this);
 
                 if (instance == null)
                 {
@@ -31,24 +36,41 @@ namespace Chloe.Core.Visitors
                         return false;
                     }
 
-                    throw new NullReferenceException(string.Format("There is an object reference not set to an instance in expression tree. Associated expression: '{0}'.", exp.Expression.ToString()));
+                    throw new NullReferenceException(string.Format("There is an object reference not set to an instance in expression tree.The type of null object is '{0}'.", exp.Expression.Type.FullName));
                 }
             }
 
             return exp.Member.GetMemberValue(instance);
         }
-        protected override object VisitUnary_Not(UnaryExpression exp)
+        public override object Visit(DbMethodCallExpression exp)
         {
-            var operandValue = this.Visit(exp.Operand);
+            object instance = null;
+            if (exp.Object != null)
+            {
+                instance = exp.Object.Accept(this);
+
+                if (instance == null)
+                {
+                    throw new NullReferenceException(string.Format("There is an object reference not set to an instance in expression tree.The type of null object is '{0}'.", exp.Object.Type.FullName));
+                }
+            }
+
+            object[] arguments = exp.Arguments.Select(a => a.Accept(this)).ToArray();
+
+            return exp.Method.Invoke(instance, arguments);
+        }
+        public override object Visit(DbNotExpression exp)
+        {
+            var operandValue = exp.Operand.Accept(this);
 
             if ((bool)operandValue == true)
                 return false;
 
             return true;
         }
-        protected override object VisitUnary_Convert(UnaryExpression exp)
+        public override object Visit(DbConvertExpression exp)
         {
-            object operandValue = this.Visit(exp.Operand);
+            object operandValue = exp.Operand.Accept(this);
 
             //(int)null
             if (operandValue == null)
@@ -81,8 +103,8 @@ namespace Chloe.Core.Visitors
                 else
                 {
                     //如果不等，则诸如：(long?)int / (long?)int?  -->  (long?)((long)int) / (long?)((long)int?)
-                    var c = Expression.MakeUnary(ExpressionType.Convert, Expression.Constant(operandValue), underlyingType);
-                    var cc = Expression.MakeUnary(ExpressionType.Convert, c, exp.Type);
+                    var c = DbExpression.Convert(DbExpression.Constant(operandValue), underlyingType);
+                    var cc = DbExpression.Convert(c, exp.Type);
                     return this.Visit(cc);
                 }
             }
@@ -99,8 +121,8 @@ namespace Chloe.Core.Visitors
                 else
                 {
                     //如果不等，则诸如：(long)int?  -->  (long)((long)int)
-                    var c = Expression.MakeUnary(ExpressionType.Convert, Expression.Constant(operandValue), underlyingType);
-                    var cc = Expression.MakeUnary(ExpressionType.Convert, c, exp.Type);
+                    var c = DbExpression.Convert(DbExpression.Constant(operandValue), underlyingType);
+                    var cc = DbExpression.Convert(c, exp.Type);
                     return this.Visit(cc);
                 }
             }
@@ -113,48 +135,9 @@ namespace Chloe.Core.Visitors
 
             throw new NotSupportedException(string.Format("Does not support the type '{0}' converted to type '{1}'.", operandValueType.FullName, exp.Type.FullName));
         }
-        protected override object VisitUnary_Quote(UnaryExpression exp)
-        {
-            var e = ExpressionExtension.StripQuotes(exp);
-            return e;
-        }
-        protected override object VisitConstant(ConstantExpression exp)
+        public override object Visit(DbParameterExpression exp)
         {
             return exp.Value;
-        }
-        protected override object VisitMethodCall(MethodCallExpression exp)
-        {
-            object instance = null;
-            if (exp.Object != null)
-            {
-                instance = this.Visit(exp.Object);
-
-                if (instance == null)
-                {
-                    throw new NullReferenceException(string.Format("There is an object reference not set to an instance in expression tree. Associated expression: '{0}'.", exp.Object.ToString()));
-                }
-            }
-
-            object[] arguments = exp.Arguments.Select(a => this.Visit(a)).ToArray();
-
-            return exp.Method.Invoke(instance, arguments);
-        }
-        protected override object VisitNew(NewExpression exp)
-        {
-            object[] arguments = exp.Arguments.Select(a => this.Visit(a)).ToArray();
-
-            return exp.Constructor.Invoke(arguments);
-        }
-        protected override object VisitNewArray(NewArrayExpression exp)
-        {
-            Array arr = Array.CreateInstance(exp.Type, exp.Expressions.Count);
-            for (int i = 0; i < exp.Expressions.Count; i++)
-            {
-                var e = exp.Expressions[i];
-                arr.SetValue(this.Visit(e), i);
-            }
-
-            return arr;
         }
     }
 }

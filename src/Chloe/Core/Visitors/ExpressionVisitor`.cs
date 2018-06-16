@@ -12,7 +12,8 @@ namespace Chloe.Core.Visitors
         public virtual T Visit(Expression exp)
         {
             if (exp == null)
-                return default(T);
+                throw new ArgumentNullException();
+
             switch (exp.NodeType)
             {
                 case ExpressionType.Not:

@@ -676,6 +676,12 @@ namespace Chloe.SqlServer
                 return exp;
             }
 
+            if (exp.IsEvaluable())
+            {
+                DbParameterExpression dbParameter = new DbParameterExpression(exp.Evaluate(), exp.Type);
+                return dbParameter.Accept(this);
+            }
+
             throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
         public override DbExpression Visit(DbMemberExpression exp)

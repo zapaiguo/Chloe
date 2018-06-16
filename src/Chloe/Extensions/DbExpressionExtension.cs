@@ -1,4 +1,5 @@
-﻿using Chloe.DbExpressions;
+﻿using Chloe.Core.Visitors;
+using Chloe.DbExpressions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,29 +97,6 @@ namespace Chloe.InternalExtensions
             val = exp.ConvertToParameterExpression();
             return true;
         }
-
-        public static bool IsEvaluable(this DbMemberExpression memberExpression)
-        {
-            if (memberExpression == null)
-                throw new ArgumentNullException("memberExpression");
-
-            do
-            {
-                DbExpression prevExp = memberExpression.Expression;
-
-                // prevExp == null 表示是静态成员
-                if (prevExp == null || prevExp is DbConstantExpression)
-                    return true;
-
-                DbMemberExpression memberExp = prevExp as DbMemberExpression;
-                if (memberExp == null)
-                    return false;
-                else
-                    memberExpression = memberExp;
-
-            } while (true);
-        }
-
         /// <summary>
         /// 对 memberExpression 进行求值
         /// </summary>
@@ -126,14 +104,20 @@ namespace Chloe.InternalExtensions
         /// <returns>返回 DbParameterExpression</returns>
         public static DbParameterExpression ConvertToParameterExpression(this DbMemberExpression memberExpression)
         {
-            DbParameterExpression ret = null;
             //求值
             object val = Evaluate(memberExpression);
-
-            ret = DbExpression.Parameter(val, memberExpression.Type);
-
-            return ret;
+            return DbExpression.Parameter(val, memberExpression.Type);
         }
+
+        public static bool IsEvaluable(this DbExpression expression)
+        {
+            return DbExpressionEvaluableJudge.CanEvaluate(expression);
+        }
+        public static object Evaluate(this DbExpression exp)
+        {
+            return DbExpressionEvaluator.Evaluate(exp);
+        }
+
 
         /// <summary>
         /// 判定 exp 返回值肯定是 null
@@ -180,49 +164,6 @@ namespace Chloe.InternalExtensions
             }
 
             return false;
-        }
-
-        public static object Evaluate(this DbMemberExpression exp, object instance)
-        {
-            if (exp.Member.MemberType
-              == MemberTypes.Field)
-            {
-                return ((FieldInfo)exp.Member).GetValue(instance);
-            }
-            else if (exp.Member.MemberType
-                     == MemberTypes.Property)
-            {
-                return ((PropertyInfo)exp.Member).GetValue(instance, null);
-            }
-
-            throw new NotSupportedException();
-        }
-        public static object Evaluate(this DbExpression exp)
-        {
-            if (exp.NodeType == DbExpressionType.Constant)
-                return ((DbConstantExpression)exp).Value;
-
-            if (exp.NodeType == DbExpressionType.MemberAccess)
-            {
-                DbMemberExpression m = (DbMemberExpression)exp;
-                object instance = null;
-                if (m.Expression != null)
-                {
-                    instance = Evaluate(m.Expression);
-
-                    /* 非静态成员，需要检查是否为空引用。Nullable<T>.HasValue 的情况比较特俗，暂不考虑 */
-                    Type declaringType = m.Member.DeclaringType;
-                    if (declaringType.IsClass || declaringType.IsInterface)
-                    {
-                        if (instance == null)
-                            throw new NullReferenceException(string.Format("There is an object reference not set to an instance of an object in expression tree.The type of null object is '{0}'.", declaringType.FullName));
-                    }
-                }
-
-                return Evaluate(m, instance);
-            }
-
-            throw new NotSupportedException();
         }
     }
 }
