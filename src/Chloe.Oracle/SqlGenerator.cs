@@ -826,7 +826,10 @@ namespace Chloe.Oracle
             }
             else if (objType == UtilConstants.TypeOfString)
             {
-                this._sqlBuilder.Append("N'", exp.Value, "'");
+                if (string.Empty.Equals(exp.Value))
+                    this._sqlBuilder.Append("'", exp.Value, "'");
+                else
+                    this._sqlBuilder.Append("N'", exp.Value, "'");
                 return exp;
             }
             else if (objType.IsEnum)
