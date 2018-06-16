@@ -1,4 +1,5 @@
-﻿using Chloe.Core;
+﻿using Chloe.Annotations;
+using Chloe.Core;
 using Chloe.DbExpressions;
 using Chloe.InternalExtensions;
 using System;
@@ -22,7 +23,7 @@ namespace Chloe.Oracle
 
         DbValueExpressionVisitor _valueExpressionVisitor;
 
-        static readonly Dictionary<string, Action<DbMethodCallExpression, SqlGenerator>> MethodHandlers = InitMethodHandlers();
+        static readonly Dictionary<string, Func<DbMethodCallExpression, SqlGenerator, bool>> MethodHandlers = InitMethodHandlers();
         static readonly Dictionary<string, Action<DbAggregateExpression, SqlGenerator>> AggregateHandlers = InitAggregateHandlers();
         static readonly Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
         static readonly Dictionary<Type, string> CastTypeMap;
@@ -693,14 +694,43 @@ namespace Chloe.Oracle
 
         public override DbExpression Visit(DbMethodCallExpression exp)
         {
-            Action<DbMethodCallExpression, SqlGenerator> methodHandler;
-            if (!MethodHandlers.TryGetValue(exp.Method.Name, out methodHandler))
+            Func<DbMethodCallExpression, SqlGenerator, bool> methodHandler;
+            if (MethodHandlers.TryGetValue(exp.Method.Name, out methodHandler))
             {
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
+                bool handleSuccessful = methodHandler(exp, this);
+                if (handleSuccessful)
+                    return exp;
             }
 
-            methodHandler(exp, this);
-            return exp;
+            DbFunctionAttribute dbFunction = exp.Method.GetCustomAttribute<DbFunctionAttribute>();
+            if (dbFunction != null)
+            {
+                string schema = dbFunction.Schema;
+                string functionName = string.IsNullOrEmpty(dbFunction.Name) ? exp.Method.Name : dbFunction.Name;
+
+                if (!string.IsNullOrEmpty(schema))
+                {
+                    this.QuoteName(schema);
+                    this._sqlBuilder.Append(".");
+                }
+
+                this.QuoteName(functionName);
+                this._sqlBuilder.Append("(");
+
+                string c = "";
+                foreach (DbExpression argument in exp.Arguments)
+                {
+                    this._sqlBuilder.Append(c);
+                    argument.Accept(this);
+                    c = ",";
+                }
+
+                this._sqlBuilder.Append(")");
+
+                return exp;
+            }
+
+            throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
         public override DbExpression Visit(DbMemberExpression exp)
         {

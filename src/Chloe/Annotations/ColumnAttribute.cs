@@ -3,7 +3,7 @@ using System.Data;
 
 namespace Chloe.Annotations
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class ColumnAttribute : Attribute
     {
         DbType _dbType = (DbType)(-1);/* -1=Unspecified */

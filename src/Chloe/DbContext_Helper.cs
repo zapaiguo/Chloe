@@ -42,8 +42,8 @@ namespace Chloe
                 /* a => a.Key == key */
 
                 PropertyDescriptor keyDescriptor = typeDescriptor.PrimaryKeys[0];
-                Expression propOrField = Expression.PropertyOrField(parameter, keyDescriptor.MemberInfo.Name);
-                Expression wrappedValue = ExpressionExtension.MakeWrapperAccess(key, keyDescriptor.MemberInfoType);
+                Expression propOrField = Expression.PropertyOrField(parameter, keyDescriptor.Property.Name);
+                Expression wrappedValue = ExpressionExtension.MakeWrapperAccess(key, keyDescriptor.PropertyType);
                 conditionBody = Expression.Equal(propOrField, wrappedValue);
             }
             else
@@ -60,8 +60,8 @@ namespace Chloe
                 {
                     foreach (PropertyDescriptor primaryKey in typeDescriptor.PrimaryKeys)
                     {
-                        Expression propOrField = Expression.PropertyOrField(parameter, primaryKey.MemberInfo.Name);
-                        Expression keyValue = Expression.MakeMemberAccess(keyConstantExp, primaryKey.MemberInfo);
+                        Expression propOrField = Expression.PropertyOrField(parameter, primaryKey.Property.Name);
+                        Expression keyValue = Expression.MakeMemberAccess(keyConstantExp, primaryKey.Property);
                         Expression e = Expression.Equal(propOrField, keyValue);
                         conditionBody = conditionBody == null ? e : Expression.AndAlso(conditionBody, e);
                     }
@@ -71,7 +71,7 @@ namespace Chloe
                     for (int i = 0; i < typeDescriptor.PrimaryKeys.Count; i++)
                     {
                         PropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys[i];
-                        MemberInfo keyMember = keyPropertyDescriptor.MemberInfo;
+                        MemberInfo keyMember = keyPropertyDescriptor.Property;
                         MemberInfo inputKeyMember = keyObjectType.GetMember(keyMember.Name).FirstOrDefault();
                         if (inputKeyMember == null)
                             throw new ArgumentException(string.Format("The input object does not define property for key '{0}'.", keyMember.Name));
@@ -196,10 +196,10 @@ namespace Chloe
                 object keyVal = kv.Value;
 
                 if (keyVal == null)
-                    throw new ArgumentException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.MemberInfo.Name));
+                    throw new ArgumentException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.Property.Name));
 
                 DbExpression left = new DbColumnAccessExpression(dbTable, keyPropertyDescriptor.Column);
-                DbExpression right = DbExpression.Parameter(keyVal, keyPropertyDescriptor.MemberInfoType);
+                DbExpression right = DbExpression.Parameter(keyVal, keyPropertyDescriptor.PropertyType);
                 DbExpression equalExp = new DbEqualExpression(left, right);
                 conditionExp = conditionExp == null ? equalExp : DbExpression.And(conditionExp, equalExp);
             }

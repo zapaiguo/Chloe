@@ -397,6 +397,8 @@ namespace ChloeDemo
             {
                 Id = a.Id,
 
+                CustomFunction = DbFunctions.MyFunction(a.Id), //自定义函数
+
                 String_Length = (int?)a.Name.Length,//LENGTH(`Users`.`Name`)
                 Substring = a.Name.Substring(0),//SUBSTRING(`Users`.`Name`,0 + 1,LENGTH(`Users`.`Name`))
                 Substring1 = a.Name.Substring(1),//SUBSTRING(`Users`.`Name`,1 + 1,LENGTH(`Users`.`Name`))

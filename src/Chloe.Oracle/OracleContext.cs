@@ -56,7 +56,7 @@ namespace Chloe.Oracle
                     throw new ChloeException("The member of marked sequence can not be union key.");
                 }
 
-                sequenceValue = ConvertIdentityType(this.GetSequenceNextValue(sequenceName), defineSequencePropertyDescriptor.MemberInfoType);
+                sequenceValue = ConvertIdentityType(this.GetSequenceNextValue(sequenceName), defineSequencePropertyDescriptor.PropertyType);
             }
 
             Dictionary<PropertyDescriptor, DbExpression> insertColumns = new Dictionary<PropertyDescriptor, DbExpression>();
@@ -75,14 +75,14 @@ namespace Chloe.Oracle
                     keyValueMap[propertyDescriptor] = val;
                 }
 
-                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.MemberInfoType);
+                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType);
                 insertColumns.Add(propertyDescriptor, valExp);
             }
 
             PropertyDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null).Select(a => a.Key).FirstOrDefault();
             if (nullValueKey != null)
             {
-                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", nullValueKey.MemberInfo.Name));
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", nullValueKey.Property.Name));
             }
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -143,7 +143,7 @@ namespace Chloe.Oracle
                 {
                     object val = ExpressionEvaluator.Evaluate(kv.Value);
                     if (val == null)
-                        throw new ChloeException(string.Format("The primary key '{0}' could not be null.", propertyDescriptor.MemberInfo.Name));
+                        throw new ChloeException(string.Format("The primary key '{0}' could not be null.", propertyDescriptor.Property.Name));
                     else
                     {
                         keyVal = val;
@@ -157,7 +157,7 @@ namespace Chloe.Oracle
 
             if (keyPropertyDescriptor == defineSequencePropertyDescriptor)
             {
-                sequenceValue = ConvertIdentityType(this.GetSequenceNextValue(sequenceName), defineSequencePropertyDescriptor.MemberInfoType);
+                sequenceValue = ConvertIdentityType(this.GetSequenceNextValue(sequenceName), defineSequencePropertyDescriptor.PropertyType);
 
                 keyVal = sequenceValue;
                 e.InsertColumns.Add(keyPropertyDescriptor.Column, DbExpression.Parameter(keyVal));
@@ -165,7 +165,7 @@ namespace Chloe.Oracle
 
             if (keyPropertyDescriptor != null && keyVal == null)
             {
-                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.MemberInfo.Name));
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.Property.Name));
             }
 
             this.ExecuteSqlCommand(e);
@@ -333,7 +333,7 @@ namespace Chloe.Oracle
                 if (entityState != null && !entityState.HasChanged(propertyDescriptor, val))
                     continue;
 
-                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.MemberInfoType);
+                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType);
                 updateColumns.Add(propertyDescriptor, valExp);
             }
 

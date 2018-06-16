@@ -8,10 +8,18 @@ namespace Chloe.Infrastructure
 {
     public static class DbConfiguration
     {
+        /// <summary>
+        /// Fluent Mapping
+        /// </summary>
+        /// <param name="entityTypeBuilders"></param>
         public static void UseTypeBuilders(params IEntityTypeBuilder[] entityTypeBuilders)
         {
             EntityTypeContainer.UseBuilders(entityTypeBuilders);
         }
+        /// <summary>
+        /// Fluent Mapping
+        /// </summary>
+        /// <param name="entityTypeBuilderTypes"></param>
         public static void UseTypeBuilders(params Type[] entityTypeBuilderTypes)
         {
             EntityTypeContainer.UseBuilders(entityTypeBuilderTypes);

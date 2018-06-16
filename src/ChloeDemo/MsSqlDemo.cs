@@ -41,7 +41,7 @@ namespace ChloeDemo
         public static void BasicQuery()
         {
             IQuery<User> q = context.Query<User>();
-
+            var x = q.Where(a => a.Name != null).Select(a => DbFunctions.MyFunction(11)).ToList();
             q.Where(a => a.Id == 1).FirstOrDefault();
             /*
              * SELECT TOP (1) [Users].[Id] AS [Id],[Users].[Name] AS [Name],[Users].[Gender] AS [Gender],[Users].[Age] AS [Age],[Users].[CityId] AS [CityId],[Users].[OpTime] AS [OpTime] FROM [Users] AS [Users] WHERE [Users].[Id] = 1
@@ -415,6 +415,8 @@ namespace ChloeDemo
             q.Select(a => new
             {
                 Id = a.Id,
+
+                CustomFunction = DbFunctions.MyFunction(a.Id), //自定义函数
 
                 String_Length = (int?)a.Name.Length,//LEN([Users].[Name])
                 Substring = a.Name.Substring(0),//SUBSTRING([Users].[Name],0 + 1,LEN([Users].[Name]))

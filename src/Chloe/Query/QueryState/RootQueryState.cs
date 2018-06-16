@@ -62,7 +62,7 @@ namespace Chloe.Query.QueryState
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
 
-                moe.AddMappingMemberExpression(item.MemberInfo, columnAccessExpression);
+                moe.AddMappingMemberExpression(item.Property, columnAccessExpression);
                 if (item.IsPrimaryKey)
                     moe.PrimaryKey = columnAccessExpression;
             }

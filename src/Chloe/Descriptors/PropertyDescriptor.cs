@@ -16,17 +16,17 @@ namespace Chloe.Descriptors
         Func<object, object> _valueGetter;
         Action<object, object> _valueSetter;
 
-        public PropertyDescriptor(PropertyDefinition definition, TypeDescriptor typeDescriptor)
+        public PropertyDescriptor(PropertyDefinition definition, TypeDescriptor declaringTypeDescriptor)
         {
             this.Definition = definition;
-            this.TypeDescriptor = typeDescriptor;
+            this.DeclaringTypeDescriptor = declaringTypeDescriptor;
         }
 
         public PropertyDefinition Definition { get; private set; }
-        public TypeDescriptor TypeDescriptor { get; private set; }
+        public TypeDescriptor DeclaringTypeDescriptor { get; private set; }
+        public PropertyInfo Property { get { return this.Definition.Property; } }
+        public Type PropertyType { get { return this.Definition.Property.PropertyType; } }
 
-        public MemberInfo MemberInfo { get { return this.Definition.Property; } }
-        public Type MemberInfoType { get { return this.Definition.Property.PropertyType; } }
         public bool IsPrimaryKey { get { return this.Definition.IsPrimaryKey; } }
         public bool IsAutoIncrement { get { return this.Definition.IsAutoIncrement; } }
         public DbColumn Column { get { return this.Definition.Column; } }

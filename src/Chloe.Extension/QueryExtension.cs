@@ -85,7 +85,7 @@ namespace Chloe
             Type modelType = typeof(TModel);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entityType);
-            var mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.ToDictionary(a => a.MemberInfo.Name, a => a);
+            var mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.ToDictionary(a => a.Property.Name, a => a);
 
             var props = modelType.GetProperties();
             ParameterExpression parameter = Expression.Parameter(typeDescriptor.Definition.Type, "a");
@@ -100,8 +100,8 @@ namespace Chloe
                     continue;
                 }
 
-                Expression sourceMemberAccess = Expression.MakeMemberAccess(parameter, mapPropertyDescriptor.MemberInfo);
-                if (prop.PropertyType != mapPropertyDescriptor.MemberInfoType)
+                Expression sourceMemberAccess = Expression.MakeMemberAccess(parameter, mapPropertyDescriptor.Property);
+                if (prop.PropertyType != mapPropertyDescriptor.PropertyType)
                 {
                     sourceMemberAccess = Expression.Convert(sourceMemberAccess, prop.PropertyType);
                 }
@@ -165,11 +165,11 @@ namespace Chloe
             ParameterExpression parameter = Expression.Parameter(entityType, "a");
             foreach (var mappingPropertyDescriptor in mappingPropertyDescriptors)
             {
-                if (fields.Any(a => a == mappingPropertyDescriptor.MemberInfo.Name))
+                if (fields.Any(a => a == mappingPropertyDescriptor.Property.Name))
                     continue;
 
-                Expression sourceMemberAccess = Expression.MakeMemberAccess(parameter, mappingPropertyDescriptor.MemberInfo);
-                MemberAssignment bind = Expression.Bind(mappingPropertyDescriptor.MemberInfo, sourceMemberAccess);
+                Expression sourceMemberAccess = Expression.MakeMemberAccess(parameter, mappingPropertyDescriptor.Property);
+                MemberAssignment bind = Expression.Bind(mappingPropertyDescriptor.Property, sourceMemberAccess);
                 bindings.Add(bind);
             }
 

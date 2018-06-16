@@ -79,8 +79,8 @@ namespace Chloe
             Expression conditionBody = null;
             foreach (PropertyDescriptor primaryKey in typeDescriptor.PrimaryKeys)
             {
-                Expression propOrField = Expression.PropertyOrField(parameter, primaryKey.MemberInfo.Name);
-                Expression keyValue = Expression.MakeMemberAccess(entityConstantExp, primaryKey.MemberInfo);
+                Expression propOrField = Expression.PropertyOrField(parameter, primaryKey.Property.Name);
+                Expression keyValue = Expression.MakeMemberAccess(entityConstantExp, primaryKey.Property);
                 Expression e = Expression.Equal(propOrField, keyValue);
                 conditionBody = conditionBody == null ? e : Expression.AndAlso(conditionBody, e);
             }

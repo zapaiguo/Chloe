@@ -35,12 +35,12 @@ namespace Chloe.Core
         public bool HasChanged(PropertyDescriptor propertyDescriptor, object val)
         {
             object oldVal;
-            if (!this._fakes.TryGetValue(propertyDescriptor.MemberInfo, out oldVal))
+            if (!this._fakes.TryGetValue(propertyDescriptor.Property, out oldVal))
             {
                 return true;
             }
 
-            if (propertyDescriptor.MemberInfoType == UtilConstants.TypeOfByteArray)
+            if (propertyDescriptor.PropertyType == UtilConstants.TypeOfByteArray)
             {
                 //byte[] is a big big hole~
                 return !AreEqual((byte[])oldVal, (byte[])val);
@@ -65,7 +65,7 @@ namespace Chloe.Core
                 var val = propertyDescriptor.GetValue(entity);
 
                 //I hate the byte[].
-                if (propertyDescriptor.MemberInfoType == UtilConstants.TypeOfByteArray)
+                if (propertyDescriptor.PropertyType == UtilConstants.TypeOfByteArray)
                 {
                     val = Clone((byte[])val);
                 }

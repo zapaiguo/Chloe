@@ -95,6 +95,10 @@ namespace Chloe.InternalExtensions
         {
             return member.GetCustomAttributes(typeof(TAttribute), false).Cast<TAttribute>();
         }
+        public static TAttribute GetCustomAttribute<TAttribute>(this MemberInfo member)
+        {
+            return member.GetCustomAttributes<TAttribute>().FirstOrDefault();
+        }
         public static bool IsDefined(this MemberInfo member, Type attributeType)
         {
             return member.IsDefined(attributeType, false);

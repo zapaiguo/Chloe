@@ -112,7 +112,7 @@ namespace Chloe.SqlServer
         static Stack<DbExpression> GatherBinaryExpressionOperand(DbBinaryExpression exp)
         {
             DbExpressionType nodeType = exp.NodeType;
-
+            
             Stack<DbExpression> items = new Stack<DbExpression>();
             items.Push(exp.Right);
 
@@ -127,27 +127,6 @@ namespace Chloe.SqlServer
             items.Push(left);
             return items;
         }
-        static void EnsureMethodDeclaringType(DbMethodCallExpression exp, Type ensureType)
-        {
-            if (exp.Method.DeclaringType != ensureType)
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
-        }
-        static void EnsureMethodDeclaringType(DbMethodCallExpression exp, params Type[] ensureTypes)
-        {
-            foreach (var type in ensureTypes)
-            {
-                if (exp.Method.DeclaringType == type)
-                    return;
-            }
-
-            throw UtilExceptions.NotSupportedMethod(exp.Method);
-        }
-        static void EnsureMethod(DbMethodCallExpression exp, MethodInfo methodInfo)
-        {
-            if (exp.Method != methodInfo)
-                throw UtilExceptions.NotSupportedMethod(exp.Method);
-        }
-
 
         static void EnsureTrimCharArgumentIsSpaces(DbExpression exp)
         {

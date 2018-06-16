@@ -311,8 +311,8 @@ namespace Chloe.SqlServer
                 }
                 else
                 {
-                    columnMapping.MapMember = mappingPropertyDescriptor.MemberInfo;
-                    dataType = mappingPropertyDescriptor.MemberInfoType.GetUnderlyingType();
+                    columnMapping.MapMember = mappingPropertyDescriptor.Property;
+                    dataType = mappingPropertyDescriptor.PropertyType.GetUnderlyingType();
                     if (dataType.IsEnum)
                         dataType = Enum.GetUnderlyingType(dataType);
                 }

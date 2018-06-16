@@ -31,6 +31,10 @@ namespace Chloe.Infrastructure
             return instance;
         }
 
+        /// <summary>
+        /// Fluent Mapping
+        /// </summary>
+        /// <param name="entityTypeBuilders"></param>
         public static void UseBuilders(params IEntityTypeBuilder[] entityTypeBuilders)
         {
             if (entityTypeBuilders == null)
@@ -38,6 +42,10 @@ namespace Chloe.Infrastructure
 
             Configure(entityTypeBuilders.Select(a => a.EntityType.MakeDefinition()).ToArray());
         }
+        /// <summary>
+        /// Fluent Mapping
+        /// </summary>
+        /// <param name="entityTypeBuilderTypes"></param>
         public static void UseBuilders(params Type[] entityTypeBuilderTypes)
         {
             if (entityTypeBuilderTypes == null)

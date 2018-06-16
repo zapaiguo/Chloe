@@ -30,7 +30,7 @@ namespace Chloe.Oracle
 
         static void EnsureDefineSequenceMemberType(PropertyDescriptor defineSequencePropertyDescriptor)
         {
-            if (defineSequencePropertyDescriptor.MemberInfoType != UtilConstants.TypeOfInt16 && defineSequencePropertyDescriptor.MemberInfoType != UtilConstants.TypeOfInt32 && defineSequencePropertyDescriptor.MemberInfoType != UtilConstants.TypeOfInt64)
+            if (defineSequencePropertyDescriptor.PropertyType != UtilConstants.TypeOfInt16 && defineSequencePropertyDescriptor.PropertyType != UtilConstants.TypeOfInt32 && defineSequencePropertyDescriptor.PropertyType != UtilConstants.TypeOfInt64)
             {
                 throw new ChloeException("Identity type must be Int16,Int32 or Int64.");
             }
@@ -66,10 +66,10 @@ namespace Chloe.Oracle
                 object keyVal = kv.Value;
 
                 if (keyVal == null)
-                    throw new ArgumentException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.MemberInfo.Name));
+                    throw new ArgumentException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.Property.Name));
 
                 DbExpression left = new DbColumnAccessExpression(dbTable, keyPropertyDescriptor.Column);
-                DbExpression right = DbExpression.Parameter(keyVal, keyPropertyDescriptor.MemberInfoType);
+                DbExpression right = DbExpression.Parameter(keyVal, keyPropertyDescriptor.PropertyType);
                 DbExpression equalExp = new DbEqualExpression(left, right);
                 conditionExp = conditionExp == null ? equalExp : DbExpression.And(conditionExp, equalExp);
             }

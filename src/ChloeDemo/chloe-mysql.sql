@@ -64,3 +64,9 @@ CREATE TABLE `users` (
 -- Records of users
 -- ----------------------------
 INSERT INTO `users` VALUES ('2', 'lu', '18', '1', '1', '2016-08-26 18:11:27');
+
+CREATE FUNCTION `MyFunction`(id int)
+ RETURNS varchar(4000)
+ BEGIN
+ return CONCAT('id: ', cast(id as CHAR));
+ END;

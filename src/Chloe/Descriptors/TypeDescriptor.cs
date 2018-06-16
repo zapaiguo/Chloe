@@ -53,18 +53,18 @@ namespace Chloe.Descriptors
         {
             return this.PrimaryKeys.Count > 0;
         }
-        public PropertyDescriptor TryGetPropertyDescriptor(MemberInfo memberInfo)
+        public PropertyDescriptor TryGetPropertyDescriptor(MemberInfo member)
         {
-            memberInfo = memberInfo.AsReflectedMemberOf(this.Definition.Type);
+            member = member.AsReflectedMemberOf(this.Definition.Type);
             PropertyDescriptor propertyDescriptor;
-            this._propertyDescriptorMap.TryGetValue(memberInfo, out propertyDescriptor);
+            this._propertyDescriptorMap.TryGetValue(member, out propertyDescriptor);
             return propertyDescriptor;
         }
-        public DbColumnAccessExpression TryGetColumnAccessExpression(MemberInfo memberInfo)
+        public DbColumnAccessExpression TryGetColumnAccessExpression(MemberInfo member)
         {
-            memberInfo = memberInfo.AsReflectedMemberOf(this.Definition.Type);
+            member = member.AsReflectedMemberOf(this.Definition.Type);
             DbColumnAccessExpression dbColumnAccessExpression;
-            this._propertyColumnMap.TryGetValue(memberInfo, out dbColumnAccessExpression);
+            this._propertyColumnMap.TryGetValue(member, out dbColumnAccessExpression);
             return dbColumnAccessExpression;
         }
     }

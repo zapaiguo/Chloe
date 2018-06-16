@@ -175,7 +175,7 @@ namespace Chloe
                     keyValueMap[propertyDescriptor] = val;
                 }
 
-                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.MemberInfoType);
+                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType);
                 insertColumns.Add(propertyDescriptor, valExp);
             }
 
@@ -183,7 +183,7 @@ namespace Chloe
             if (nullValueKey != null)
             {
                 /* 主键为空并且主键又不是自增列 */
-                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", nullValueKey.MemberInfo.Name));
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", nullValueKey.Property.Name));
             }
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -214,7 +214,7 @@ namespace Chloe
                 throw new ChloeException("Unable to get the identity value.");
             }
 
-            retIdentity = ConvertIdentityType(retIdentity, autoIncrementPropertyDescriptor.MemberInfoType);
+            retIdentity = ConvertIdentityType(retIdentity, autoIncrementPropertyDescriptor.PropertyType);
             autoIncrementPropertyDescriptor.SetValue(entity, retIdentity);
             return entity;
         }
@@ -262,7 +262,7 @@ namespace Chloe
                 {
                     object val = ExpressionEvaluator.Evaluate(kv.Value);
                     if (val == null)
-                        throw new ChloeException(string.Format("The primary key '{0}' could not be null.", propertyDescriptor.MemberInfo.Name));
+                        throw new ChloeException(string.Format("The primary key '{0}' could not be null.", propertyDescriptor.Property.Name));
                     else
                     {
                         keyVal = val;
@@ -279,7 +279,7 @@ namespace Chloe
                 //主键为空并且主键又不是自增列
                 if (keyVal == null && keyPropertyDescriptor != autoIncrementPropertyDescriptor)
                 {
-                    throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.MemberInfo.Name));
+                    throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.Property.Name));
                 }
             }
 
@@ -302,7 +302,7 @@ namespace Chloe
                 throw new ChloeException("Unable to get the identity value.");
             }
 
-            retIdentity = ConvertIdentityType(retIdentity, autoIncrementPropertyDescriptor.MemberInfoType);
+            retIdentity = ConvertIdentityType(retIdentity, autoIncrementPropertyDescriptor.PropertyType);
             return retIdentity;
         }
         public virtual void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
@@ -341,7 +341,7 @@ namespace Chloe
                 if (entityState != null && !entityState.HasChanged(propertyDescriptor, val))
                     continue;
 
-                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.MemberInfoType);
+                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType);
                 updateColumns.Add(propertyDescriptor, valExp);
             }
 
