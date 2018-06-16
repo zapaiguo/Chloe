@@ -12,7 +12,7 @@ namespace Chloe.Core.Visitors
         public virtual T Visit(Expression exp)
         {
             if (exp == null)
-                throw new ArgumentNullException();
+                return default(T);
 
             switch (exp.NodeType)
             {
