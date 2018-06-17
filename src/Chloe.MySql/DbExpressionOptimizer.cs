@@ -31,7 +31,8 @@ namespace Chloe.MySql
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Hour);
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Minute);
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Second);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Millisecond);
+            /* MySql is not supports MILLISECOND */
+            //_toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Millisecond); 
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_DayOfWeek);
 
             _toTranslateMembers = _toTranslateMembers.Clone();
