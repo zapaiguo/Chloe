@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Chloe.Utility
 {
-    class KeyDictionary<TKey> : Dictionary<TKey, object>
+    public class KeyDictionary<TKey> : Dictionary<TKey, object>
     {
         public KeyDictionary()
         {

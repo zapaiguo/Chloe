@@ -12,6 +12,11 @@ namespace Chloe.Core.Visitors
         static DbExpressionEvaluator _evaluator = new DbExpressionEvaluator();
         public static object Evaluate(DbExpression exp)
         {
+            return _evaluator.Visit(exp);
+        }
+
+        object Visit(DbExpression exp)
+        {
             if (exp == null)
                 throw new ArgumentNullException();
 

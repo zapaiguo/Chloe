@@ -29,6 +29,10 @@ namespace Chloe
             throw new NotSupportedException();
         }
 
+        public static T NextValueForSequence<T>(string sequenceName)
+        {
+            throw new NotSupportedException();
+        }
 
         public static int Count()
         {

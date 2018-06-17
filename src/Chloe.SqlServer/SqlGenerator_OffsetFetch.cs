@@ -11,7 +11,7 @@ namespace Chloe.SqlServer
         protected override void BuildLimitSql(DbExpressions.DbSqlQueryExpression exp)
         {
             //order by number offset 10 rows fetch next 20 rows only;
-            this._sqlBuilder.Append("SELECT ");
+            this.SqlBuilder.Append("SELECT ");
 
             this.AppendDistinct(exp.IsDistinct);
 
@@ -20,12 +20,12 @@ namespace Chloe.SqlServer
             {
                 DbColumnSegment column = columns[i];
                 if (i > 0)
-                    this._sqlBuilder.Append(",");
+                    this.SqlBuilder.Append(",");
 
                 this.AppendColumnSegment(column);
             }
 
-            this._sqlBuilder.Append(" FROM ");
+            this.SqlBuilder.Append(" FROM ");
             exp.Table.Accept(this);
             this.BuildWhereState(exp.Condition);
             this.BuildGroupState(exp);
@@ -41,10 +41,10 @@ namespace Chloe.SqlServer
 
             this.BuildOrderState(orderings);
 
-            this._sqlBuilder.Append(" OFFSET ", exp.SkipCount.Value.ToString(), " ROWS");
+            this.SqlBuilder.Append(" OFFSET ", exp.SkipCount.Value.ToString(), " ROWS");
             if (exp.TakeCount != null)
             {
-                this._sqlBuilder.Append(" FETCH NEXT ", exp.TakeCount.Value.ToString(), " ROWS ONLY");
+                this.SqlBuilder.Append(" FETCH NEXT ", exp.TakeCount.Value.ToString(), " ROWS ONLY");
             }
         }
     }

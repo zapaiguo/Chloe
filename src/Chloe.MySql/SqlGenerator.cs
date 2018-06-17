@@ -15,14 +15,14 @@ namespace Chloe.MySql
 {
     partial class SqlGenerator : DbExpressionVisitor<DbExpression>
     {
-        internal ISqlBuilder _sqlBuilder = new SqlBuilder();
+        ISqlBuilder _sqlBuilder = new SqlBuilder();
         DbParamCollection _parameters = new DbParamCollection();
 
-        static readonly Dictionary<string, Func<DbMethodCallExpression, SqlGenerator, bool>> MethodHandlers = InitMethodHandlers();
+        public static readonly Dictionary<string, IMethodHandler> MethodHandlers = GetMethodHandlers();
         static readonly Dictionary<string, Action<DbAggregateExpression, SqlGenerator>> AggregateHandlers = InitAggregateHandlers();
         static readonly Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
         static readonly Dictionary<Type, string> CastTypeMap;
-        static readonly Dictionary<Type, Type> NumericTypes;
+        public static readonly Dictionary<Type, Type> NumericTypes;
         static readonly List<string> CacheParameterNames;
 
         static SqlGenerator()
@@ -80,8 +80,8 @@ namespace Chloe.MySql
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
-            left = DbExpressionHelper.OptimizeDbExpression(left);
-            right = DbExpressionHelper.OptimizeDbExpression(right);
+            left = DbExpressionExtension.StripInvalidConvert(left);
+            right = DbExpressionExtension.StripInvalidConvert(right);
 
             MethodInfo method_Sql_Equals = UtilConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
 
@@ -125,8 +125,8 @@ namespace Chloe.MySql
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
-            left = DbExpressionHelper.OptimizeDbExpression(left);
-            right = DbExpressionHelper.OptimizeDbExpression(right);
+            left = DbExpressionExtension.StripInvalidConvert(left);
+            right = DbExpressionExtension.StripInvalidConvert(right);
 
             MethodInfo method_Sql_NotEquals = UtilConstants.MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
 
@@ -478,7 +478,7 @@ namespace Chloe.MySql
                     this._sqlBuilder.Append(",");
                 }
 
-                DbExpression valExp = item.Value.OptimizeDbExpression();
+                DbExpression valExp = item.Value.StripInvalidConvert();
                 AmendDbInfo(item.Key, valExp);
                 valExp.Accept(this);
             }
@@ -504,7 +504,7 @@ namespace Chloe.MySql
                 this.QuoteName(item.Key.Name);
                 this._sqlBuilder.Append("=");
 
-                DbExpression valExp = item.Value.OptimizeDbExpression();
+                DbExpression valExp = item.Value.StripInvalidConvert();
                 AmendDbInfo(item.Key, valExp);
                 valExp.Accept(this);
             }
@@ -600,12 +600,14 @@ namespace Chloe.MySql
 
         public override DbExpression Visit(DbMethodCallExpression exp)
         {
-            Func<DbMethodCallExpression, SqlGenerator, bool> methodHandler;
+            IMethodHandler methodHandler;
             if (MethodHandlers.TryGetValue(exp.Method.Name, out methodHandler))
             {
-                bool handleSuccessful = methodHandler(exp, this);
-                if (handleSuccessful)
+                if (methodHandler.CanProcess(exp))
+                {
+                    methodHandler.Process(exp, this);
                     return exp;
+                }
             }
 
             DbFunctionAttribute dbFunction = exp.Method.GetCustomAttribute<DbFunctionAttribute>();
@@ -675,13 +677,6 @@ namespace Chloe.MySql
                 }
             }
 
-
-            DbParameterExpression newExp;
-            if (DbExpressionExtension.TryConvertToParameterExpression(exp, out newExp))
-            {
-                return newExp.Accept(this);
-            }
-
             if (member.Name == "Length" && member.DeclaringType == UtilConstants.TypeOfString)
             {
                 this._sqlBuilder.Append("LENGTH(");
@@ -690,10 +685,17 @@ namespace Chloe.MySql
 
                 return exp;
             }
-            else if (member.Name == "Value" && ReflectionExtension.IsNullable(exp.Expression.Type))
+
+            if (member.Name == "Value" && ReflectionExtension.IsNullable(exp.Expression.Type))
             {
                 exp.Expression.Accept(this);
                 return exp;
+            }
+
+            DbParameterExpression newExp;
+            if (DbExpressionExtension.TryConvertToParameterExpression(exp, out newExp))
+            {
+                return newExp.Accept(this);
             }
 
             throw new NotSupportedException(string.Format("'{0}.{1}' is not supported.", member.DeclaringType.FullName, member.Name));

@@ -223,23 +223,23 @@ namespace Chloe.Oracle
         }
 
         #region AggregateFunction
-        static void Aggregate_Count(SqlGenerator generator)
+        public static void Aggregate_Count(SqlGenerator generator)
         {
             generator._sqlBuilder.Append("COUNT(1)");
         }
-        static void Aggregate_LongCount(SqlGenerator generator)
+        public static void Aggregate_LongCount(SqlGenerator generator)
         {
             generator._sqlBuilder.Append("COUNT(1)");
         }
-        static void Aggregate_Max(SqlGenerator generator, DbExpression exp, Type retType)
+        public static void Aggregate_Max(SqlGenerator generator, DbExpression exp, Type retType)
         {
             AppendAggregateFunction(generator, exp, retType, "MAX", false);
         }
-        static void Aggregate_Min(SqlGenerator generator, DbExpression exp, Type retType)
+        public static void Aggregate_Min(SqlGenerator generator, DbExpression exp, Type retType)
         {
             AppendAggregateFunction(generator, exp, retType, "MIN", false);
         }
-        static void Aggregate_Sum(SqlGenerator generator, DbExpression exp, Type retType)
+        public static void Aggregate_Sum(SqlGenerator generator, DbExpression exp, Type retType)
         {
             if (retType.IsNullable())
             {
@@ -254,7 +254,7 @@ namespace Chloe.Oracle
                 generator._sqlBuilder.Append(")");
             }
         }
-        static void Aggregate_Average(SqlGenerator generator, DbExpression exp, Type retType)
+        public static void Aggregate_Average(SqlGenerator generator, DbExpression exp, Type retType)
         {
             AppendAggregateFunction(generator, exp, retType, "AVG", false);
         }

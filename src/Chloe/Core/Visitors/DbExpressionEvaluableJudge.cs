@@ -11,11 +11,12 @@ namespace Chloe.Core.Visitors
     {
         static DbExpressionEvaluableJudge _judge = new DbExpressionEvaluableJudge();
 
-        DbExpressionEvaluableJudge()
+        public static bool CanEvaluate(DbExpression exp)
         {
+            return _judge.VisitCore(exp);
         }
 
-        public static bool CanEvaluate(DbExpression exp)
+        public virtual bool VisitCore(DbExpression exp)
         {
             if (exp == null)
                 throw new ArgumentNullException();
@@ -44,7 +45,7 @@ namespace Chloe.Core.Visitors
         {
             if (exp.Expression != null)
             {
-                return CanEvaluate(exp.Expression);
+                return this.VisitCore(exp.Expression);
             }
 
             return true;
@@ -53,13 +54,13 @@ namespace Chloe.Core.Visitors
         {
             if (exp.Object != null)
             {
-                if (!CanEvaluate(exp.Object))
+                if (!this.VisitCore(exp.Object))
                     return false;
             }
 
             foreach (var argument in exp.Arguments)
             {
-                if (!CanEvaluate(argument))
+                if (!this.VisitCore(argument))
                 {
                     return false;
                 }
@@ -69,11 +70,11 @@ namespace Chloe.Core.Visitors
         }
         public override bool Visit(DbNotExpression exp)
         {
-            return CanEvaluate(exp.Operand);
+            return this.VisitCore(exp.Operand);
         }
         public override bool Visit(DbConvertExpression exp)
         {
-            return CanEvaluate(exp.Operand);
+            return this.VisitCore(exp.Operand);
         }
         public override bool Visit(DbParameterExpression exp)
         {

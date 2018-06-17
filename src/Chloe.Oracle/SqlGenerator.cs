@@ -788,12 +788,6 @@ namespace Chloe.Oracle
                 return exp;
             }
 
-            DbParameterExpression newExp;
-            if (DbExpressionExtension.TryConvertToParameterExpression(exp, out newExp))
-            {
-                return newExp.Accept(this);
-            }
-
             if (member.Name == "Length" && member.DeclaringType == UtilConstants.TypeOfString)
             {
                 this._sqlBuilder.Append("LENGTH(");
@@ -802,10 +796,17 @@ namespace Chloe.Oracle
 
                 return exp;
             }
-            else if (member.Name == "Value" && ReflectionExtension.IsNullable(exp.Expression.Type))
+
+            if (member.Name == "Value" && ReflectionExtension.IsNullable(exp.Expression.Type))
             {
                 exp.Expression.Accept(this);
                 return exp;
+            }
+
+            DbParameterExpression newExp;
+            if (DbExpressionExtension.TryConvertToParameterExpression(exp, out newExp))
+            {
+                return newExp.Accept(this);
             }
 
             throw new NotSupportedException(string.Format("'{0}.{1}' is not supported.", member.DeclaringType.FullName, member.Name));
