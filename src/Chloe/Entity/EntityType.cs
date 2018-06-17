@@ -33,7 +33,7 @@ namespace Chloe.Entity
         public List<EntityProperty> Properties { get; private set; } = new List<EntityProperty>();
         public List<object> Annotations { get; private set; } = new List<object>();
 
-        public TypeDefinition MakeDefinition()
+        public virtual TypeDefinition MakeDefinition()
         {
             List<PropertyDefinition> properties = this.Properties.Select(a => a.MakeDefinition()).ToList();
             var autoIncrementProperties = properties.Where(a => a.IsAutoIncrement).ToList();

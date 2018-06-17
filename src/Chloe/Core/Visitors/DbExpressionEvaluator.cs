@@ -41,7 +41,7 @@ namespace Chloe.Core.Visitors
                         return false;
                     }
 
-                    throw new NullReferenceException(string.Format("There is an object reference not set to an instance in expression tree.The type of null object is '{0}'.", exp.Expression.Type.FullName));
+                    throw new NullReferenceException(string.Format("There is an object reference not set to an instance in expression tree. The type of null object is '{0}'.", exp.Expression.Type.FullName));
                 }
             }
 
@@ -56,7 +56,7 @@ namespace Chloe.Core.Visitors
 
                 if (instance == null)
                 {
-                    throw new NullReferenceException(string.Format("There is an object reference not set to an instance in expression tree.The type of null object is '{0}'.", exp.Object.Type.FullName));
+                    throw new NullReferenceException(string.Format("There is an object reference not set to an instance in expression tree. The type of null object is '{0}'.", exp.Object.Type.FullName));
                 }
             }
 
