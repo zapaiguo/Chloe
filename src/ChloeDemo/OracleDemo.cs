@@ -1,4 +1,5 @@
 ﻿using Chloe;
+using Chloe.Infrastructure;
 using Chloe.Oracle;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,12 @@ namespace ChloeDemo
     public class OracleDemo
     {
         /* WARNING: DbContext 是非线程安全的，正式使用不能设置为 static，并且用完务必要调用 Dispose 方法销毁对象 */
-        static OracleContext context = new OracleContext(new OracleConnectionFactory("Data Source=localhost/chloe;User ID=system;Password=sa;"));
+        static OracleContext context = new OracleContext(new OracleConnectionFactory("Data Source=localhost/orcl;User ID=system;Password=sasa;"));
 
         public static void Run()
         {
+            DbConfiguration.UseTypeBuilders(typeof(OracleUserMap));
+
             BasicQuery();
             JoinQuery();
             AggregateQuery();
@@ -31,10 +34,16 @@ namespace ChloeDemo
             ConsoleHelper.WriteLineAndReadKey();
         }
 
+        static User GetUser()
+        {
+            return new User() { Id = 1, Name = "so" };
+        }
 
         public static void BasicQuery()
         {
             IQuery<User> q = context.Query<User>();
+
+            var x = q.Where(a => a.Id >= GetUser().Id).ToList();
 
             q.Where(a => a.Id == 1).FirstOrDefault();
             /*

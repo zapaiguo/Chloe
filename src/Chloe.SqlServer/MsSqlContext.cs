@@ -17,7 +17,7 @@ using System.Text;
 
 namespace Chloe.SqlServer
 {
-    public class MsSqlContext : DbContext
+    public partial class MsSqlContext : DbContext
     {
         DatabaseProvider _databaseProvider;
         public MsSqlContext(string connString)
@@ -556,101 +556,6 @@ namespace Chloe.SqlServer
 
             int r = this.Session.ExecuteNonQuery(cmdText, CommandType.Text, parameters.ToArray());
             return r;
-        }
-
-        static DbMethodCallExpression MakeNextValueForSequenceDbExpression(PropertyDescriptor propertyDescriptor)
-        {
-            MethodInfo nextValueForSequenceMethod = UtilConstants.MethodInfo_Sql_NextValueForSequence.MakeGenericMethod(propertyDescriptor.PropertyType);
-            List<DbExpression> arguments = new List<DbExpression>() { new DbConstantExpression(propertyDescriptor.Definition.SequenceName) };
-
-            DbMethodCallExpression getNextValueForSequenceExp = new DbMethodCallExpression(null, nextValueForSequenceMethod, arguments);
-
-            return getNextValueForSequenceExp;
-        }
-
-        static Action<TEntity, IDataReader> GetMapper<TEntity>(PropertyDescriptor propertyDescriptor, int ordinal)
-        {
-            Action<TEntity, IDataReader> mapper = (TEntity entity, IDataReader reader) =>
-            {
-                object value = reader.GetValue(ordinal);
-                if (value == null || value == DBNull.Value)
-                    throw new ChloeException("Unable to get the identity/sequence value.");
-
-                value = ConvertObjType(value, propertyDescriptor.PropertyType);
-                propertyDescriptor.SetValue(entity, value);
-            };
-
-            return mapper;
-        }
-        static object ConvertObjType(object obj, Type conversionType)
-        {
-            Type underlyingType;
-            if (conversionType.IsNullable(out underlyingType))
-                conversionType = underlyingType;
-
-            if (obj.GetType() != conversionType)
-                return Convert.ChangeType(obj, conversionType);
-
-            return obj;
-        }
-        static Dictionary<PropertyDescriptor, object> CreateKeyValueMap(TypeDescriptor typeDescriptor)
-        {
-            Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>();
-            foreach (PropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
-            {
-                keyValueMap.Add(keyPropertyDescriptor, null);
-            }
-
-            return keyValueMap;
-        }
-        static SysType GetSysTypeByTypeName(string typeName)
-        {
-            SysType sysType;
-            if (SysTypes.TryGetValue(typeName, out sysType))
-            {
-                return sysType;
-            }
-
-            throw new NotSupportedException(string.Format("Does not Support systype '{0}'", typeName));
-        }
-        static T GetValue<T>(IDataReader reader, string name)
-        {
-            object val = reader.GetValue(reader.GetOrdinal(name));
-            if (val == DBNull.Value)
-            {
-                val = null;
-                return (T)val;
-            }
-
-            return (T)Convert.ChangeType(val, typeof(T).GetUnderlyingType());
-        }
-        static string AppendInsertRangeSqlTemplate(TypeDescriptor typeDescriptor, List<PropertyDescriptor> mappingPropertyDescriptors)
-        {
-            StringBuilder sqlBuilder = new StringBuilder();
-
-            sqlBuilder.Append("INSERT INTO ");
-            sqlBuilder.Append(AppendTableName(typeDescriptor.Table));
-            sqlBuilder.Append("(");
-
-            for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
-            {
-                PropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
-                if (i > 0)
-                    sqlBuilder.Append(",");
-                sqlBuilder.Append(Utils.QuoteName(mappingPropertyDescriptor.Column.Name));
-            }
-
-            sqlBuilder.Append(") VALUES");
-
-            string sqlTemplate = sqlBuilder.ToString();
-            return sqlTemplate;
-        }
-        static string AppendTableName(DbTable table)
-        {
-            if (string.IsNullOrEmpty(table.Schema))
-                return Utils.QuoteName(table.Name);
-
-            return string.Format("{0}.{1}", Utils.QuoteName(table.Schema), Utils.QuoteName(table.Name));
         }
 
         class SysType<TCSharpType> : SysType

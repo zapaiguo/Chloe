@@ -6,6 +6,7 @@ using Chloe.Descriptors;
 using Chloe.Entity;
 using Chloe.Exceptions;
 using Chloe.Infrastructure;
+using Chloe.InternalExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,35 +18,21 @@ namespace Chloe.Oracle
 {
     public partial class OracleContext : DbContext
     {
-        static PropertyDescriptor GetDefineSequencePropertyDescriptor(TypeDescriptor typeDescriptor, out string sequenceName)
-        {
-            sequenceName = null;
-            PropertyDescriptor defineSequencePropertyDescriptor = typeDescriptor.PropertyDescriptors.Where(a => !string.IsNullOrEmpty(a.Definition.SequenceName)).FirstOrDefault();
-
-            if (defineSequencePropertyDescriptor != null)
-                EnsureDefineSequenceMemberType(defineSequencePropertyDescriptor);
-
-            return defineSequencePropertyDescriptor;
-        }
-
-        static void EnsureDefineSequenceMemberType(PropertyDescriptor defineSequencePropertyDescriptor)
-        {
-            if (defineSequencePropertyDescriptor.PropertyType != UtilConstants.TypeOfInt16 && defineSequencePropertyDescriptor.PropertyType != UtilConstants.TypeOfInt32 && defineSequencePropertyDescriptor.PropertyType != UtilConstants.TypeOfInt64)
-            {
-                throw new ChloeException("Identity type must be Int16,Int32 or Int64.");
-            }
-        }
         static void EnsureMappingTypeHasPrimaryKey(TypeDescriptor typeDescriptor)
         {
             if (!typeDescriptor.HasPrimaryKey())
                 throw new ChloeException(string.Format("Mapping type '{0}' does not define a primary key.", typeDescriptor.Definition.Type.FullName));
         }
-        static object ConvertIdentityType(object identity, Type conversionType)
+        static object ConvertObjType(object obj, Type conversionType)
         {
-            if (identity.GetType() != conversionType)
-                return Convert.ChangeType(identity, conversionType);
+            Type underlyingType;
+            if (conversionType.IsNullable(out underlyingType))
+                conversionType = underlyingType;
 
-            return identity;
+            if (obj.GetType() != conversionType)
+                return Convert.ChangeType(obj, conversionType);
+
+            return obj;
         }
         static Dictionary<PropertyDescriptor, object> CreateKeyValueMap(TypeDescriptor typeDescriptor)
         {
