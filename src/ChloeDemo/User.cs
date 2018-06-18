@@ -24,7 +24,6 @@ namespace ChloeDemo
     {
         [Column(IsPrimaryKey = true)]
         [AutoIncrement]
-        [Sequence("USERS_AUTOID")]//For oracle
         public virtual int Id { get; set; }
         [Column(DbType = DbType.String)]
         public string Name { get; set; }
@@ -49,7 +48,7 @@ namespace ChloeDemo
         public UserMapBase()
         {
             this.Ignore(a => a.NotMapped);
-            this.Property(a => a.Id).IsAutoIncrement().IsPrimaryKey().HasSequence("USERS_AUTOID");
+            this.Property(a => a.Id).IsAutoIncrement().IsPrimaryKey();
         }
     }
     public class UserMap : UserMapBase<User>
