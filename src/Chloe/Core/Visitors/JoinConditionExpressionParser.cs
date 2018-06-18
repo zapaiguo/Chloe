@@ -5,11 +5,15 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Chloe.Oracle
+namespace Chloe.Core.Visitors
 {
-    class JoinConditionExpressionParser : DbExpressionVisitor
+    public class JoinConditionExpressionParser : DbExpressionVisitor
     {
+        public static readonly MethodInfo MethodInfo_Sql_Equals = typeof(Sql).GetMethods().Where(a => a.Name == "Equals" && a.IsStatic && a.IsGenericMethod).First();
+        public static readonly MethodInfo MethodInfo_Sql_NotEquals = typeof(Sql).GetMethod("NotEquals");
+
         static readonly JoinConditionExpressionParser _joinConditionExpressionParser = new JoinConditionExpressionParser();
+
         public static DbExpression Parse(DbExpression exp)
         {
             return exp.Accept(_joinConditionExpressionParser);
@@ -23,7 +27,7 @@ namespace Chloe.Oracle
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
-            MethodInfo method_Sql_Equals = UtilConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
+            MethodInfo method_Sql_Equals = MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
 
             /* Sql.Equals(left, right) */
             DbMethodCallExpression left_equals_right = DbExpression.MethodCall(null, method_Sql_Equals, new List<DbExpression>(2) { left.Accept(this), right.Accept(this) });
@@ -39,7 +43,7 @@ namespace Chloe.Oracle
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
-            MethodInfo method_Sql_NotEquals = UtilConstants.MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
+            MethodInfo method_Sql_NotEquals = MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
 
             /* Sql.NotEquals(left, right) */
             DbMethodCallExpression left_not_equals_right = DbExpression.MethodCall(null, method_Sql_NotEquals, new List<DbExpression>(2) { left.Accept(this), right.Accept(this) });

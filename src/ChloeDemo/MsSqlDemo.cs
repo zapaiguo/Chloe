@@ -41,7 +41,7 @@ namespace ChloeDemo
         public static void BasicQuery()
         {
             IQuery<User> q = context.Query<User>();
-            var x = q.Where(a => a.Name != null).Select(a => DbFunctions.MyFunction(11)).ToList();
+
             q.Where(a => a.Id == 1).FirstOrDefault();
             /*
              * SELECT TOP (1) [Users].[Id] AS [Id],[Users].[Name] AS [Name],[Users].[Gender] AS [Gender],[Users].[Age] AS [Age],[Users].[CityId] AS [CityId],[Users].[OpTime] AS [OpTime] FROM [Users] AS [Users] WHERE [Users].[Id] = 1
