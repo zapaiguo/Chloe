@@ -18,7 +18,6 @@ namespace Chloe.Oracle
     public partial class OracleContext : DbContext
     {
         DatabaseProvider _databaseProvider;
-        bool _convertToUppercase = true;
         public OracleContext(IDbConnectionFactory dbConnectionFactory)
         {
             Utils.CheckNull(dbConnectionFactory);
@@ -30,7 +29,7 @@ namespace Chloe.Oracle
         /// <summary>
         /// 是否将 sql 中的表名/字段名转成大写。默认为 true。
         /// </summary>
-        public bool ConvertToUppercase { get { return this._convertToUppercase; } set { this._convertToUppercase = value; } }
+        public bool ConvertToUppercase { get; set; } = true;
         public override IDatabaseProvider DatabaseProvider
         {
             get { return this._databaseProvider; }
@@ -464,7 +463,7 @@ namespace Chloe.Oracle
         }
         string QuoteName(string name)
         {
-            if (this._convertToUppercase)
+            if (this.ConvertToUppercase)
                 return string.Concat("\"", name.ToUpper(), "\"");
 
             return string.Concat("\"", name, "\"");
