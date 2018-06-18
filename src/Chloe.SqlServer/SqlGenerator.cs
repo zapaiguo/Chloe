@@ -493,39 +493,45 @@ namespace Chloe.SqlServer
         }
         public override DbExpression Visit(DbInsertExpression exp)
         {
+            string separator = "";
+
             this._sqlBuilder.Append("INSERT INTO ");
             this.QuoteName(exp.Table.Name);
             this._sqlBuilder.Append("(");
 
-            bool first = true;
+            separator = "";
             foreach (var item in exp.InsertColumns)
             {
-                if (first)
-                    first = false;
-                else
-                {
-                    this._sqlBuilder.Append(",");
-                }
-
+                this._sqlBuilder.Append(separator);
                 this.QuoteName(item.Key.Name);
+                separator = ",";
             }
 
             this._sqlBuilder.Append(")");
 
+            if (exp.Returns.Count > 0)
+            {
+                this._sqlBuilder.Append(" output ");
+                separator = "";
+                foreach (DbColumn returnColumn in exp.Returns)
+                {
+                    this._sqlBuilder.Append(separator);
+                    this._sqlBuilder.Append("inserted.");
+                    this.QuoteName(returnColumn.Name);
+                    separator = ",";
+                }
+            }
+
             this._sqlBuilder.Append(" VALUES(");
-            first = true;
+            separator = "";
             foreach (var item in exp.InsertColumns)
             {
-                if (first)
-                    first = false;
-                else
-                {
-                    this._sqlBuilder.Append(",");
-                }
+                this._sqlBuilder.Append(separator);
 
                 DbExpression valExp = DbExpressionExtension.StripInvalidConvert(item.Value);
                 AmendDbInfo(item.Key, valExp);
                 valExp.Accept(this.ValueExpressionVisitor);
+                separator = ",";
             }
 
             this._sqlBuilder.Append(")");

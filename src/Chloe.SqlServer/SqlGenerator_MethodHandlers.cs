@@ -67,6 +67,8 @@ namespace Chloe.SqlServer
 
             methodHandlers.Add("Abs", new Abs_Handler());
 
+            methodHandlers.Add("NextValueForSequence", new NextValueForSequence_Handler());
+
             var ret = Utils.Clone(methodHandlers);
             return ret;
         }

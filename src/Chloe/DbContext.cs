@@ -160,12 +160,11 @@ namespace Chloe
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
 
             Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
-            PropertyDescriptor autoIncrementPropertyDescriptor = typeDescriptor.AutoIncrement;
 
             Dictionary<PropertyDescriptor, DbExpression> insertColumns = new Dictionary<PropertyDescriptor, DbExpression>();
             foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
-                if (propertyDescriptor == autoIncrementPropertyDescriptor)
+                if (propertyDescriptor.IsAutoIncrement)
                     continue;
 
                 object val = propertyDescriptor.GetValue(entity);
@@ -179,7 +178,7 @@ namespace Chloe
                 insertColumns.Add(propertyDescriptor, valExp);
             }
 
-            PropertyDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null && a.Key != autoIncrementPropertyDescriptor).Select(a => a.Key).FirstOrDefault();
+            PropertyDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null && !a.Key.IsAutoIncrement).Select(a => a.Key).FirstOrDefault();
             if (nullValueKey != null)
             {
                 /* 主键为空并且主键又不是自增列 */
@@ -194,6 +193,7 @@ namespace Chloe
                 e.InsertColumns.Add(kv.Key.Column, kv.Value);
             }
 
+            PropertyDescriptor autoIncrementPropertyDescriptor = typeDescriptor.AutoIncrement;
             if (autoIncrementPropertyDescriptor == null)
             {
                 this.ExecuteSqlCommand(e);
@@ -235,7 +235,6 @@ namespace Chloe
             }
 
             PropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
-            PropertyDescriptor autoIncrementPropertyDescriptor = typeDescriptor.AutoIncrement;
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
@@ -255,7 +254,7 @@ namespace Chloe
                 if (propertyDescriptor == null)
                     throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
 
-                if (propertyDescriptor == autoIncrementPropertyDescriptor)
+                if (propertyDescriptor.IsAutoIncrement)
                     throw new ChloeException(string.Format("Could not insert value into the identity column '{0}'.", propertyDescriptor.Column.Name));
 
                 if (propertyDescriptor.IsPrimaryKey)
@@ -277,13 +276,13 @@ namespace Chloe
             if (keyPropertyDescriptor != null)
             {
                 //主键为空并且主键又不是自增列
-                if (keyVal == null && keyPropertyDescriptor != autoIncrementPropertyDescriptor)
+                if (keyVal == null && !keyPropertyDescriptor.IsAutoIncrement)
                 {
                     throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.Property.Name));
                 }
             }
 
-            if (keyPropertyDescriptor == null || keyPropertyDescriptor != autoIncrementPropertyDescriptor)
+            if (keyPropertyDescriptor == null || !keyPropertyDescriptor.IsAutoIncrement)
             {
                 this.ExecuteSqlCommand(e);
                 return keyVal; /* It will return null if an entity does not define primary key. */
@@ -302,7 +301,7 @@ namespace Chloe
                 throw new ChloeException("Unable to get the identity value.");
             }
 
-            retIdentity = ConvertIdentityType(retIdentity, autoIncrementPropertyDescriptor.PropertyType);
+            retIdentity = ConvertIdentityType(retIdentity, typeDescriptor.AutoIncrement.PropertyType);
             return retIdentity;
         }
         public virtual void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
@@ -327,7 +326,7 @@ namespace Chloe
             Dictionary<PropertyDescriptor, DbExpression> updateColumns = new Dictionary<PropertyDescriptor, DbExpression>();
             foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
-                if (keyValueMap.ContainsKey(propertyDescriptor))
+                if (propertyDescriptor.IsPrimaryKey)
                 {
                     keyValueMap[propertyDescriptor] = propertyDescriptor.GetValue(entity);
                     continue;

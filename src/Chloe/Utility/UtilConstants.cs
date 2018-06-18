@@ -30,6 +30,8 @@ namespace Chloe
         public static readonly Type TypeOfObject = typeof(Object);
         public static readonly Type TypeOfByteArray = typeof(Byte[]);
 
+        public static readonly MethodInfo MethodInfo_Sql_NextValueForSequence = typeof(Sql).GetMethod("NextValueForSequence");
+
 
         public static readonly ConstantExpression Constant_Null_String = Expression.Constant(null, typeof(string));
         public static readonly ConstantExpression Constant_Empty_String = Expression.Constant(string.Empty);

@@ -85,6 +85,177 @@ namespace Chloe.SqlServer
             get { return this._databaseProvider; }
         }
 
+        public override TEntity Insert<TEntity>(TEntity entity, string table)
+        {
+            Utils.CheckNull(entity);
+
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
+
+            Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
+
+            Dictionary<PropertyDescriptor, DbExpression> insertColumns = new Dictionary<PropertyDescriptor, DbExpression>();
+            foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            {
+                if (propertyDescriptor.IsAutoIncrement)
+                    continue;
+
+                if (propertyDescriptor.HasSequence())
+                {
+                    DbMethodCallExpression getNextValueForSequenceExp = MakeNextValueForSequenceDbExpression(propertyDescriptor);
+                    insertColumns.Add(propertyDescriptor, getNextValueForSequenceExp);
+                    continue;
+                }
+
+                object val = propertyDescriptor.GetValue(entity);
+
+                if (keyValueMap.ContainsKey(propertyDescriptor))
+                {
+                    keyValueMap[propertyDescriptor] = val;
+                }
+
+                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType);
+                insertColumns.Add(propertyDescriptor, valExp);
+            }
+
+            PropertyDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null && !a.Key.IsAutoIncrement).Select(a => a.Key).FirstOrDefault();
+            if (nullValueKey != null)
+            {
+                /* 主键为空并且主键又不是自增列 */
+                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", nullValueKey.Property.Name));
+            }
+
+            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbInsertExpression insertExp = new DbInsertExpression(dbTable);
+
+            foreach (var kv in insertColumns)
+            {
+                insertExp.InsertColumns.Add(kv.Key.Column, kv.Value);
+            }
+
+            List<Action<TEntity, IDataReader>> mappers = new List<Action<TEntity, IDataReader>>();
+            foreach (var item in typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement || a.HasSequence()))
+            {
+                mappers.Add(GetMapper<TEntity>(item, insertExp.Returns.Count));
+                insertExp.Returns.Add(item.Column);
+            }
+
+            if (mappers.Count == 0)
+            {
+                this.ExecuteSqlCommand(insertExp);
+                return entity;
+            }
+
+            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string sql = translator.Translate(insertExp, out parameters);
+
+            IDataReader dataReader = this.Session.ExecuteReader(sql, parameters.ToArray());
+            using (dataReader)
+            {
+                dataReader.Read();
+                foreach (var mapper in mappers)
+                {
+                    mapper(entity, dataReader);
+                }
+            }
+
+            return entity;
+        }
+        public override object Insert<TEntity>(Expression<Func<TEntity>> content, string table)
+        {
+            Utils.CheckNull(content);
+
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
+
+            if (typeDescriptor.PrimaryKeys.Count > 1)
+            {
+                /* 对于多主键的实体，暂时不支持调用这个方法进行插入 */
+                throw new NotSupportedException(string.Format("Can not call this method because entity '{0}' has multiple keys.", typeDescriptor.Definition.Type.FullName));
+            }
+
+            PropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
+
+            Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
+
+            DbTable explicitDbTable = null;
+            if (table != null)
+                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+            DbInsertExpression insertExp = new DbInsertExpression(explicitDbTable ?? typeDescriptor.Table);
+
+            object keyVal = null;
+
+            foreach (var kv in insertColumns)
+            {
+                MemberInfo key = kv.Key;
+                PropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
+
+                if (propertyDescriptor == null)
+                    throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
+
+                if (propertyDescriptor.IsAutoIncrement)
+                    throw new ChloeException(string.Format("Could not insert value into the identity column '{0}'.", propertyDescriptor.Column.Name));
+
+                if (propertyDescriptor.HasSequence())
+                    throw new ChloeException(string.Format("Can not insert value into the column '{0}', because it's mapping member has define a sequence.", propertyDescriptor.Column.Name));
+
+                if (propertyDescriptor.IsPrimaryKey)
+                {
+                    object val = ExpressionEvaluator.Evaluate(kv.Value);
+                    if (val == null)
+                        throw new ChloeException(string.Format("The primary key '{0}' could not be null.", propertyDescriptor.Property.Name));
+                    else
+                    {
+                        keyVal = val;
+                        insertExp.InsertColumns.Add(propertyDescriptor.Column, DbExpression.Parameter(keyVal));
+                        continue;
+                    }
+                }
+
+                insertExp.InsertColumns.Add(propertyDescriptor.Column, expressionParser.Parse(kv.Value));
+            }
+
+            foreach (var item in typeDescriptor.PropertyDescriptors.Where(a => a.HasSequence()))
+            {
+                DbMethodCallExpression getNextValueForSequenceExp = MakeNextValueForSequenceDbExpression(item);
+                insertExp.InsertColumns.Add(item.Column, getNextValueForSequenceExp);
+            }
+
+            if (keyPropertyDescriptor != null)
+            {
+                //主键为空并且主键又不是自增列
+                if (keyVal == null && !keyPropertyDescriptor.IsAutoIncrement && !keyPropertyDescriptor.HasSequence())
+                {
+                    throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.Property.Name));
+                }
+            }
+
+            if (keyPropertyDescriptor == null)
+            {
+                this.ExecuteSqlCommand(insertExp);
+                return keyVal; /* It will return null if an entity does not define primary key. */
+            }
+            if (!keyPropertyDescriptor.IsAutoIncrement && !keyPropertyDescriptor.HasSequence())
+            {
+                this.ExecuteSqlCommand(insertExp);
+                return keyVal;
+            }
+
+            insertExp.Returns.Add(keyPropertyDescriptor.Column);
+
+            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string sql = translator.Translate(insertExp, out parameters);
+
+            object ret = this.Session.ExecuteScalar(sql, parameters.ToArray());
+            if (ret == null || ret == DBNull.Value)
+            {
+                throw new ChloeException("Unable to get the identity/sequence value.");
+            }
+
+            ret = ConvertObjType(ret, typeDescriptor.AutoIncrement.PropertyType);
+            return ret;
+        }
 
         public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
         {
@@ -377,6 +548,61 @@ namespace Chloe.SqlServer
             return columns;
         }
 
+        int ExecuteSqlCommand(DbExpression e)
+        {
+            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string cmdText = translator.Translate(e, out parameters);
+
+            int r = this.Session.ExecuteNonQuery(cmdText, CommandType.Text, parameters.ToArray());
+            return r;
+        }
+
+        static DbMethodCallExpression MakeNextValueForSequenceDbExpression(PropertyDescriptor propertyDescriptor)
+        {
+            MethodInfo nextValueForSequenceMethod = UtilConstants.MethodInfo_Sql_NextValueForSequence.MakeGenericMethod(propertyDescriptor.PropertyType);
+            List<DbExpression> arguments = new List<DbExpression>() { new DbConstantExpression(propertyDescriptor.Definition.SequenceName) };
+
+            DbMethodCallExpression getNextValueForSequenceExp = new DbMethodCallExpression(null, nextValueForSequenceMethod, arguments);
+
+            return getNextValueForSequenceExp;
+        }
+
+        static Action<TEntity, IDataReader> GetMapper<TEntity>(PropertyDescriptor propertyDescriptor, int ordinal)
+        {
+            Action<TEntity, IDataReader> mapper = (TEntity entity, IDataReader reader) =>
+            {
+                object value = reader.GetValue(ordinal);
+                if (value == null || value == DBNull.Value)
+                    throw new ChloeException("Unable to get the identity/sequence value.");
+
+                value = ConvertObjType(value, propertyDescriptor.PropertyType);
+                propertyDescriptor.SetValue(entity, value);
+            };
+
+            return mapper;
+        }
+        static object ConvertObjType(object obj, Type conversionType)
+        {
+            Type underlyingType;
+            if (conversionType.IsNullable(out underlyingType))
+                conversionType = underlyingType;
+
+            if (obj.GetType() != conversionType)
+                return Convert.ChangeType(obj, conversionType);
+
+            return obj;
+        }
+        static Dictionary<PropertyDescriptor, object> CreateKeyValueMap(TypeDescriptor typeDescriptor)
+        {
+            Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>();
+            foreach (PropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
+            {
+                keyValueMap.Add(keyPropertyDescriptor, null);
+            }
+
+            return keyValueMap;
+        }
         static SysType GetSysTypeByTypeName(string typeName)
         {
             SysType sysType;

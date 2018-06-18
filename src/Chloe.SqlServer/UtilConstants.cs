@@ -89,6 +89,7 @@ namespace Chloe.SqlServer
         /* Sql */
         public static readonly MethodInfo MethodInfo_Sql_Equals = typeof(Sql).GetMethods().Where(a => a.Name == "Equals" && a.IsStatic && a.IsGenericMethod).First();
         public static readonly MethodInfo MethodInfo_Sql_NotEquals = typeof(Sql).GetMethod("NotEquals");
+        public static readonly MethodInfo MethodInfo_Sql_NextValueForSequence = typeof(Sql).GetMethod("NextValueForSequence");
         #endregion
 
     }
