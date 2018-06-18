@@ -132,6 +132,11 @@ namespace Chloe.Core.Visitors
                 }
             }
 
+            if (exp.Type.IsEnum)
+            {
+                return Enum.ToObject(exp.Type, operandValue);
+            }
+
             //(long)int
             if (operandValue is IConvertible)
             {

@@ -26,51 +26,68 @@ namespace Chloe.InternalExtensions
 
             DbConvertExpression convertExpression = (DbConvertExpression)exp;
 
+            if (convertExpression.Type == convertExpression.Operand.Type)
+            {
+                return StripInvalidConvert(convertExpression.Operand);
+            }
+
+            //(enumType)1
             if (convertExpression.Type.IsEnum)
             {
-                //(enumType)123
-                if (typeof(int) == convertExpression.Operand.Type)
+                Type enumUnderlyingType = Enum.GetUnderlyingType(convertExpression.Type);
+                if (enumUnderlyingType == convertExpression.Operand.Type)
+                {
+                    //(enumType)1 --> 1
                     return StripInvalidConvert(convertExpression.Operand);
+                }
 
-                DbConvertExpression newExp = new DbConvertExpression(typeof(int), convertExpression.Operand);
+                //(enumType)1 --> (Int16/Int32/Int64)1
+                DbConvertExpression newExp = new DbConvertExpression(enumUnderlyingType, convertExpression.Operand);
                 return StripInvalidConvert(newExp);
             }
 
             Type underlyingType;
 
-            //(int?)123
-            if (ReflectionExtension.IsNullable(convertExpression.Type, out underlyingType))//可空类型转换
+            //(Nullable<T>)1
+            if (convertExpression.Type.IsNullable(out underlyingType))//可空类型转换
             {
                 if (underlyingType == convertExpression.Operand.Type)
+                {
+                    //T == convertExpression.Operand.Type
+                    //(Nullable<T>)1 --> 1
                     return StripInvalidConvert(convertExpression.Operand);
+                }
 
+                //(Nullable<T>)1 --> (T)1
                 DbConvertExpression newExp = new DbConvertExpression(underlyingType, convertExpression.Operand);
                 return StripInvalidConvert(newExp);
             }
 
-            //(int)enumTypeValue
-            if (exp.Type == typeof(int))
+            if (!exp.Type.IsEnum)
             {
-                //(int)enumTypeValue
+                //(Int16/Int32/Int64)TEnum
                 if (convertExpression.Operand.Type.IsEnum)
+                {
+                    //(Int16/Int32/Int64)TEnum --> TEnum
                     return StripInvalidConvert(convertExpression.Operand);
+                }
 
-                //(int)NullableEnumTypeValue
-                if (ReflectionExtension.IsNullable(convertExpression.Operand.Type, out underlyingType) && underlyingType.IsEnum)
+                //(Int16/Int32/Int64)Nullable<TEnum>
+                if (convertExpression.Operand.Type.IsNullable(out underlyingType) && underlyingType.IsEnum)
+                {
+                    //(Int16/Int32/Int64)Nullable<TEnum> --> TEnum
                     return StripInvalidConvert(convertExpression.Operand);
+                }
             }
 
             //float long double and so on
             if (exp.Type.IsValueType)
             {
-                //(long)NullableValue
-                if (ReflectionExtension.IsNullable(convertExpression.Operand.Type, out underlyingType) && underlyingType == exp.Type)
+                if (convertExpression.Operand.Type.IsNullable(out underlyingType) && underlyingType == exp.Type)
+                {
+                    //(T)Nullable<T> --> T
                     return StripInvalidConvert(convertExpression.Operand);
-            }
-
-            if (convertExpression.Type == convertExpression.Operand.Type)
-            {
-                return StripInvalidConvert(convertExpression.Operand);
+                }
             }
 
             //如果是子类向父类转换

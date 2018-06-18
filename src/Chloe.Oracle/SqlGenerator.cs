@@ -18,16 +18,16 @@ namespace Chloe.Oracle
         static readonly object Boxed_1 = 1;
         static readonly object Boxed_0 = 0;
 
-        internal ISqlBuilder _sqlBuilder = new SqlBuilder();
+        ISqlBuilder _sqlBuilder = new SqlBuilder();
         DbParamCollection _parameters = new DbParamCollection();
 
         DbValueExpressionVisitor _valueExpressionVisitor;
 
-        static readonly Dictionary<string, Func<DbMethodCallExpression, SqlGenerator, bool>> MethodHandlers = InitMethodHandlers();
+        public static readonly Dictionary<string, IMethodHandler> MethodHandlers = GetMethodHandlers();
         static readonly Dictionary<string, Action<DbAggregateExpression, SqlGenerator>> AggregateHandlers = InitAggregateHandlers();
         static readonly Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
         static readonly Dictionary<Type, string> CastTypeMap;
-        static readonly Dictionary<Type, Type> NumericTypes;
+        public static readonly Dictionary<Type, Type> NumericTypes;
         static readonly List<string> CacheParameterNames;
 
         public static readonly ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes;
@@ -107,8 +107,8 @@ namespace Chloe.Oracle
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
-            left = DbExpressionHelper.OptimizeDbExpression(left);
-            right = DbExpressionHelper.OptimizeDbExpression(right);
+            left = DbExpressionExtension.StripInvalidConvert(left);
+            right = DbExpressionExtension.StripInvalidConvert(right);
 
             MethodInfo method_Sql_Equals = UtilConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
 
@@ -152,8 +152,8 @@ namespace Chloe.Oracle
             DbExpression left = exp.Left;
             DbExpression right = exp.Right;
 
-            left = DbExpressionHelper.OptimizeDbExpression(left);
-            right = DbExpressionHelper.OptimizeDbExpression(right);
+            left = DbExpressionExtension.StripInvalidConvert(left);
+            right = DbExpressionExtension.StripInvalidConvert(right);
 
             MethodInfo method_Sql_NotEquals = UtilConstants.MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
 
@@ -552,7 +552,7 @@ namespace Chloe.Oracle
                     this._sqlBuilder.Append(",");
                 }
 
-                DbExpression valExp = item.Value.OptimizeDbExpression();
+                DbExpression valExp = item.Value.StripInvalidConvert();
                 AmendDbInfo(item.Key, valExp);
                 valExp.Accept(this.ValueExpressionVisitor);
             }
@@ -578,7 +578,7 @@ namespace Chloe.Oracle
                 this.QuoteName(item.Key.Name);
                 this._sqlBuilder.Append("=");
 
-                DbExpression valExp = item.Value.OptimizeDbExpression();
+                DbExpression valExp = item.Value.StripInvalidConvert();
                 AmendDbInfo(item.Key, valExp);
                 valExp.Accept(this.ValueExpressionVisitor);
             }
@@ -694,12 +694,14 @@ namespace Chloe.Oracle
 
         public override DbExpression Visit(DbMethodCallExpression exp)
         {
-            Func<DbMethodCallExpression, SqlGenerator, bool> methodHandler;
+            IMethodHandler methodHandler;
             if (MethodHandlers.TryGetValue(exp.Method.Name, out methodHandler))
             {
-                bool handleSuccessful = methodHandler(exp, this);
-                if (handleSuccessful)
+                if (methodHandler.CanProcess(exp))
+                {
+                    methodHandler.Process(exp, this);
                     return exp;
+                }
             }
 
             DbFunctionAttribute dbFunction = exp.Method.GetCustomAttribute<DbFunctionAttribute>();

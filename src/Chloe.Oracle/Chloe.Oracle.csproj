@@ -37,4 +37,10 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="MethodHandlers\AddHours_Handler.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>

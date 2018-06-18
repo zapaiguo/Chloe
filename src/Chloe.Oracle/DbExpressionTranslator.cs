@@ -15,6 +15,7 @@ namespace Chloe.Oracle
         public string Translate(DbExpression expression, out List<DbParam> parameters)
         {
             SqlGenerator generator = SqlGenerator.CreateInstance();
+            expression = DbExpressionOptimizer.Optimize(expression);
             expression.Accept(generator);
 
             parameters = generator.Parameters;
@@ -30,6 +31,7 @@ namespace Chloe.Oracle
         public string Translate(DbExpression expression, out List<DbParam> parameters)
         {
             SqlGenerator_ConvertToUppercase generator = new SqlGenerator_ConvertToUppercase();
+            expression = DbExpressionOptimizer.Optimize(expression);
             expression.Accept(generator);
 
             parameters = generator.Parameters;

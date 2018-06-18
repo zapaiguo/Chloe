@@ -43,7 +43,7 @@ namespace Chloe.Oracle
 
             return row_numberName;
         }
-        static void AmendDbInfo(DbExpression exp1, DbExpression exp2)
+        public static void AmendDbInfo(DbExpression exp1, DbExpression exp2)
         {
             DbColumnAccessExpression datumPointExp = null;
             DbParameterExpression expToAmend = null;
@@ -68,7 +68,7 @@ namespace Chloe.Oracle
                     expToAmend.DbType = datumPointExp.Column.DbType;
             }
         }
-        static void AmendDbInfo(DbColumn column, DbExpression exp)
+        public static void AmendDbInfo(DbColumn column, DbExpression exp)
         {
             if (column.DbType == null || exp.NodeType != DbExpressionType.Parameter)
                 return;
@@ -185,7 +185,7 @@ namespace Chloe.Oracle
             return string.Format("Does not support the type '{0}' converted to type '{1}'.", sourceType.FullName, targetType.FullName);
         }
 
-        static void DbFunction_DATEADD(SqlGenerator generator, string interval, DbMethodCallExpression exp)
+        public static void DbFunction_DATEADD(SqlGenerator generator, string interval, DbMethodCallExpression exp)
         {
             /*
              * Just support hour/minute/second
@@ -203,7 +203,7 @@ namespace Chloe.Oracle
             generator._sqlBuilder.Append("')");
             generator._sqlBuilder.Append(")");
         }
-        static void DbFunction_DATEPART(SqlGenerator generator, string interval, DbExpression exp, bool castToTimestamp = false)
+        public static void DbFunction_DATEPART(SqlGenerator generator, string interval, DbExpression exp, bool castToTimestamp = false)
         {
             /* cast(to_char(sysdate,'yyyy') as number) */
             generator._sqlBuilder.Append("CAST(TO_CHAR(");
@@ -217,7 +217,7 @@ namespace Chloe.Oracle
             generator._sqlBuilder.Append(interval);
             generator._sqlBuilder.Append("') AS NUMBER)");
         }
-        static void DbFunction_DATEDIFF(SqlGenerator generator, string interval, DbExpression startDateTimeExp, DbExpression endDateTimeExp)
+        public static void DbFunction_DATEDIFF(SqlGenerator generator, string interval, DbExpression startDateTimeExp, DbExpression endDateTimeExp)
         {
             throw new NotSupportedException("DATEDIFF is not supported.");
         }
