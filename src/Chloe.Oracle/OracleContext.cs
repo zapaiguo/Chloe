@@ -43,32 +43,20 @@ namespace Chloe.Oracle
 
             Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
 
-            PropertyDescriptor sequencePropertyDescriptor = typeDescriptor.PropertyDescriptors.Where(a => a.HasSequence()).FirstOrDefault();
-
-            object sequenceValue = null;
-            if (sequencePropertyDescriptor != null)
-            {
-                if (sequencePropertyDescriptor.IsPrimaryKey && typeDescriptor.PrimaryKeys.Count > 1)
-                {
-                    /* 自增列不能作为联合主键成员 */
-                    throw new ChloeException("The member of marked sequence can not be union key.");
-                }
-
-                sequenceValue = ConvertObjType(this.GetSequenceNextValue(sequencePropertyDescriptor.Definition.SequenceName), sequencePropertyDescriptor.PropertyType);
-            }
+            Dictionary<PropertyDescriptor, object> sequenceValues = this.GetSequenceValues(typeDescriptor.PropertyDescriptors.Where(a => a.HasSequence()).ToList());
 
             Dictionary<PropertyDescriptor, DbExpression> insertColumns = new Dictionary<PropertyDescriptor, DbExpression>();
             foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
                 object val = null;
-                if (sequencePropertyDescriptor != null && propertyDescriptor == sequencePropertyDescriptor)
+                if (propertyDescriptor.HasSequence())
                 {
-                    val = sequenceValue;
+                    val = sequenceValues[propertyDescriptor];
                 }
                 else
                     val = propertyDescriptor.GetValue(entity);
 
-                if (keyValueMap.ContainsKey(propertyDescriptor))
+                if (propertyDescriptor.IsPrimaryKey)
                 {
                     keyValueMap[propertyDescriptor] = val;
                 }
@@ -93,8 +81,10 @@ namespace Chloe.Oracle
 
             this.ExecuteSqlCommand(e);
 
-            if (sequencePropertyDescriptor != null)
-                sequencePropertyDescriptor.SetValue(entity, sequenceValue);
+            foreach (var kv in sequenceValues)
+            {
+                kv.Key.SetValue(entity, kv.Value);
+            }
 
             return entity;
         }
@@ -149,12 +139,13 @@ namespace Chloe.Oracle
                 insertExp.InsertColumns.Add(propertyDescriptor.Column, expressionParser.Parse(kv.Value));
             }
 
-            if (keyPropertyDescriptor.HasSequence())
-            {
-                object sequenceValue = ConvertObjType(this.GetSequenceNextValue(keyPropertyDescriptor.Definition.SequenceName), keyPropertyDescriptor.PropertyType);
+            Dictionary<PropertyDescriptor, object> sequenceValues = this.GetSequenceValues(typeDescriptor.PropertyDescriptors.Where(a => a.HasSequence()).ToList());
 
-                keyVal = sequenceValue;
-                insertExp.InsertColumns.Add(keyPropertyDescriptor.Column, DbExpression.Parameter(keyVal));
+            foreach (var kv in sequenceValues)
+            {
+                insertExp.InsertColumns.Add(kv.Key.Column, DbExpression.Parameter(kv.Value));
+                if (kv.Key.IsPrimaryKey)
+                    keyVal = kv.Value;
             }
 
             if (keyPropertyDescriptor != null && keyVal == null)
@@ -399,16 +390,42 @@ namespace Chloe.Oracle
             int r = this.Session.ExecuteNonQuery(cmdText, parameters.ToArray());
             return r;
         }
-        object GetSequenceNextValue(string sequenceName)
+        Dictionary<PropertyDescriptor, object> GetSequenceValues(List<PropertyDescriptor> sequencePropertyDescriptors)
         {
-            if (this.ConvertToUppercase)
-                sequenceName = sequenceName.ToUpper();
+            Dictionary<PropertyDescriptor, object> ret = new Dictionary<PropertyDescriptor, object>(sequencePropertyDescriptors.Count);
+            if (sequencePropertyDescriptors.Count == 0)
+                return ret;
 
-            object ret = this.Session.ExecuteScalar(string.Concat("SELECT \"", sequenceName, "\".\"NEXTVAL\" FROM \"DUAL\""));
-
-            if (ret == null || ret == DBNull.Value)
+            StringBuilder sql = new StringBuilder();
+            sql.Append("SELECT ");
+            for (int i = 0; i < sequencePropertyDescriptors.Count; i++)
             {
-                throw new ChloeException(string.Format("Unable to get the sequence '{0}' next value.", sequenceName));
+                var sequencePropertyDescriptor = sequencePropertyDescriptors[i];
+                string sequenceName = sequencePropertyDescriptor.Definition.SequenceName;
+                if (this.ConvertToUppercase)
+                    sequenceName = sequenceName.ToUpper();
+
+                if (i > 0)
+                    sql.Append(",");
+
+                sql.Append($"\"{sequenceName}\".\"NEXTVAL\"");
+                sql.Append(" V");
+                sql.Append(i);
+            }
+            sql.Append(" FROM \"DUAL\"");
+
+            var dataReader = this.Session.ExecuteReader(sql.ToString());
+            using (dataReader)
+            {
+                dataReader.Read();
+                for (int i = 0; i < dataReader.FieldCount; i++)
+                {
+                    var sequencePropertyDescriptor = sequencePropertyDescriptors[i];
+                    object sequenceValue = ConvertObjType(dataReader.GetValue(i), sequencePropertyDescriptor.PropertyType);
+                    ret.Add(sequencePropertyDescriptor, sequenceValue);
+                }
+
+                dataReader.Close();
             }
 
             return ret;

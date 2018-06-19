@@ -169,7 +169,7 @@ namespace Chloe
 
                 object val = propertyDescriptor.GetValue(entity);
 
-                if (keyValueMap.ContainsKey(propertyDescriptor))
+                if (propertyDescriptor.IsPrimaryKey)
                 {
                     keyValueMap[propertyDescriptor] = val;
                 }
