@@ -408,14 +408,7 @@ namespace Chloe.SqlServer
 
         public override DbExpression Visit(DbTableExpression exp)
         {
-            if (!string.IsNullOrEmpty(exp.Table.Schema))
-            {
-                this.QuoteName(exp.Table.Schema);
-                this._sqlBuilder.Append(".");
-            }
-
-            this.QuoteName(exp.Table.Name);
-
+            this.AppendTable(exp.Table);
             return exp;
         }
         public override DbExpression Visit(DbColumnAccessExpression exp)
@@ -496,7 +489,7 @@ namespace Chloe.SqlServer
             string separator = "";
 
             this._sqlBuilder.Append("INSERT INTO ");
-            this.QuoteName(exp.Table.Name);
+            this.AppendTable(exp.Table);
             this._sqlBuilder.Append("(");
 
             separator = "";
@@ -541,7 +534,7 @@ namespace Chloe.SqlServer
         public override DbExpression Visit(DbUpdateExpression exp)
         {
             this._sqlBuilder.Append("UPDATE ");
-            this.QuoteName(exp.Table.Name);
+            this.AppendTable(exp.Table);
             this._sqlBuilder.Append(" SET ");
 
             bool first = true;
@@ -567,7 +560,7 @@ namespace Chloe.SqlServer
         public override DbExpression Visit(DbDeleteExpression exp)
         {
             this._sqlBuilder.Append("DELETE ");
-            this.QuoteName(exp.Table.Name);
+            this.AppendTable(exp.Table);
             this.BuildWhereState(exp.Condition);
 
             return exp;
@@ -1044,6 +1037,16 @@ namespace Chloe.SqlServer
                 throw new ArgumentException("name");
 
             this._sqlBuilder.Append("[", name, "]");
+        }
+        void AppendTable(DbTable table)
+        {
+            if (!string.IsNullOrEmpty(table.Schema))
+            {
+                this.QuoteName(table.Schema);
+                this._sqlBuilder.Append(".");
+            }
+
+            this.QuoteName(table.Name);
         }
 
         void BuildCastState(DbExpression castExp, string targetDbTypeString)

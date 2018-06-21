@@ -414,14 +414,7 @@ namespace Chloe.Oracle
 
         public override DbExpression Visit(DbTableExpression exp)
         {
-            if (!string.IsNullOrEmpty(exp.Table.Schema))
-            {
-                this.QuoteName(exp.Table.Schema);
-                this._sqlBuilder.Append(".");
-            }
-
-            this.QuoteName(exp.Table.Name);
-
+            this.AppendTable(exp.Table);
             return exp;
         }
         public override DbExpression Visit(DbColumnAccessExpression exp)
@@ -524,7 +517,7 @@ namespace Chloe.Oracle
         public override DbExpression Visit(DbInsertExpression exp)
         {
             this._sqlBuilder.Append("INSERT INTO ");
-            this.QuoteName(exp.Table.Name);
+            this.AppendTable(exp.Table);
             this._sqlBuilder.Append("(");
 
             bool first = true;
@@ -565,7 +558,7 @@ namespace Chloe.Oracle
         public override DbExpression Visit(DbUpdateExpression exp)
         {
             this._sqlBuilder.Append("UPDATE ");
-            this.QuoteName(exp.Table.Name);
+            this.AppendTable(exp.Table);
             this._sqlBuilder.Append(" SET ");
 
             bool first = true;
@@ -591,7 +584,7 @@ namespace Chloe.Oracle
         public override DbExpression Visit(DbDeleteExpression exp)
         {
             this._sqlBuilder.Append("DELETE FROM ");
-            this.QuoteName(exp.Table.Name);
+            this.AppendTable(exp.Table);
             this.BuildWhereState(exp.Condition);
 
             return exp;
@@ -1025,6 +1018,17 @@ namespace Chloe.Oracle
 
             this._sqlBuilder.Append("\"", name, "\"");
         }
+        void AppendTable(DbTable table)
+        {
+            if (!string.IsNullOrEmpty(table.Schema))
+            {
+                this.QuoteName(table.Schema);
+                this._sqlBuilder.Append(".");
+            }
+
+            this.QuoteName(table.Name);
+        }
+
         void ConcatOperands(IEnumerable<DbExpression> operands, string connector)
         {
             this._sqlBuilder.Append("(");

@@ -38,8 +38,6 @@ namespace Chloe.Oracle
             {
                 return DbExpressionTranslator.Instance;
             }
-
-            throw new NotSupportedException();
         }
         public string CreateParameterName(string name)
         {
