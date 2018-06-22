@@ -1,4 +1,5 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace Chloe.SQLite
             binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_String_String, StringConcat);
             binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_Object_Object, StringConcat);
 
-            var ret = Utils.Clone(binaryWithMethodHandlers);
+            var ret = PublicHelper.Clone(binaryWithMethodHandlers);
             return ret;
         }
 

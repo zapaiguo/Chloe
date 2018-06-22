@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Chloe.Infrastructure;
+using Chloe.Utility;
 
 namespace Chloe.Mapper
 {
@@ -75,8 +76,8 @@ namespace Chloe.Mapper
                 }
             }
 
-            this._mappingMemberMappers = Utils.Clone(mappingMemberMappers);
-            this._complexMemberSetters = Utils.Clone(complexMemberSetters);
+            this._mappingMemberMappers = PublicHelper.Clone(mappingMemberMappers);
+            this._complexMemberSetters = PublicHelper.Clone(complexMemberSetters);
         }
 
         public Type Type { get; private set; }

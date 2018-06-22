@@ -27,7 +27,7 @@ namespace Chloe.PostgreSQL
 
         public static string QuoteName(string name)
         {
-            return string.Concat("[", name, "]");
+            return string.Concat("\"", name, "\"");
         }
         public static void CheckNull(object obj, string paramName = null)
         {
@@ -51,22 +51,6 @@ namespace Chloe.PostgreSQL
             }
 
             return object.Equals(obj1, obj2);
-        }
-
-        public static Dictionary<TKey, TValue> Clone<TKey, TValue>(Dictionary<TKey, TValue> source, IEqualityComparer<TKey> comparer = null)
-        {
-            Dictionary<TKey, TValue> ret;
-            if (comparer == null)
-                ret = new Dictionary<TKey, TValue>(source.Count);
-            else
-                ret = new Dictionary<TKey, TValue>(source.Count, comparer);
-
-            foreach (var kv in source)
-            {
-                ret.Add(kv.Key, kv.Value);
-            }
-
-            return ret;
         }
 
         public static bool IsToStringableNumericType(Type type)

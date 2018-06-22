@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using Chloe.Core;
 using Chloe.InternalExtensions;
+using Chloe.Utility;
 
 namespace Chloe.Infrastructure
 {
@@ -35,8 +36,8 @@ namespace Chloe.Infrastructure
             SetItem(defaultTypeInfos, typeof(TimeSpan), DbType.Time);
             SetItem(defaultTypeInfos, typeof(byte[]), DbType.Binary);
 
-            _typeInfos = Utils.Clone(defaultTypeInfos);
-            _defaultTypeInfos = Utils.Clone(defaultTypeInfos);
+            _typeInfos = PublicHelper.Clone(defaultTypeInfos);
+            _defaultTypeInfos = PublicHelper.Clone(defaultTypeInfos);
         }
 
         static void SetItem(Dictionary<Type, MappingTypeInfo> map, Type type, DbType mapDbType, IDbValueConverter dbValueConverter = null)

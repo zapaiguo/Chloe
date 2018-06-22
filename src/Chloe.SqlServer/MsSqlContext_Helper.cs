@@ -6,6 +6,7 @@ using Chloe.Entity;
 using Chloe.Exceptions;
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,16 +20,6 @@ namespace Chloe.SqlServer
 {
     public partial class MsSqlContext : DbContext
     {
-        static DbMethodCallExpression MakeNextValueForSequenceDbExpression(PropertyDescriptor propertyDescriptor)
-        {
-            MethodInfo nextValueForSequenceMethod = UtilConstants.MethodInfo_Sql_NextValueForSequence.MakeGenericMethod(propertyDescriptor.PropertyType);
-            List<DbExpression> arguments = new List<DbExpression>() { new DbConstantExpression(propertyDescriptor.Definition.SequenceName) };
-
-            DbMethodCallExpression getNextValueForSequenceExp = new DbMethodCallExpression(null, nextValueForSequenceMethod, arguments);
-
-            return getNextValueForSequenceExp;
-        }
-
         static Action<TEntity, IDataReader> GetMapper<TEntity>(PropertyDescriptor propertyDescriptor, int ordinal)
         {
             Action<TEntity, IDataReader> mapper = (TEntity entity, IDataReader reader) =>
@@ -37,20 +28,13 @@ namespace Chloe.SqlServer
                 if (value == null || value == DBNull.Value)
                     throw new ChloeException("Unable to get the identity/sequence value.");
 
-                value = ConvertObjType(value, propertyDescriptor.PropertyType);
+                value = PublicHelper.ConvertObjType(value, propertyDescriptor.PropertyType);
                 propertyDescriptor.SetValue(entity, value);
             };
 
             return mapper;
         }
-        static object ConvertObjType(object obj, Type conversionType)
-        {
-            conversionType = conversionType.GetUnderlyingType();
-            if (obj.GetType() != conversionType)
-                return Convert.ChangeType(obj, conversionType);
 
-            return obj;
-        }
         static Dictionary<PropertyDescriptor, object> CreateKeyValueMap(TypeDescriptor typeDescriptor)
         {
             Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>();

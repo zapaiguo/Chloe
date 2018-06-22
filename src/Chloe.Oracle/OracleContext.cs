@@ -6,6 +6,7 @@ using Chloe.Descriptors;
 using Chloe.Entity;
 using Chloe.Exceptions;
 using Chloe.Infrastructure;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -421,7 +422,7 @@ namespace Chloe.Oracle
                 for (int i = 0; i < dataReader.FieldCount; i++)
                 {
                     var sequencePropertyDescriptor = sequencePropertyDescriptors[i];
-                    object sequenceValue = ConvertObjType(dataReader.GetValue(i), sequencePropertyDescriptor.PropertyType);
+                    object sequenceValue = PublicHelper.ConvertObjType(dataReader.GetValue(i), sequencePropertyDescriptor.PropertyType);
                     ret.Add(sequencePropertyDescriptor, sequenceValue);
                 }
 

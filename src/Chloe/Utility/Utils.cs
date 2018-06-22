@@ -42,23 +42,6 @@ namespace Chloe
             return alias;
         }
 
-        public static Dictionary<TKey, TValue> Clone<TKey, TValue>(Dictionary<TKey, TValue> source)
-        {
-            Dictionary<TKey, TValue> ret = Clone<TKey, TValue>(source, source.Count);
-            return ret;
-        }
-        public static Dictionary<TKey, TValue> Clone<TKey, TValue>(Dictionary<TKey, TValue> source, int capacity)
-        {
-            Dictionary<TKey, TValue> ret = new Dictionary<TKey, TValue>(capacity);
-
-            foreach (var kv in source)
-            {
-                ret.Add(kv.Key, kv.Value);
-            }
-
-            return ret;
-        }
-
         public static List<T> Clone<T>(List<T> source, int? capacity = null)
         {
             List<T> ret = new List<T>(capacity ?? source.Count);

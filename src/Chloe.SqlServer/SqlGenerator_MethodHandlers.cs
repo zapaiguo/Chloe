@@ -2,6 +2,7 @@
 using Chloe.DbExpressions;
 using Chloe.InternalExtensions;
 using Chloe.SqlServer.MethodHandlers;
+using Chloe.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -69,7 +70,7 @@ namespace Chloe.SqlServer
 
             methodHandlers.Add("NextValueForSequence", new NextValueForSequence_Handler());
 
-            var ret = Utils.Clone(methodHandlers);
+            var ret = PublicHelper.Clone(methodHandlers);
             return ret;
         }
     }

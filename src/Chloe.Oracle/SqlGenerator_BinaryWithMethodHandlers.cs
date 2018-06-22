@@ -1,5 +1,6 @@
 ﻿using Chloe.Core;
 using Chloe.DbExpressions;
+using Chloe.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace Chloe.Oracle
             binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_String_String, StringConcat);
             binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_Object_Object, StringConcat);
 
-            var ret = Utils.Clone(binaryWithMethodHandlers);
+            var ret = PublicHelper.Clone(binaryWithMethodHandlers);
             return ret;
         }
 

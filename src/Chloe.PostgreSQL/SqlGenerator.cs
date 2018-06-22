@@ -3,6 +3,7 @@ using Chloe.Core;
 using Chloe.Core.Visitors;
 using Chloe.DbExpressions;
 using Chloe.InternalExtensions;
+using Chloe.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace Chloe.PostgreSQL
             castTypeMap.Add(typeof(bool), "BOOLEAN");
             castTypeMap.Add(typeof(DateTime), "TIMESTAMP");
             //castTypeMap.Add(typeof(Guid), "UNIQUEIDENTIFIER");
-            CastTypeMap = Utils.Clone(castTypeMap);
+            CastTypeMap = PublicHelper.Clone(castTypeMap);
 
 
             Dictionary<Type, Type> numericTypes = new Dictionary<Type, Type>();
@@ -57,7 +58,7 @@ namespace Chloe.PostgreSQL
             numericTypes.Add(typeof(float), typeof(float));
             numericTypes.Add(typeof(double), typeof(double));
             numericTypes.Add(typeof(decimal), typeof(decimal));
-            NumericTypes = Utils.Clone(numericTypes);
+            NumericTypes = PublicHelper.Clone(numericTypes);
 
 
             int cacheParameterNameCount = 2 * 12;

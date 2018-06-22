@@ -8,6 +8,7 @@ using System.Text;
 using System.Linq;
 using System.Reflection;
 using Chloe.InternalExtensions;
+using Chloe.Utility;
 
 namespace Chloe.Descriptors
 {
@@ -25,8 +26,8 @@ namespace Chloe.Descriptors
             this.PrimaryKeys = this.PropertyDescriptors.Where(a => a.Definition.IsPrimaryKey).ToList().AsReadOnly();
             this.AutoIncrement = this.PropertyDescriptors.Where(a => a.Definition.IsAutoIncrement).FirstOrDefault();
 
-            this._propertyDescriptorMap = Utils.Clone(this.PropertyDescriptors.ToDictionary(a => (MemberInfo)a.Definition.Property, a => a));
-            this._propertyColumnMap = Utils.Clone(this.PropertyDescriptors.ToDictionary(a => (MemberInfo)a.Definition.Property, a => new DbColumnAccessExpression(this.Definition.Table, a.Definition.Column)));
+            this._propertyDescriptorMap = PublicHelper.Clone(this.PropertyDescriptors.ToDictionary(a => (MemberInfo)a.Definition.Property, a => a));
+            this._propertyColumnMap = PublicHelper.Clone(this.PropertyDescriptors.ToDictionary(a => (MemberInfo)a.Definition.Property, a => new DbColumnAccessExpression(this.Definition.Table, a.Definition.Column)));
         }
 
         public TypeDefinition Definition { get; private set; }

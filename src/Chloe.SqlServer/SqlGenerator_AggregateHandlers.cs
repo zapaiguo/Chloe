@@ -1,5 +1,6 @@
 ﻿using Chloe.Core;
 using Chloe.DbExpressions;
+using Chloe.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace Chloe.SqlServer
             aggregateHandlers.Add("Min", Aggregate_Min);
             aggregateHandlers.Add("Average", Aggregate_Average);
 
-            var ret = Utils.Clone(aggregateHandlers, StringComparer.Ordinal);
+            var ret = PublicHelper.Clone(aggregateHandlers);
             return ret;
         }
 

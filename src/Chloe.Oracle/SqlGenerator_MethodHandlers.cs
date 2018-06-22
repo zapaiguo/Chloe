@@ -2,6 +2,7 @@
 using Chloe.DbExpressions;
 using Chloe.InternalExtensions;
 using Chloe.Oracle.MethodHandlers;
+using Chloe.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -65,7 +66,7 @@ namespace Chloe.Oracle
             methodHandlers.Add("DiffMilliseconds", new DiffMilliseconds_Handler());
             methodHandlers.Add("DiffMicroseconds", new DiffMicroseconds_Handler());
 
-            var ret = Utils.Clone(methodHandlers);
+            var ret = PublicHelper.Clone(methodHandlers);
             return ret;
         }
     }

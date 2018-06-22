@@ -23,14 +23,7 @@ namespace Chloe.Oracle
             if (!typeDescriptor.HasPrimaryKey())
                 throw new ChloeException(string.Format("Mapping type '{0}' does not define a primary key.", typeDescriptor.Definition.Type.FullName));
         }
-        static object ConvertObjType(object obj, Type conversionType)
-        {
-            conversionType = conversionType.GetUnderlyingType();
-            if (obj.GetType() != conversionType)
-                return Convert.ChangeType(obj, conversionType);
 
-            return obj;
-        }
         static Dictionary<PropertyDescriptor, object> CreateKeyValueMap(TypeDescriptor typeDescriptor)
         {
             Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>();

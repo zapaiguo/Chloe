@@ -6,6 +6,7 @@ using Chloe.Entity;
 using Chloe.Exceptions;
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -101,7 +102,7 @@ namespace Chloe.SqlServer
 
                 if (propertyDescriptor.HasSequence())
                 {
-                    DbMethodCallExpression getNextValueForSequenceExp = MakeNextValueForSequenceDbExpression(propertyDescriptor);
+                    DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(propertyDescriptor);
                     insertColumns.Add(propertyDescriptor, getNextValueForSequenceExp);
                     continue;
                 }
@@ -217,7 +218,7 @@ namespace Chloe.SqlServer
 
             foreach (var item in typeDescriptor.PropertyDescriptors.Where(a => a.HasSequence()))
             {
-                DbMethodCallExpression getNextValueForSequenceExp = MakeNextValueForSequenceDbExpression(item);
+                DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(item);
                 insertExp.InsertColumns.Add(item.Column, getNextValueForSequenceExp);
             }
 
@@ -253,7 +254,7 @@ namespace Chloe.SqlServer
                 throw new ChloeException("Unable to get the identity/sequence value.");
             }
 
-            ret = ConvertObjType(ret, typeDescriptor.AutoIncrement.PropertyType);
+            ret = PublicHelper.ConvertObjType(ret, typeDescriptor.AutoIncrement.PropertyType);
             return ret;
         }
 

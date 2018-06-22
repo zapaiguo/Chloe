@@ -3,6 +3,7 @@ using Chloe.Core;
 using Chloe.Core.Visitors;
 using Chloe.DbExpressions;
 using Chloe.InternalExtensions;
+using Chloe.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace Chloe.SQLite
             castTypeMap.Add(typeof(double), "REAL");
             //castTypeMap.Add(typeof(decimal), "DECIMAL(19,0)");//I think this will be a bug.
             castTypeMap.Add(typeof(bool), "INTEGER");
-            CastTypeMap = Utils.Clone(castTypeMap);
+            CastTypeMap = PublicHelper.Clone(castTypeMap);
 
 
             Dictionary<Type, Type> numericTypes = new Dictionary<Type, Type>();
@@ -53,7 +54,7 @@ namespace Chloe.SQLite
             numericTypes.Add(typeof(float), typeof(float));
             numericTypes.Add(typeof(double), typeof(double));
             numericTypes.Add(typeof(decimal), typeof(decimal));
-            NumericTypes = Utils.Clone(numericTypes);
+            NumericTypes = PublicHelper.Clone(numericTypes);
 
 
             int cacheParameterNameCount = 2 * 12;
