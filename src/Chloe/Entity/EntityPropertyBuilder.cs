@@ -78,6 +78,39 @@ namespace Chloe.Entity
             return this;
         }
 
+        public IEntityPropertyBuilder<TProperty> HasSize(int? size)
+        {
+            this.AsNonGenericBuilder().HasSize(size);
+            return this;
+        }
+        IEntityPropertyBuilder IEntityPropertyBuilder.HasSize(int? size)
+        {
+            this.EntityProperty.Size = size;
+            return this;
+        }
+
+        public IEntityPropertyBuilder<TProperty> HasScale(byte? scale)
+        {
+            this.AsNonGenericBuilder().HasScale(scale);
+            return this;
+        }
+        IEntityPropertyBuilder IEntityPropertyBuilder.HasScale(byte? scale)
+        {
+            this.EntityProperty.Scale = scale;
+            return this;
+        }
+
+        public IEntityPropertyBuilder<TProperty> HasPrecision(byte? precision)
+        {
+            this.AsNonGenericBuilder().HasPrecision(precision);
+            return this;
+        }
+        IEntityPropertyBuilder IEntityPropertyBuilder.HasPrecision(byte? precision)
+        {
+            this.EntityProperty.Precision = precision;
+            return this;
+        }
+
         public IEntityPropertyBuilder<TProperty> HasSequence(string name)
         {
             this.AsNonGenericBuilder().HasSequence(name);
@@ -90,5 +123,5 @@ namespace Chloe.Entity
         }
     }
 
-    
+
 }

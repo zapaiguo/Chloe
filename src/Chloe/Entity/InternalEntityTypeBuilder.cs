@@ -63,6 +63,9 @@ namespace Chloe.Entity
 
                         propertyBuilder.IsPrimaryKey(columnAttribute.IsPrimaryKey);
                         propertyBuilder.HasDbType(columnAttribute.GetDbType());
+                        propertyBuilder.HasSize(columnAttribute.GetSize());
+                        propertyBuilder.HasScale(columnAttribute.GetScale());
+                        propertyBuilder.HasPrecision(columnAttribute.GetPrecision());
                     }
 
                     if (propertyAttribute is AutoIncrementAttribute)
@@ -94,7 +97,7 @@ namespace Chloe.Entity
             {
                 /* 如果没有显示定义自增成员，并且主键只有 1 个，如果该主键满足一定条件，则默认其是自增列 */
                 EntityProperty primaryKey = primaryKeys[0];
-                if (Utils.IsAutoIncrementType(primaryKey.PropertyType) && !primaryKey.Property.IsDefined(typeof(NonAutoIncrementAttribute)))
+                if (Utils.IsAutoIncrementType(primaryKey.Property.PropertyType) && !primaryKey.Property.IsDefined(typeof(NonAutoIncrementAttribute)))
                 {
                     primaryKey.IsAutoIncrement = true;
                 }

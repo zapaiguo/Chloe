@@ -6,8 +6,6 @@ namespace Chloe.Annotations
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class ColumnAttribute : Attribute
     {
-        DbType _dbType = (DbType)(-1);/* -1=Unspecified */
-        int _length = -1;/* -1=Unspecified */
         public ColumnAttribute() { }
         public ColumnAttribute(string name)
         {
@@ -18,32 +16,64 @@ namespace Chloe.Annotations
         /// <summary>
         /// -1 表示未指定确切的值，用该属性的时候务必做 -1 判断。
         /// </summary>
-        public DbType DbType { get { return this._dbType; } set { this._dbType = value; } }
+        public DbType DbType { get; set; } = (DbType)(-1); /* -1=Unspecified */
         /// <summary>
         /// -1 表示未指定确切的值，用该属性的时候务必做 -1 判断。
         /// </summary>
-        public int Length { get { return this._length; } set { this._length = value; } }
+        public int Size { get; set; } = -1; /* -1=Unspecified */
+        /// <summary>
+        /// -1 表示未指定确切的值，用该属性的时候务必做 -1 判断。
+        /// </summary>
+        public int Scale { get; set; } = -1; /* -1=Unspecified */
+        /// <summary>
+        /// -1 表示未指定确切的值，用该属性的时候务必做 -1 判断。
+        /// </summary>
+        public int Precision { get; set; } = -1; /* -1=Unspecified */
 
         public bool HasDbType()
         {
-            return (int)this._dbType != -1;
+            return (int)this.DbType != -1;
         }
         public DbType? GetDbType()
         {
             if (this.HasDbType())
-                return this._dbType;
+                return this.DbType;
 
             return null;
         }
 
-        public bool HasLength()
+        public bool HasSize()
         {
-            return this._length != -1;
+            return this.Size != -1;
         }
-        public int? GetLength()
+        public int? GetSize()
         {
-            if (this.HasLength())
-                return this._length;
+            if (this.HasSize())
+                return this.Size;
+
+            return null;
+        }
+
+        public bool HasScale()
+        {
+            return this.Scale != -1;
+        }
+        public byte? GetScale()
+        {
+            if (this.HasScale())
+                return Convert.ToByte(this.Scale);
+
+            return null;
+        }
+
+        public bool HasPrecision()
+        {
+            return this.Precision != -1;
+        }
+        public byte? GetPrecision()
+        {
+            if (this.HasPrecision())
+                return Convert.ToByte(this.Precision);
 
             return null;
         }

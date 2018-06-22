@@ -13,6 +13,9 @@ namespace Chloe.Entity
         IEntityPropertyBuilder IsPrimaryKey(bool isPrimaryKey = true);
         IEntityPropertyBuilder IsAutoIncrement(bool autoIncrement = true);
         IEntityPropertyBuilder HasDbType(DbType? dbType);
+        IEntityPropertyBuilder HasSize(int? size);
+        IEntityPropertyBuilder HasScale(byte? scale);
+        IEntityPropertyBuilder HasPrecision(byte? precision);
         IEntityPropertyBuilder HasSequence(string name);
     }
     public interface IEntityPropertyBuilder<TProperty> : IEntityPropertyBuilder
@@ -22,6 +25,9 @@ namespace Chloe.Entity
         new IEntityPropertyBuilder<TProperty> IsPrimaryKey(bool isPrimaryKey = true);
         new IEntityPropertyBuilder<TProperty> IsAutoIncrement(bool autoIncrement = true);
         new IEntityPropertyBuilder<TProperty> HasDbType(DbType? dbType);
+        new IEntityPropertyBuilder<TProperty> HasSize(int? size);
+        new IEntityPropertyBuilder<TProperty> HasScale(byte? scale);
+        new IEntityPropertyBuilder<TProperty> HasPrecision(byte? precision);
         new IEntityPropertyBuilder<TProperty> HasSequence(string name);
     }
 }
