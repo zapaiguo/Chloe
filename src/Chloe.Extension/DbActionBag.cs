@@ -1,4 +1,5 @@
 ﻿using Chloe.Extension;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -18,7 +19,7 @@ namespace Chloe
 
         public DbActionBag(IDbContext dbContext)
         {
-            Utils.CheckNull(dbContext);
+            PublicHelper.CheckNull(dbContext);
             this._dbContext = dbContext;
         }
 

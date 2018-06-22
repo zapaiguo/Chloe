@@ -1,4 +1,5 @@
 ﻿using Chloe.Descriptors;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +47,7 @@ namespace Chloe.Core
                 return !AreEqual((byte[])oldVal, (byte[])val);
             }
 
-            return !Utils.AreEqual(oldVal, val);
+            return !PublicHelper.AreEqual(oldVal, val);
         }
         public void Refresh()
         {

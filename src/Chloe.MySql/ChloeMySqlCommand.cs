@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Utility;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Chloe.MySql
         IDbCommand _dbCommand;
         public ChloeMySqlCommand(IDbCommand dbCommand)
         {
-            Utils.CheckNull(dbCommand);
+            PublicHelper.CheckNull(dbCommand);
             this._dbCommand = dbCommand;
         }
 

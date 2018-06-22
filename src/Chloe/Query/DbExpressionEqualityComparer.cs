@@ -1,4 +1,5 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,7 +62,7 @@ namespace Chloe.Query
         }
         public static bool AreEqual(DbConstantExpression exp1, DbConstantExpression exp2)
         {
-            return Utils.AreEqual(exp1.Value, exp2.Value);
+            return PublicHelper.AreEqual(exp1.Value, exp2.Value);
         }
         public static bool AreEqual(DbConvertExpression exp1, DbConvertExpression exp2)
         {
@@ -71,7 +72,7 @@ namespace Chloe.Query
         }
         public static bool AreEqual(DbParameterExpression exp1, DbParameterExpression exp2)
         {
-            return Utils.AreEqual(exp1.Value, exp2.Value);
+            return PublicHelper.AreEqual(exp1.Value, exp2.Value);
         }
         public static bool AreEqual(DbMemberExpression exp1, DbMemberExpression exp2)
         {

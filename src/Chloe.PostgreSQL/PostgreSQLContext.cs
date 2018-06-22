@@ -23,7 +23,7 @@ namespace Chloe.PostgreSQL
 
         public PostgreSQLContext(IDbConnectionFactory dbConnectionFactory)
         {
-            Utils.CheckNull(dbConnectionFactory);
+            PublicHelper.CheckNull(dbConnectionFactory);
             this._databaseProvider = new DatabaseProvider(dbConnectionFactory, this);
         }
 
@@ -38,7 +38,7 @@ namespace Chloe.PostgreSQL
 
         public override TEntity Insert<TEntity>(TEntity entity, string table)
         {
-            Utils.CheckNull(entity);
+            PublicHelper.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
 
@@ -114,7 +114,7 @@ namespace Chloe.PostgreSQL
         }
         public override object Insert<TEntity>(Expression<Func<TEntity>> content, string table)
         {
-            Utils.CheckNull(content);
+            PublicHelper.CheckNull(content);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
@@ -216,7 +216,7 @@ namespace Chloe.PostgreSQL
              * 该方法相对循环一条一条插入，速度提升 2/3 这样
              */
 
-            Utils.CheckNull(entities);
+            PublicHelper.CheckNull(entities);
             if (entities.Count == 0)
                 return;
 

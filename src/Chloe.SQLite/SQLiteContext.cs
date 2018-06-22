@@ -5,6 +5,7 @@ using Chloe.Descriptors;
 using Chloe.Entity;
 using Chloe.Exceptions;
 using Chloe.Infrastructure;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -29,7 +30,7 @@ namespace Chloe.SQLite
         /// <param name="concurrencyMode">是否支持读写并发安全</param>
         public SQLiteContext(IDbConnectionFactory dbConnectionFactory, bool concurrencyMode)
         {
-            Utils.CheckNull(dbConnectionFactory);
+            PublicHelper.CheckNull(dbConnectionFactory);
 
             if (concurrencyMode == true)
                 dbConnectionFactory = new ConcurrentDbConnectionFactory(dbConnectionFactory);
@@ -55,7 +56,7 @@ namespace Chloe.SQLite
              * 该方法相对循环一条一条插入，速度提升 1/2 这样
              */
 
-            Utils.CheckNull(entities);
+            PublicHelper.CheckNull(entities);
             if (entities.Count == 0)
                 return;
 

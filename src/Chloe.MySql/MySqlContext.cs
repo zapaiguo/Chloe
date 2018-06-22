@@ -5,6 +5,7 @@ using Chloe.Descriptors;
 using Chloe.Entity;
 using Chloe.Exceptions;
 using Chloe.Infrastructure;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace Chloe.MySql
         DatabaseProvider _databaseProvider;
         public MySqlContext(IDbConnectionFactory dbConnectionFactory)
         {
-            Utils.CheckNull(dbConnectionFactory);
+            PublicHelper.CheckNull(dbConnectionFactory);
 
             this._databaseProvider = new DatabaseProvider(dbConnectionFactory);
         }
@@ -38,7 +39,7 @@ namespace Chloe.MySql
              * 该方法相对循环一条一条插入，速度提升 2/3 这样
              */
 
-            Utils.CheckNull(entities);
+            PublicHelper.CheckNull(entities);
             if (entities.Count == 0)
                 return;
 

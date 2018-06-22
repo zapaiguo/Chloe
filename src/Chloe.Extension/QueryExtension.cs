@@ -1,6 +1,7 @@
 ﻿using Chloe.Descriptors;
 using Chloe.Extension;
 using Chloe.Infrastructure;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,7 +78,7 @@ namespace Chloe
              * ps: 只支持简单的映射，不支持复杂的对应关系
              */
 
-            Utils.CheckNull(source);
+            PublicHelper.CheckNull(source);
 
             List<MemberBinding> bindings = new List<MemberBinding>();
 
@@ -130,7 +131,7 @@ namespace Chloe
         /// <returns></returns>
         public static IQuery<TEntity> Ignore<TEntity>(this IQuery<TEntity> source, Expression<Func<TEntity, object>> fields)
         {
-            Utils.CheckNull(fields);
+            PublicHelper.CheckNull(fields);
 
             List<string> fieldList = FieldsResolver.Resolve(fields);
             return source.Ignore(fieldList.ToArray());
@@ -144,7 +145,7 @@ namespace Chloe
         /// <returns></returns>
         public static IQuery<TEntity> Ignore<TEntity>(this IQuery<TEntity> source, params string[] fields)
         {
-            Utils.CheckNull(source);
+            PublicHelper.CheckNull(source);
 
             if (fields == null)
                 return source;

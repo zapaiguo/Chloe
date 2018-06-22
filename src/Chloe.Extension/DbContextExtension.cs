@@ -3,6 +3,7 @@ using Chloe.Exceptions;
 using Chloe.Extension;
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -30,7 +31,7 @@ namespace Chloe
         /// <returns></returns>
         public static int UpdateOnly<TEntity>(this IDbContext dbContext, TEntity entity, Expression<Func<TEntity, object>> fields)
         {
-            Utils.CheckNull(fields);
+            PublicHelper.CheckNull(fields);
 
             List<string> fieldList = FieldsResolver.Resolve(fields);
             return dbContext.UpdateOnly(entity, fieldList.ToArray());
@@ -45,9 +46,9 @@ namespace Chloe
         /// <returns></returns>
         public static int UpdateOnly<TEntity>(this IDbContext dbContext, TEntity entity, params string[] fields)
         {
-            Utils.CheckNull(dbContext);
-            Utils.CheckNull(entity);
-            Utils.CheckNull(fields);
+            PublicHelper.CheckNull(dbContext);
+            PublicHelper.CheckNull(entity);
+            PublicHelper.CheckNull(fields);
 
             /* 支持 context.UpdateOnly<User>(user, "Name,Age", "NickName"); */
             fields = fields.SelectMany(a => a.Split(',')).Select(a => a.Trim()).ToArray();

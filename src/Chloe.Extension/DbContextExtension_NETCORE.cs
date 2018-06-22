@@ -2,6 +2,7 @@
 using Chloe.Exceptions;
 using Chloe.Extension;
 using Chloe.Infrastructure;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -82,7 +83,7 @@ namespace Chloe
                 }
 
                 DbParam p;
-                p = parameters.Where(a => Utils.AreEqual(a.Value, paramValue)).FirstOrDefault();
+                p = parameters.Where(a => PublicHelper.AreEqual(a.Value, paramValue)).FirstOrDefault();
 
                 if (p != null)
                 {

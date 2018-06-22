@@ -1,4 +1,5 @@
 ﻿using Chloe.Infrastructure;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,7 +14,7 @@ namespace Chloe.SqlServer
         string _connString;
         public DefaultDbConnectionFactory(string connString)
         {
-            Utils.CheckNull(connString, "connString");
+            PublicHelper.CheckNull(connString, "connString");
 
             this._connString = connString;
         }

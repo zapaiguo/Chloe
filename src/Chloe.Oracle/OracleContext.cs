@@ -21,7 +21,7 @@ namespace Chloe.Oracle
         DatabaseProvider _databaseProvider;
         public OracleContext(IDbConnectionFactory dbConnectionFactory)
         {
-            Utils.CheckNull(dbConnectionFactory);
+            PublicHelper.CheckNull(dbConnectionFactory);
 
             this._databaseProvider = new DatabaseProvider(dbConnectionFactory, this);
         }
@@ -38,7 +38,7 @@ namespace Chloe.Oracle
 
         public override TEntity Insert<TEntity>(TEntity entity, string table)
         {
-            Utils.CheckNull(entity);
+            PublicHelper.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
 
@@ -91,7 +91,7 @@ namespace Chloe.Oracle
         }
         public override object Insert<TEntity>(Expression<Func<TEntity>> content, string table)
         {
-            Utils.CheckNull(content);
+            PublicHelper.CheckNull(content);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
@@ -166,7 +166,7 @@ namespace Chloe.Oracle
              * #期待各码友的优化建议#
              */
 
-            Utils.CheckNull(entities);
+            PublicHelper.CheckNull(entities);
             if (entities.Count == 0)
                 return;
 
@@ -293,7 +293,7 @@ namespace Chloe.Oracle
 
         public override int Update<TEntity>(TEntity entity, string table)
         {
-            Utils.CheckNull(entity);
+            PublicHelper.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
             EnsureMappingTypeHasPrimaryKey(typeDescriptor);
@@ -342,8 +342,8 @@ namespace Chloe.Oracle
         }
         public override int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table)
         {
-            Utils.CheckNull(condition);
-            Utils.CheckNull(content);
+            PublicHelper.CheckNull(condition);
+            PublicHelper.CheckNull(content);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 

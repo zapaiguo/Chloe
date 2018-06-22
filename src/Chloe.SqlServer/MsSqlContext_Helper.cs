@@ -37,7 +37,7 @@ namespace Chloe.SqlServer
 
         static Dictionary<PropertyDescriptor, object> CreateKeyValueMap(TypeDescriptor typeDescriptor)
         {
-            Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>();
+            Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
             foreach (PropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
             {
                 keyValueMap.Add(keyPropertyDescriptor, null);

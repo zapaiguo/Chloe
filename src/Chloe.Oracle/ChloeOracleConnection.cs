@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Utility;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Chloe.Oracle
         IDbConnection _dbConnection;
         public ChloeOracleConnection(IDbConnection dbConnection)
         {
-            Utils.CheckNull(dbConnection);
+            PublicHelper.CheckNull(dbConnection);
             this._dbConnection = dbConnection;
         }
 

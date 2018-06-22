@@ -28,7 +28,7 @@ namespace Chloe.SqlServer
 
         public MsSqlContext(IDbConnectionFactory dbConnectionFactory)
         {
-            Utils.CheckNull(dbConnectionFactory);
+            PublicHelper.CheckNull(dbConnectionFactory);
 
             this.PagingMode = PagingMode.ROW_NUMBER;
             this._databaseProvider = new DatabaseProvider(dbConnectionFactory, this);
@@ -88,7 +88,7 @@ namespace Chloe.SqlServer
 
         public override TEntity Insert<TEntity>(TEntity entity, string table)
         {
-            Utils.CheckNull(entity);
+            PublicHelper.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
 
@@ -164,7 +164,7 @@ namespace Chloe.SqlServer
         }
         public override object Insert<TEntity>(Expression<Func<TEntity>> content, string table)
         {
-            Utils.CheckNull(content);
+            PublicHelper.CheckNull(content);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
@@ -266,7 +266,7 @@ namespace Chloe.SqlServer
              * 该方法相对循环一条一条插入，速度提升 2/3 这样
              */
 
-            Utils.CheckNull(entities);
+            PublicHelper.CheckNull(entities);
             if (entities.Count == 0)
                 return;
 
@@ -401,7 +401,7 @@ namespace Chloe.SqlServer
         /// <param name="keepIdentity">是否保留源自增值。false 由数据库分配自增值</param>
         public virtual void BulkInsert<TEntity>(List<TEntity> entities, int? batchSize = null, int? bulkCopyTimeout = null, bool keepIdentity = false)
         {
-            Utils.CheckNull(entities);
+            PublicHelper.CheckNull(entities);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 

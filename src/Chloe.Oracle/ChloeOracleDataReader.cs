@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Utility;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Chloe.Oracle
 
         public ChloeOracleDataReader(IDataReader reader)
         {
-            Utils.CheckNull(reader);
+            PublicHelper.CheckNull(reader);
             this._reader = reader;
         }
 
