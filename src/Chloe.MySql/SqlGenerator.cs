@@ -518,7 +518,7 @@ namespace Chloe.MySql
             this._sqlBuilder.Append("DELETE ");
             this.AppendTable(exp.Table);
             this._sqlBuilder.Append(" FROM ");
-            this.QuoteName(exp.Table.Name);
+            this.AppendTable(exp.Table);
             this.BuildWhereState(exp.Condition);
 
             return exp;
