@@ -341,6 +341,10 @@ namespace Chloe.PostgreSQL
             }
         }
 
+        protected override string GetSelectLastInsertIdClause()
+        {
+            throw new NotSupportedException();
+        }
 
         int ExecuteSqlCommand(DbExpression e)
         {

@@ -1,5 +1,6 @@
 ﻿using Chloe.DbExpressions;
 using Chloe.Descriptors;
+using Chloe.Exceptions;
 using Chloe.InternalExtensions;
 using System;
 using System.Collections.Generic;
@@ -66,6 +67,12 @@ namespace Chloe.Utility
             }
 
             return ret;
+        }
+
+        public static void EnsureHasPrimaryKey(TypeDescriptor typeDescriptor)
+        {
+            if (!typeDescriptor.HasPrimaryKey())
+                throw new ChloeException(string.Format("The entity type '{0}' does not define any primary key.", typeDescriptor.Definition.Type.FullName));
         }
     }
 }

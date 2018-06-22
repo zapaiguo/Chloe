@@ -18,12 +18,6 @@ namespace Chloe.Oracle
 {
     public partial class OracleContext : DbContext
     {
-        static void EnsureMappingTypeHasPrimaryKey(TypeDescriptor typeDescriptor)
-        {
-            if (!typeDescriptor.HasPrimaryKey())
-                throw new ChloeException(string.Format("Mapping type '{0}' does not define a primary key.", typeDescriptor.Definition.Type.FullName));
-        }
-
         static Dictionary<PropertyDescriptor, object> CreateKeyValueMap(TypeDescriptor typeDescriptor)
         {
             Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);

@@ -14,6 +14,7 @@ using Chloe.Exceptions;
 using System.Data;
 using Chloe.InternalExtensions;
 using Chloe.Extensions;
+using Chloe.Utility;
 
 namespace Chloe
 {
@@ -214,7 +215,7 @@ namespace Chloe
                 throw new ChloeException("Unable to get the identity value.");
             }
 
-            retIdentity = ConvertObjType(retIdentity, autoIncrementPropertyDescriptor.PropertyType);
+            retIdentity = PublicHelper.ConvertObjType(retIdentity, autoIncrementPropertyDescriptor.PropertyType);
             autoIncrementPropertyDescriptor.SetValue(entity, retIdentity);
             return entity;
         }
@@ -301,7 +302,7 @@ namespace Chloe
                 throw new ChloeException("Unable to get the identity value.");
             }
 
-            retIdentity = ConvertObjType(retIdentity, typeDescriptor.AutoIncrement.PropertyType);
+            retIdentity = PublicHelper.ConvertObjType(retIdentity, typeDescriptor.AutoIncrement.PropertyType);
             return retIdentity;
         }
         public virtual void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
@@ -318,7 +319,7 @@ namespace Chloe
             Utils.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
-            EnsureEntityHasPrimaryKey(typeDescriptor);
+            PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
             Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
 
@@ -415,7 +416,7 @@ namespace Chloe
             Utils.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
-            EnsureEntityHasPrimaryKey(typeDescriptor);
+            PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
             Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>();
 

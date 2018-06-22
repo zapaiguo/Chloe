@@ -14,6 +14,7 @@ using Chloe.Exceptions;
 using System.Data;
 using Chloe.InternalExtensions;
 using Chloe.Extensions;
+using Chloe.Utility;
 
 namespace Chloe
 {
@@ -31,7 +32,7 @@ namespace Chloe
 
             Type entityType = typeof(TEntity);
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entityType);
-            EnsureEntityHasPrimaryKey(typeDescriptor);
+            PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
             ParameterExpression parameter = Expression.Parameter(entityType, "a");
             Expression conditionBody = null;
@@ -93,19 +94,7 @@ namespace Chloe
             Expression<Func<TEntity, bool>> condition = Expression.Lambda<Func<TEntity, bool>>(conditionBody, parameter);
             return condition;
         }
-        static void EnsureEntityHasPrimaryKey(TypeDescriptor typeDescriptor)
-        {
-            if (!typeDescriptor.HasPrimaryKey())
-                throw new ChloeException(string.Format("The entity type '{0}' does not define any primary key.", typeDescriptor.Definition.Type.FullName));
-        }
-        static object ConvertObjType(object obj, Type conversionType)
-        {
-            conversionType = conversionType.GetUnderlyingType();
-            if (obj.GetType() != conversionType)
-                return Convert.ChangeType(obj, conversionType);
 
-            return obj;
-        }
         static KeyValuePairList<JoinType, Expression> ResolveJoinInfo(LambdaExpression joinInfoExp)
         {
             /*

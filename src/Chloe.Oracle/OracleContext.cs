@@ -296,7 +296,7 @@ namespace Chloe.Oracle
             PublicHelper.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
-            EnsureMappingTypeHasPrimaryKey(typeDescriptor);
+            PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
             Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
 
