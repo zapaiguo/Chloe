@@ -98,12 +98,13 @@ namespace Chloe
             if (!typeDescriptor.HasPrimaryKey())
                 throw new ChloeException(string.Format("The entity type '{0}' does not define any primary key.", typeDescriptor.Definition.Type.FullName));
         }
-        static object ConvertIdentityType(object identity, Type conversionType)
+        static object ConvertObjType(object obj, Type conversionType)
         {
-            if (identity.GetType() != conversionType)
-                return Convert.ChangeType(identity, conversionType);
+            conversionType = conversionType.GetUnderlyingType();
+            if (obj.GetType() != conversionType)
+                return Convert.ChangeType(obj, conversionType);
 
-            return identity;
+            return obj;
         }
         static KeyValuePairList<JoinType, Expression> ResolveJoinInfo(LambdaExpression joinInfoExp)
         {

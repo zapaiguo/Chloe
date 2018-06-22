@@ -214,7 +214,7 @@ namespace Chloe
                 throw new ChloeException("Unable to get the identity value.");
             }
 
-            retIdentity = ConvertIdentityType(retIdentity, autoIncrementPropertyDescriptor.PropertyType);
+            retIdentity = ConvertObjType(retIdentity, autoIncrementPropertyDescriptor.PropertyType);
             autoIncrementPropertyDescriptor.SetValue(entity, retIdentity);
             return entity;
         }
@@ -301,7 +301,7 @@ namespace Chloe
                 throw new ChloeException("Unable to get the identity value.");
             }
 
-            retIdentity = ConvertIdentityType(retIdentity, typeDescriptor.AutoIncrement.PropertyType);
+            retIdentity = ConvertObjType(retIdentity, typeDescriptor.AutoIncrement.PropertyType);
             return retIdentity;
         }
         public virtual void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)

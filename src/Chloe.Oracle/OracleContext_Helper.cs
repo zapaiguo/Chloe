@@ -25,10 +25,7 @@ namespace Chloe.Oracle
         }
         static object ConvertObjType(object obj, Type conversionType)
         {
-            Type underlyingType;
-            if (conversionType.IsNullable(out underlyingType))
-                conversionType = underlyingType;
-
+            conversionType = conversionType.GetUnderlyingType();
             if (obj.GetType() != conversionType)
                 return Convert.ChangeType(obj, conversionType);
 
