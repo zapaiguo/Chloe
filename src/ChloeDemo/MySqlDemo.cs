@@ -17,7 +17,7 @@ namespace ChloeDemo
             JoinQuery();
             AggregateQuery();
             GroupQuery();
-            ComplexQuery();  /* v2.18复杂查询 */
+            ComplexQuery();
             Insert();
             Update();
             Delete();
