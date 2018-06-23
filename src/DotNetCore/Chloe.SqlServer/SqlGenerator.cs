@@ -189,7 +189,7 @@ namespace Chloe.SqlServer
             {
                 /*
                  * 走到这说明 name 不可能为 null
-                 * a.Name != name --> a.Name <> name or a.Name is null
+                 * a.Name != name --> a.Name != name or a.Name is null
                  */
 
                 if (left.NodeType != DbExpressionType.Parameter && left.NodeType != DbExpressionType.Constant)
@@ -492,7 +492,7 @@ namespace Chloe.SqlServer
         public override DbExpression Visit(DbInsertExpression exp)
         {
             this._sqlBuilder.Append("INSERT INTO ");
-            this.QuoteName(exp.Table.Name);
+            this.AppendTable(exp.Table);
             this._sqlBuilder.Append("(");
 
             bool first = true;
@@ -533,7 +533,7 @@ namespace Chloe.SqlServer
         public override DbExpression Visit(DbUpdateExpression exp)
         {
             this._sqlBuilder.Append("UPDATE ");
-            this.QuoteName(exp.Table.Name);
+            this.AppendTable(exp.Table);
             this._sqlBuilder.Append(" SET ");
 
             bool first = true;
@@ -559,7 +559,7 @@ namespace Chloe.SqlServer
         public override DbExpression Visit(DbDeleteExpression exp)
         {
             this._sqlBuilder.Append("DELETE ");
-            this.QuoteName(exp.Table.Name);
+            this.AppendTable(exp.Table);
             this.BuildWhereState(exp.Condition);
 
             return exp;
@@ -1003,6 +1003,16 @@ namespace Chloe.SqlServer
                 throw new ArgumentException("name");
 
             this._sqlBuilder.Append("[", name, "]");
+        }
+        void AppendTable(DbTable table)
+        {
+            if (!string.IsNullOrEmpty(table.Schema))
+            {
+                this.QuoteName(table.Schema);
+                this._sqlBuilder.Append(".");
+            }
+
+            this.QuoteName(table.Name);
         }
 
         void BuildCastState(DbExpression castExp, string targetDbTypeString)
