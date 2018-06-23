@@ -20,6 +20,7 @@ namespace ChloeDemo
             MySqlDemo.Run();
             OracleDemo.Run();
 
+
             //RegisterMappingTypeDemo.RunDemo();
         }
     }
