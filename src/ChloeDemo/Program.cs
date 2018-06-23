@@ -26,8 +26,6 @@ namespace ChloeDemo
             MySqlDemo.Run();
             PostgreSQLDemo.Run();
             OracleDemo.Run();
-
-            //RegisterMappingTypeDemo.RunDemo();
         }
     }
 }
