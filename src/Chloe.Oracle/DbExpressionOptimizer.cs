@@ -34,12 +34,6 @@ namespace Chloe.Oracle
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Millisecond);
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_DayOfWeek);
 
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_TimeSpan_TotalDays);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_TimeSpan_TotalHours);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_TimeSpan_TotalMinutes);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_TimeSpan_TotalSeconds);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_TimeSpan_TotalMilliseconds);
-
             _toTranslateMembers.Add(OracleSemantics.PropertyInfo_ROWNUM);
 
             _toTranslateMembers = _toTranslateMembers.Clone();
