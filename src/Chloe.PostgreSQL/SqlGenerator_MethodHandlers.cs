@@ -66,6 +66,8 @@ namespace Chloe.PostgreSQL
             methodHandlers.Add("DiffMilliseconds", new DiffMilliseconds_Handler());
             methodHandlers.Add("DiffMicroseconds", new DiffMicroseconds_Handler());
 
+            methodHandlers.Add("Subtract", new Subtract_Handler());
+
             methodHandlers.Add("NextValueForSequence", new NextValueForSequence_Handler());
 
             var ret = PublicHelper.Clone(methodHandlers);

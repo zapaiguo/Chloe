@@ -17,7 +17,7 @@ namespace Chloe.PostgreSQL.MethodHandlers
         }
         public void Process(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            SqlGenerator.DbFunction_DATEADD(generator, "DAY", exp);
+            SqlGenerator.DbFunction_DATEADD(generator, "days", exp);
         }
     }
 }

@@ -13,11 +13,11 @@ namespace Chloe.PostgreSQL.MethodHandlers
             if (exp.Method.DeclaringType != UtilConstants.TypeOfSql)
                 return false;
 
-            return true;
+            return false;
         }
         public void Process(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            SqlGenerator.DbFunction_DATEDIFF(generator, "HOUR", exp.Arguments[0], exp.Arguments[1]);
+            throw UtilExceptions.NotSupportedMethod(exp.Method);
         }
     }
 }

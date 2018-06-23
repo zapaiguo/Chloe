@@ -481,18 +481,6 @@ namespace Chloe.PostgreSQL
 
             this._sqlBuilder.Append(")");
 
-            if (exp.Returns.Count > 0)
-            {
-                this._sqlBuilder.Append(" returning ");
-                separator = "";
-                foreach (DbColumn returnColumn in exp.Returns)
-                {
-                    this._sqlBuilder.Append(separator);
-                    this.QuoteName(returnColumn.Name);
-                    separator = ",";
-                }
-            }
-
             this._sqlBuilder.Append(" VALUES(");
             separator = "";
             foreach (var item in exp.InsertColumns)
@@ -506,6 +494,18 @@ namespace Chloe.PostgreSQL
             }
 
             this._sqlBuilder.Append(")");
+
+            if (exp.Returns.Count > 0)
+            {
+                this._sqlBuilder.Append(" returning ");
+                separator = "";
+                foreach (DbColumn returnColumn in exp.Returns)
+                {
+                    this._sqlBuilder.Append(separator);
+                    this.QuoteName(returnColumn.Name);
+                    separator = ",";
+                }
+            }
 
             return exp;
         }

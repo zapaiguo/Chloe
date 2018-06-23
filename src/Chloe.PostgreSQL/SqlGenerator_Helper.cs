@@ -140,12 +140,13 @@ namespace Chloe.PostgreSQL
 
         public static void DbFunction_DATEADD(SqlGenerator generator, string interval, DbMethodCallExpression exp)
         {
-            generator._sqlBuilder.Append("DATEADD(");
-            generator._sqlBuilder.Append(interval);
-            generator._sqlBuilder.Append(",");
-            exp.Arguments[0].Accept(generator);
-            generator._sqlBuilder.Append(",");
             exp.Object.Accept(generator);
+            generator._sqlBuilder.Append(" + ");
+            generator._sqlBuilder.Append("make_interval");
+            generator._sqlBuilder.Append("(");
+            generator._sqlBuilder.Append(interval);
+            generator._sqlBuilder.Append(":=");
+            generator._sqlBuilder.Append(exp.Arguments[0].Accept(generator));
             generator._sqlBuilder.Append(")");
         }
         public static void DbFunction_DATEPART(SqlGenerator generator, string interval, DbExpression exp)

@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using Chloe.DbExpressions;
 
 namespace Chloe.PostgreSQL.MethodHandlers
 {
-    class AddHours_Handler : IMethodHandler
+    class Subtract_Handler : IMethodHandler
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method.DeclaringType != UtilConstants.TypeOfDateTime)
+            if (exp.Method != UtilConstants.MethodInfo_DateTime_Subtract_DateTime)
                 return false;
 
             return true;
         }
         public void Process(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            SqlGenerator.DbFunction_DATEADD(generator, "hours", exp);
+            DbSubtractExpression dbSubtract = new DbSubtractExpression(exp.Type, exp.Object, exp.Arguments[0]);
+            dbSubtract.Accept(generator);
         }
     }
 }
