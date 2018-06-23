@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Chloe</id>
-    <version>2.27.0</version>
+    <version>3.0.0</version>
     <title>Chloe</title>
     <authors>Shuxin Qin</authors>
     <owners>Shuxin Qin</owners>
@@ -28,9 +28,9 @@ A lightweight and high-performance Object/Relational Mapping(ORM) library.
   </metadata>
 
   <files>
-    <file src="DotNet\Chloe\bin\Release\Chloe.dll" target="lib\net40" />
-    <file src="DotNet\Chloe\bin\Release\Chloe.XML" target="lib\net40" />
-	<file src="DotNetCore\Chloe\bin\Release\netstandard2.0\Chloe.dll" target="lib\netstandard2.0"></file>
-    <file src="DotNetCore\Chloe\bin\Release\netstandard2.0\Chloe.xml" target="lib\netstandard2.0"></file>
+    <file src="..\Chloe\bin\Release\net40\Chloe.dll" target="lib\net40" />
+    <file src="..\Chloe\bin\Release\net40\Chloe.xml" target="lib\net40" />
+	<file src="..\Chloe\bin\Release\netstandard2.0\Chloe.dll" target="lib\netstandard2.0"></file>
+    <file src="..\Chloe\bin\Release\netstandard2.0\Chloe.xml" target="lib\netstandard2.0"></file>
   </files>
 </package>
