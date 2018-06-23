@@ -25,8 +25,11 @@ namespace Chloe.PostgreSQL
             ToStringableNumericTypes = toStringableNumericTypes.ToDictionary(a => a, a => a);
         }
 
-        public static string QuoteName(string name)
+        public static string QuoteName(string name, bool convertToLowercase)
         {
+            if (convertToLowercase)
+                return string.Concat("\"", name.ToLower(), "\"");
+
             return string.Concat("\"", name, "\"");
         }
 

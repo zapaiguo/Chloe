@@ -40,9 +40,11 @@
     <!--<PackageReference Include="MySql.Data.Core" Version="7.0.4-IR-191" />-->
     <PackageReference Include="MySqlConnector" Version="0.26.5" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.12.0-beta2" />
+    <PackageReference Include="Npgsql" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="Npgsql" Version="4.0.0" />
     <Reference Include="MySql.Data">
       <HintPath>..\lib\MySql.Data.dll</HintPath>
     </Reference>

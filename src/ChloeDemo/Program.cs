@@ -16,12 +16,15 @@ namespace ChloeDemo
             IDbCommandInterceptor interceptor = new DbCommandInterceptor();
             DbConfiguration.UseInterceptors(interceptor);
 
+            DbConfiguration.UseMappingType(new String_MappingType());
+
             /* fluent mapping */
             DbConfiguration.UseTypeBuilders(typeof(UserMap));
 
             SQLiteDemo.Run();
             MsSqlDemo.Run();
             MySqlDemo.Run();
+            PostgreSQLDemo.Run();
             OracleDemo.Run();
 
             //RegisterMappingTypeDemo.RunDemo();

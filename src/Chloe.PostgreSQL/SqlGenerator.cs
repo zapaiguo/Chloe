@@ -634,11 +634,15 @@ namespace Chloe.PostgreSQL
             DbFunctionAttribute dbFunction = exp.Method.GetCustomAttribute<DbFunctionAttribute>();
             if (dbFunction != null)
             {
-                string schema = string.IsNullOrEmpty(dbFunction.Schema) ? "dbo" : dbFunction.Schema;
+                string schema = dbFunction.Schema;
                 string functionName = string.IsNullOrEmpty(dbFunction.Name) ? exp.Method.Name : dbFunction.Name;
 
-                this.QuoteName(schema);
-                this._sqlBuilder.Append(".");
+                if (!string.IsNullOrEmpty(schema))
+                {
+                    this.QuoteName(schema);
+                    this._sqlBuilder.Append(".");
+                }
+
                 this.QuoteName(functionName);
                 this._sqlBuilder.Append("(");
 

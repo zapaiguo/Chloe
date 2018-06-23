@@ -42,5 +42,10 @@ namespace Chloe.Infrastructure
                 DbInterception.Add(interceptor);
             }
         }
+
+        public static void UseMappingType(IMappingType mappingType)
+        {
+            MappingTypeSystem.Configure(mappingType);
+        }
     }
 }

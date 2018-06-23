@@ -44,12 +44,12 @@ namespace Chloe.PostgreSQL
             return keyValueMap;
         }
 
-        static string AppendInsertRangeSqlTemplate(TypeDescriptor typeDescriptor, List<PropertyDescriptor> mappingPropertyDescriptors)
+        string AppendInsertRangeSqlTemplate(TypeDescriptor typeDescriptor, List<PropertyDescriptor> mappingPropertyDescriptors)
         {
             StringBuilder sqlBuilder = new StringBuilder();
 
             sqlBuilder.Append("INSERT INTO ");
-            sqlBuilder.Append(AppendTableName(typeDescriptor.Table));
+            sqlBuilder.Append(this.AppendTableName(typeDescriptor.Table));
             sqlBuilder.Append("(");
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
@@ -57,7 +57,7 @@ namespace Chloe.PostgreSQL
                 PropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
                 if (i > 0)
                     sqlBuilder.Append(",");
-                sqlBuilder.Append(Utils.QuoteName(mappingPropertyDescriptor.Column.Name));
+                sqlBuilder.Append(Utils.QuoteName(mappingPropertyDescriptor.Column.Name, this.ConvertToLowercase));
             }
 
             sqlBuilder.Append(") VALUES");
@@ -65,12 +65,12 @@ namespace Chloe.PostgreSQL
             string sqlTemplate = sqlBuilder.ToString();
             return sqlTemplate;
         }
-        static string AppendTableName(DbTable table)
+        string AppendTableName(DbTable table)
         {
             if (string.IsNullOrEmpty(table.Schema))
-                return Utils.QuoteName(table.Name);
+                return Utils.QuoteName(table.Name, this.ConvertToLowercase);
 
-            return string.Format("{0}.{1}", Utils.QuoteName(table.Schema), Utils.QuoteName(table.Name));
+            return string.Format("{0}.{1}", Utils.QuoteName(table.Schema, this.ConvertToLowercase), Utils.QuoteName(table.Name, this.ConvertToLowercase));
         }
     }
 }

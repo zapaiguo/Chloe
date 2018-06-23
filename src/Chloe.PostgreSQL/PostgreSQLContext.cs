@@ -231,7 +231,7 @@ namespace Chloe.PostgreSQL
             List<PropertyDescriptor> mappingPropertyDescriptors = e.ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
-            string sqlTemplate = AppendInsertRangeSqlTemplate(typeDescriptor, mappingPropertyDescriptors);
+            string sqlTemplate = this.AppendInsertRangeSqlTemplate(typeDescriptor, mappingPropertyDescriptors);
 
             Action insertAction = () =>
             {
@@ -275,9 +275,9 @@ namespace Chloe.PostgreSQL
                         if (val is bool)
                         {
                             if ((bool)val == true)
-                                sqlBuilder.AppendFormat("1");
+                                sqlBuilder.AppendFormat("true");
                             else
-                                sqlBuilder.AppendFormat("0");
+                                sqlBuilder.AppendFormat("false");
                             continue;
                         }
 
@@ -305,18 +305,7 @@ namespace Chloe.PostgreSQL
 
             Action fAction = () =>
             {
-                bool shouldTurnOff_IDENTITY_INSERT = false;
-                string tableName = null;
-                if (keepIdentity == true)
-                {
-                    tableName = AppendTableName(typeDescriptor.Table);
-                    this.Session.ExecuteNonQuery(string.Format("SET IDENTITY_INSERT {0} ON ", tableName));
-                    shouldTurnOff_IDENTITY_INSERT = true;
-                }
-
                 insertAction();
-                if (shouldTurnOff_IDENTITY_INSERT == true)
-                    this.Session.ExecuteNonQuery(string.Format("SET IDENTITY_INSERT {0} OFF ", tableName));
             };
 
             if (this.Session.IsInTransaction)

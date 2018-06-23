@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <!--<TargetFramework>netstandard2.0</TargetFramework>-->
     <!--<TargetFramework>net40</TargetFramework>-->
-    <!--<TargetFrameworks>netstandard2.0;net40</TargetFrameworks>-->
+    <TargetFrameworks>netstandard2.0;net40</TargetFrameworks>
 
     <Version>2.27.0</Version>
     <AssemblyVersion>2.27.0.0</AssemblyVersion>

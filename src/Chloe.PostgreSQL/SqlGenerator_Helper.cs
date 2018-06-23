@@ -153,11 +153,13 @@ namespace Chloe.PostgreSQL
         }
         public static void DbFunction_DATEPART(SqlGenerator generator, string interval, DbExpression exp)
         {
+            generator._sqlBuilder.Append("CAST(");
             generator._sqlBuilder.Append("DATE_PART(");
-            generator._sqlBuilder.Append(interval);
+            generator._sqlBuilder.Append("'", interval, "'");
             generator._sqlBuilder.Append(",");
             exp.Accept(generator);
             generator._sqlBuilder.Append(")");
+            generator._sqlBuilder.Append(" as integer)");
         }
         public static void DbFunction_DATEDIFF(SqlGenerator generator, string interval, DbExpression startDateTimeExp, DbExpression endDateTimeExp)
         {
