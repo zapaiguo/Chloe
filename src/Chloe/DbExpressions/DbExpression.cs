@@ -141,13 +141,20 @@ namespace Chloe.DbExpressions
         {
             return new DbParameterExpression(value);
         }
-
         public static DbParameterExpression Parameter(object value, Type defaultType)
         {
+            return Parameter(value, defaultType, null);
+        }
+        public static DbParameterExpression Parameter(object value, Type defaultType, System.Data.DbType? dbType)
+        {
+            DbParameterExpression exp = null;
             if (value == null)
-                return new DbParameterExpression(value, defaultType);
+                exp = new DbParameterExpression(value, defaultType);
             else
-                return new DbParameterExpression(value, value.GetType());
+                exp = new DbParameterExpression(value, value.GetType());
+
+            exp.DbType = dbType;
+            return exp;
         }
     }
 }

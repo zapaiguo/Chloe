@@ -175,7 +175,7 @@ namespace Chloe
                     keyValueMap[propertyDescriptor] = val;
                 }
 
-                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType);
+                DbParameterExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType, propertyDescriptor.Column.DbType);
                 insertColumns.Add(propertyDescriptor, valExp);
             }
 
@@ -266,7 +266,7 @@ namespace Chloe
                     else
                     {
                         keyVal = val;
-                        e.InsertColumns.Add(propertyDescriptor.Column, DbExpression.Parameter(keyVal));
+                        e.InsertColumns.Add(propertyDescriptor.Column, DbExpression.Parameter(keyVal, propertyDescriptor.PropertyType, propertyDescriptor.Column.DbType));
                         continue;
                     }
                 }
@@ -341,7 +341,7 @@ namespace Chloe
                 if (entityState != null && !entityState.HasChanged(propertyDescriptor, val))
                     continue;
 
-                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType);
+                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType, propertyDescriptor.Column.DbType);
                 updateColumns.Add(propertyDescriptor, valExp);
             }
 

@@ -20,7 +20,7 @@ namespace Chloe.Mapper
     {
         public static IMRM CreateMRM(MemberInfo member, MappingTypeInfo mappingTypeInfo)
         {
-            if (mappingTypeInfo.DbValueConverter == null || member.GetMemberType().GetUnderlyingType().IsEnum /* 枚举比较特殊 */)
+            if (mappingTypeInfo.MappingType == null || member.GetMemberType().GetUnderlyingType().IsEnum /* 枚举比较特殊 */)
             {
                 Type type = ClassGenerator.CreateMRMType(member);
                 IMRM obj = (IMRM)type.GetConstructor(Type.EmptyTypes).Invoke(null);
@@ -28,7 +28,7 @@ namespace Chloe.Mapper
             }
             else
             {
-                return new MRM2(member, mappingTypeInfo.DbValueConverter);
+                return new MRM2(member, mappingTypeInfo.MappingType);
             }
         }
     }
@@ -50,17 +50,16 @@ namespace Chloe.Mapper
     class MRM2 : IMRM
     {
         Action<object, object> _valueSetter;
-        IDbValueConverter _dbValueConverter;
-        public MRM2(MemberInfo member, IDbValueConverter dbValueConverter)
+        IMappingType _mappingType;
+        public MRM2(MemberInfo member, IMappingType mappingType)
         {
-            this._dbValueConverter = dbValueConverter;
+            this._mappingType = mappingType;
             this._valueSetter = DelegateGenerator.CreateValueSetter(member);
         }
 
         public void Map(object instance, IDataReader reader, int ordinal)
         {
-            object val = reader.GetValue(ordinal);
-            val = this._dbValueConverter.Convert(val);
+            object val = this._mappingType.ReadFromDataReader(reader, ordinal);
             this._valueSetter(instance, val);
         }
     }

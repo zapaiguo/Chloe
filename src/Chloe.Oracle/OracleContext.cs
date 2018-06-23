@@ -62,7 +62,7 @@ namespace Chloe.Oracle
                     keyValueMap[propertyDescriptor] = val;
                 }
 
-                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType);
+                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType, propertyDescriptor.Column.DbType);
                 insertColumns.Add(propertyDescriptor, valExp);
             }
 
@@ -132,7 +132,7 @@ namespace Chloe.Oracle
                     else
                     {
                         keyVal = val;
-                        insertExp.InsertColumns.Add(propertyDescriptor.Column, DbExpression.Parameter(keyVal));
+                        insertExp.InsertColumns.Add(propertyDescriptor.Column, DbExpression.Parameter(keyVal, propertyDescriptor.PropertyType, propertyDescriptor.Column.DbType));
                         continue;
                     }
                 }
@@ -319,7 +319,7 @@ namespace Chloe.Oracle
                 if (entityState != null && !entityState.HasChanged(propertyDescriptor, val))
                     continue;
 
-                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType);
+                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType, propertyDescriptor.Column.DbType);
                 updateColumns.Add(propertyDescriptor, valExp);
             }
 

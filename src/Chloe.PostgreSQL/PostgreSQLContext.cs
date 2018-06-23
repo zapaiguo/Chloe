@@ -64,7 +64,7 @@ namespace Chloe.PostgreSQL
                     keyValueMap[propertyDescriptor] = val;
                 }
 
-                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType);
+                DbParameterExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType, propertyDescriptor.Column.DbType);
                 insertColumns.Add(propertyDescriptor, valExp);
             }
 

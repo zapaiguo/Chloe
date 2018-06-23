@@ -40,30 +40,23 @@ namespace Chloe.Infrastructure
             _defaultTypeInfos = PublicHelper.Clone(defaultTypeInfos);
         }
 
-        static void SetItem(Dictionary<Type, MappingTypeInfo> map, Type type, DbType mapDbType, IDbValueConverter dbValueConverter = null)
+        static void SetItem(Dictionary<Type, MappingTypeInfo> map, Type type, DbType mapDbType, IMappingType mappingType = null)
         {
-            map[type] = new MappingTypeInfo(type, mapDbType, dbValueConverter);
+            map[type] = new MappingTypeInfo(type, mapDbType, mappingType);
         }
 
         /// <summary>
         /// 配置映射的类型。
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="dbTypeToMap">类型 type 对应的 DbType。如果是扩展的 DbType，务必对原生的 System.Data.IDataParameter 进行包装，拦截 IDataParameter.DbType 属性的 setter 以对 dbTypeToMap 处理。</param>
-        /// <param name="dbValueConverter">指定一个转换器。可为 null。</param>
-        public static void Configure(Type type, DbType dbTypeToMap, IDbValueConverter dbValueConverter)
+        /// <param name="mappingType"></param>
+        public static void Configure(IMappingType mappingType)
         {
-            Utils.CheckNull(type);
+            Utils.CheckNull(mappingType);
 
-            type = type.GetUnderlyingType();
             lock (_lockObj)
             {
-                SetItem(_typeInfos, type, dbTypeToMap, dbValueConverter);
+                SetItem(_typeInfos, mappingType.Type, mappingType.DbType, mappingType);
             }
-        }
-        public static void Configure(Type type, DbType dbTypeToMap, Func<object, object> dbValueConverter = null)
-        {
-            Configure(type, dbTypeToMap, dbValueConverter == null ? null : new DbValueConverter(dbValueConverter));
         }
 
         public static DbType? GetDbType(Type type)
@@ -80,6 +73,12 @@ namespace Chloe.Infrastructure
                 return mappingTypeInfo.MapDbType;
 
             return null;
+        }
+        public static MappingTypeInfo GetMappingTypeInfo(Type type)
+        {
+            MappingTypeInfo mappingTypeInfo;
+            IsMappingType(type, out mappingTypeInfo);
+            return mappingTypeInfo;
         }
         public static bool IsMappingType(Type type)
         {
@@ -101,15 +100,15 @@ namespace Chloe.Infrastructure
 
     public class MappingTypeInfo
     {
-        public MappingTypeInfo(Type type, DbType mapDbType, IDbValueConverter dbValueConverter)
+        public MappingTypeInfo(Type type, DbType mapDbType, IMappingType mappingType)
         {
             this.Type = type;
             this.MapDbType = mapDbType;
-            this.DbValueConverter = dbValueConverter;
+            this.MappingType = mappingType;
         }
         public Type Type { get; private set; }
         public DbType MapDbType { get; private set; }
-        public IDbValueConverter DbValueConverter { get; private set; }
+        public IMappingType MappingType { get; private set; }
     }
 
     class DbValueConverter : IDbValueConverter

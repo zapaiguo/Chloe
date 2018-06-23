@@ -189,7 +189,7 @@ namespace Chloe
                     throw new ArgumentException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.Property.Name));
 
                 DbExpression left = new DbColumnAccessExpression(dbTable, keyPropertyDescriptor.Column);
-                DbExpression right = DbExpression.Parameter(keyVal, keyPropertyDescriptor.PropertyType);
+                DbExpression right = DbExpression.Parameter(keyVal, keyPropertyDescriptor.PropertyType, keyPropertyDescriptor.Column.DbType);
                 DbExpression equalExp = new DbEqualExpression(left, right);
                 conditionExp = conditionExp == null ? equalExp : DbExpression.And(conditionExp, equalExp);
             }
