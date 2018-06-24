@@ -78,12 +78,10 @@ namespace Chloe.Oracle.MethodHandlers
                     return;
                 }
 
-                DbMemberExpression memberExp = arg0 as DbMemberExpression;
-
-                if (memberExp == null || !memberExp.IsEvaluable())
+                if (!arg0.IsEvaluable())
                     throw UtilExceptions.NotSupportedMethod(exp.Method);
 
-                values = DbExpressionExtension.Evaluate(memberExp) as IEnumerable;
+                values = DbExpressionExtension.Evaluate(arg0) as IEnumerable;
                 operand = exp.Arguments[1];
                 goto constructInState;
             }
