@@ -14,6 +14,7 @@ The query interface is similar to LINQ.You can query data like LINQ and do any t
 | MySql  | Install-Package Chloe.MySql  |
 | Oracle  | Install-Package Chloe.Oracle  |
 | SQLite  | Install-Package Chloe.SQLite  |
+| PostgreSQL  | Install-Package Chloe.PostgreSQL  |
 
 # License
 [MIT](http://opensource.org/licenses/MIT) License
