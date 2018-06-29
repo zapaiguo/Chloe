@@ -110,17 +110,4 @@ namespace Chloe.Infrastructure
         public DbType MapDbType { get; private set; }
         public IMappingType MappingType { get; private set; }
     }
-
-    class DbValueConverter : IDbValueConverter
-    {
-        Func<object, object> _dbValueConverter;
-        public DbValueConverter(Func<object, object> dbValueConverter)
-        {
-            this._dbValueConverter = dbValueConverter;
-        }
-        public object Convert(object readerValue)
-        {
-            return this._dbValueConverter(readerValue);
-        }
-    }
 }

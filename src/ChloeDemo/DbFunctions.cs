@@ -8,7 +8,7 @@ namespace ChloeDemo
 {
     public class DbFunctions
     {
-        [DbFunctionAttribute()]
+        [Chloe.Annotations.DbFunctionAttribute()]
         public static string MyFunction(int value)
         {
             throw new NotImplementedException();
