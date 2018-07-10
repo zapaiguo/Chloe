@@ -9,23 +9,23 @@ using System.Text;
 
 namespace ChloeDemo
 {
-    class String_MappingType : IMappingType
+    class String_MappingType : MappingTypeBase, IMappingType
     {
-        public Type Type
+        public override Type Type
         {
             get
             {
                 return typeof(string);
             }
         }
-        public DbType DbType
+        public override DbType DbType
         {
             get
             {
                 return DbType.String;
             }
         }
-        public IDbDataParameter CreateDataParameter(IDbCommand cmd, DbParam param)
+        public override IDbDataParameter CreateDataParameter(IDbCommand cmd, DbParam param)
         {
             DbType jsonDbType = (DbType)100;
 
@@ -95,7 +95,7 @@ namespace ChloeDemo
 
             return parameter;
         }
-        public object ReadFromDataReader(IDataReader reader, int ordinal)
+        public override object ReadFromDataReader(IDataReader reader, int ordinal)
         {
             if (reader.IsDBNull(ordinal))
                 return null;

@@ -54,14 +54,10 @@ namespace Chloe.Oracle
         {
             Type fieldType = this._reader.GetFieldType(i);
 
-            if (fieldType == UtilConstants.TypeOfInt32)
-                return Convert.ToBoolean(this._reader.GetInt32(i));
-            if (fieldType == UtilConstants.TypeOfInt16)
-                return Convert.ToBoolean(this._reader.GetInt16(i));
-            if (fieldType == UtilConstants.TypeOfDecimal)
-                return Convert.ToBoolean(this._reader.GetDecimal(i));
+            if (fieldType == UtilConstants.TypeOfBoolean)
+                return this._reader.GetBoolean(i);
 
-            return this._reader.GetBoolean(i);
+            return Convert.ToBoolean(this._reader.GetValue(i));
         }
         public byte GetByte(int i)
         {
