@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Chloe.SQLite
 {
-    class ChloeSQLiteCommand : IDbCommand, IDisposable
+    public class ChloeSQLiteCommand : IDbCommand, IDisposable
     {
         IDbCommand _dbCommand;
         ChloeSQLiteConcurrentConnection _conn;
@@ -17,6 +17,8 @@ namespace Chloe.SQLite
         }
 
         public ChloeSQLiteConcurrentConnection Conn { get { return this._conn; } }
+
+        public IDbCommand PersistedDbCommand { get { return this._dbCommand; } }
 
         public string CommandText
         {
@@ -79,7 +81,7 @@ namespace Chloe.SQLite
             {
                 ChloeSQLiteTransaction tran = value as ChloeSQLiteTransaction;
                 if (tran != null)
-                    this._dbCommand.Transaction = tran.InnerTransaction;
+                    this._dbCommand.Transaction = tran.PersistedTransaction;
                 else
                     this._dbCommand.Transaction = value;
             }

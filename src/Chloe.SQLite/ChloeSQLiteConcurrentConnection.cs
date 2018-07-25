@@ -13,7 +13,7 @@ namespace Chloe.SQLite
      * 由于内部使用了 ReaderWriterLockSlim 锁，所以，任何对 sqlite 的操作只能在创建该连接的线程内，不能跨线程操作。否则会出现无法释放锁的风险！！！！！
      * 同时，如果开启了事务后，必须保证事务最终被 Commit 或 Rollback，不然内部 ReaderWriterLockSlim 锁得不到释放，会导致锁一直被占用，使得整个程序持续阻塞！！！ 
      */
-    class ChloeSQLiteConcurrentConnection : IDbConnection, IDisposable
+    public class ChloeSQLiteConcurrentConnection : IDbConnection, IDisposable
     {
         IDbConnection _dbConnection;
         ReaderWriterLockWrapper _rwLock;
@@ -49,9 +49,9 @@ namespace Chloe.SQLite
             return rwLockSlim;
         }
 
-        public ReaderWriterLockWrapper RWLock { get { return this._rwLock; } }
+        internal ReaderWriterLockWrapper RWLock { get { return this._rwLock; } }
 
-        public IDbConnection InnerDbConnection { get { return this._dbConnection; } }
+        public IDbConnection PersistedDbConnection { get { return this._dbConnection; } }
 
         public string ConnectionString
         {

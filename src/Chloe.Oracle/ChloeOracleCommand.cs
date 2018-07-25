@@ -16,6 +16,8 @@ namespace Chloe.Oracle
             this._dbCommand = dbCommand;
         }
 
+        public IDbCommand PersistedDbCommand { get { return this._dbCommand; } }
+
         public string CommandText
         {
             get

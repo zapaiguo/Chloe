@@ -17,6 +17,8 @@ namespace Chloe.Oracle
             this._reader = reader;
         }
 
+        public IDataReader PersistedDataReader { get { return this._reader; } }
+
         #region IDataReader
         public int Depth { get { return this._reader.Depth; } }
         public bool IsClosed { get { return this._reader.IsClosed; } }

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Chloe.SQLite
 {
-    class ChloeSQLiteDataReader : IDataReader, IDataRecord, IDisposable
+    public class ChloeSQLiteDataReader : IDataReader, IDataRecord, IDisposable
     {
         IDataReader _reader;
         ChloeSQLiteCommand _cmd;
@@ -21,6 +21,8 @@ namespace Chloe.SQLite
         {
             this.Dispose();
         }
+
+        public IDataReader PersistedDataReader { get { return this._reader; } }
 
         #region IDataReader
         public int Depth { get { return this._reader.Depth; } }

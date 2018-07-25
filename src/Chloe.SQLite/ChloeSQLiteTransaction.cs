@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Chloe.SQLite
 {
-    class ChloeSQLiteTransaction : IDbTransaction
+    public class ChloeSQLiteTransaction : IDbTransaction
     {
         IDbTransaction _transaction;
         ChloeSQLiteConcurrentConnection _conn;
@@ -24,7 +24,7 @@ namespace Chloe.SQLite
             this.Dispose();
         }
 
-        public IDbTransaction InnerTransaction { get { return this._transaction; } }
+        public IDbTransaction PersistedTransaction { get { return this._transaction; } }
 
         void EndTransaction()
         {

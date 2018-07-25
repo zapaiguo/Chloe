@@ -16,7 +16,7 @@ namespace Chloe.MySql
             this._dbConnection = dbConnection;
         }
 
-        public IDbConnection InnerDbConnection { get { return this._dbConnection; } }
+        public IDbConnection PersistedDbConnection { get { return this._dbConnection; } }
 
         public string ConnectionString
         {
