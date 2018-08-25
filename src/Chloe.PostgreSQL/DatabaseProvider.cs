@@ -14,7 +14,7 @@ namespace Chloe.PostgreSQL
         IDbConnectionFactory _dbConnectionFactory;
         PostgreSQLContext _postgreSQLContext;
 
-        public string DatabaseType { get { return "SqlServer"; } }
+        public string DatabaseType { get { return "PostgreSQL"; } }
 
         public DatabaseProvider(IDbConnectionFactory dbConnectionFactory, PostgreSQLContext postgreSQLContext)
         {
