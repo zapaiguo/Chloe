@@ -133,22 +133,36 @@ namespace Chloe.SqlServer
                 insertExp.InsertColumns.Add(kv.Key.Column, kv.Value);
             }
 
-            List<Action<TEntity, IDataReader>> mappers = new List<Action<TEntity, IDataReader>>();
-            foreach (var item in typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement || a.HasSequence()))
-            {
-                mappers.Add(GetMapper<TEntity>(item, insertExp.Returns.Count));
-                insertExp.Returns.Add(item.Column);
-            }
+            List<PropertyDescriptor> outputColumns = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement || a.HasSequence()).ToList();
 
-            if (mappers.Count == 0)
+            if (outputColumns.Count == 0)
             {
                 this.ExecuteSqlCommand(insertExp);
                 return entity;
             }
 
+            List<Action<TEntity, IDataReader>> mappers = new List<Action<TEntity, IDataReader>>();
             IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
             List<DbParam> parameters;
-            string sql = translator.Translate(insertExp, out parameters);
+            string sql = null;
+            if (outputColumns.Count == 1 && outputColumns[0].IsAutoIncrement)
+            {
+                sql = translator.Translate(insertExp, out parameters);
+
+                /* 自增 id 不能用 output  inserted.Id 输出，因为如果表设置了触发器的话会报错 */
+                sql = string.Concat(sql, ";", this.GetSelectLastInsertIdClause());
+                mappers.Add(GetMapper<TEntity>(outputColumns[0], 0));
+            }
+            else
+            {
+                foreach (PropertyDescriptor outputColumn in outputColumns)
+                {
+                    mappers.Add(GetMapper<TEntity>(outputColumn, insertExp.Returns.Count));
+                    insertExp.Returns.Add(outputColumn.Column);
+                }
+
+                sql = translator.Translate(insertExp, out parameters);
+            }
 
             IDataReader dataReader = this.Session.ExecuteReader(sql, parameters.ToArray());
             using (dataReader)
@@ -242,11 +256,19 @@ namespace Chloe.SqlServer
                 return keyVal;
             }
 
-            insertExp.Returns.Add(keyPropertyDescriptor.Column);
-
             IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
             List<DbParam> parameters;
             string sql = translator.Translate(insertExp, out parameters);
+
+            if (keyPropertyDescriptor.IsAutoIncrement)
+            {
+                /* 自增 id 不能用 output  inserted.Id 输出，因为如果表设置了触发器的话会报错 */
+                sql = string.Concat(sql, ";", this.GetSelectLastInsertIdClause());
+            }
+            else if (keyPropertyDescriptor.HasSequence())
+            {
+                insertExp.Returns.Add(keyPropertyDescriptor.Column);
+            }
 
             object ret = this.Session.ExecuteScalar(sql, parameters.ToArray());
             if (ret == null || ret == DBNull.Value)
@@ -258,7 +280,7 @@ namespace Chloe.SqlServer
             return ret;
         }
 
-        public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
+        public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false, string table = null)
         {
             /*
              * 将 entities 分批插入数据库
@@ -281,7 +303,8 @@ namespace Chloe.SqlServer
             List<PropertyDescriptor> mappingPropertyDescriptors = e.ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
-            string sqlTemplate = AppendInsertRangeSqlTemplate(typeDescriptor, mappingPropertyDescriptors);
+            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            string sqlTemplate = AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors);
 
             Action insertAction = () =>
             {
@@ -399,13 +422,13 @@ namespace Chloe.SqlServer
         /// <param name="batchSize">设置 SqlBulkCopy.BatchSize 的值</param>
         /// <param name="bulkCopyTimeout">设置 SqlBulkCopy.BulkCopyTimeout 的值</param>
         /// <param name="keepIdentity">是否保留源自增值。false 由数据库分配自增值</param>
-        public virtual void BulkInsert<TEntity>(List<TEntity> entities, int? batchSize = null, int? bulkCopyTimeout = null, bool keepIdentity = false)
+        public virtual void BulkInsert<TEntity>(List<TEntity> entities, string table = null, int? batchSize = null, int? bulkCopyTimeout = null, bool keepIdentity = false)
         {
             PublicHelper.CheckNull(entities);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            DataTable dtToWrite = ToSqlBulkCopyDataTable(entities, typeDescriptor);
+            DataTable dtToWrite = ToSqlBulkCopyDataTable(entities, typeDescriptor, table ?? typeDescriptor.Table.Name);
 
             SqlBulkCopy sbc = null;
 
@@ -430,7 +453,8 @@ namespace Chloe.SqlServer
                     if (batchSize != null)
                         sbc.BatchSize = batchSize.Value;
 
-                    sbc.DestinationTableName = AppendTableName(typeDescriptor.Table);
+                    DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+                    sbc.DestinationTableName = AppendTableName(dbTable);
 
                     if (bulkCopyTimeout != null)
                         sbc.BulkCopyTimeout = bulkCopyTimeout.Value;
@@ -454,11 +478,11 @@ namespace Chloe.SqlServer
             }
         }
 
-        DataTable ToSqlBulkCopyDataTable<TModel>(List<TModel> modelList, TypeDescriptor typeDescriptor)
+        DataTable ToSqlBulkCopyDataTable<TModel>(List<TModel> modelList, TypeDescriptor typeDescriptor, string tableName)
         {
             DataTable dt = new DataTable();
 
-            List<SysColumn> columns = GetTableColumns(typeDescriptor.Table.Name);
+            List<SysColumn> columns = GetTableColumns(tableName);
             List<ColumnMapping> columnMappings = new List<ColumnMapping>();
 
             var mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.ToList();

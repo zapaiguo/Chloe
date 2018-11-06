@@ -305,7 +305,7 @@ namespace Chloe
             retIdentity = PublicHelper.ConvertObjType(retIdentity, typeDescriptor.AutoIncrement.PropertyType);
             return retIdentity;
         }
-        public virtual void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
+        public virtual void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false, string table = null)
         {
             throw new NotImplementedException();
         }

@@ -44,12 +44,12 @@ namespace Chloe.PostgreSQL
             return keyValueMap;
         }
 
-        string AppendInsertRangeSqlTemplate(TypeDescriptor typeDescriptor, List<PropertyDescriptor> mappingPropertyDescriptors)
+        string AppendInsertRangeSqlTemplate(DbTable table, List<PropertyDescriptor> mappingPropertyDescriptors)
         {
             StringBuilder sqlBuilder = new StringBuilder();
 
             sqlBuilder.Append("INSERT INTO ");
-            sqlBuilder.Append(this.AppendTableName(typeDescriptor.Table));
+            sqlBuilder.Append(this.AppendTableName(table));
             sqlBuilder.Append("(");
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)

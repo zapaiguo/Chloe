@@ -157,7 +157,7 @@ namespace Chloe.Oracle
             this.ExecuteSqlCommand(insertExp);
             return keyVal; /* It will return null if an entity does not define primary key. */
         }
-        public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
+        public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false, string table = null)
         {
             /*
              * 将 entities 分批插入数据库
@@ -178,7 +178,8 @@ namespace Chloe.Oracle
             List<PropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
-            string sqlTemplate = AppendInsertRangeSqlTemplate(typeDescriptor, mappingPropertyDescriptors, keepIdentity);
+            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            string sqlTemplate = AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors, keepIdentity);
 
             Action insertAction = () =>
             {
@@ -432,12 +433,12 @@ namespace Chloe.Oracle
             return ret;
         }
 
-        string AppendInsertRangeSqlTemplate(TypeDescriptor typeDescriptor, List<PropertyDescriptor> mappingPropertyDescriptors, bool keepIdentity)
+        string AppendInsertRangeSqlTemplate(DbTable table, List<PropertyDescriptor> mappingPropertyDescriptors, bool keepIdentity)
         {
             StringBuilder sqlBuilder = new StringBuilder();
 
             sqlBuilder.Append("INSERT INTO ");
-            sqlBuilder.Append(this.AppendTableName(typeDescriptor.Table));
+            sqlBuilder.Append(this.AppendTableName(table));
             sqlBuilder.Append("(");
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)

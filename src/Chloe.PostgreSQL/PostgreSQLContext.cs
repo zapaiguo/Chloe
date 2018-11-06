@@ -208,7 +208,7 @@ namespace Chloe.PostgreSQL
             return ret;
         }
 
-        public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
+        public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false, string table = null)
         {
             /*
              * 将 entities 分批插入数据库
@@ -231,7 +231,8 @@ namespace Chloe.PostgreSQL
             List<PropertyDescriptor> mappingPropertyDescriptors = e.ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
-            string sqlTemplate = this.AppendInsertRangeSqlTemplate(typeDescriptor, mappingPropertyDescriptors);
+            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            string sqlTemplate = this.AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors);
 
             Action insertAction = () =>
             {

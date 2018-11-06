@@ -66,12 +66,12 @@ namespace Chloe.SqlServer
 
             return (T)Convert.ChangeType(val, typeof(T).GetUnderlyingType());
         }
-        static string AppendInsertRangeSqlTemplate(TypeDescriptor typeDescriptor, List<PropertyDescriptor> mappingPropertyDescriptors)
+        static string AppendInsertRangeSqlTemplate(DbTable table, List<PropertyDescriptor> mappingPropertyDescriptors)
         {
             StringBuilder sqlBuilder = new StringBuilder();
 
             sqlBuilder.Append("INSERT INTO ");
-            sqlBuilder.Append(AppendTableName(typeDescriptor.Table));
+            sqlBuilder.Append(AppendTableName(table));
             sqlBuilder.Append("(");
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)

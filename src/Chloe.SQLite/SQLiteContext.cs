@@ -48,7 +48,7 @@ namespace Chloe.SQLite
             return "SELECT LAST_INSERT_ROWID()";
         }
 
-        public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false)
+        public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false, string table = null)
         {
             /*
              * 将 entities 分批插入数据库
@@ -71,7 +71,8 @@ namespace Chloe.SQLite
             List<PropertyDescriptor> mappingPropertyDescriptors = e.ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
-            string sqlTemplate = AppendInsertRangeSqlTemplate(typeDescriptor, mappingPropertyDescriptors);
+            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            string sqlTemplate = AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors);
 
             Action insertAction = () =>
             {
@@ -167,12 +168,12 @@ namespace Chloe.SQLite
             }
         }
 
-        static string AppendInsertRangeSqlTemplate(TypeDescriptor typeDescriptor, List<PropertyDescriptor> mappingPropertyDescriptors)
+        static string AppendInsertRangeSqlTemplate(DbTable dbTable, List<PropertyDescriptor> mappingPropertyDescriptors)
         {
             StringBuilder sqlBuilder = new StringBuilder();
 
             sqlBuilder.Append("INSERT INTO ");
-            sqlBuilder.Append(AppendTableName(typeDescriptor.Table));
+            sqlBuilder.Append(AppendTableName(dbTable));
             sqlBuilder.Append("(");
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
