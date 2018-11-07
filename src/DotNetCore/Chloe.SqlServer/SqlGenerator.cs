@@ -853,6 +853,12 @@ namespace Chloe.SqlServer
         }
         protected virtual void BuildLimitSql(DbSqlQueryExpression exp)
         {
+            bool shouldSortResults = false;
+            if (exp.TakeCount != null)
+                shouldSortResults = true;
+            else if (this._sqlBuilder.Length == 0)
+                shouldSortResults = true;
+
             this._sqlBuilder.Append("SELECT ");
 
             this.AppendDistinct(exp.IsDistinct);
@@ -920,6 +926,15 @@ namespace Chloe.SqlServer
             this.QuoteName(row_numberName);
             this._sqlBuilder.Append(" > ");
             this._sqlBuilder.Append(exp.SkipCount.ToString());
+
+            if (shouldSortResults)
+            {
+                this._sqlBuilder.Append(" ORDER BY ");
+                this.QuoteName(tableAlias);
+                this._sqlBuilder.Append(".");
+                this.QuoteName(row_numberName);
+                this._sqlBuilder.Append(" ASC");
+            }
         }
         protected void AppendDistinct(bool isDistinct)
         {

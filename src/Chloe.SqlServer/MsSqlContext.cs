@@ -419,6 +419,7 @@ namespace Chloe.SqlServer
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="entities"></param>
+        /// <param name="table"></param>
         /// <param name="batchSize">设置 SqlBulkCopy.BatchSize 的值</param>
         /// <param name="bulkCopyTimeout">设置 SqlBulkCopy.BulkCopyTimeout 的值</param>
         /// <param name="keepIdentity">是否保留源自增值。false 由数据库分配自增值</param>

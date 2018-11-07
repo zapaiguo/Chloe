@@ -8,6 +8,8 @@ namespace Chloe.SqlServer
 {
     interface ISqlBuilder
     {
+        int Length { get; }
+
         string ToSql();
         ISqlBuilder Append(object obj);
         ISqlBuilder Append(object obj1, object obj2);
@@ -20,6 +22,9 @@ namespace Chloe.SqlServer
     class SqlBuilder : ISqlBuilder
     {
         StringBuilder _sb = new StringBuilder();
+
+        public int Length { get { return this._sb.Length; } }
+
         public string ToSql()
         {
             return this._sb.ToString();
