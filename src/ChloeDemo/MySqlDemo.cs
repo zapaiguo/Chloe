@@ -447,6 +447,9 @@ namespace ChloeDemo
 
                 Bool_Parse = bool.Parse("1"),//CAST(N'1' AS SIGNED)
                 DateTime_Parse = DateTime.Parse("2014-1-1"),//CAST(N'2014-1-1' AS DATETIME)
+
+                B = a.Age == null ? false : a.Age > 1, //三元表达式
+                CaseWhen = Case.When(a.Id > 100).Then(1).Else(0) //case when
             }).ToList();
 
             ConsoleHelper.WriteLineAndReadKey();

@@ -481,7 +481,8 @@ namespace ChloeDemo
                 Bool_Parse = bool.Parse("1"),//CASE WHEN CAST(N'1' AS BIT) = CAST(1 AS BIT) THEN CAST(1 AS BIT) WHEN NOT (CAST(N'1' AS BIT) = CAST(1 AS BIT)) THEN CAST(0 AS BIT) ELSE NULL END AS [Bool_Parse]
                 DateTime_Parse = DateTime.Parse("1992-1-16"),//CAST(N'1992-1-16' AS DATETIME) AS [DateTime_Parse]
 
-                B = a.Age == null ? false : a.Age > 1,
+                B = a.Age == null ? false : a.Age > 1, //三元表达式
+                CaseWhen = Case.When(a.Id > 100).Then(1).Else(0) //case when
             }).ToList();
 
             ConsoleHelper.WriteLineAndReadKey();
