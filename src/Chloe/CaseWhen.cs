@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Chloe
 {
+    /// <summary>
+    /// usage: Case.When(a.Gender == Gender.Man).Then("Man").When(a.Gender == Gender.Woman).Then("Woman").Else(null)
+    /// </summary>
     public class Case
     {
         bool _condition;
