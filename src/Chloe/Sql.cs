@@ -29,6 +29,19 @@ namespace Chloe
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        /// 比较两个相同类型的对象值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value1"></param>
+        /// <param name="compareType"></param>
+        /// <param name="value2"></param>
+        /// <returns></returns>
+        public static bool Compare<T>(T value1, CompareType compareType, T value2)
+        {
+            throw new NotSupportedException();
+        }
+
         public static T NextValueForSequence<T>(string sequenceName)
         {
             throw new NotSupportedException();
