@@ -70,10 +70,8 @@ namespace Chloe.Oracle
 
             e.Returns.AddRange(outputColumns.Select(a => a.Column));
 
-            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
             List<DbParam> parameters;
-            string cmdText = translator.Translate(e, out parameters);
-            int r = this.Session.ExecuteNonQuery(cmdText, parameters.ToArray());
+            this.ExecuteSqlCommand(e, out parameters);
 
             List<DbParam> outputParams = parameters.Where(a => a.Direction == ParamDirection.Output).ToList();
 
@@ -155,10 +153,8 @@ namespace Chloe.Oracle
                 throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.Property.Name));
             }
 
-            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
             List<DbParam> parameters;
-            string cmdText = translator.Translate(insertExp, out parameters);
-            int r = this.Session.ExecuteNonQuery(cmdText, parameters.ToArray());
+            this.ExecuteSqlCommand(insertExp, out parameters);
 
             if (keyPropertyDescriptor != null && keyPropertyDescriptor.HasSequence())
             {
@@ -397,52 +393,16 @@ namespace Chloe.Oracle
 
         int ExecuteSqlCommand(DbExpression e)
         {
-            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
             List<DbParam> parameters;
+            return this.ExecuteSqlCommand(e, out parameters);
+        }
+        int ExecuteSqlCommand(DbExpression e, out List<DbParam> parameters)
+        {
+            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
             string cmdText = translator.Translate(e, out parameters);
 
             int r = this.Session.ExecuteNonQuery(cmdText, parameters.ToArray());
             return r;
-        }
-        Dictionary<PropertyDescriptor, object> GetSequenceValues(List<PropertyDescriptor> sequencePropertyDescriptors)
-        {
-            Dictionary<PropertyDescriptor, object> ret = new Dictionary<PropertyDescriptor, object>(sequencePropertyDescriptors.Count);
-            if (sequencePropertyDescriptors.Count == 0)
-                return ret;
-
-            StringBuilder sql = new StringBuilder();
-            sql.Append("SELECT ");
-            for (int i = 0; i < sequencePropertyDescriptors.Count; i++)
-            {
-                var sequencePropertyDescriptor = sequencePropertyDescriptors[i];
-                string sequenceName = sequencePropertyDescriptor.Definition.SequenceName;
-                if (this.ConvertToUppercase)
-                    sequenceName = sequenceName.ToUpper();
-
-                if (i > 0)
-                    sql.Append(",");
-
-                sql.Append($"\"{sequenceName}\".\"NEXTVAL\"");
-                sql.Append(" V");
-                sql.Append(i);
-            }
-            sql.Append(" FROM \"DUAL\"");
-
-            var dataReader = this.Session.ExecuteReader(sql.ToString());
-            using (dataReader)
-            {
-                dataReader.Read();
-                for (int i = 0; i < dataReader.FieldCount; i++)
-                {
-                    var sequencePropertyDescriptor = sequencePropertyDescriptors[i];
-                    object sequenceValue = PublicHelper.ConvertObjType(dataReader.GetValue(i), sequencePropertyDescriptor.PropertyType);
-                    ret.Add(sequencePropertyDescriptor, sequenceValue);
-                }
-
-                dataReader.Close();
-            }
-
-            return ret;
         }
 
         string AppendInsertRangeSqlTemplate(DbTable table, List<PropertyDescriptor> mappingPropertyDescriptors, bool keepIdentity)

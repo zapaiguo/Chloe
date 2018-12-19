@@ -8,9 +8,12 @@ namespace Chloe.Oracle
 {
     class SqlGenerator_ConvertToUppercase : SqlGenerator
     {
-        protected override void QuoteName(string name)
+        public override string SqlName(string name)
         {
-            base.QuoteName(name.ToUpper());
+            if (name == null)
+                return name;
+
+            return name.ToUpper();
         }
     }
 }

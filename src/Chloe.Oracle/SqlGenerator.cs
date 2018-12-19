@@ -1051,12 +1051,16 @@ namespace Chloe.Oracle
             }
         }
 
-        protected virtual void QuoteName(string name)
+        public virtual string SqlName(string name)
+        {
+            return name;
+        }
+        protected void QuoteName(string name)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentException("name");
 
-            this._sqlBuilder.Append("\"", name, "\"");
+            this._sqlBuilder.Append("\"", this.SqlName(name), "\"");
         }
         void AppendTable(DbTable table)
         {

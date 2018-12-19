@@ -19,7 +19,10 @@ namespace Chloe.Oracle.MethodHandlers
         public void Process(DbMethodCallExpression exp, SqlGenerator generator)
         {
             string sequenceName = (string)exp.Arguments[0].Evaluate();
-            generator.SqlBuilder.Append(sequenceName, ".nextval");
+            if (string.IsNullOrEmpty(sequenceName))
+                throw new ArgumentException("The sequence name cannot be empty.");
+
+            generator.SqlBuilder.Append(generator.SqlName(sequenceName), ".nextval");
         }
     }
 }
