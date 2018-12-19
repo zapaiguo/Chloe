@@ -829,6 +829,23 @@ namespace Chloe.SqlServer
             seg.Body.Accept(this);
             this._sqlBuilder.Append(" AS ");
             this.QuoteName(seg.Alias);
+
+            string lockString = null;
+            switch (seg.Lock)
+            {
+                case LockType.Unspecified:
+                    return;
+                case LockType.NoLock:
+                    lockString = "NOLOCK";
+                    break;
+                case LockType.UpdLock:
+                    lockString = "UPDLOCK";
+                    break;
+                default:
+                    throw new NotSupportedException($"lock type: {seg.Lock.ToString()}");
+            }
+
+            this._sqlBuilder.Append(" WITH(", lockString, ")");
         }
         internal void AppendColumnSegment(DbColumnSegment seg)
         {

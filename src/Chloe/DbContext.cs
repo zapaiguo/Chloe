@@ -65,16 +65,29 @@ namespace Chloe
         }
         public virtual IQuery<TEntity> Query<TEntity>(string table)
         {
-            return new Query<TEntity>(this, table);
+            return this.Query<TEntity>(table, LockType.Unspecified);
         }
+        public virtual IQuery<TEntity> Query<TEntity>(LockType @lock)
+        {
+            return this.Query<TEntity>(null, @lock);
+        }
+        public virtual IQuery<TEntity> Query<TEntity>(string table, LockType @lock)
+        {
+            return new Query<TEntity>(this, table, @lock);
+        }
+
         public virtual TEntity QueryByKey<TEntity>(object key, bool tracking = false)
         {
             return this.QueryByKey<TEntity>(key, null, tracking);
         }
         public virtual TEntity QueryByKey<TEntity>(object key, string table, bool tracking = false)
         {
+            return this.QueryByKey<TEntity>(key, table, LockType.Unspecified, tracking);
+        }
+        public virtual TEntity QueryByKey<TEntity>(object key, string table, LockType @lock, bool tracking = false)
+        {
             Expression<Func<TEntity, bool>> condition = BuildCondition<TEntity>(key);
-            var q = this.Query<TEntity>(table).Where(condition);
+            var q = this.Query<TEntity>(table, @lock).Where(condition);
 
             if (tracking)
                 q = q.AsTracking();

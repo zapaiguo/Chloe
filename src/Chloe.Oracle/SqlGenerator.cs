@@ -959,6 +959,18 @@ namespace Chloe.Oracle
             this.BuildWhereState(exp.Condition);
             this.BuildGroupState(exp);
             this.BuildOrderState(exp.Orderings);
+
+            DbTableSegment seg = exp.Table.Table;
+            if (seg.Lock == LockType.UpdLock)
+            {
+                this._sqlBuilder.Append(" FOR UPDATE");
+            }
+            else if (seg.Lock == LockType.Unspecified || seg.Lock == LockType.NoLock)
+            {
+                //Do nothing.
+            }
+            else
+                throw new NotSupportedException($"lock type: {seg.Lock.ToString()}");
         }
 
 

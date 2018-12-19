@@ -865,15 +865,27 @@ namespace Chloe.PostgreSQL
             this.BuildGroupState(exp);
             this.BuildOrderState(exp.Orderings);
 
-            if (exp.SkipCount == null && exp.TakeCount == null)
-                return;
+            if (exp.SkipCount != null || exp.TakeCount != null)
+            {
+                int skipCount = exp.SkipCount ?? 0;
+                long takeCount = long.MaxValue;
+                if (exp.TakeCount != null)
+                    takeCount = exp.TakeCount.Value;
 
-            int skipCount = exp.SkipCount ?? 0;
-            long takeCount = long.MaxValue;
-            if (exp.TakeCount != null)
-                takeCount = exp.TakeCount.Value;
+                this._sqlBuilder.Append(" LIMIT ", takeCount.ToString(), " OFFSET ", skipCount.ToString());
+            }
 
-            this._sqlBuilder.Append(" LIMIT ", takeCount.ToString(), " OFFSET ", skipCount.ToString());
+            DbTableSegment seg = exp.Table.Table;
+            if (seg.Lock == LockType.UpdLock)
+            {
+                this._sqlBuilder.Append(" FOR UPDATE");
+            }
+            else if (seg.Lock == LockType.Unspecified || seg.Lock == LockType.NoLock)
+            {
+                //Do nothing.
+            }
+            else
+                throw new NotSupportedException($"lock type: {seg.Lock.ToString()}");
         }
 
 

@@ -175,7 +175,7 @@ namespace Chloe.Query.QueryState
 
             ResultElement result = new ResultElement(this._resultElement.ScopeParameters, this._resultElement.ScopeTables);
 
-            DbTableSegment tableSeg = new DbTableSegment(subQuery, result.GenerateUniqueTableAlias());
+            DbTableSegment tableSeg = new DbTableSegment(subQuery, result.GenerateUniqueTableAlias(), LockType.Unspecified);
             DbFromTableExpression fromTable = new DbFromTableExpression(tableSeg);
 
             result.FromTable = fromTable;
@@ -265,7 +265,7 @@ namespace Chloe.Query.QueryState
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
-            DbTableSegment tableSeg = new DbTableSegment(subQuery, alias);
+            DbTableSegment tableSeg = new DbTableSegment(subQuery, alias, LockType.Unspecified);
             DbFromTableExpression fromTable = new DbFromTableExpression(tableSeg);
 
             DbTable table = new DbTable(tableSeg.Alias);
@@ -282,7 +282,7 @@ namespace Chloe.Query.QueryState
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
             string alias = tableAlias;
-            DbTableSegment tableSeg = new DbTableSegment(subQuery, alias);
+            DbTableSegment tableSeg = new DbTableSegment(subQuery, alias, LockType.Unspecified);
 
             DbTable table = new DbTable(tableSeg.Alias);
             IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, table);

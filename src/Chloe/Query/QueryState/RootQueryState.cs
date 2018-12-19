@@ -13,8 +13,8 @@ namespace Chloe.Query.QueryState
     internal sealed class RootQueryState : QueryStateBase
     {
         Type _elementType;
-        public RootQueryState(Type elementType, string explicitTableName, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
-            : base(CreateResultElement(elementType, explicitTableName, scopeParameters, scopeTables))
+        public RootQueryState(Type elementType, string explicitTableName, LockType @lock, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+            : base(CreateResultElement(elementType, explicitTableName, @lock, scopeParameters, scopeTables))
         {
             this._elementType = elementType;
         }
@@ -32,7 +32,7 @@ namespace Chloe.Query.QueryState
             return base.ToFromQueryResult();
         }
 
-        static ResultElement CreateResultElement(Type type, string explicitTableName, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        static ResultElement CreateResultElement(Type type, string explicitTableName, LockType lockType, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
             if (type.IsAbstract || type.IsInterface)
                 throw new ArgumentException("The type of input can not be abstract class or interface.");
@@ -47,7 +47,7 @@ namespace Chloe.Query.QueryState
                 dbTable = new DbTable(explicitTableName, dbTable.Schema);
             string alias = resultElement.GenerateUniqueTableAlias(dbTable.Name);
 
-            resultElement.FromTable = CreateRootTable(dbTable, alias);
+            resultElement.FromTable = CreateRootTable(dbTable, alias, lockType);
 
             ConstructorInfo constructor = typeDescriptor.Definition.Type.GetConstructor(Type.EmptyTypes);
             if (constructor == null)
@@ -71,10 +71,10 @@ namespace Chloe.Query.QueryState
 
             return resultElement;
         }
-        static DbFromTableExpression CreateRootTable(DbTable table, string alias)
+        static DbFromTableExpression CreateRootTable(DbTable table, string alias, LockType lockType)
         {
             DbTableExpression tableExp = new DbTableExpression(table);
-            DbTableSegment tableSeg = new DbTableSegment(tableExp, alias);
+            DbTableSegment tableSeg = new DbTableSegment(tableExp, alias, lockType);
             var fromTableExp = new DbFromTableExpression(tableSeg);
             return fromTableExp;
         }

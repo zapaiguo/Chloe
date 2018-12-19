@@ -7,19 +7,18 @@ namespace Chloe.DbExpressions
     [System.Diagnostics.DebuggerDisplay("Alias = {Alias}")]
     public class DbTableSegment
     {
-        DbExpression _body;
-        string _alias;
-
-        public DbTableSegment(DbExpression body, string alias)
+        public DbTableSegment(DbExpression body, string alias, LockType @lock)
         {
-            this._body = body;
-            this._alias = alias;
+            this.Body = body;
+            this.Alias = alias;
+            this.Lock = @lock;
         }
 
         /// <summary>
         /// User、(select * from User)
         /// </summary>
-        public DbExpression Body { get { return this._body; } }
-        public string Alias { get { return this._alias; } }
+        public DbExpression Body { get; private set; }
+        public string Alias { get; private set; }
+        public LockType Lock { get; private set; }
     }
 }

@@ -314,7 +314,7 @@ namespace Chloe.Oracle
 
             DbSqlQueryExpression newSqlQuery = new DbSqlQueryExpression();
 
-            DbTableSegment tableSeg = new DbTableSegment(subQuery, table.Name);
+            DbTableSegment tableSeg = new DbTableSegment(subQuery, table.Name, LockType.Unspecified);
             DbFromTableExpression fromTableExp = new DbFromTableExpression(tableSeg);
 
             newSqlQuery.Table = fromTableExp;

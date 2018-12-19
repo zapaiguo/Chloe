@@ -25,8 +25,8 @@ namespace Chloe.Query
 
         Type IQuery.ElementType { get { return typeof(T); } }
 
-        public Query(DbContext dbContext, string explicitTable)
-            : this(dbContext, new RootQueryExpression(typeof(T), explicitTable), false)
+        public Query(DbContext dbContext, string explicitTable, LockType @lock)
+            : this(dbContext, new RootQueryExpression(typeof(T), explicitTable, @lock), false)
         {
 
         }

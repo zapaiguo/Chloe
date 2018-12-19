@@ -24,7 +24,7 @@ namespace Chloe.Query.Visitors
 
         public override IQueryState Visit(RootQueryExpression exp)
         {
-            IQueryState queryState = new RootQueryState(exp.ElementType, exp.ExplicitTable, this._scopeParameters, this._scopeTables);
+            IQueryState queryState = new RootQueryState(exp.ElementType, exp.ExplicitTable, exp.Lock, this._scopeParameters, this._scopeTables);
             return queryState;
         }
         public override IQueryState Visit(WhereExpression exp)

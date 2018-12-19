@@ -150,7 +150,7 @@ namespace Chloe.DbExpressions
         }
         public override DbExpression Visit(DbFromTableExpression exp)
         {
-            DbFromTableExpression ret = new DbFromTableExpression(new DbTableSegment(this.MakeNewExpression(exp.Table.Body), exp.Table.Alias));
+            DbFromTableExpression ret = new DbFromTableExpression(new DbTableSegment(this.MakeNewExpression(exp.Table.Body), exp.Table.Alias, exp.Table.Lock));
             foreach (var item in exp.JoinTables)
             {
                 ret.JoinTables.Add((DbJoinTableExpression)this.MakeNewExpression(item));
@@ -159,7 +159,7 @@ namespace Chloe.DbExpressions
         }
         public override DbExpression Visit(DbJoinTableExpression exp)
         {
-            DbJoinTableExpression ret = new DbJoinTableExpression(exp.JoinType, new DbTableSegment(this.MakeNewExpression(exp.Table.Body), exp.Table.Alias), this.MakeNewExpression(exp.Condition));
+            DbJoinTableExpression ret = new DbJoinTableExpression(exp.JoinType, new DbTableSegment(this.MakeNewExpression(exp.Table.Body), exp.Table.Alias, exp.Table.Lock), this.MakeNewExpression(exp.Condition));
             foreach (var item in exp.JoinTables)
             {
                 ret.JoinTables.Add((DbJoinTableExpression)this.MakeNewExpression(item));

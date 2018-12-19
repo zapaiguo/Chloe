@@ -46,7 +46,7 @@ namespace Chloe.Query.Visitors
                 dbTable = new DbTable(explicitTableName, dbTable.Schema);
             string alias = this._resultElement.GenerateUniqueTableAlias(dbTable.Name);
 
-            DbTableSegment tableSeg = CreateTableExpression(dbTable, alias);
+            DbTableSegment tableSeg = CreateTableSegment(dbTable, alias, exp.Lock);
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.Definition.Type.GetConstructor(Type.EmptyTypes));
 
             DbTable table = new DbTable(alias);
@@ -123,10 +123,10 @@ namespace Chloe.Query.Visitors
             JoinQueryResult ret = state.ToJoinQueryResult(this._joinType, this._conditionExpression, this._scopeParameters, this._resultElement.ScopeTables, this._resultElement.GenerateUniqueTableAlias());
             return ret;
         }
-        static DbTableSegment CreateTableExpression(DbTable table, string alias)
+        static DbTableSegment CreateTableSegment(DbTable table, string alias, LockType @lock)
         {
             DbTableExpression tableExp = new DbTableExpression(table);
-            DbTableSegment tableSeg = new DbTableSegment(tableExp, alias);
+            DbTableSegment tableSeg = new DbTableSegment(tableExp, alias, @lock);
             return tableSeg;
         }
     }

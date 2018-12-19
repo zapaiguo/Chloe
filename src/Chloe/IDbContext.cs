@@ -11,16 +11,21 @@ namespace Chloe
 
         IQuery<TEntity> Query<TEntity>();
         IQuery<TEntity> Query<TEntity>(string table);
+        IQuery<TEntity> Query<TEntity>(LockType @lock);
+        IQuery<TEntity> Query<TEntity>(string table, LockType @lock);
+
         TEntity QueryByKey<TEntity>(object key, bool tracking = false);
+        TEntity QueryByKey<TEntity>(object key, string table, bool tracking = false);
         /// <summary>
         /// 
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="key">If the entity just has one primary key, input a value that it's type is same as the primary key. If the entity has multiple keys, input an instance that defines the same properties as the keys like 'new { Key1 = "1", Key2 = "2" }'.</param>
         /// <param name="table"></param>
+        /// <param name="lock"></param>
         /// <param name="tracking"></param>
         /// <returns></returns>
-        TEntity QueryByKey<TEntity>(object key, string table, bool tracking = false);
+        TEntity QueryByKey<TEntity>(object key, string table, LockType @lock, bool tracking = false);
 
         /// <summary>
         /// context.JoinQuery&lt;User, City&gt;((user, city) => new object[] 
