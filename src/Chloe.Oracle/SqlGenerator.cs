@@ -554,6 +554,33 @@ namespace Chloe.Oracle
 
             this._sqlBuilder.Append(")");
 
+            if (exp.Returns.Count > 0)
+            {
+                this._sqlBuilder.Append(" RETURNING ");
+
+                string outputParamNames = "";
+                for (int i = 0; i < exp.Returns.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        this._sqlBuilder.Append(",");
+                        outputParamNames = outputParamNames + ",";
+                    }
+
+                    DbColumn outputColumn = exp.Returns[i];
+                    string paramName = Utils.GenOutputColumnParameterName(outputColumn.Name);
+                    DbParam outputParam = new DbParam() { Name = paramName, DbType = outputColumn.DbType, Precision = outputColumn.Precision, Scale = outputColumn.Scale, Size = outputColumn.Size, Value = DBNull.Value, Direction = ParamDirection.Output };
+                    outputParam.Type = outputColumn.Type;
+
+                    this.QuoteName(outputColumn.Name);
+                    outputParamNames = outputParamNames + paramName;
+
+                    this._parameters.Add(outputParam);
+                }
+
+                this._sqlBuilder.Append(" INTO ", outputParamNames);
+            }
+
             return exp;
         }
         public override DbExpression Visit(DbUpdateExpression exp)

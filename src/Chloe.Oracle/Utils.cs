@@ -77,5 +77,10 @@ namespace Chloe.Oracle
             type = ReflectionExtension.GetUnderlyingType(type);
             return ToStringableNumericTypes.ContainsKey(type);
         }
+
+        public static string GenOutputColumnParameterName(string columnName)
+        {
+            return UtilConstants.OutputParameterNamePrefix + columnName;
+        }
     }
 }
