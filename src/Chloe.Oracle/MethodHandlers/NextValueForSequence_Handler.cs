@@ -22,7 +22,8 @@ namespace Chloe.Oracle.MethodHandlers
             if (string.IsNullOrEmpty(sequenceName))
                 throw new ArgumentException("The sequence name cannot be empty.");
 
-            generator.SqlBuilder.Append(generator.SqlName(sequenceName), ".nextval");
+            generator.QuoteName(sequenceName);
+            generator.SqlBuilder.Append(".nextval");
         }
     }
 }

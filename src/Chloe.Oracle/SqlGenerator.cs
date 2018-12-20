@@ -1055,7 +1055,7 @@ namespace Chloe.Oracle
         {
             return name;
         }
-        protected void QuoteName(string name)
+        public virtual void QuoteName(string name)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentException("name");

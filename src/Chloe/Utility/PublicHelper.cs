@@ -36,11 +36,14 @@ namespace Chloe.Utility
         }
         public static DbMethodCallExpression MakeNextValueForSequenceDbExpression(PropertyDescriptor propertyDescriptor)
         {
-            MethodInfo nextValueForSequenceMethod = UtilConstants.MethodInfo_Sql_NextValueForSequence.MakeGenericMethod(propertyDescriptor.PropertyType);
-            List<DbExpression> arguments = new List<DbExpression>() { new DbConstantExpression(propertyDescriptor.Definition.SequenceName) };
+            return MakeNextValueForSequenceDbExpression(propertyDescriptor.PropertyType, propertyDescriptor.Definition.SequenceName);
+        }
+        public static DbMethodCallExpression MakeNextValueForSequenceDbExpression(Type retType, string sequenceName)
+        {
+            MethodInfo nextValueForSequenceMethod = UtilConstants.MethodInfo_Sql_NextValueForSequence.MakeGenericMethod(retType);
+            List<DbExpression> arguments = new List<DbExpression>() { new DbConstantExpression(sequenceName) };
 
             DbMethodCallExpression getNextValueForSequenceExp = new DbMethodCallExpression(null, nextValueForSequenceMethod, arguments);
-
             return getNextValueForSequenceExp;
         }
         public static object ConvertObjType(object obj, Type conversionType)
