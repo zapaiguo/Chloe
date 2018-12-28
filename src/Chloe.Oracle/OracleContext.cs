@@ -158,8 +158,8 @@ namespace Chloe.Oracle
 
             if (keyPropertyDescriptor != null && keyPropertyDescriptor.HasSequence())
             {
-                string putputColumnName = Utils.GenOutputColumnParameterName(keyPropertyDescriptor.Column.Name);
-                DbParam outputParam = parameters.Where(a => a.Direction == ParamDirection.Output && a.Name == putputColumnName).First();
+                string outputColumnName = Utils.GenOutputColumnParameterName(keyPropertyDescriptor.Column.Name);
+                DbParam outputParam = parameters.Where(a => a.Direction == ParamDirection.Output && a.Name == outputColumnName).First();
                 keyVal = PublicHelper.ConvertObjType(outputParam.Value, keyPropertyDescriptor.PropertyType);
             }
 
