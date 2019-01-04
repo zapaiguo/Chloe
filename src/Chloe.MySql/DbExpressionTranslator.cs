@@ -14,7 +14,7 @@ namespace Chloe.MySql
         public static readonly DbExpressionTranslator Instance = new DbExpressionTranslator();
         public string Translate(DbExpression expression, out List<DbParam> parameters)
         {
-            SqlGenerator generator = SqlGenerator.CreateInstance();
+            SqlGenerator generator = MySqlSqlGenerator.CreateInstance();
             expression = DbExpressionOptimizer.Optimize(expression);
             expression.Accept(generator);
 

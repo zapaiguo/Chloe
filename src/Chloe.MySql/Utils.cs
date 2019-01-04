@@ -35,5 +35,11 @@ namespace Chloe.MySql
             type = ReflectionExtension.GetUnderlyingType(type);
             return ToStringableNumericTypes.ContainsKey(type);
         }
+
+        public static void CheckNull(object obj, string paramName = null)
+        {
+            if (obj == null)
+                throw new ArgumentNullException(paramName);
+        }
     }
 }

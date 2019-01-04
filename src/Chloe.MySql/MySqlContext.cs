@@ -8,6 +8,7 @@ using Chloe.Infrastructure;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -179,5 +180,83 @@ namespace Chloe.MySql
             return Utils.QuoteName(table.Name);
         }
 
+        public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, int limits)
+        {
+            return this.Update<TEntity>(condition, content, null, limits);
+        }
+        public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table, int limits)
+        {
+            Utils.CheckNull(condition);
+            Utils.CheckNull(content);
+
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
+
+            Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(content);
+
+            DbTable explicitDbTable = null;
+            if (table != null)
+                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+
+            DbExpression conditionExp = expressionParser.ParseFilterPredicate(condition);
+
+            MySqlDbUpdateExpression e = new MySqlDbUpdateExpression(explicitDbTable ?? typeDescriptor.Table, conditionExp);
+
+            foreach (var kv in updateColumns)
+            {
+                MemberInfo key = kv.Key;
+                PropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
+
+                if (propertyDescriptor == null)
+                    throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
+
+                if (propertyDescriptor.IsPrimaryKey)
+                    throw new ChloeException(string.Format("Could not update the primary key '{0}'.", propertyDescriptor.Column.Name));
+
+                if (propertyDescriptor.IsAutoIncrement)
+                    throw new ChloeException(string.Format("Could not update the identity column '{0}'.", propertyDescriptor.Column.Name));
+
+                e.UpdateColumns.Add(propertyDescriptor.Column, expressionParser.Parse(kv.Value));
+            }
+
+            e.Limits = limits;
+
+            if (e.UpdateColumns.Count == 0)
+                return 0;
+
+            return this.ExecuteSqlCommand(e);
+        }
+
+        public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition, int limits)
+        {
+            return this.Delete(condition, null, limits);
+        }
+        public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table, int limits)
+        {
+            Utils.CheckNull(condition);
+
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
+
+            DbTable explicitDbTable = null;
+            if (table != null)
+                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+            DbExpression conditionExp = expressionParser.ParseFilterPredicate(condition);
+
+            MySqlDbDeleteExpression e = new MySqlDbDeleteExpression(explicitDbTable ?? typeDescriptor.Table, conditionExp);
+            e.Limits = limits;
+
+            return this.ExecuteSqlCommand(e);
+        }
+
+        int ExecuteSqlCommand(DbExpression e)
+        {
+            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string cmdText = translator.Translate(e, out parameters);
+
+            int r = this.Session.ExecuteNonQuery(cmdText, CommandType.Text, parameters.ToArray());
+            return r;
+        }
     }
 }
