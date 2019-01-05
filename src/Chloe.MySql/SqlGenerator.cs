@@ -516,8 +516,7 @@ namespace Chloe.MySql
         }
         public override DbExpression Visit(DbDeleteExpression exp)
         {
-            this._sqlBuilder.Append("DELETE");
-            this._sqlBuilder.Append(" FROM ");
+            this._sqlBuilder.Append("DELETE FROM ");
             this.AppendTable(exp.Table);
             this.BuildWhereState(exp.Condition);
 
