@@ -9,21 +9,10 @@ using System.Text;
 
 namespace ChloeDemo
 {
-    class String_MappingType : MappingTypeBase, IMappingType
+    class String_MappingType : MappingType<string>, IMappingType
     {
-        public override Type Type
+        public String_MappingType() : base(DbType.String)
         {
-            get
-            {
-                return typeof(string);
-            }
-        }
-        public override DbType DbType
-        {
-            get
-            {
-                return DbType.String;
-            }
         }
         public override IDbDataParameter CreateDataParameter(IDbCommand cmd, DbParam param)
         {
@@ -94,13 +83,6 @@ namespace ChloeDemo
                 throw new NotSupportedException(string.Format("ParamDirection '{0}' is not supported.", param.Direction));
 
             return parameter;
-        }
-        public override object ReadFromDataReader(IDataReader reader, int ordinal)
-        {
-            if (reader.IsDBNull(ordinal))
-                return null;
-
-            return reader.GetString(ordinal);
         }
     }
 }
