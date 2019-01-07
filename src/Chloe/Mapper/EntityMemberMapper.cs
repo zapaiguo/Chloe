@@ -34,22 +34,13 @@ namespace Chloe.Mapper
 
             foreach (var member in members)
             {
-                Type memberType = null;
-                PropertyInfo prop = null;
-                FieldInfo field = null;
+                if (!member.HasPublicSetter())
+                {
+                    continue;
+                }
 
-                if ((prop = member as PropertyInfo) != null)
-                {
-                    if (prop.GetSetMethod() == null)
-                        continue;//对于没有公共的 setter 直接跳过
-                    memberType = prop.PropertyType;
-                }
-                else if ((field = member as FieldInfo) != null)
-                {
-                    memberType = field.FieldType;
-                }
-                else
-                    continue;//只支持公共属性和字段
+                //只支持公共属性和字段
+                Type memberType = member.GetMemberType();
 
                 MappingTypeInfo mappingTypeInfo;
                 if (MappingTypeSystem.IsMappingType(memberType, out mappingTypeInfo))
@@ -59,20 +50,8 @@ namespace Chloe.Mapper
                 }
                 else
                 {
-                    if (prop != null)
-                    {
-                        Action<object, object> valueSetter = DelegateGenerator.CreateValueSetter(prop);
-                        complexMemberSetters.Add(member, valueSetter);
-                    }
-                    else if (field != null)
-                    {
-                        Action<object, object> valueSetter = DelegateGenerator.CreateValueSetter(field);
-                        complexMemberSetters.Add(member, valueSetter);
-                    }
-                    else
-                        continue;
-
-                    continue;
+                    Action<object, object> valueSetter = DelegateGenerator.CreateValueSetter(member);
+                    complexMemberSetters.Add(member, valueSetter);
                 }
             }
 

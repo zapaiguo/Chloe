@@ -12,10 +12,22 @@ namespace Chloe.InternalExtensions
         {
             if (propertyOrField.MemberType == MemberTypes.Property)
                 return ((PropertyInfo)propertyOrField).PropertyType;
+
             if (propertyOrField.MemberType == MemberTypes.Field)
                 return ((FieldInfo)propertyOrField).FieldType;
 
             throw new ArgumentException();
+        }
+
+        public static bool HasPublicSetter(this MemberInfo propertyOrField)
+        {
+            if (propertyOrField.MemberType == MemberTypes.Property)
+                return ((PropertyInfo)propertyOrField).GetSetMethod() != null;
+
+            if (propertyOrField.MemberType == MemberTypes.Field && (propertyOrField as FieldInfo).IsPublic)
+                return true;
+
+            return false;
         }
 
         public static void SetMemberValue(this MemberInfo propertyOrField, object obj, object value)

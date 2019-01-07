@@ -5,7 +5,6 @@ using System.Text;
 
 namespace Chloe.Exceptions
 {
-    //[Serializable]
     public class ChloeException : Exception
     {
         public ChloeException()
