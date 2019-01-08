@@ -9,18 +9,21 @@ namespace Chloe.Infrastructure
     public class MappingType<T> : MappingTypeBase
     {
         DbType _dbType;
+        Type _type;
         public MappingType()
         {
+            this._type = typeof(T);
         }
         public MappingType(DbType dbType)
         {
             this._dbType = dbType;
+            this._type = typeof(T);
         }
         public override Type Type
         {
             get
             {
-                return typeof(T);
+                return this._type;
             }
         }
         public override DbType DbType
@@ -36,10 +39,10 @@ namespace Chloe.Infrastructure
         }
         public override object ReadFromDataReader(IDataReader reader, int ordinal)
         {
-            if (reader.IsDBNull(ordinal))
-                return null;
-
             var value = reader.GetValue(ordinal);
+
+            if (value is DBNull)
+                return null;
 
             //数据库字段类型与属性类型不一致，则转换类型
             if (value.GetType() != this.Type)
