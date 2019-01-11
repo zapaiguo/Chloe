@@ -1,4 +1,5 @@
 ﻿using Chloe.Infrastructure.Interception;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -33,6 +34,14 @@ namespace Chloe.Core
             Utils.CheckNull(cmdText, "cmdText");
             return this._dbContext.AdoSession.ExecuteNonQuery(cmdText, parameters, cmdType);
         }
+        public int ExecuteNonQuery(string cmdText, object parameter)
+        {
+            return this.ExecuteNonQuery(cmdText, PublicHelper.BuildParams(this._dbContext, parameter));
+        }
+        public int ExecuteNonQuery(string cmdText, CommandType cmdType, object parameter)
+        {
+            return this.ExecuteNonQuery(cmdText, cmdType, PublicHelper.BuildParams(this._dbContext, parameter));
+        }
 
         public object ExecuteScalar(string cmdText, params DbParam[] parameters)
         {
@@ -43,6 +52,14 @@ namespace Chloe.Core
             Utils.CheckNull(cmdText, "cmdText");
             return this._dbContext.AdoSession.ExecuteScalar(cmdText, parameters, cmdType);
         }
+        public object ExecuteScalar(string cmdText, object parameter)
+        {
+            return this.ExecuteScalar(cmdText, PublicHelper.BuildParams(this._dbContext, parameter));
+        }
+        public object ExecuteScalar(string cmdText, CommandType cmdType, object parameter)
+        {
+            return this.ExecuteScalar(cmdText, cmdType, PublicHelper.BuildParams(this._dbContext, parameter));
+        }
 
         public IDataReader ExecuteReader(string cmdText, params DbParam[] parameters)
         {
@@ -52,6 +69,14 @@ namespace Chloe.Core
         {
             Utils.CheckNull(cmdText, "cmdText");
             return this._dbContext.AdoSession.ExecuteReader(cmdText, parameters, cmdType);
+        }
+        public IDataReader ExecuteReader(string cmdText, object parameter)
+        {
+            return this.ExecuteReader(cmdText, PublicHelper.BuildParams(this._dbContext, parameter));
+        }
+        public IDataReader ExecuteReader(string cmdText, CommandType cmdType, object parameter)
+        {
+            return this.ExecuteReader(cmdText, cmdType, PublicHelper.BuildParams(this._dbContext, parameter));
         }
 
         public void BeginTransaction()

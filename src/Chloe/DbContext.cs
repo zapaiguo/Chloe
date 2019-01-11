@@ -150,7 +150,7 @@ namespace Chloe
              * dbContext.SqlQuery<User>("select * from Users where Id=@Id", new { Id = 1 }).ToList();
              */
 
-            return this.SqlQuery<T>(sql, this.BuildParams(parameter));
+            return this.SqlQuery<T>(sql, PublicHelper.BuildParams(this, parameter));
         }
         public IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, object parameter)
         {
@@ -159,7 +159,7 @@ namespace Chloe
              * dbContext.SqlQuery<User>("select * from Users where Id=@Id", CommandType.Text, new { Id = 1 }).ToList();
              */
 
-            return this.SqlQuery<T>(sql, cmdType, this.BuildParams(parameter));
+            return this.SqlQuery<T>(sql, cmdType, PublicHelper.BuildParams(this, parameter));
         }
 
 

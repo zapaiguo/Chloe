@@ -1,6 +1,7 @@
 ﻿using Chloe.DbExpressions;
 using Chloe.Descriptors;
 using Chloe.Exceptions;
+using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 using System;
 using System.Collections.Generic;
@@ -77,5 +78,37 @@ namespace Chloe.Utility
             if (!typeDescriptor.HasPrimaryKey())
                 throw new ChloeException(string.Format("The entity type '{0}' does not define any primary key.", typeDescriptor.Definition.Type.FullName));
         }
+
+        public static DbParam[] BuildParams(DbContext dbContext, object parameter)
+        {
+            if (parameter == null)
+                return new DbParam[0];
+
+            if (parameter is IEnumerable<DbParam>)
+            {
+                return ((IEnumerable<DbParam>)parameter).ToArray();
+            }
+
+            List<DbParam> parameters = new List<DbParam>();
+            Type parameterType = parameter.GetType();
+            var props = parameterType.GetProperties();
+            foreach (var prop in props)
+            {
+                if (prop.GetGetMethod() == null || !MappingTypeSystem.IsMappingType(prop.GetMemberType()))
+                {
+                    continue;
+                }
+
+                object value = ReflectionExtension.GetMemberValue(prop, parameter);
+
+                string paramName = dbContext.DatabaseProvider.CreateParameterName(prop.Name);
+
+                DbParam p = new DbParam(paramName, value, prop.PropertyType);
+                parameters.Add(p);
+            }
+
+            return parameters.ToArray();
+        }
+
     }
 }

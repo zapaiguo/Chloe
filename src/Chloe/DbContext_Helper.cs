@@ -196,36 +196,5 @@ namespace Chloe
 
             return conditionExp;
         }
-
-        DbParam[] BuildParams(object parameter)
-        {
-            if (parameter == null)
-                return new DbParam[0];
-
-            if (parameter is IEnumerable<DbParam>)
-            {
-                return ((IEnumerable<DbParam>)parameter).ToArray();
-            }
-
-            List<DbParam> parameters = new List<DbParam>();
-            Type parameterType = parameter.GetType();
-            var props = parameterType.GetProperties();
-            foreach (var prop in props)
-            {
-                if (prop.GetGetMethod() == null)
-                {
-                    continue;
-                }
-
-                object value = ReflectionExtension.GetMemberValue(prop, parameter);
-
-                string paramName = this.DatabaseProvider.CreateParameterName(prop.Name);
-
-                DbParam p = new DbParam(paramName, value, prop.PropertyType);
-                parameters.Add(p);
-            }
-
-            return parameters.ToArray();
-        }
     }
 }
