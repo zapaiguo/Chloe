@@ -14,15 +14,14 @@ using System.Text;
 
 namespace Chloe.Query.Visitors
 {
-    internal class GeneralExpressionVisitor : ExpressionVisitorBase
+    internal class GeneralExpressionParser : ExpressionVisitorBase
     {
         static List<string> AggregateMethods;
 
-        LambdaExpression _lambda;
         ScopeParameterDictionary _scopeParameters;
         KeyDictionary<string> _scopeTables;
 
-        static GeneralExpressionVisitor()
+        static GeneralExpressionParser()
         {
             List<string> aggregateMethods = new List<string>();
             aggregateMethods.Add("Count");
@@ -35,19 +34,15 @@ namespace Chloe.Query.Visitors
             AggregateMethods = aggregateMethods;
         }
 
-        public GeneralExpressionVisitor(LambdaExpression lambda, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables) : this(scopeParameters, scopeTables)
-        {
-            this._lambda = lambda;
-        }
-        GeneralExpressionVisitor(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public GeneralExpressionParser(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
             this._scopeParameters = scopeParameters;
             this._scopeTables = scopeTables;
         }
-        public static DbExpression ParseLambda(LambdaExpression lambda, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public static DbExpression Parse(Expression exp, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
-            GeneralExpressionVisitor visitor = new GeneralExpressionVisitor(scopeParameters, scopeTables);
-            return visitor.Visit(lambda);
+            GeneralExpressionParser visitor = new GeneralExpressionParser(scopeParameters, scopeTables);
+            return visitor.Visit(exp);
         }
 
         IMappingObjectExpression FindMoe(ParameterExpression exp)
@@ -58,7 +53,6 @@ namespace Chloe.Query.Visitors
 
         protected override DbExpression VisitLambda(LambdaExpression lambda)
         {
-            this._lambda = lambda;
             return base.VisitLambda(lambda);
         }
 
@@ -84,7 +78,7 @@ namespace Chloe.Query.Visitors
 
         protected override DbExpression VisitParameter(ParameterExpression exp)
         {
-            //TODO 只支持 MappingFieldExpression 类型，即类似 q.Select(a=> a.Id).Where(a=> a > 0) 这种情况，也就是 ParameterExpression.Type 为基本映射类型。
+            //只支持 MappingFieldExpression 类型，即类似 q.Select(a=> a.Id).Where(a=> a > 0) 这种情况，也就是 ParameterExpression.Type 为基本映射类型。
 
             if (MappingTypeSystem.IsMappingType(exp.Type))
             {
@@ -169,11 +163,11 @@ namespace Chloe.Query.Visitors
         DbExpression Process_MemberAccess_Which_Link_First_Or_FirstOrDefault(MemberExpression exp)
         {
             /* 
-                * 判断是不是 First().xx，FirstOrDefault().xx 之类的
-                * First().Name： 泛型参数如果不是复杂类型，则转成 Select(a=> a.Name).First()
-                * First().xx.Name：  如果 xx 是复杂类型，则转成 Select(a=> a.xx.Name).First()
-                * First().xx.Name.Length：  如果 xx 是复杂类型，则转成 Select(a=> a.xx.Name).First().Length
-                */
+             * 判断是不是 First().xx，FirstOrDefault().xx 之类的
+             * First().Name： 泛型参数如果不是复杂类型，则转成 Select(a=> a.Name).First()
+             * First().xx.Name：  如果 xx 是复杂类型，则转成 Select(a=> a.xx.Name).First()
+             * First().xx.Name.Length：  如果 xx 是复杂类型，则转成 Select(a=> a.xx.Name).First().Length
+             */
 
             // 分割
             MethodCallExpression methodCall = null;
@@ -243,7 +237,7 @@ namespace Chloe.Query.Visitors
             }
 
             QueryBase query = ExpressionEvaluator.Evaluate(exp) as QueryBase;
-            IQueryState qs = QueryExpressionVisitor.VisitQueryExpression(query.QueryExpression, this._scopeParameters, this._scopeTables);
+            IQueryState qs = QueryExpressionResolver.Resolve(query.QueryExpression, this._scopeParameters, this._scopeTables);
             MappingData mappingData = qs.GenerateMappingData();
 
             DbSqlQueryExpression sqlQueryExpression = mappingData.SqlQuery.Update(resultType);

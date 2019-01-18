@@ -26,12 +26,12 @@ namespace Chloe.Core.Visitors
             LL.TrimExcess();
         }
 
-        public static LambdaExpression ReBuildFilterPredicate(LambdaExpression lambda)
+        public static LambdaExpression ReBuildFilterPredicate(LambdaExpression filterPredicate)
         {
-            if (!LL.Contains(lambda.Body.NodeType))
-                lambda = Expression.Lambda(Expression.Equal(lambda.Body, UtilConstants.Constant_True), lambda.Parameters.ToArray());
+            if (!LL.Contains(filterPredicate.Body.NodeType))
+                filterPredicate = Expression.Lambda(Expression.Equal(filterPredicate.Body, UtilConstants.Constant_True), filterPredicate.Parameters.ToArray());
 
-            return lambda;
+            return filterPredicate;
         }
         public static Expression ConvertBoolExpression(Expression boolExp)
         {

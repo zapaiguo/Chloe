@@ -13,7 +13,7 @@ using Chloe.Infrastructure;
 
 namespace Chloe.Query.Visitors
 {
-    class JoinQueryExpressionVisitor : QueryExpressionVisitor<JoinQueryResult>
+    class JoinQueryExpressionResolver : QueryExpressionVisitor<JoinQueryResult>
     {
         ResultElement _resultElement;
         JoinType _joinType;
@@ -21,7 +21,7 @@ namespace Chloe.Query.Visitors
         LambdaExpression _conditionExpression;
         ScopeParameterDictionary _scopeParameters;
 
-        JoinQueryExpressionVisitor(ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters)
+        JoinQueryExpressionResolver(ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters)
         {
             this._resultElement = resultElement;
             this._joinType = joinType;
@@ -29,10 +29,10 @@ namespace Chloe.Query.Visitors
             this._scopeParameters = scopeParameters;
         }
 
-        public static JoinQueryResult VisitQueryExpression(QueryExpression queryExpression, ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters)
+        public static JoinQueryResult Resolve(QueryExpression queryExpression, ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters)
         {
-            JoinQueryExpressionVisitor visitor = new JoinQueryExpressionVisitor(resultElement, joinType, conditionExpression, scopeParameters);
-            return queryExpression.Accept(visitor);
+            JoinQueryExpressionResolver resolver = new JoinQueryExpressionResolver(resultElement, joinType, conditionExpression, scopeParameters);
+            return queryExpression.Accept(resolver);
         }
 
         public override JoinQueryResult Visit(RootQueryExpression exp)
@@ -61,7 +61,7 @@ namespace Chloe.Query.Visitors
 
             //TODO 解析 on 条件表达式
             var scopeParameters = this._scopeParameters.Clone(this._conditionExpression.Parameters.Last(), moe);
-            DbExpression condition = GeneralExpressionVisitor.ParseLambda(this._conditionExpression, scopeParameters, this._resultElement.ScopeTables);
+            DbExpression condition = GeneralExpressionParser.Parse(this._conditionExpression, scopeParameters, this._resultElement.ScopeTables);
 
             DbJoinTableExpression joinTable = new DbJoinTableExpression(this._joinType.AsDbJoinType(), tableSeg, condition);
 
@@ -119,7 +119,7 @@ namespace Chloe.Query.Visitors
 
         JoinQueryResult Visit(QueryExpression exp)
         {
-            IQueryState state = QueryExpressionVisitor.VisitQueryExpression(exp, this._scopeParameters, this._resultElement.ScopeTables);
+            IQueryState state = QueryExpressionResolver.Resolve(exp, this._scopeParameters, this._resultElement.ScopeTables);
             JoinQueryResult ret = state.ToJoinQueryResult(this._joinType, this._conditionExpression, this._scopeParameters, this._resultElement.ScopeTables, this._resultElement.GenerateUniqueTableAlias());
             return ret;
         }

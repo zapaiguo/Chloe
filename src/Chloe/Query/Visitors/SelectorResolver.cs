@@ -12,21 +12,20 @@ using Chloe.Utility;
 
 namespace Chloe.Query
 {
-    class SelectorExpressionVisitor : ExpressionVisitor<IMappingObjectExpression>
+    class SelectorResolver : ExpressionVisitor<IMappingObjectExpression>
     {
         ExpressionVisitorBase _visitor;
-        LambdaExpression _lambda;
         ScopeParameterDictionary _scopeParameters;
         KeyDictionary<string> _scopeTables;
-        SelectorExpressionVisitor(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        SelectorResolver(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
             this._scopeParameters = scopeParameters;
             this._scopeTables = scopeTables;
         }
 
-        public static IMappingObjectExpression ResolveSelectorExpression(LambdaExpression selector, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public static IMappingObjectExpression Resolve(LambdaExpression selector, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
-            SelectorExpressionVisitor visitor = new SelectorExpressionVisitor(scopeParameters, scopeTables);
+            SelectorResolver visitor = new SelectorResolver(scopeParameters, scopeTables);
             return visitor.Visit(selector);
         }
 
@@ -76,8 +75,7 @@ namespace Chloe.Query
 
         protected override IMappingObjectExpression VisitLambda(LambdaExpression exp)
         {
-            this._lambda = exp;
-            this._visitor = new GeneralExpressionVisitor(exp, this._scopeParameters, this._scopeTables);
+            this._visitor = new GeneralExpressionParser(this._scopeParameters, this._scopeTables);
             return this.Visit(exp.Body);
         }
         protected override IMappingObjectExpression VisitNew(NewExpression exp)
