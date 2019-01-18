@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Chloe.Query.Visitors
 {
-    class GroupKeySelectorParser : ExpressionVisitor<List<DbExpression>>
+    class GroupKeySelectorParser : ExpressionVisitor<DbExpression[]>
     {
         ScopeParameterDictionary _scopeParameters;
         KeyDictionary<string> _scopeTables;
@@ -19,12 +19,12 @@ namespace Chloe.Query.Visitors
             this._scopeTables = scopeTables;
         }
 
-        public static List<DbExpression> Parse(Expression keySelector, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public static DbExpression[] Parse(Expression keySelector, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
             return new GroupKeySelectorParser(scopeParameters, scopeTables).Visit(keySelector);
         }
 
-        public override List<DbExpression> Visit(Expression exp)
+        public override DbExpression[] Visit(Expression exp)
         {
             switch (exp.NodeType)
             {
@@ -35,18 +35,18 @@ namespace Chloe.Query.Visitors
                 default:
                     {
                         var dbExp = GeneralExpressionParser.Parse(exp, this._scopeParameters, this._scopeTables);
-                        return new List<DbExpression>(1) { dbExp };
+                        return new DbExpression[1] { dbExp };
                     }
             }
         }
 
-        protected override List<DbExpression> VisitNew(NewExpression exp)
+        protected override DbExpression[] VisitNew(NewExpression exp)
         {
-            List<DbExpression> ret = new List<DbExpression>(exp.Arguments.Count);
+            DbExpression[] ret = new DbExpression[exp.Arguments.Count];
             for (int i = 0; i < exp.Arguments.Count; i++)
             {
                 var dbExp = GeneralExpressionParser.Parse(exp.Arguments[i], this._scopeParameters, this._scopeTables);
-                ret.Add(dbExp);
+                ret[i] = dbExp;
             }
 
             return ret;
