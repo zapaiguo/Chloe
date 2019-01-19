@@ -40,6 +40,10 @@ namespace Chloe.Query.Visitors
             }
         }
 
+        protected override DbExpression[] VisitLambda(LambdaExpression exp)
+        {
+            return this.Visit(exp.Body);
+        }
         protected override DbExpression[] VisitNew(NewExpression exp)
         {
             DbExpression[] ret = new DbExpression[exp.Arguments.Count];

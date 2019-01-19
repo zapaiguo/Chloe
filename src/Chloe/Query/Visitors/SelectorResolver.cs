@@ -25,8 +25,8 @@ namespace Chloe.Query
 
         public static IMappingObjectExpression Resolve(LambdaExpression selector, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
-            SelectorResolver visitor = new SelectorResolver(scopeParameters, scopeTables);
-            return visitor.Visit(selector);
+            SelectorResolver resolver = new SelectorResolver(scopeParameters, scopeTables);
+            return resolver.Visit(selector);
         }
 
         IMappingObjectExpression FindMoe(ParameterExpression exp)

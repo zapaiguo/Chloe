@@ -109,7 +109,7 @@ namespace Chloe.Core.Visitors
         }
         protected virtual T VisitUnary_Convert(UnaryExpression exp)
         {
-            return this.Visit(exp.Operand);
+            throw new NotImplementedException(exp.ToString());
         }
         protected virtual T VisitUnary_Quote(UnaryExpression exp)
         {
@@ -197,7 +197,7 @@ namespace Chloe.Core.Visitors
         }
         protected virtual T VisitLambda(LambdaExpression exp)
         {
-            return this.Visit(exp.Body);
+            throw new NotImplementedException(exp.ToString());
         }
         protected virtual T VisitMemberAccess(MemberExpression exp)
         {
