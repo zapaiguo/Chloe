@@ -9,19 +9,19 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Chloe.MySql
+namespace Chloe.PostgreSQL
 {
-    public class DbExpressionOptimizer : DbExpressionOptimizerBase
+    public class EvaluableDbExpressionTransformer : EvaluableDbExpressionTransformerBase
     {
-        static DbExpressionOptimizer _optimizer = new DbExpressionOptimizer();
+        static EvaluableDbExpressionTransformer _transformer = new EvaluableDbExpressionTransformer();
 
         static KeyDictionary<MemberInfo> _toTranslateMembers = new KeyDictionary<MemberInfo>();
-        static DbExpressionOptimizer()
+        static EvaluableDbExpressionTransformer()
         {
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_String_Length);
 
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Now);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_UtcNow);
+            //_toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_UtcNow);
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Today);
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Date);
 
@@ -31,16 +31,15 @@ namespace Chloe.MySql
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Hour);
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Minute);
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Second);
-            /* MySql is not supports MILLISECOND */
-            //_toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Millisecond); 
+            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Millisecond);
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_DayOfWeek);
 
             _toTranslateMembers = _toTranslateMembers.Clone();
         }
 
-        public static DbExpression Optimize(DbExpression exp)
+        public static DbExpression Transform(DbExpression exp)
         {
-            return exp.Accept(_optimizer);
+            return exp.Accept(_transformer);
         }
 
         public override bool CanTranslateToSql(DbMemberExpression exp)
@@ -59,45 +58,6 @@ namespace Chloe.MySql
             }
 
             return false;
-        }
-
-        public override DbExpression Visit(DbUpdateExpression exp)
-        {
-            if (!(exp is MySqlDbUpdateExpression))
-            {
-                return base.Visit(exp);
-            }
-
-            MySqlDbUpdateExpression ret = new MySqlDbUpdateExpression(exp.Table, this.MakeNewExpression(exp.Condition));
-
-            foreach (var kv in exp.UpdateColumns)
-            {
-                ret.UpdateColumns.Add(kv.Key, this.MakeNewExpression(kv.Value));
-            }
-
-            ret.Limits = (exp as MySqlDbUpdateExpression).Limits;
-
-            return ret;
-        }
-        public override DbExpression Visit(DbDeleteExpression exp)
-        {
-            if (!(exp is MySqlDbDeleteExpression))
-            {
-                return base.Visit(exp);
-            }
-
-            var ret = new MySqlDbDeleteExpression(exp.Table, this.MakeNewExpression(exp.Condition));
-            ret.Limits = (exp as MySqlDbDeleteExpression).Limits;
-
-            return ret;
-        }
-
-        DbExpression MakeNewExpression(DbExpression exp)
-        {
-            if (exp == null)
-                return null;
-
-            return exp.Accept(this);
         }
     }
 }

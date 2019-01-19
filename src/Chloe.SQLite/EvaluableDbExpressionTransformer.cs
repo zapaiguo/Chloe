@@ -11,12 +11,12 @@ using System.Text;
 
 namespace Chloe.SQLite
 {
-    public class DbExpressionOptimizer : DbExpressionOptimizerBase
+    public class EvaluableDbExpressionTransformer : EvaluableDbExpressionTransformerBase
     {
-        static DbExpressionOptimizer _optimizer = new DbExpressionOptimizer();
+        static EvaluableDbExpressionTransformer _transformer = new EvaluableDbExpressionTransformer();
 
         static KeyDictionary<MemberInfo> _toTranslateMembers = new KeyDictionary<MemberInfo>();
-        static DbExpressionOptimizer()
+        static EvaluableDbExpressionTransformer()
         {
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_String_Length);
 
@@ -38,9 +38,9 @@ namespace Chloe.SQLite
             _toTranslateMembers = _toTranslateMembers.Clone();
         }
 
-        public static DbExpression Optimize(DbExpression exp)
+        public static DbExpression Transform(DbExpression exp)
         {
-            return exp.Accept(_optimizer);
+            return exp.Accept(_transformer);
         }
 
         public override bool CanTranslateToSql(DbMemberExpression exp)

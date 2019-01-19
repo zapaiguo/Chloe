@@ -15,7 +15,7 @@ namespace Chloe.PostgreSQL
         public string Translate(DbExpression expression, out List<DbParam> parameters)
         {
             SqlGenerator generator = SqlGenerator.CreateInstance();
-            expression = DbExpressionOptimizer.Optimize(expression);
+            expression = EvaluableDbExpressionTransformer.Transform(expression);
             expression.Accept(generator);
 
             parameters = generator.Parameters;
@@ -31,7 +31,7 @@ namespace Chloe.PostgreSQL
         public string Translate(DbExpression expression, out List<DbParam> parameters)
         {
             SqlGenerator_ConvertToLowercase generator = new SqlGenerator_ConvertToLowercase();
-            expression = DbExpressionOptimizer.Optimize(expression);
+            expression = EvaluableDbExpressionTransformer.Transform(expression);
             expression.Accept(generator);
 
             parameters = generator.Parameters;

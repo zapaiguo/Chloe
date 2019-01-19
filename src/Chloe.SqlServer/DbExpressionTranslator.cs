@@ -15,7 +15,7 @@ namespace Chloe.SqlServer
         public string Translate(DbExpression expression, out List<DbParam> parameters)
         {
             SqlGenerator generator = SqlGenerator.CreateInstance();
-            expression = DbExpressionOptimizer.Optimize(expression);
+            expression = EvaluableDbExpressionTransformer.Transform(expression);
             expression.Accept(generator);
 
             parameters = generator.Parameters;
@@ -31,7 +31,7 @@ namespace Chloe.SqlServer
         public string Translate(DbExpression expression, out List<DbParam> parameters)
         {
             SqlGenerator_OffsetFetch generator = new SqlGenerator_OffsetFetch();
-            expression = DbExpressionOptimizer.Optimize(expression);
+            expression = EvaluableDbExpressionTransformer.Transform(expression);
             expression.Accept(generator);
 
             parameters = generator.Parameters;

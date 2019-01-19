@@ -9,19 +9,19 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Chloe.PostgreSQL
+namespace Chloe.SqlServer
 {
-    public class DbExpressionOptimizer : DbExpressionOptimizerBase
+    public class EvaluableDbExpressionTransformer : EvaluableDbExpressionTransformerBase
     {
-        static DbExpressionOptimizer _optimizer = new DbExpressionOptimizer();
+        static EvaluableDbExpressionTransformer _transformer = new EvaluableDbExpressionTransformer();
 
         static KeyDictionary<MemberInfo> _toTranslateMembers = new KeyDictionary<MemberInfo>();
-        static DbExpressionOptimizer()
+        static EvaluableDbExpressionTransformer()
         {
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_String_Length);
 
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Now);
-            //_toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_UtcNow);
+            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_UtcNow);
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Today);
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Date);
 
@@ -37,9 +37,9 @@ namespace Chloe.PostgreSQL
             _toTranslateMembers = _toTranslateMembers.Clone();
         }
 
-        public static DbExpression Optimize(DbExpression exp)
+        public static DbExpression Transform(DbExpression exp)
         {
-            return exp.Accept(_optimizer);
+            return exp.Accept(_transformer);
         }
 
         public override bool CanTranslateToSql(DbMemberExpression exp)

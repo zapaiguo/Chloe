@@ -13,7 +13,7 @@ namespace Chloe.Core.Visitors
     /// <summary>
     /// 将 DbExpression 中可求值的表达式计算出来，转换成 DbParameterExpression
     /// </summary>
-    public class DbExpressionOptimizerBase : DbExpressionVisitor
+    public class EvaluableDbExpressionTransformerBase : DbExpressionVisitor
     {
         public static bool IsConstantOrParameter(DbExpression exp)
         {
