@@ -186,8 +186,8 @@ namespace Chloe.MySql
         }
         public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table, int limits)
         {
-            Utils.CheckNull(condition);
-            Utils.CheckNull(content);
+            PublicHelper.CheckNull(condition);
+            PublicHelper.CheckNull(content);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
@@ -233,7 +233,7 @@ namespace Chloe.MySql
         }
         public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table, int limits)
         {
-            Utils.CheckNull(condition);
+            PublicHelper.CheckNull(condition);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 

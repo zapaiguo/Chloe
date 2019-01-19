@@ -20,8 +20,6 @@ namespace Chloe.SqlServer
         ISqlBuilder _sqlBuilder = new SqlBuilder();
         DbParamCollection _parameters = new DbParamCollection();
 
-        DbValueExpressionVisitor _valueExpressionVisitor;
-
         public static readonly Dictionary<string, IMethodHandler> MethodHandlers = GetMethodHandlers();
         static readonly Dictionary<string, Action<DbAggregateExpression, SqlGenerator>> AggregateHandlers = InitAggregateHandlers();
         static readonly Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> BinaryWithMethodHandlers = InitBinaryWithMethodHandlers();
@@ -84,17 +82,6 @@ namespace Chloe.SqlServer
 
         public ISqlBuilder SqlBuilder { get { return this._sqlBuilder; } }
         public List<DbParam> Parameters { get { return this._parameters.ToParameterList(); } }
-
-        DbValueExpressionVisitor ValueExpressionVisitor
-        {
-            get
-            {
-                if (this._valueExpressionVisitor == null)
-                    this._valueExpressionVisitor = new DbValueExpressionVisitor(this);
-
-                return this._valueExpressionVisitor;
-            }
-        }
 
         public static SqlGenerator CreateInstance()
         {
@@ -524,7 +511,7 @@ namespace Chloe.SqlServer
 
                 DbExpression valExp = DbExpressionExtension.StripInvalidConvert(item.Value);
                 AmendDbInfo(item.Key, valExp);
-                valExp.Accept(this.ValueExpressionVisitor);
+                DbValueExpressionTransformer.Transform(valExp).Accept(this);
                 separator = ",";
             }
 
@@ -551,7 +538,7 @@ namespace Chloe.SqlServer
 
                 DbExpression valExp = DbExpressionExtension.StripInvalidConvert(item.Value);
                 AmendDbInfo(item.Key, valExp);
-                valExp.Accept(this.ValueExpressionVisitor);
+                DbValueExpressionTransformer.Transform(valExp).Accept(this);
             }
 
             this.BuildWhereState(exp.Condition);
@@ -849,7 +836,7 @@ namespace Chloe.SqlServer
         }
         internal void AppendColumnSegment(DbColumnSegment seg)
         {
-            seg.Body.Accept(this.ValueExpressionVisitor);
+            DbValueExpressionTransformer.Transform(seg.Body).Accept(this);
             this._sqlBuilder.Append(" AS ");
             this.QuoteName(seg.Alias);
         }
@@ -945,7 +932,7 @@ namespace Chloe.SqlServer
                 if (i > 0)
                     this._sqlBuilder.Append(",");
 
-                column.Body.Accept(this.ValueExpressionVisitor);
+                DbValueExpressionTransformer.Transform(column.Body).Accept(this);
                 this._sqlBuilder.Append(" AS ");
                 this.QuoteName(column.Alias);
             }
