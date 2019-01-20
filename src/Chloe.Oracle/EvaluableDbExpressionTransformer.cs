@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Chloe.Oracle
 {
-    public class EvaluableDbExpressionTransformer : EvaluableDbExpressionTransformerBase
+    class EvaluableDbExpressionTransformer : EvaluableDbExpressionTransformerBase
     {
         static EvaluableDbExpressionTransformer _transformer = new EvaluableDbExpressionTransformer();
 

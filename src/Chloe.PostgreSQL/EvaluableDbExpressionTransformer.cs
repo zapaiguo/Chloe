@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Chloe.PostgreSQL
 {
-    public class EvaluableDbExpressionTransformer : EvaluableDbExpressionTransformerBase
+    class EvaluableDbExpressionTransformer : EvaluableDbExpressionTransformerBase
     {
         static EvaluableDbExpressionTransformer _transformer = new EvaluableDbExpressionTransformer();
 
