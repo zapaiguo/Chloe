@@ -34,49 +34,6 @@ namespace Chloe.SqlServer
             this._databaseProvider = new DatabaseProvider(dbConnectionFactory, this);
         }
 
-        static Dictionary<string, SysType> SysTypes;
-
-        static MsSqlContext()
-        {
-            List<SysType> sysTypes = new List<SysType>();
-            sysTypes.Add(new SysType<Byte[]>("image"));
-            sysTypes.Add(new SysType<string>("text"));
-            sysTypes.Add(new SysType<Guid>("uniqueidentifier"));
-            sysTypes.Add(new SysType<DateTime>("date"));
-            sysTypes.Add(new SysType<TimeSpan>("time"));
-            sysTypes.Add(new SysType<DateTime>("datetime2"));
-            //sysTypes.Add(new SysType<string>("datetimeoffset"));
-            sysTypes.Add(new SysType<byte>("tinyint"));
-            sysTypes.Add(new SysType<Int16>("smallint"));
-            sysTypes.Add(new SysType<int>("int"));
-            sysTypes.Add(new SysType<DateTime>("smalldatetime"));
-            sysTypes.Add(new SysType<float>("real"));
-            sysTypes.Add(new SysType<decimal>("money"));
-            sysTypes.Add(new SysType<DateTime>("datetime"));
-            sysTypes.Add(new SysType<double>("float"));
-            //sysTypes.Add(new SysType<string>("sql_variant"));
-            sysTypes.Add(new SysType<string>("ntext"));
-            sysTypes.Add(new SysType<bool>("bit"));
-            sysTypes.Add(new SysType<decimal>("decimal"));
-            sysTypes.Add(new SysType<decimal>("numeric"));
-            sysTypes.Add(new SysType<decimal>("smallmoney"));
-            sysTypes.Add(new SysType<long>("bigint"));
-            //sysTypes.Add(new SysType<string>("hierarchyid"));
-            //sysTypes.Add(new SysType<string>("geometry"));
-            //sysTypes.Add(new SysType<string>("geography"));
-            sysTypes.Add(new SysType<Byte[]>("varbinary"));
-            sysTypes.Add(new SysType<string>("varchar"));
-            sysTypes.Add(new SysType<Byte[]>("binary"));
-            sysTypes.Add(new SysType<string>("char"));
-            sysTypes.Add(new SysType<Byte[]>("timestamp"));
-            sysTypes.Add(new SysType<string>("nvarchar"));
-            sysTypes.Add(new SysType<string>("nchar"));
-            sysTypes.Add(new SysType<string>("xml"));
-            sysTypes.Add(new SysType<string>("sysname"));
-
-            SysTypes = sysTypes.ToDictionary(a => a.TypeName, a => a);
-        }
-
         /// <summary>
         /// 分页模式。
         /// </summary>
@@ -429,9 +386,7 @@ namespace Chloe.SqlServer
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            DataTable dtToWrite = ToSqlBulkCopyDataTable(entities, typeDescriptor, table ?? typeDescriptor.Table.Name);
-
-            SqlBulkCopy sbc = null;
+            DataTable dtToWrite = ConvertToSqlBulkCopyDataTable(entities, typeDescriptor);
 
             bool shouldCloseConnection = false;
             SqlConnection conn = this.Session.CurrentConnection as SqlConnection;
@@ -447,10 +402,16 @@ namespace Chloe.SqlServer
                 if (keepIdentity)
                     sqlBulkCopyOptions = SqlBulkCopyOptions.KeepIdentity | sqlBulkCopyOptions;
 
-                sbc = new SqlBulkCopy(conn, sqlBulkCopyOptions, externalTransaction);
+                SqlBulkCopy sbc = new SqlBulkCopy(conn, sqlBulkCopyOptions, externalTransaction);
 
                 using (sbc)
                 {
+                    for (int i = 0; i < dtToWrite.Columns.Count; i++)
+                    {
+                        var column = dtToWrite.Columns[i];
+                        sbc.ColumnMappings.Add(column.ColumnName, column.ColumnName);
+                    }
+
                     if (batchSize != null)
                         sbc.BatchSize = batchSize.Value;
 
@@ -479,65 +440,34 @@ namespace Chloe.SqlServer
             }
         }
 
-        DataTable ToSqlBulkCopyDataTable<TModel>(List<TModel> modelList, TypeDescriptor typeDescriptor, string tableName)
+        DataTable ConvertToSqlBulkCopyDataTable<TModel>(List<TModel> modelList, TypeDescriptor typeDescriptor)
         {
             DataTable dt = new DataTable();
 
-            List<SysColumn> columns = GetTableColumns(tableName);
-            List<ColumnMapping> columnMappings = new List<ColumnMapping>();
-
             var mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.ToList();
-            for (int i = 0; i < columns.Count; i++)
+
+            for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
             {
-                var column = columns[i];
-                PropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors.Find(a => string.Equals(a.Column.Name, column.Name));
-                if (mappingPropertyDescriptor == null)
-                    mappingPropertyDescriptor = mappingPropertyDescriptors.Find(a => string.Equals(a.Column.Name, column.Name, StringComparison.OrdinalIgnoreCase));
+                PropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
 
-                ColumnMapping columnMapping = new ColumnMapping(column);
-                Type dataType;
-                if (mappingPropertyDescriptor == null)
-                {
-                    /*
-                     * 由于 SqlBulkCopy 要求传入的列必须与表列一一对应，因此，如果 model 中没有与列对应的属性，则使用列数据类型的默认值
-                     */
+                Type dataType = mappingPropertyDescriptor.PropertyType.GetUnderlyingType();
+                if (dataType.IsEnum)
+                    dataType = Enum.GetUnderlyingType(dataType);
 
-                    SysType sysType = GetSysTypeByTypeName(column.TypeName);
-                    columnMapping.DefaultValue = column.IsNullable ? null : sysType.DefaultValue;
-                    dataType = sysType.CSharpType;
-                }
-                else
-                {
-                    columnMapping.MapMember = mappingPropertyDescriptor.Property;
-                    dataType = mappingPropertyDescriptor.PropertyType.GetUnderlyingType();
-                    if (dataType.IsEnum)
-                        dataType = Enum.GetUnderlyingType(dataType);
-                }
-
-                columnMappings.Add(columnMapping);
-                dt.Columns.Add(new DataColumn(column.Name, dataType));
+                dt.Columns.Add(new DataColumn(mappingPropertyDescriptor.Column.Name, dataType));
             }
 
             foreach (var model in modelList)
             {
                 DataRow dr = dt.NewRow();
-                for (int i = 0; i < columnMappings.Count; i++)
+                for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
                 {
-                    ColumnMapping columnMapping = columnMappings[i];
-                    MemberInfo member = columnMapping.MapMember;
-                    object value = null;
-                    if (member == null)
+                    PropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
+                    object value = mappingPropertyDescriptor.Property.GetMemberValue(model);
+                    if (mappingPropertyDescriptor.PropertyType.GetUnderlyingType().IsEnum)
                     {
-                        value = columnMapping.DefaultValue;
-                    }
-                    else
-                    {
-                        value = member.GetMemberValue(model);
-                        if (member.GetMemberType().GetUnderlyingType().IsEnum)
-                        {
-                            if (value != null)
-                                value = Convert.ChangeType(value, Enum.GetUnderlyingType(value.GetType()));
-                        }
+                        if (value != null)
+                            value = Convert.ChangeType(value, Enum.GetUnderlyingType(value.GetType()));
                     }
 
                     dr[i] = value ?? DBNull.Value;
@@ -548,31 +478,6 @@ namespace Chloe.SqlServer
 
             return dt;
         }
-        List<SysColumn> GetTableColumns(string tableName)
-        {
-            string sql = "select syscolumns.name,syscolumns.colorder,syscolumns.isnullable,systypes.xusertype,systypes.name as typename from syscolumns inner join systypes on syscolumns.xusertype=systypes.xusertype inner join sysobjects on syscolumns.id = sysobjects.id where sysobjects.xtype = 'U' and sysobjects.name = @TableName order by syscolumns.colid asc";
-
-            List<SysColumn> columns = new List<SysColumn>();
-
-            using (var reader = this.Session.ExecuteReader(sql, new DbParam("@TableName", tableName)))
-            {
-                while (reader.Read())
-                {
-                    SysColumn column = new SysColumn();
-                    column.Name = GetValue<string>(reader, "name");
-                    column.ColOrder = GetValue<int>(reader, "colorder");
-                    column.XUserType = GetValue<int>(reader, "xusertype");
-                    column.TypeName = GetValue<string>(reader, "typename");
-                    column.IsNullable = GetValue<bool>(reader, "isnullable");
-
-                    columns.Add(column);
-                }
-
-                reader.Close();
-            }
-
-            return columns;
-        }
 
         int ExecuteSqlCommand(DbExpression e)
         {
@@ -582,44 +487,6 @@ namespace Chloe.SqlServer
 
             int r = this.Session.ExecuteNonQuery(cmdText, CommandType.Text, parameters.ToArray());
             return r;
-        }
-
-        class SysType<TCSharpType> : SysType
-        {
-            public SysType(string typeName)
-            {
-                this.TypeName = typeName;
-                this.CSharpType = typeof(TCSharpType);
-                this.DefaultValue = default(TCSharpType);
-            }
-        }
-        class SysType
-        {
-            public string TypeName { get; set; }
-            public Type CSharpType { get; set; }
-            public object DefaultValue { get; set; }
-        }
-        class SysColumn
-        {
-            public string Name { get; set; }
-            public int ColOrder { get; set; }
-            public int XUserType { get; set; }
-            public string TypeName { get; set; }
-            public bool IsNullable { get; set; }
-            public override string ToString()
-            {
-                return this.Name;
-            }
-        }
-        class ColumnMapping
-        {
-            public ColumnMapping(SysColumn column)
-            {
-                this.Column = column;
-            }
-            public SysColumn Column { get; set; }
-            public MemberInfo MapMember { get; set; }
-            public object DefaultValue { get; set; }
         }
     }
 }
