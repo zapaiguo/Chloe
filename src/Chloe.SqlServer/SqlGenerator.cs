@@ -27,19 +27,8 @@ namespace Chloe.SqlServer
         public static readonly Dictionary<Type, Type> NumericTypes;
         static readonly List<string> CacheParameterNames;
 
-        public static readonly ReadOnlyCollection<DbExpressionType> SafeDbExpressionTypes;
-
         static SqlGenerator()
         {
-            List<DbExpressionType> safeDbExpressionTypes = new List<DbExpressionType>();
-            safeDbExpressionTypes.Add(DbExpressionType.MemberAccess);
-            safeDbExpressionTypes.Add(DbExpressionType.ColumnAccess);
-            safeDbExpressionTypes.Add(DbExpressionType.Constant);
-            safeDbExpressionTypes.Add(DbExpressionType.Parameter);
-            safeDbExpressionTypes.Add(DbExpressionType.Convert);
-            SafeDbExpressionTypes = safeDbExpressionTypes.AsReadOnly();
-
-
             Dictionary<Type, string> castTypeMap = new Dictionary<Type, string>();
             castTypeMap.Add(typeof(string), "NVARCHAR(MAX)");
             castTypeMap.Add(typeof(byte), "TINYINT");

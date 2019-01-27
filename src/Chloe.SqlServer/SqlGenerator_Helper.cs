@@ -84,17 +84,7 @@ namespace Chloe.SqlServer
 
         static DbExpression EnsureDbExpressionReturnCSharpBoolean(DbExpression exp)
         {
-            if (exp.Type != UtilConstants.TypeOfBoolean && exp.Type != UtilConstants.TypeOfBoolean_Nullable)
-                return exp;
-
-            if (SafeDbExpressionTypes.Contains(exp.NodeType))
-            {
-                return exp;
-            }
-
-            //将且认为不符合上述条件的都是诸如 a.Id>1,a.Name=="name" 等不能作为 bool 返回值的表达式
-            //构建 case when 
-            return ConstructReturnCSharpBooleanCaseWhenExpression(exp);
+            return DbValueExpressionTransformer.Transform(exp);
         }
         public static DbCaseWhenExpression ConstructReturnCSharpBooleanCaseWhenExpression(DbExpression exp)
         {
