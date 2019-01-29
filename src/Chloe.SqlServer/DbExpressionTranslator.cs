@@ -12,9 +12,9 @@ namespace Chloe.SqlServer
     class DbExpressionTranslator : IDbExpressionTranslator
     {
         public static readonly DbExpressionTranslator Instance = new DbExpressionTranslator();
-        public string Translate(DbExpression expression, out List<DbParam> parameters)
+        public virtual string Translate(DbExpression expression, out List<DbParam> parameters)
         {
-            SqlGenerator generator = SqlGenerator.CreateInstance();
+            SqlGenerator generator = this.CreateSqlGenerator();
             expression = EvaluableDbExpressionTransformer.Transform(expression);
             expression.Accept(generator);
 
@@ -23,21 +23,18 @@ namespace Chloe.SqlServer
 
             return sql;
         }
+        public virtual SqlGenerator CreateSqlGenerator()
+        {
+            return SqlGenerator.CreateInstance();
+        }
     }
 
-    class DbExpressionTranslator_OffsetFetch : IDbExpressionTranslator
+    class DbExpressionTranslator_OffsetFetch : DbExpressionTranslator
     {
-        public static readonly DbExpressionTranslator_OffsetFetch Instance = new DbExpressionTranslator_OffsetFetch();
-        public string Translate(DbExpression expression, out List<DbParam> parameters)
+        public static readonly new DbExpressionTranslator_OffsetFetch Instance = new DbExpressionTranslator_OffsetFetch();
+        public override SqlGenerator CreateSqlGenerator()
         {
-            SqlGenerator_OffsetFetch generator = new SqlGenerator_OffsetFetch();
-            expression = EvaluableDbExpressionTransformer.Transform(expression);
-            expression.Accept(generator);
-
-            parameters = generator.Parameters;
-            string sql = generator.SqlBuilder.ToSql();
-
-            return sql;
+            return new SqlGenerator_OffsetFetch();
         }
     }
 }

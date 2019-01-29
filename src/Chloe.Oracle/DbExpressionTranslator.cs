@@ -12,9 +12,9 @@ namespace Chloe.Oracle
     class DbExpressionTranslator : IDbExpressionTranslator
     {
         public static readonly DbExpressionTranslator Instance = new DbExpressionTranslator();
-        public string Translate(DbExpression expression, out List<DbParam> parameters)
+        public virtual string Translate(DbExpression expression, out List<DbParam> parameters)
         {
-            SqlGenerator generator = SqlGenerator.CreateInstance();
+            SqlGenerator generator = this.CreateSqlGenerator();
             expression = EvaluableDbExpressionTransformer.Transform(expression);
             expression.Accept(generator);
 
@@ -23,21 +23,18 @@ namespace Chloe.Oracle
 
             return sql;
         }
+        public virtual SqlGenerator CreateSqlGenerator()
+        {
+            return SqlGenerator.CreateInstance();
+        }
     }
 
-    class DbExpressionTranslator_ConvertToUppercase : IDbExpressionTranslator
+    class DbExpressionTranslator_ConvertToUppercase : DbExpressionTranslator
     {
-        public static readonly DbExpressionTranslator_ConvertToUppercase Instance = new DbExpressionTranslator_ConvertToUppercase();
-        public string Translate(DbExpression expression, out List<DbParam> parameters)
+        public static readonly new DbExpressionTranslator_ConvertToUppercase Instance = new DbExpressionTranslator_ConvertToUppercase();
+        public override SqlGenerator CreateSqlGenerator()
         {
-            SqlGenerator_ConvertToUppercase generator = new SqlGenerator_ConvertToUppercase();
-            expression = EvaluableDbExpressionTransformer.Transform(expression);
-            expression.Accept(generator);
-
-            parameters = generator.Parameters;
-            string sql = generator.SqlBuilder.ToSql();
-
-            return sql;
+            return new SqlGenerator_ConvertToUppercase();
         }
     }
 }
