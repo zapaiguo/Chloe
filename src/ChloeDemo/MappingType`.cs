@@ -41,16 +41,16 @@ namespace Chloe.Infrastructure
         {
             var value = reader.GetValue(ordinal);
 
-            if (value is DBNull)
+            if (DBNull.Value == value)
                 return null;
 
             //数据库字段类型与属性类型不一致，则转换类型
-            if (value.GetType() != this.Type)
+            if (value is T)
             {
-                value = Convert.ChangeType(value, this.Type);
+                return value;
             }
 
-            return value;
+            return Convert.ChangeType(value, this.Type);
         }
     }
 }

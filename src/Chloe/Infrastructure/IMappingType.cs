@@ -16,6 +16,9 @@ namespace Chloe.Infrastructure
 
     public abstract class MappingTypeBase : IMappingType
     {
+        protected MappingTypeBase()
+        {
+        }
         public abstract Type Type { get; }
         public abstract DbType DbType { get; }
         public virtual IDbDataParameter CreateDataParameter(IDbCommand cmd, DbParam param)
@@ -90,10 +93,19 @@ namespace Chloe.Infrastructure
 
         public virtual object ReadFromDataReader(IDataReader reader, int ordinal)
         {
-            if (reader.IsDBNull(ordinal))
+            var value = reader.GetValue(ordinal);
+
+            if (value is DBNull)
                 return null;
 
-            return reader.GetValue(ordinal);
+            //数据库字段类型与属性类型不一致，则转换类型
+            Type valueType = value.GetType();
+            if (valueType == this.Type || this.Type.IsAssignableFrom(valueType))
+            {
+                return value;
+            }
+
+            return Convert.ChangeType(value, this.Type);
         }
     }
 }
