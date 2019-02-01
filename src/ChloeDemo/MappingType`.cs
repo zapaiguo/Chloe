@@ -6,33 +6,12 @@ using System.Text;
 
 namespace Chloe.Infrastructure
 {
-    public class MappingType<T> : MappingTypeBase
+    public class MappingType<T> : MappingType
     {
-        DbType _dbType;
-        Type _type;
-        public MappingType()
+        public MappingType(DbType dbType) : base(typeof(T), dbType)
         {
-            this._type = typeof(T);
         }
-        public MappingType(DbType dbType)
-        {
-            this._dbType = dbType;
-            this._type = typeof(T);
-        }
-        public override Type Type
-        {
-            get
-            {
-                return this._type;
-            }
-        }
-        public override DbType DbType
-        {
-            get
-            {
-                return this._dbType;
-            }
-        }
+
         public override IDbDataParameter CreateDataParameter(IDbCommand cmd, DbParam param)
         {
             return base.CreateDataParameter(cmd, param);
@@ -41,7 +20,7 @@ namespace Chloe.Infrastructure
         {
             var value = reader.GetValue(ordinal);
 
-            if (DBNull.Value == value)
+            if (DBNull.Value == value || value == null)
                 return null;
 
             //数据库字段类型与属性类型不一致，则转换类型

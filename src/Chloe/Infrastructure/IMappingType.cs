@@ -14,13 +14,18 @@ namespace Chloe.Infrastructure
         object ReadFromDataReader(IDataReader reader, int ordinal);
     }
 
-    public abstract class MappingTypeBase : IMappingType
+    public class MappingType : IMappingType
     {
-        protected MappingTypeBase()
+        public MappingType()
         {
         }
-        public abstract Type Type { get; }
-        public abstract DbType DbType { get; }
+        public MappingType(Type type, DbType dbType)
+        {
+            this.Type = type;
+            this.DbType = dbType;
+        }
+        public virtual Type Type { get; private set; }
+        public virtual DbType DbType { get; private set; }
         public virtual IDbDataParameter CreateDataParameter(IDbCommand cmd, DbParam param)
         {
             IDbDataParameter parameter = cmd.CreateParameter();
@@ -95,12 +100,12 @@ namespace Chloe.Infrastructure
         {
             var value = reader.GetValue(ordinal);
 
-            if (value is DBNull)
+            if (DBNull.Value == value || value == null)
                 return null;
 
             //数据库字段类型与属性类型不一致，则转换类型
             Type valueType = value.GetType();
-            if (valueType == this.Type || this.Type.IsAssignableFrom(valueType))
+            if (valueType == this.Type || (this.Type.IsClass && this.Type.IsAssignableFrom(valueType)))
             {
                 return value;
             }
