@@ -54,7 +54,7 @@ namespace Chloe.Oracle
             object value = param.Value;
 
             object dicVal;
-            if (param.Direction != ParamDirection.Input || !this._dbParams.TryGetValue(value, out dicVal))
+            if (!this._dbParams.TryGetValue(value, out dicVal))
             {
                 this._dbParams.Add(value, param);
                 this.Count++;
