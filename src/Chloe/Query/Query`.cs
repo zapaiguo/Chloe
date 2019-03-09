@@ -307,7 +307,7 @@ namespace Chloe.Query
             return iterator.Single();
         }
         /// <summary>
-        /// 类<see cref="Chloe.Query.Visitors.GeneralExpressionVisitor"/>有引用该方法[反射]
+        /// 类<see cref="Chloe.Query.Visitors.GeneralExpressionParser"/>有引用该方法[反射]
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="method"></param>
