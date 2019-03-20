@@ -204,33 +204,12 @@ namespace Chloe.Query.Internals
                 members.AddRange(properties);
                 members.AddRange(fields);
 
+                TypeDescriptor typeDescriptor = EntityTypeContainer.TryGetDescriptor(type);
+
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
                     string name = reader.GetName(i);
-                    MemberInfo mapMember = null;
-
-                    foreach (MemberInfo member in members)
-                    {
-                        ColumnAttribute columnAttribute = member.GetCustomAttribute<ColumnAttribute>();
-                        if (columnAttribute == null || string.IsNullOrEmpty(columnAttribute.Name))
-                            continue;
-
-                        if (!string.Equals(columnAttribute.Name, name, StringComparison.OrdinalIgnoreCase))
-                            continue;
-
-                        mapMember = member;
-                        break;
-                    }
-
-                    if (mapMember == null)
-                    {
-                        mapMember = members.Find(a => a.Name == name);
-                    }
-
-                    if (mapMember == null)
-                    {
-                        mapMember = members.Find(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
-                    }
+                    MemberInfo mapMember = TryGetMapMember(members, name, typeDescriptor);
 
                     if (mapMember == null)
                         continue;
@@ -245,6 +224,51 @@ namespace Chloe.Query.Internals
 
                 return memberSetters;
             }
+
+            static MemberInfo TryGetMapMember(List<MemberInfo> members, string readerName, TypeDescriptor typeDescriptor)
+            {
+                MemberInfo mapMember = null;
+
+                foreach (MemberInfo member in members)
+                {
+                    string columnName = null;
+                    if (typeDescriptor != null)
+                    {
+                        PropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(member);
+                        if (propertyDescriptor != null)
+                            columnName = propertyDescriptor.Column.Name;
+                    }
+
+                    if (string.IsNullOrEmpty(columnName))
+                    {
+                        ColumnAttribute columnAttribute = member.GetCustomAttribute<ColumnAttribute>();
+                        if (columnAttribute != null)
+                            columnName = columnAttribute.Name;
+                    }
+
+                    if (string.IsNullOrEmpty(columnName))
+                        continue;
+
+                    if (!string.Equals(columnName, readerName, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    mapMember = member;
+                    break;
+                }
+
+                if (mapMember == null)
+                {
+                    mapMember = members.Find(a => a.Name == readerName);
+                }
+
+                if (mapMember == null)
+                {
+                    mapMember = members.Find(a => string.Equals(a.Name, readerName, StringComparison.OrdinalIgnoreCase));
+                }
+
+                return mapMember;
+            }
+
             static CacheInfo TryGetCacheInfoFromList(List<CacheInfo> caches, IDataReader reader)
             {
                 CacheInfo cache = null;

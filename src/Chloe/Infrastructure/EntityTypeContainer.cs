@@ -31,6 +31,16 @@ namespace Chloe.Infrastructure
             return instance;
         }
 
+        public static TypeDescriptor TryGetDescriptor(Type type)
+        {
+            Utils.CheckNull(type, nameof(type));
+
+            TypeDescriptor instance;
+            InstanceCache.TryGetValue(type, out instance);
+
+            return instance;
+        }
+
         /// <summary>
         /// Fluent Mapping
         /// </summary>
