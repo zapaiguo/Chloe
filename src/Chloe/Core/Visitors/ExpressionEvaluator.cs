@@ -152,7 +152,7 @@ namespace Chloe.Core.Visitors
         }
         protected override object VisitNewArray(NewArrayExpression exp)
         {
-            Array arr = Array.CreateInstance(exp.Type, exp.Expressions.Count);
+            Array arr = Array.CreateInstance(exp.Type.GetElementType(), exp.Expressions.Count);
             for (int i = 0; i < exp.Expressions.Count; i++)
             {
                 var e = exp.Expressions[i];

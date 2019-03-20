@@ -339,6 +339,12 @@ namespace Chloe.Core.Visitors
             return dbExp;
         }
 
+        protected override DbExpression VisitNewArray(NewArrayExpression exp)
+        {
+            object arr = ExpressionEvaluator.Evaluate(exp);
+            return this.Visit(ExpressionExtension.MakeWrapperAccess(arr, exp.Type));
+        }
+
         // 处理 a.XX==XXX 其中 a.XX.Type 为 bool
         DbExpression VisitBinary_Equal_Boolean(BinaryExpression exp)
         {
