@@ -480,7 +480,7 @@ namespace ChloeDemo
 
         public static void DoWithTransactionEx()
         {
-            context.DoWithTransaction(() =>
+            context.UseTransaction(() =>
             {
                 context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
                 context.Delete<User>(a => a.Id == 1024);
@@ -490,10 +490,9 @@ namespace ChloeDemo
         }
         public static void DoWithTransaction()
         {
+            context.Session.BeginTransaction();
             try
             {
-                context.Session.BeginTransaction();
-
                 /* do some things here */
                 context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
                 context.Delete<User>(a => a.Id == 1024);
