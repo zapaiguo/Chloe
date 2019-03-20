@@ -26,6 +26,7 @@
 
   </metadata>
 
+  
   <files>
 	<file src="..\Chloe.Extension\bin\Release\net40\Chloe.Extension.dll" target="lib\net40" />
     <file src="..\Chloe.Extension\bin\Release\net40\Chloe.Extension.xml" target="lib\net40" />
