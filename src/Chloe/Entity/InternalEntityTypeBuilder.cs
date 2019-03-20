@@ -39,12 +39,12 @@ namespace Chloe.Entity
             var propertyInfos = this.EntityType.Properties.Select(a => a.Property).ToList();
             foreach (PropertyInfo propertyInfo in propertyInfos)
             {
-                var propertyAttributes = propertyInfo.GetCustomAttributes();
                 IEntityPropertyBuilder propertyBuilder = this.Property(propertyInfo.Name);
 
                 propertyBuilder.IsPrimaryKey(false);
                 propertyBuilder.IsAutoIncrement(false);
 
+                var propertyAttributes = propertyInfo.GetCustomAttributes();
                 foreach (Attribute propertyAttribute in propertyAttributes)
                 {
                     if (propertyAttribute is NotMappedAttribute)

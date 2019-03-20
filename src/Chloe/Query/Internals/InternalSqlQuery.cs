@@ -1,8 +1,10 @@
-﻿using Chloe.Core;
+﻿using Chloe.Annotations;
+using Chloe.Core;
 using Chloe.Descriptors;
 using Chloe.Infrastructure;
 using Chloe.Mapper;
 using Chloe.Query.Mapping;
+using Chloe.InternalExtensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -205,15 +207,35 @@ namespace Chloe.Query.Internals
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
                     string name = reader.GetName(i);
-                    var member = members.Find(a => a.Name == name);
-                    if (member == null)
+                    MemberInfo mapMember = null;
+
+                    foreach (MemberInfo member in members)
                     {
-                        member = members.Find(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
-                        if (member == null)
+                        ColumnAttribute columnAttribute = member.GetCustomAttribute<ColumnAttribute>();
+                        if (columnAttribute == null || string.IsNullOrEmpty(columnAttribute.Name))
                             continue;
+
+                        if (!string.Equals(columnAttribute.Name, name, StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        mapMember = member;
+                        break;
                     }
 
-                    IMRM mMapper = mapper.TryGetMappingMemberMapper(member);
+                    if (mapMember == null)
+                    {
+                        mapMember = members.Find(a => a.Name == name);
+                    }
+
+                    if (mapMember == null)
+                    {
+                        mapMember = members.Find(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
+                    }
+
+                    if (mapMember == null)
+                        continue;
+
+                    IMRM mMapper = mapper.TryGetMappingMemberMapper(mapMember);
                     if (mMapper == null)
                         continue;
 
