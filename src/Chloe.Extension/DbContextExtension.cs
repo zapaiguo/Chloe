@@ -22,6 +22,42 @@ namespace Chloe
         }
 
         /// <summary>
+        /// dbContext.Update&lt;User&gt;(user, a =&gt; a.Id == 1)
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="dbContext"></param>
+        /// <param name="entity"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public static int Update<TEntity>(this IDbContext dbContext, TEntity entity, Expression<Func<TEntity, bool>> condition)
+        {
+            PublicHelper.CheckNull(dbContext);
+            PublicHelper.CheckNull(entity);
+            PublicHelper.CheckNull(condition);
+
+            Type entityType = typeof(TEntity);
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entityType);
+
+            List<MemberBinding> bindings = new List<MemberBinding>();
+
+            ConstantExpression entityConstantExp = Expression.Constant(entity);
+            foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            {
+                if (propertyDescriptor.IsPrimaryKey || propertyDescriptor.IsAutoIncrement)
+                {
+                    continue;
+                }
+
+                Expression entityMemberAccess = Expression.MakeMemberAccess(entityConstantExp, propertyDescriptor.Property);
+                MemberAssignment bind = Expression.Bind(propertyDescriptor.Property, entityMemberAccess);
+
+                bindings.Add(bind);
+            }
+
+            return UpdateOnly(dbContext, condition, bindings);
+        }
+
+        /// <summary>
         /// dbContext.UpdateOnly&lt;User&gt;(user, a =&gt; new { a.Name, a.Age })
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
@@ -56,7 +92,7 @@ namespace Chloe
             if (fields.Length == 0)
                 throw new ArgumentException("fields");
 
-            Type entityType = entity.GetType();
+            Type entityType = typeof(TEntity);
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entityType);
 
             List<MemberBinding> bindings = new List<MemberBinding>();
@@ -121,22 +157,11 @@ namespace Chloe
         }
         public static void DoWithTransaction(this IDbContext dbContext, Action action)
         {
-            /*
-             * dbContext.DoWithTransaction(() =>
-             * {
-             *     context.Insert()...
-             *     context.Update()...
-             *     context.Delete()...
-             * });
-             */
-
-            dbContext.Session.BeginTransaction();
-            ExecuteAction(dbContext, action);
+            dbContext.UseTransaction(action);
         }
         public static void DoWithTransaction(this IDbContext dbContext, Action action, IsolationLevel il)
         {
-            dbContext.Session.BeginTransaction(il);
-            ExecuteAction(dbContext, action);
+            dbContext.UseTransaction(action, il);
         }
         public static T DoWithTransaction<T>(this IDbContext dbContext, Func<T> action)
         {

@@ -171,7 +171,7 @@ namespace Chloe
         {
             Utils.CheckNull(entity);
 
-            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
             Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
 
@@ -331,7 +331,7 @@ namespace Chloe
         {
             Utils.CheckNull(entity);
 
-            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
             Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
@@ -428,7 +428,7 @@ namespace Chloe
         {
             Utils.CheckNull(entity);
 
-            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
             Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>();
@@ -472,6 +472,42 @@ namespace Chloe
         {
             Expression<Func<TEntity, bool>> condition = BuildCondition<TEntity>(key);
             return this.Delete<TEntity>(condition, table);
+        }
+
+        public void UseTransaction(Action action)
+        {
+            /*
+             * dbContext.UseTransaction(() =>
+             * {
+             *     dbContext.Insert()...
+             *     dbContext.Update()...
+             *     dbContext.Delete()...
+             * });
+             */
+
+            Utils.CheckNull(action);
+            this.Session.BeginTransaction();
+            ExecuteAction(this, action);
+        }
+        public void UseTransaction(Action action, IsolationLevel il)
+        {
+            Utils.CheckNull(action);
+            this.Session.BeginTransaction(il);
+            ExecuteAction(this, action);
+        }
+        static void ExecuteAction(IDbContext dbContext, Action action)
+        {
+            try
+            {
+                action();
+                dbContext.Session.CommitTransaction();
+            }
+            catch
+            {
+                if (dbContext.Session.IsInTransaction)
+                    dbContext.Session.RollbackTransaction();
+                throw;
+            }
         }
 
 

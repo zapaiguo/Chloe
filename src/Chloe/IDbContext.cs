@@ -118,6 +118,9 @@ namespace Chloe
         /// <returns></returns>
         int DeleteByKey<TEntity>(object key, string table);
 
+        void UseTransaction(Action action);
+        void UseTransaction(Action action, IsolationLevel il);
+
         void TrackEntity(object entity);
     }
 }

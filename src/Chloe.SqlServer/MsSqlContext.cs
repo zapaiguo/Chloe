@@ -47,7 +47,7 @@ namespace Chloe.SqlServer
         {
             PublicHelper.CheckNull(entity);
 
-            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
             Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
 

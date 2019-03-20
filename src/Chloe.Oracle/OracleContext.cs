@@ -40,7 +40,7 @@ namespace Chloe.Oracle
         {
             PublicHelper.CheckNull(entity);
 
-            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
             List<PropertyDescriptor> outputColumns = new List<PropertyDescriptor>();
             Dictionary<PropertyDescriptor, DbExpression> insertColumns = new Dictionary<PropertyDescriptor, DbExpression>();
@@ -304,7 +304,7 @@ namespace Chloe.Oracle
         {
             PublicHelper.CheckNull(entity);
 
-            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entity.GetType());
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
             Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
