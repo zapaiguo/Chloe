@@ -161,5 +161,42 @@ namespace Chloe.Core.Visitors
 
             return arr;
         }
+        protected override object VisitMemberInit(MemberInitExpression exp)
+        {
+            object instance = this.Visit(exp.NewExpression);
+
+            for (int i = 0; i < exp.Bindings.Count; i++)
+            {
+                MemberBinding binding = exp.Bindings[i];
+
+                if (binding.BindingType != MemberBindingType.Assignment)
+                {
+                    throw new NotSupportedException();
+                }
+
+                MemberAssignment memberAssignment = (MemberAssignment)binding;
+                MemberInfo member = memberAssignment.Member;
+
+                member.SetMemberValue(instance, this.Visit(memberAssignment.Expression));
+            }
+
+            return instance;
+        }
+        protected override object VisitListInit(ListInitExpression exp)
+        {
+            object instance = this.Visit(exp.NewExpression);
+
+            for (int i = 0; i < exp.Initializers.Count; i++)
+            {
+                ElementInit initializer = exp.Initializers[i];
+
+                foreach (Expression argument in initializer.Arguments)
+                {
+                    initializer.AddMethod.Invoke(instance, this.Visit(argument));
+                }
+            }
+
+            return instance;
+        }
     }
 }

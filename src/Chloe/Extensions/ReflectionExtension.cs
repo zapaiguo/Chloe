@@ -49,6 +49,11 @@ namespace Chloe.InternalExtensions
             throw new ArgumentException();
         }
 
+        public static object Invoke(this MethodInfo method, object obj, params object[] parameters)
+        {
+            return method.Invoke(obj, parameters == null ? new object[0] : parameters.ToArray());
+        }
+
         public static MemberInfo AsReflectedMemberOf(this MemberInfo propertyOrField, Type type)
         {
             if (propertyOrField.ReflectedType != type)
