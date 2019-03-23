@@ -49,18 +49,23 @@ namespace Chloe.SqlServer
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
+            Dictionary<PropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
             Dictionary<PropertyDescriptor, DbExpression> insertColumns = new Dictionary<PropertyDescriptor, DbExpression>();
+            List<PropertyDescriptor> outputColumns = new List<PropertyDescriptor>();
             foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
-                if (propertyDescriptor.IsAutoIncrement)
+                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.IsTimestamp())
+                {
+                    outputColumns.Add(propertyDescriptor);
                     continue;
+                }
 
                 if (propertyDescriptor.HasSequence())
                 {
                     DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(propertyDescriptor);
                     insertColumns.Add(propertyDescriptor, getNextValueForSequenceExp);
+                    outputColumns.Add(propertyDescriptor);
                     continue;
                 }
 
@@ -90,11 +95,9 @@ namespace Chloe.SqlServer
                 insertExp.InsertColumns.Add(kv.Key.Column, kv.Value);
             }
 
-            List<PropertyDescriptor> outputColumns = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement || a.HasSequence()).ToList();
-
             if (outputColumns.Count == 0)
             {
-                this.ExecuteSqlCommand(insertExp);
+                this.ExecuteNonQuery(insertExp);
                 return entity;
             }
 
@@ -204,12 +207,12 @@ namespace Chloe.SqlServer
 
             if (keyPropertyDescriptor == null)
             {
-                this.ExecuteSqlCommand(insertExp);
+                this.ExecuteNonQuery(insertExp);
                 return keyVal; /* It will return null if an entity does not define primary key. */
             }
             if (!keyPropertyDescriptor.IsAutoIncrement && !keyPropertyDescriptor.HasSequence())
             {
-                this.ExecuteSqlCommand(insertExp);
+                this.ExecuteNonQuery(insertExp);
                 return keyVal;
             }
 
@@ -257,7 +260,8 @@ namespace Chloe.SqlServer
             var e = typeDescriptor.PropertyDescriptors as IEnumerable<PropertyDescriptor>;
             if (keepIdentity == false)
                 e = e.Where(a => a.IsAutoIncrement == false);
-            List<PropertyDescriptor> mappingPropertyDescriptors = e.ToList();
+
+            List<PropertyDescriptor> mappingPropertyDescriptors = e.Where(a => !a.IsTimestamp()).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -440,11 +444,130 @@ namespace Chloe.SqlServer
             }
         }
 
+        public override int Update<TEntity>(TEntity entity, string table)
+        {
+            PublicHelper.CheckNull(entity);
+
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
+            PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
+
+            Dictionary<PropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
+
+            IEntityState entityState = this.TryGetTrackedEntityState(entity);
+            Dictionary<PropertyDescriptor, DbExpression> updateColumns = new Dictionary<PropertyDescriptor, DbExpression>();
+            PropertyDescriptor timestampProperty = null;
+            object timestampValue = null;
+            foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            {
+                if (propertyDescriptor.IsPrimaryKey)
+                {
+                    keyValueMap[propertyDescriptor] = propertyDescriptor.GetValue(entity);
+                    continue;
+                }
+
+                if (propertyDescriptor.IsAutoIncrement)
+                    continue;
+
+                if (propertyDescriptor.IsTimestamp())
+                {
+                    timestampProperty = propertyDescriptor;
+                    timestampValue = propertyDescriptor.GetValue(entity);
+                    continue;
+                }
+
+                object val = propertyDescriptor.GetValue(entity);
+
+                if (entityState != null && !entityState.HasChanged(propertyDescriptor, val))
+                    continue;
+
+                DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType, propertyDescriptor.Column.DbType);
+                updateColumns.Add(propertyDescriptor, valExp);
+            }
+
+            if (updateColumns.Count == 0)
+                return 0;
+
+            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+
+            if (timestampValue != null)
+            {
+                keyValueMap[timestampProperty] = timestampValue;
+            }
+
+            DbExpression conditionExp = PrimaryKeyHelper.MakeCondition(keyValueMap, dbTable);
+            DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
+
+            foreach (var item in updateColumns)
+            {
+                e.UpdateColumns.Add(item.Key.Column, item.Value);
+            }
+
+            int rowsAffected = 0;
+            if (timestampValue == null)
+            {
+                rowsAffected = this.ExecuteNonQuery(e);
+                if (entityState != null)
+                    entityState.Refresh();
+                return rowsAffected;
+            }
+
+            List<Action<TEntity, IDataReader>> mappers = new List<Action<TEntity, IDataReader>>();
+            mappers.Add(GetMapper<TEntity>(timestampProperty, e.Returns.Count));
+            e.Returns.Add(timestampProperty.Column);
+
+            IDataReader dataReader = this.ExecuteReader(e);
+            using (dataReader)
+            {
+                while (dataReader.Read())
+                {
+                    rowsAffected++;
+                    foreach (var mapper in mappers)
+                    {
+                        mapper(entity, dataReader);
+                    }
+                }
+            }
+
+            return rowsAffected;
+        }
+
+        public override int Delete<TEntity>(TEntity entity, string table)
+        {
+            PublicHelper.CheckNull(entity);
+
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
+            PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
+
+            Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
+
+            foreach (PropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
+            {
+                object keyVal = keyPropertyDescriptor.GetValue(entity);
+                keyValueMap.Add(keyPropertyDescriptor, keyVal);
+            }
+
+            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+
+            PropertyDescriptor timestampProperty = typeDescriptor.PropertyDescriptors.Where(a => a.IsTimestamp()).FirstOrDefault();
+            if (timestampProperty != null)
+            {
+                object timestampValue = timestampProperty.GetValue(entity);
+                if (timestampValue != null)
+                {
+                    keyValueMap[timestampProperty] = timestampValue;
+                }
+            }
+
+            DbExpression conditionExp = PrimaryKeyHelper.MakeCondition(keyValueMap, dbTable);
+            DbDeleteExpression e = new DbDeleteExpression(dbTable, conditionExp);
+            return this.ExecuteNonQuery(e);
+        }
+
         DataTable ConvertToSqlBulkCopyDataTable<TModel>(List<TModel> modelList, TypeDescriptor typeDescriptor)
         {
             DataTable dt = new DataTable();
 
-            var mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.ToList();
+            var mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => !a.IsTimestamp()).ToList();
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
             {
@@ -479,14 +602,5 @@ namespace Chloe.SqlServer
             return dt;
         }
 
-        int ExecuteSqlCommand(DbExpression e)
-        {
-            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            List<DbParam> parameters;
-            string cmdText = translator.Translate(e, out parameters);
-
-            int r = this.Session.ExecuteNonQuery(cmdText, CommandType.Text, parameters.ToArray());
-            return r;
-        }
     }
 }

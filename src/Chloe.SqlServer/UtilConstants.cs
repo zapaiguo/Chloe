@@ -1,4 +1,5 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.SqlServer.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace Chloe.SqlServer
             MethodInfo method_Enumerable_Contains = (e.Body as MethodCallExpression).Method.GetGenericMethodDefinition();
             MethodInfo_Enumerable_Contains = method_Enumerable_Contains;
         }
+
+        public static readonly Type TypeOfTimestamp = typeof(TimestampAttribute);
 
         public static readonly Type TypeOfVoid = typeof(void);
         public static readonly Type TypeOfInt16 = typeof(Int16);

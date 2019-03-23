@@ -479,18 +479,7 @@ namespace Chloe.SqlServer
 
             this._sqlBuilder.Append(")");
 
-            if (exp.Returns.Count > 0)
-            {
-                this._sqlBuilder.Append(" output ");
-                separator = "";
-                foreach (DbColumn returnColumn in exp.Returns)
-                {
-                    this._sqlBuilder.Append(separator);
-                    this._sqlBuilder.Append("inserted.");
-                    this.QuoteName(returnColumn.Name);
-                    separator = ",";
-                }
-            }
+            this.AppendOutputClause(exp.Returns);
 
             this._sqlBuilder.Append(" VALUES(");
             separator = "";
@@ -530,6 +519,7 @@ namespace Chloe.SqlServer
                 DbValueExpressionTransformer.Transform(valExp).Accept(this);
             }
 
+            this.AppendOutputClause(exp.Returns);
             this.BuildWhereState(exp.Condition);
 
             return exp;
@@ -1125,6 +1115,22 @@ namespace Chloe.SqlServer
             }
 
             return false;
+        }
+
+        void AppendOutputClause(List<DbColumn> returns)
+        {
+            if (returns.Count > 0)
+            {
+                this._sqlBuilder.Append(" output ");
+                string separator = "";
+                foreach (DbColumn returnColumn in returns)
+                {
+                    this._sqlBuilder.Append(separator);
+                    this._sqlBuilder.Append("inserted.");
+                    this.QuoteName(returnColumn.Name);
+                    separator = ",";
+                }
+            }
         }
     }
 }
