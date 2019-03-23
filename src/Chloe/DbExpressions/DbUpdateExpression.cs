@@ -20,11 +20,11 @@ namespace Chloe.DbExpressions
 
             this._table = table;
             this._condition = condition;
-            this.UpdateColumns = new Dictionary<DbColumn, DbExpression>();
         }
 
         public DbTable Table { get { return this._table; } }
-        public Dictionary<DbColumn, DbExpression> UpdateColumns { get; private set; }
+        public Dictionary<DbColumn, DbExpression> UpdateColumns { get; private set; } = new Dictionary<DbColumn, DbExpression>();
+        public List<DbColumn> Returns { get; private set; } = new List<DbColumn>();
         public DbExpression Condition { get { return this._condition; } }
 
         public override T Accept<T>(DbExpressionVisitor<T> visitor)

@@ -86,7 +86,7 @@ namespace Chloe
         }
         public virtual TEntity QueryByKey<TEntity>(object key, string table, LockType @lock, bool tracking = false)
         {
-            Expression<Func<TEntity, bool>> condition = BuildCondition<TEntity>(key);
+            Expression<Func<TEntity, bool>> condition = PrimaryKeyHelper.BuildCondition<TEntity>(key);
             var q = this.Query<TEntity>(table, @lock).Where(condition);
 
             if (tracking)
@@ -173,7 +173,7 @@ namespace Chloe
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
+            Dictionary<PropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
             Dictionary<PropertyDescriptor, DbExpression> insertColumns = new Dictionary<PropertyDescriptor, DbExpression>();
             foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
@@ -210,7 +210,7 @@ namespace Chloe
             PropertyDescriptor autoIncrementPropertyDescriptor = typeDescriptor.AutoIncrement;
             if (autoIncrementPropertyDescriptor == null)
             {
-                this.ExecuteSqlCommand(e);
+                this.ExecuteNonQuery(e);
                 return entity;
             }
 
@@ -298,7 +298,7 @@ namespace Chloe
 
             if (keyPropertyDescriptor == null || !keyPropertyDescriptor.IsAutoIncrement)
             {
-                this.ExecuteSqlCommand(e);
+                this.ExecuteNonQuery(e);
                 return keyVal; /* It will return null if an entity does not define primary key. */
             }
 
@@ -334,7 +334,7 @@ namespace Chloe
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
+            Dictionary<PropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<PropertyDescriptor, DbExpression> updateColumns = new Dictionary<PropertyDescriptor, DbExpression>();
@@ -362,7 +362,7 @@ namespace Chloe
                 return 0;
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-            DbExpression conditionExp = MakeCondition(keyValueMap, dbTable);
+            DbExpression conditionExp = PrimaryKeyHelper.MakeCondition(keyValueMap, dbTable);
             DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 
             foreach (var item in updateColumns)
@@ -370,7 +370,7 @@ namespace Chloe
                 e.UpdateColumns.Add(item.Key.Column, item.Value);
             }
 
-            int ret = this.ExecuteSqlCommand(e);
+            int ret = this.ExecuteNonQuery(e);
             if (entityState != null)
                 entityState.Refresh();
             return ret;
@@ -417,7 +417,7 @@ namespace Chloe
             if (e.UpdateColumns.Count == 0)
                 return 0;
 
-            return this.ExecuteSqlCommand(e);
+            return this.ExecuteNonQuery(e);
         }
 
         public virtual int Delete<TEntity>(TEntity entity)
@@ -426,12 +426,12 @@ namespace Chloe
         }
         public virtual int Delete<TEntity>(TEntity entity, string table)
         {
-            Utils.CheckNull(entity);
+            PublicHelper.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>();
+            Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
 
             foreach (PropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
             {
@@ -440,9 +440,9 @@ namespace Chloe
             }
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-            DbExpression conditionExp = MakeCondition(keyValueMap, dbTable);
+            DbExpression conditionExp = PrimaryKeyHelper.MakeCondition(keyValueMap, dbTable);
             DbDeleteExpression e = new DbDeleteExpression(dbTable, conditionExp);
-            return this.ExecuteSqlCommand(e);
+            return this.ExecuteNonQuery(e);
         }
         public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition)
         {
@@ -462,7 +462,7 @@ namespace Chloe
 
             DbDeleteExpression e = new DbDeleteExpression(explicitDbTable ?? typeDescriptor.Table, conditionExp);
 
-            return this.ExecuteSqlCommand(e);
+            return this.ExecuteNonQuery(e);
         }
         public virtual int DeleteByKey<TEntity>(object key)
         {
@@ -470,7 +470,7 @@ namespace Chloe
         }
         public virtual int DeleteByKey<TEntity>(object key, string table)
         {
-            Expression<Func<TEntity, bool>> condition = BuildCondition<TEntity>(key);
+            Expression<Func<TEntity, bool>> condition = PrimaryKeyHelper.BuildCondition<TEntity>(key);
             return this.Delete<TEntity>(condition, table);
         }
 
@@ -558,6 +558,28 @@ namespace Chloe
             return ret;
         }
 
+        protected int ExecuteNonQuery(DbExpression e)
+        {
+            List<DbParam> parameters;
+            return this.ExecuteNonQuery(e, out parameters);
+        }
+        protected int ExecuteNonQuery(DbExpression e, out List<DbParam> parameters)
+        {
+            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
+            string cmdText = translator.Translate(e, out parameters);
+
+            int rowsAffected = this.Session.ExecuteNonQuery(cmdText, parameters.ToArray());
+            return rowsAffected;
+        }
+        protected IDataReader ExecuteReader(DbExpression e)
+        {
+            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
+            List<DbParam> parameters;
+            string cmdText = translator.Translate(e, out parameters);
+            IDataReader dataReader = this.Session.ExecuteReader(cmdText, parameters.ToArray());
+            return dataReader;
+        }
+
         public void Dispose()
         {
             if (this._disposed)
@@ -578,17 +600,6 @@ namespace Chloe
             {
                 throw new ObjectDisposedException(this.GetType().FullName);
             }
-        }
-
-
-        int ExecuteSqlCommand(DbExpression e)
-        {
-            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            List<DbParam> parameters;
-            string cmdText = translator.Translate(e, out parameters);
-
-            int r = this.AdoSession.ExecuteNonQuery(cmdText, parameters.ToArray(), CommandType.Text);
-            return r;
         }
 
         class TrackEntityCollection

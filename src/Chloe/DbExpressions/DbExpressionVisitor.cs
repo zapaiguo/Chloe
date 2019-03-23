@@ -194,6 +194,8 @@ namespace Chloe.DbExpressions
                 ret.UpdateColumns.Add(kv.Key, this.MakeNewExpression(kv.Value));
             }
 
+            ret.Returns.AddRange(exp.Returns);
+
             return ret;
         }
         public override DbExpression Visit(DbDeleteExpression exp)

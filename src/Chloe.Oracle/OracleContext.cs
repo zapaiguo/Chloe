@@ -71,7 +71,7 @@ namespace Chloe.Oracle
             e.Returns.AddRange(outputColumns.Select(a => a.Column));
 
             List<DbParam> parameters;
-            this.ExecuteSqlCommand(e, out parameters);
+            this.ExecuteNonQuery(e, out parameters);
 
             List<DbParam> outputParams = parameters.Where(a => a.Direction == ParamDirection.Output).ToList();
 
@@ -154,7 +154,7 @@ namespace Chloe.Oracle
             }
 
             List<DbParam> parameters;
-            this.ExecuteSqlCommand(insertExp, out parameters);
+            this.ExecuteNonQuery(insertExp, out parameters);
 
             if (keyPropertyDescriptor != null && keyPropertyDescriptor.HasSequence())
             {
@@ -307,7 +307,7 @@ namespace Chloe.Oracle
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
+            Dictionary<PropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<PropertyDescriptor, DbExpression> updateColumns = new Dictionary<PropertyDescriptor, DbExpression>();
@@ -336,7 +336,7 @@ namespace Chloe.Oracle
                 return 0;
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-            DbExpression conditionExp = MakeCondition(keyValueMap, dbTable);
+            DbExpression conditionExp = PrimaryKeyHelper.MakeCondition(keyValueMap, dbTable);
             DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 
             foreach (var item in updateColumns)
@@ -344,7 +344,7 @@ namespace Chloe.Oracle
                 e.UpdateColumns.Add(item.Key.Column, item.Value);
             }
 
-            int ret = this.ExecuteSqlCommand(e);
+            int ret = this.ExecuteNonQuery(e);
             if (entityState != null)
                 entityState.Refresh();
             return ret;
@@ -388,21 +388,7 @@ namespace Chloe.Oracle
             if (e.UpdateColumns.Count == 0)
                 return 0;
 
-            return this.ExecuteSqlCommand(e);
-        }
-
-        int ExecuteSqlCommand(DbExpression e)
-        {
-            List<DbParam> parameters;
-            return this.ExecuteSqlCommand(e, out parameters);
-        }
-        int ExecuteSqlCommand(DbExpression e, out List<DbParam> parameters)
-        {
-            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            string cmdText = translator.Translate(e, out parameters);
-
-            int r = this.Session.ExecuteNonQuery(cmdText, parameters.ToArray());
-            return r;
+            return this.ExecuteNonQuery(e);
         }
 
         string AppendInsertRangeSqlTemplate(DbTable table, List<PropertyDescriptor> mappingPropertyDescriptors, bool keepIdentity)

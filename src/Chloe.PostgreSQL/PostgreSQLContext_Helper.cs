@@ -33,16 +33,6 @@ namespace Chloe.PostgreSQL
 
             return mapper;
         }
-        static Dictionary<PropertyDescriptor, object> CreateKeyValueMap(TypeDescriptor typeDescriptor)
-        {
-            Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
-            foreach (PropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
-            {
-                keyValueMap.Add(keyPropertyDescriptor, null);
-            }
-
-            return keyValueMap;
-        }
 
         string AppendInsertRangeSqlTemplate(DbTable table, List<PropertyDescriptor> mappingPropertyDescriptors)
         {

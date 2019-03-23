@@ -85,5 +85,9 @@ namespace Chloe.Descriptors
         {
             return !string.IsNullOrEmpty(this.Definition.SequenceName);
         }
+        public bool HasAnnotation(Type attributeType)
+        {
+            return this.Definition.Annotations.Any(a => a.GetType() == attributeType);
+        }
     }
 }

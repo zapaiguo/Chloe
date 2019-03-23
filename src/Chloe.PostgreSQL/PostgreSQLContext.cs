@@ -42,7 +42,7 @@ namespace Chloe.PostgreSQL
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            Dictionary<PropertyDescriptor, object> keyValueMap = CreateKeyValueMap(typeDescriptor);
+            Dictionary<PropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
             Dictionary<PropertyDescriptor, DbExpression> insertColumns = new Dictionary<PropertyDescriptor, DbExpression>();
             foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
@@ -92,7 +92,7 @@ namespace Chloe.PostgreSQL
 
             if (mappers.Count == 0)
             {
-                this.ExecuteSqlCommand(insertExp);
+                this.ExecuteNonQuery(insertExp);
                 return entity;
             }
 
@@ -183,12 +183,12 @@ namespace Chloe.PostgreSQL
 
             if (keyPropertyDescriptor == null)
             {
-                this.ExecuteSqlCommand(insertExp);
+                this.ExecuteNonQuery(insertExp);
                 return keyVal; /* It will return null if an entity does not define primary key. */
             }
             if (!keyPropertyDescriptor.IsAutoIncrement && !keyPropertyDescriptor.HasSequence())
             {
-                this.ExecuteSqlCommand(insertExp);
+                this.ExecuteNonQuery(insertExp);
                 return keyVal;
             }
 
@@ -334,16 +334,6 @@ namespace Chloe.PostgreSQL
         protected override string GetSelectLastInsertIdClause()
         {
             throw new NotSupportedException();
-        }
-
-        int ExecuteSqlCommand(DbExpression e)
-        {
-            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            List<DbParam> parameters;
-            string cmdText = translator.Translate(e, out parameters);
-
-            int r = this.Session.ExecuteNonQuery(cmdText, CommandType.Text, parameters.ToArray());
-            return r;
         }
     }
 }

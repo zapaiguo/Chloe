@@ -523,7 +523,7 @@ namespace Chloe.Core
 
         static ChloeException WrapException(Exception ex)
         {
-            return new ChloeException("An exception occurred while executing DbCommand. For details please see the inner exception.", ex);
+            return new ChloeException($"An exception occurred while executing DbCommand. For details please see the inner exception. {ex.Message}", ex);
         }
     }
 }
