@@ -1,6 +1,7 @@
 ﻿using Chloe.Annotations;
 using Chloe.Entity;
 using Chloe.Oracle;
+using Chloe.SqlServer;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -41,6 +42,10 @@ namespace ChloeDemo
         public int? Age { get; set; }
         public int? CityId { get; set; }
         public DateTime? OpTime { get; set; }
+
+        /* Marks the column is timestamp type(sqlserver only) */
+        //[Chloe.SqlServer.Annotations.TimestampAttribute]
+        //public Byte[] RowVersion { get; set; }
     }
 
     public class UserMapBase<TUser> : EntityTypeBuilder<TUser> where TUser : UserLite
@@ -58,6 +63,9 @@ namespace ChloeDemo
             this.MapTo("Users");
             this.Ignore(a => a.NotMapped);
             this.Property(a => a.Gender).HasDbType(DbType.Int32);
+
+            /* Marks the column is timestamp type(sqlserver only) */
+            //this.Property(a => a.RowVersion).IsTimestamp();
         }
     }
 
