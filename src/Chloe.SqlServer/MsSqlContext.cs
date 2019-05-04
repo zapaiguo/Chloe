@@ -465,7 +465,7 @@ namespace Chloe.SqlServer
                     continue;
                 }
 
-                if (propertyDescriptor.IsAutoIncrement)
+                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence())
                     continue;
 
                 if (propertyDescriptor.IsTimestamp())
@@ -527,6 +527,9 @@ namespace Chloe.SqlServer
                     }
                 }
             }
+
+            if (entityState != null)
+                entityState.Refresh();
 
             return rowsAffected;
         }

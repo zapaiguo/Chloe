@@ -46,6 +46,12 @@ namespace Chloe.Oracle
             Dictionary<PropertyDescriptor, DbExpression> insertColumns = new Dictionary<PropertyDescriptor, DbExpression>();
             foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
+                if (propertyDescriptor.IsAutoIncrement)
+                {
+                    outputColumns.Add(propertyDescriptor);
+                    continue;
+                }
+
                 if (propertyDescriptor.HasSequence())
                 {
                     DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(propertyDescriptor);
@@ -80,7 +86,8 @@ namespace Chloe.Oracle
                 PropertyDescriptor propertyDescriptor = outputColumns[i];
                 string putputColumnName = Utils.GenOutputColumnParameterName(propertyDescriptor.Column.Name);
                 DbParam outputParam = outputParams.Where(a => a.Name == putputColumnName).First();
-                outputColumns[i].SetValue(entity, outputParam.Value);
+                var outputValue = PublicHelper.ConvertObjType(outputParam.Value, propertyDescriptor.PropertyType);
+                outputColumns[i].SetValue(entity, outputValue);
             }
 
             return entity;
@@ -117,6 +124,9 @@ namespace Chloe.Oracle
                 if (propertyDescriptor == null)
                     throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
 
+                if (propertyDescriptor.IsAutoIncrement)
+                    throw new ChloeException(string.Format("Could not insert value into the auto increment column '{0}'.", propertyDescriptor.Column.Name));
+
                 if (propertyDescriptor.HasSequence())
                     throw new ChloeException(string.Format("Can not insert value into the column '{0}', because it's mapping member has define a sequence.", propertyDescriptor.Column.Name));
 
@@ -136,27 +146,41 @@ namespace Chloe.Oracle
                 insertExp.InsertColumns.Add(propertyDescriptor.Column, expressionParser.Parse(kv.Value));
             }
 
-            var sequencePropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.HasSequence());
-            foreach (PropertyDescriptor sequencePropertyDescriptor in sequencePropertyDescriptors)
+            foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
-                DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(sequencePropertyDescriptor);
-                insertExp.InsertColumns.Add(sequencePropertyDescriptor.Column, getNextValueForSequenceExp);
-
-                if (sequencePropertyDescriptor.IsPrimaryKey)
+                if (propertyDescriptor.IsAutoIncrement && propertyDescriptor.IsPrimaryKey)
                 {
-                    insertExp.Returns.Add(sequencePropertyDescriptor.Column);
+                    insertExp.Returns.Add(propertyDescriptor.Column);
+                    continue;
+                }
+
+                if (propertyDescriptor.HasSequence())
+                {
+                    DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(propertyDescriptor);
+                    insertExp.InsertColumns.Add(propertyDescriptor.Column, getNextValueForSequenceExp);
+
+                    if (propertyDescriptor.IsPrimaryKey)
+                    {
+                        insertExp.Returns.Add(propertyDescriptor.Column);
+                    }
+
+                    continue;
                 }
             }
 
-            if (keyPropertyDescriptor != null && !keyPropertyDescriptor.HasSequence() && keyVal == null)
+            if (keyPropertyDescriptor != null)
             {
-                throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.Property.Name));
+                //主键为空并且主键又不是自增列
+                if (keyVal == null && !keyPropertyDescriptor.IsAutoIncrement && !keyPropertyDescriptor.HasSequence())
+                {
+                    throw new ChloeException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.Property.Name));
+                }
             }
 
             List<DbParam> parameters;
             this.ExecuteNonQuery(insertExp, out parameters);
 
-            if (keyPropertyDescriptor != null && keyPropertyDescriptor.HasSequence())
+            if (keyPropertyDescriptor != null && (keyPropertyDescriptor.IsAutoIncrement || keyPropertyDescriptor.HasSequence()))
             {
                 string outputColumnName = Utils.GenOutputColumnParameterName(keyPropertyDescriptor.Column.Name);
                 DbParam outputParam = parameters.Where(a => a.Direction == ParamDirection.Output && a.Name == outputColumnName).First();
@@ -319,8 +343,7 @@ namespace Chloe.Oracle
                     continue;
                 }
 
-                bool hasSequence = propertyDescriptor.HasSequence();
-                if (hasSequence)
+                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence())
                     continue;
 
                 object val = propertyDescriptor.GetValue(entity);
@@ -348,47 +371,6 @@ namespace Chloe.Oracle
             if (entityState != null)
                 entityState.Refresh();
             return ret;
-        }
-        public override int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table)
-        {
-            PublicHelper.CheckNull(condition);
-            PublicHelper.CheckNull(content);
-
-            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
-
-            Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(content);
-
-            DbTable explicitDbTable = null;
-            if (table != null)
-                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
-            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
-
-            DbExpression conditionExp = expressionParser.ParseFilterPredicate(condition);
-
-            DbUpdateExpression e = new DbUpdateExpression(explicitDbTable ?? typeDescriptor.Table, conditionExp);
-
-            foreach (var kv in updateColumns)
-            {
-                MemberInfo key = kv.Key;
-                PropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
-
-                if (propertyDescriptor == null)
-                    throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
-
-                if (propertyDescriptor.IsPrimaryKey)
-                    throw new ChloeException(string.Format("Could not update the primary key '{0}'.", propertyDescriptor.Column.Name));
-
-                bool hasSequence = propertyDescriptor.HasSequence();
-                if (hasSequence)
-                    throw new ChloeException(string.Format("Could not update the column '{0}', because it's mapping member has define a sequence.", propertyDescriptor.Column.Name));
-
-                e.UpdateColumns.Add(propertyDescriptor.Column, expressionParser.Parse(kv.Value));
-            }
-
-            if (e.UpdateColumns.Count == 0)
-                return 0;
-
-            return this.ExecuteNonQuery(e);
         }
 
         string AppendInsertRangeSqlTemplate(DbTable table, List<PropertyDescriptor> mappingPropertyDescriptors, bool keepIdentity)

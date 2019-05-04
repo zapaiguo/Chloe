@@ -54,7 +54,24 @@ ALTER TABLE "SYSTEM"."USERS" ADD CHECK ("ID" IS NOT NULL);
 
 ALTER TABLE "SYSTEM"."USERS" ADD PRIMARY KEY ("ID");
 
+-- ----------------------------
+-- Sequence structure for USERS_AUTOID
+-- ----------------------------
+DROP SEQUENCE "SYSTEM"."USERS_AUTOID";
+CREATE SEQUENCE "SYSTEM"."USERS_AUTOID"
+ INCREMENT BY 1
+ MINVALUE 1
+ MAXVALUE 9999999999999999999999999999
+ START WITH 1
+ CACHE 20;
  
+create or replace trigger users_id
+before insert on users  --before:执行DML等操作之前触发
+for each row  --行级触发器
+begin 
+	select USERS_AUTOID.nextval into :new.id from dual;
+end;
+
 -- ----------------------------
 -- Table structure for PROVINCE
 -- ----------------------------

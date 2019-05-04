@@ -64,6 +64,11 @@ namespace Chloe.Entity
         IEntityPropertyBuilder IEntityPropertyBuilder.IsAutoIncrement(bool isAutoIncrement)
         {
             this.EntityProperty.IsAutoIncrement = isAutoIncrement;
+            if (isAutoIncrement)
+            {
+                this.EntityProperty.SequenceName = null;
+            }
+
             return this;
         }
 
@@ -119,6 +124,11 @@ namespace Chloe.Entity
         IEntityPropertyBuilder IEntityPropertyBuilder.HasSequence(string name)
         {
             this.EntityProperty.SequenceName = name;
+            if (!string.IsNullOrEmpty(name))
+            {
+                this.EntityProperty.IsAutoIncrement = false;
+            }
+
             return this;
         }
     }

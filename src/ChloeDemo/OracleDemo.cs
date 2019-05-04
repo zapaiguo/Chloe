@@ -16,8 +16,6 @@ namespace ChloeDemo
 
         public static void Run()
         {
-            DbConfiguration.UseTypeBuilders(typeof(OracleUserMap));
-
             BasicQuery();
             JoinQuery();
             AggregateQuery();

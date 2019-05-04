@@ -346,7 +346,7 @@ namespace Chloe
                     continue;
                 }
 
-                if (propertyDescriptor.IsAutoIncrement)
+                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence())
                     continue;
 
                 object val = propertyDescriptor.GetValue(entity);
@@ -408,8 +408,8 @@ namespace Chloe
                 if (propertyDescriptor.IsPrimaryKey)
                     throw new ChloeException(string.Format("Could not update the primary key '{0}'.", propertyDescriptor.Column.Name));
 
-                if (propertyDescriptor.IsAutoIncrement)
-                    throw new ChloeException(string.Format("Could not update the identity column '{0}'.", propertyDescriptor.Column.Name));
+                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence())
+                    throw new ChloeException(string.Format("Could not update the column '{0}', because it's mapping member is auto increment or has define a sequence.", propertyDescriptor.Column.Name));
 
                 e.UpdateColumns.Add(propertyDescriptor.Column, expressionParser.Parse(kv.Value));
             }

@@ -49,6 +49,9 @@ namespace Chloe.Utility
         }
         public static object ConvertObjType(object obj, Type conversionType)
         {
+            if (obj == null)
+                return null;
+
             conversionType = conversionType.GetUnderlyingType();
             if (obj.GetType() != conversionType)
                 return Convert.ChangeType(obj, conversionType);

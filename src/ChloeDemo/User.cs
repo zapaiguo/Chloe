@@ -69,14 +69,6 @@ namespace ChloeDemo
         }
     }
 
-    public class OracleUserMap : UserMap
-    {
-        public OracleUserMap()
-        {
-            this.Property(a => a.Id).HasSequence("USERS_AUTOID");
-        }
-    }
-
     public class City
     {
         public int Id { get; set; }
