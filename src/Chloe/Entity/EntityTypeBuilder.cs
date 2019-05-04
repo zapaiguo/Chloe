@@ -20,7 +20,9 @@ namespace Chloe.Entity
                 {
                     /*默认为主键，且自增*/
                     property.IsPrimaryKey = true;
-                    property.IsAutoIncrement = true;
+
+                    if (Utils.IsAutoIncrementType(property.Property.PropertyType))
+                        property.IsAutoIncrement = true;
                 }
             }
         }
