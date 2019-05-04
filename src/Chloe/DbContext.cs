@@ -322,6 +322,14 @@ namespace Chloe
         {
             throw new NotImplementedException();
         }
+        public virtual void InsertRange<TEntity>(List<TEntity> entities)
+        {
+            this.InsertRange(entities, null);
+        }
+        public virtual void InsertRange<TEntity>(List<TEntity> entities, string table)
+        {
+            throw new NotImplementedException();
+        }
 
         public virtual int Update<TEntity>(TEntity entity)
         {

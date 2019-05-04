@@ -84,7 +84,10 @@ namespace Chloe
         /// <param name="entities"></param>
         /// <param name="keepIdentity">是否要把自增属性值插入到数据库</param>
         /// <param name="table"></param>
+        [Obsolete("This method will be obsoleted in future versions.")]
         void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false, string table = null);
+        void InsertRange<TEntity>(List<TEntity> entities);
+        void InsertRange<TEntity>(List<TEntity> entities, string table);
 
         int Update<TEntity>(TEntity entity);
         int Update<TEntity>(TEntity entity, string table);
