@@ -240,6 +240,7 @@ namespace Chloe.SqlServer
             return ret;
         }
 
+        [Obsolete("This method will be removed in future versions.")]
         public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false, string table = null)
         {
             /*
@@ -374,6 +375,129 @@ namespace Chloe.SqlServer
                 }
             }
         }
+        public override void InsertRange<TEntity>(List<TEntity> entities, string table)
+        {
+            /*
+             * 将 entities 分批插入数据库
+             * 每批生成 insert into TableName(...) values(...),(...)... 
+             * 该方法相对循环一条一条插入，速度提升 2/3 这样
+             */
+
+            PublicHelper.CheckNull(entities);
+            if (entities.Count == 0)
+                return;
+
+            int maxParameters = 2100;
+            int batchSize = 50; /* 每批实体大小，此值通过测试得出相对插入速度比较快的一个值 */
+
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
+
+            List<PropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false && !a.IsTimestamp()).ToList();
+            int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
+
+            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            string sqlTemplate = AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors);
+
+            Action insertAction = () =>
+            {
+                int batchCount = 0;
+                List<DbParam> dbParams = new List<DbParam>();
+                StringBuilder sqlBuilder = new StringBuilder();
+                for (int i = 0; i < entities.Count; i++)
+                {
+                    var entity = entities[i];
+
+                    if (batchCount > 0)
+                        sqlBuilder.Append(",");
+
+                    sqlBuilder.Append("(");
+                    for (int j = 0; j < mappingPropertyDescriptors.Count; j++)
+                    {
+                        if (j > 0)
+                            sqlBuilder.Append(",");
+
+                        PropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
+
+                        if (mappingPropertyDescriptor.HasSequence())
+                        {
+                            sqlBuilder.Append("NEXT VALUE FOR ");
+                            sqlBuilder.Append(mappingPropertyDescriptor.Definition.SequenceName);
+                            continue;
+                        }
+
+                        object val = mappingPropertyDescriptor.GetValue(entity);
+                        if (val == null)
+                        {
+                            sqlBuilder.Append("NULL");
+                            continue;
+                        }
+
+                        Type valType = val.GetType();
+                        if (valType.IsEnum)
+                        {
+                            val = Convert.ChangeType(val, Enum.GetUnderlyingType(valType));
+                            valType = val.GetType();
+                        }
+
+                        if (Utils.IsToStringableNumericType(valType))
+                        {
+                            sqlBuilder.Append(val.ToString());
+                            continue;
+                        }
+
+                        if (val is bool)
+                        {
+                            if ((bool)val == true)
+                                sqlBuilder.AppendFormat("1");
+                            else
+                                sqlBuilder.AppendFormat("0");
+                            continue;
+                        }
+
+                        string paramName = UtilConstants.ParameterNamePrefix + dbParams.Count.ToString();
+                        DbParam dbParam = new DbParam(paramName, val) { DbType = mappingPropertyDescriptor.Column.DbType };
+                        dbParams.Add(dbParam);
+                        sqlBuilder.Append(paramName);
+                    }
+                    sqlBuilder.Append(")");
+
+                    batchCount++;
+
+                    if ((batchCount >= 20 && dbParams.Count >= 120/*参数个数太多也会影响速度*/) || dbParams.Count >= maxDbParamsCount || batchCount >= batchSize || (i + 1) == entities.Count)
+                    {
+                        sqlBuilder.Insert(0, sqlTemplate);
+                        string sql = sqlBuilder.ToString();
+                        this.Session.ExecuteNonQuery(sql, dbParams.ToArray());
+
+                        sqlBuilder.Clear();
+                        dbParams.Clear();
+                        batchCount = 0;
+                    }
+                }
+            };
+
+            if (this.Session.IsInTransaction)
+            {
+                insertAction();
+            }
+            else
+            {
+                /* 因为分批插入，所以需要开启事务保证数据一致性 */
+                this.Session.BeginTransaction();
+                try
+                {
+                    insertAction();
+                    this.Session.CommitTransaction();
+                }
+                catch
+                {
+                    if (this.Session.IsInTransaction)
+                        this.Session.RollbackTransaction();
+                    throw;
+                }
+            }
+        }
+
 
         /// <summary>
         /// 利用 SqlBulkCopy 批量插入数据。

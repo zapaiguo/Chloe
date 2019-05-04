@@ -189,6 +189,7 @@ namespace Chloe.Oracle
 
             return keyVal; /* It will return null if an entity does not define primary key. */
         }
+        [Obsolete("This method will be removed in future versions.")]
         public override void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false, string table = null)
         {
             /*
