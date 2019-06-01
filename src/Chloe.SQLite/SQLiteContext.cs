@@ -38,6 +38,12 @@ namespace Chloe.SQLite
             this._databaseProvider = new DatabaseProvider(dbConnectionFactory);
         }
 
+        public SQLiteContext(Func<IDbConnection> dbConnectionFactory) : this(new DbConnectionFactory(dbConnectionFactory))
+        {
+        }
+        public SQLiteContext(Func<IDbConnection> dbConnectionFactory, bool concurrencyMode) : this(new DbConnectionFactory(dbConnectionFactory), concurrencyMode)
+        {
+        }
 
         public override IDatabaseProvider DatabaseProvider
         {

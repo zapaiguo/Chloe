@@ -26,6 +26,9 @@ namespace Chloe.PostgreSQL
             PublicHelper.CheckNull(dbConnectionFactory);
             this._databaseProvider = new DatabaseProvider(dbConnectionFactory, this);
         }
+        public PostgreSQLContext(Func<IDbConnection> dbConnectionFactory) : this(new DbConnectionFactory(dbConnectionFactory))
+        {
+        }
 
         /// <summary>
         /// 是否将 sql 中的表名/字段名转成小写。默认为 true。

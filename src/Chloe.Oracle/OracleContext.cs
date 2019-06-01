@@ -9,6 +9,7 @@ using Chloe.Infrastructure;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -22,8 +23,10 @@ namespace Chloe.Oracle
         public OracleContext(IDbConnectionFactory dbConnectionFactory)
         {
             PublicHelper.CheckNull(dbConnectionFactory);
-
             this._databaseProvider = new DatabaseProvider(dbConnectionFactory, this);
+        }
+        public OracleContext(Func<IDbConnection> dbConnectionFactory) : this(new DbConnectionFactory(dbConnectionFactory))
+        {
         }
 
 

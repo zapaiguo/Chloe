@@ -22,8 +22,10 @@ namespace Chloe.MySql
         public MySqlContext(IDbConnectionFactory dbConnectionFactory)
         {
             PublicHelper.CheckNull(dbConnectionFactory);
-
             this._databaseProvider = new DatabaseProvider(dbConnectionFactory);
+        }
+        public MySqlContext(Func<IDbConnection> dbConnectionFactory) : this(new DbConnectionFactory(dbConnectionFactory))
+        {
         }
 
 
