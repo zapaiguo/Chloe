@@ -4,8 +4,6 @@ The query interface is similar to LINQ.You can query data like LINQ and do any t
 
 **Documentation**: [http://www.52chloe.com/Wiki/Document](http://www.52chloe.com/Wiki/Document "http://www.52chloe.com/Wiki/Document")
 
-**Source code of 'www.52chloe.com'**: [https://github.com/shuxinqin/Ace](https://github.com/shuxinqin/Ace "https://github.com/shuxinqin/Ace")
-
 # NuGet Install Command
 
 |     Database         | Install Command  |
