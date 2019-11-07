@@ -203,7 +203,9 @@ namespace Chloe.Query.Visitors
 
                 Type delegateType = typeof(Func<,>).MakeGenericType(parameter.Type, selectorBody.Type);
                 LambdaExpression selector = Expression.Lambda(delegateType, selectorBody, parameter);
-                var selectMethod = methodCall.Object.Type.GetMethod("Select");
+
+                Type queryType = ConvertToIQueryType(methodCall.Object.Type);
+                var selectMethod = queryType.GetMethod("Select");
                 selectMethod = selectMethod.MakeGenericMethod(selectorBody.Type);
                 var selectMethodCall = Expression.Call(methodCall.Object, selectMethod, Expression.Quote(selector)); /* query.Select(a=> a.xx.Name) */
 
@@ -281,6 +283,15 @@ namespace Chloe.Query.Visitors
                 return false;
             implementedInterface = implementedInterface.GetGenericTypeDefinition();
             return queryType == implementedInterface;
+        }
+        static Type ConvertToIQueryType(Type type)
+        {
+            Type queryType = typeof(IQuery<>);
+            if (queryType == type.GetGenericTypeDefinition())
+                return type;
+
+            Type implementedInterface = type.GetInterface("IQuery`1");
+            return implementedInterface;
         }
 
         static bool IsComeFrom_First_Or_FirstOrDefault(MemberExpression exp)
