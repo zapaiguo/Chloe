@@ -16,7 +16,7 @@ namespace Chloe.Descriptors
         Func<object, object> _valueGetter;
         Action<object, object> _valueSetter;
 
-        public PropertyDescriptor(PropertyDefinition definition, TypeDescriptor declaringTypeDescriptor)
+        protected PropertyDescriptor(PropertyDefinition definition, TypeDescriptor declaringTypeDescriptor)
         {
             this.Definition = definition;
             this.DeclaringTypeDescriptor = declaringTypeDescriptor;
@@ -26,10 +26,6 @@ namespace Chloe.Descriptors
         public TypeDescriptor DeclaringTypeDescriptor { get; private set; }
         public PropertyInfo Property { get { return this.Definition.Property; } }
         public Type PropertyType { get { return this.Definition.Property.PropertyType; } }
-
-        public bool IsPrimaryKey { get { return this.Definition.IsPrimaryKey; } }
-        public bool IsAutoIncrement { get { return this.Definition.IsAutoIncrement; } }
-        public DbColumn Column { get { return this.Definition.Column; } }
 
         public object GetValue(object instance)
         {
@@ -81,13 +77,10 @@ namespace Chloe.Descriptors
             this._valueSetter(instance, value);
         }
 
-        public bool HasSequence()
-        {
-            return !string.IsNullOrEmpty(this.Definition.SequenceName);
-        }
         public bool HasAnnotation(Type attributeType)
         {
             return this.Definition.Annotations.Any(a => a.GetType() == attributeType);
         }
     }
+
 }

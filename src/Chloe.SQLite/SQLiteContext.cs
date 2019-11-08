@@ -72,10 +72,10 @@ namespace Chloe.SQLite
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            var e = typeDescriptor.PropertyDescriptors as IEnumerable<PropertyDescriptor>;
+            var e = typeDescriptor.PropertyDescriptors as IEnumerable<MappingPropertyDescriptor>;
             if (keepIdentity == false)
                 e = e.Where(a => a.IsAutoIncrement == false);
-            List<PropertyDescriptor> mappingPropertyDescriptors = e.ToList();
+            List<MappingPropertyDescriptor> mappingPropertyDescriptors = e.ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -99,7 +99,7 @@ namespace Chloe.SQLite
                         if (j > 0)
                             sqlBuilder.Append(",");
 
-                        PropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
+                        MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
 
                         object val = mappingPropertyDescriptor.GetValue(entity);
                         if (val == null)
@@ -191,7 +191,7 @@ namespace Chloe.SQLite
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            List<PropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
+            List<MappingPropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -215,7 +215,7 @@ namespace Chloe.SQLite
                         if (j > 0)
                             sqlBuilder.Append(",");
 
-                        PropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
+                        MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
 
                         object val = mappingPropertyDescriptor.GetValue(entity);
                         if (val == null)
@@ -291,7 +291,7 @@ namespace Chloe.SQLite
             }
         }
 
-        static string AppendInsertRangeSqlTemplate(DbTable dbTable, List<PropertyDescriptor> mappingPropertyDescriptors)
+        static string AppendInsertRangeSqlTemplate(DbTable dbTable, List<MappingPropertyDescriptor> mappingPropertyDescriptors)
         {
             StringBuilder sqlBuilder = new StringBuilder();
 
@@ -301,7 +301,7 @@ namespace Chloe.SQLite
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
             {
-                PropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
+                MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
                 if (i > 0)
                     sqlBuilder.Append(",");
                 sqlBuilder.Append(Utils.QuoteName(mappingPropertyDescriptor.Column.Name));

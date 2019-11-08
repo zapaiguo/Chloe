@@ -48,6 +48,15 @@ namespace Chloe.Query
             return new Query<TResult>(this._dbContext, e, this._trackEntity);
         }
 
+        public IIncludableQuery<T, TProperty> Include<TProperty>(Expression<Func<T, TProperty>> p)
+        {
+            throw new NotImplementedException();
+        }
+        public IIncludableQuery<T, TProperty> Include<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> p)
+        {
+            throw new NotImplementedException();
+        }
+
         public IQuery<T> Where(Expression<Func<T, bool>> predicate)
         {
             Utils.CheckNull(predicate);

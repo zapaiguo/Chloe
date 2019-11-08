@@ -10,6 +10,9 @@ namespace Chloe
         IEnumerable<T> AsEnumerable();
         IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector);
 
+        IIncludableQuery<T, TProperty> Include<TProperty>(Expression<Func<T, TProperty>> p);
+        IIncludableQuery<T, TProperty> Include<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> p);
+
         IQuery<T> Where(Expression<Func<T, bool>> predicate);
         IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> keySelector);
         IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> keySelector);

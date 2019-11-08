@@ -35,7 +35,7 @@ namespace Chloe.Entity
 
         public virtual TypeDefinition MakeDefinition()
         {
-            List<PropertyDefinition> properties = this.Properties.Select(a => a.MakeDefinition()).ToList();
+            List<MappingPropertyDefinition> properties = this.Properties.Select(a => a.MakeDefinition()).ToList();
             var autoIncrementProperties = properties.Where(a => a.IsAutoIncrement).ToList();
             if (autoIncrementProperties.Count > 1)
             {

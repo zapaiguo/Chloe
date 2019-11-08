@@ -95,7 +95,7 @@ namespace Chloe
                 if (prop.GetSetMethod() == null)
                     continue;
 
-                PropertyDescriptor mapPropertyDescriptor;
+                MappingPropertyDescriptor mapPropertyDescriptor;
                 if (mappingPropertyDescriptors.TryGetValue(prop.Name, out mapPropertyDescriptor) == false)
                 {
                     continue;

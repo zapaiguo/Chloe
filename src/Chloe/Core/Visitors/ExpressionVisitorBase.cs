@@ -10,40 +10,6 @@ namespace Chloe.Core.Visitors
 {
     public class ExpressionVisitorBase : ExpressionVisitor<DbExpression>
     {
-        //Bad name!!! Help,help!!!
-        static List<ExpressionType> LL = new List<ExpressionType>();
-
-        static ExpressionVisitorBase()
-        {
-            LL.Add(ExpressionType.Equal);
-            LL.Add(ExpressionType.NotEqual);
-            LL.Add(ExpressionType.GreaterThan);
-            LL.Add(ExpressionType.GreaterThanOrEqual);
-            LL.Add(ExpressionType.LessThan);
-            LL.Add(ExpressionType.LessThanOrEqual);
-            LL.Add(ExpressionType.AndAlso);
-            LL.Add(ExpressionType.OrElse);
-            LL.TrimExcess();
-        }
-
-        public static LambdaExpression ReBuildFilterPredicate(LambdaExpression filterPredicate)
-        {
-            if (!LL.Contains(filterPredicate.Body.NodeType))
-                filterPredicate = Expression.Lambda(Expression.Equal(filterPredicate.Body, UtilConstants.Constant_True), filterPredicate.Parameters.ToArray());
-
-            return filterPredicate;
-        }
-        public static Expression ConvertBoolExpression(Expression boolExp)
-        {
-            if (boolExp.Type != UtilConstants.TypeOfBoolean)
-                throw new ArgumentException();
-
-            if (!LL.Contains(boolExp.NodeType))
-                boolExp = Expression.Equal(boolExp, UtilConstants.Constant_True);
-
-            return boolExp;
-        }
-
         protected override DbExpression VisitLambda(LambdaExpression lambda)
         {
             return this.Visit(lambda.Body);
@@ -227,7 +193,7 @@ namespace Chloe.Core.Visitors
         protected override DbExpression VisitUnary_Not(UnaryExpression exp)
         {
             // !true   !b
-            DbNotExpression e = DbExpression.Not(this.Visit(ConvertBoolExpression(exp.Operand)));
+            DbNotExpression e = DbExpression.Not(this.Visit(BooleanResultExpressionTransformer.Transform((exp.Operand))));
             return e;
         }
 

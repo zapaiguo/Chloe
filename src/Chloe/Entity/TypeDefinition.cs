@@ -8,7 +8,7 @@ namespace Chloe.Entity
 {
     public class TypeDefinition
     {
-        public TypeDefinition(Type entityType, DbTable table, IList<PropertyDefinition> properties, IList<object> annotations)
+        public TypeDefinition(Type entityType, DbTable table, IList<MappingPropertyDefinition> properties, IList<object> annotations)
         {
             Utils.CheckNull(entityType, nameof(entityType));
             Utils.CheckNull(table, nameof(table));
@@ -22,7 +22,7 @@ namespace Chloe.Entity
         }
         public Type Type { get; private set; }
         public DbTable Table { get; private set; }
-        public ReadOnlyCollection<PropertyDefinition> Properties { get; private set; }
+        public ReadOnlyCollection<MappingPropertyDefinition> Properties { get; private set; }
         public ReadOnlyCollection<object> Annotations { get; private set; }
     }
 

@@ -23,10 +23,9 @@ namespace Chloe.Core.Visitors
             this._explicitDbTable = explicitDbTable;
         }
 
-        public DbExpression ParseFilterPredicate(LambdaExpression lambda)
+        public DbExpression ParseFilterPredicate(LambdaExpression filterPredicate)
         {
-            lambda = ExpressionVisitorBase.ReBuildFilterPredicate(lambda);
-            return this.Visit(lambda);
+            return this.Visit(BooleanResultExpressionTransformer.Transform(filterPredicate));
         }
         public DbExpression Parse(Expression exp)
         {

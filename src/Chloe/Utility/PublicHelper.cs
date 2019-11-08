@@ -35,7 +35,7 @@ namespace Chloe.Utility
 
             return object.Equals(obj1, obj2);
         }
-        public static DbMethodCallExpression MakeNextValueForSequenceDbExpression(PropertyDescriptor propertyDescriptor)
+        public static DbMethodCallExpression MakeNextValueForSequenceDbExpression(MappingPropertyDescriptor propertyDescriptor)
         {
             return MakeNextValueForSequenceDbExpression(propertyDescriptor.PropertyType, propertyDescriptor.Definition.SequenceName);
         }

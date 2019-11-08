@@ -173,10 +173,10 @@ namespace Chloe
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            Dictionary<PropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
+            Dictionary<MappingPropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
-            Dictionary<PropertyDescriptor, DbExpression> insertColumns = new Dictionary<PropertyDescriptor, DbExpression>();
-            foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            Dictionary<MappingPropertyDescriptor, DbExpression> insertColumns = new Dictionary<MappingPropertyDescriptor, DbExpression>();
+            foreach (MappingPropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
                 if (propertyDescriptor.IsAutoIncrement)
                     continue;
@@ -192,7 +192,7 @@ namespace Chloe
                 insertColumns.Add(propertyDescriptor, valExp);
             }
 
-            PropertyDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null && !a.Key.IsAutoIncrement).Select(a => a.Key).FirstOrDefault();
+            MappingPropertyDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null && !a.Key.IsAutoIncrement).Select(a => a.Key).FirstOrDefault();
             if (nullValueKey != null)
             {
                 /* 主键为空并且主键又不是自增列 */
@@ -207,7 +207,7 @@ namespace Chloe
                 e.InsertColumns.Add(kv.Key.Column, kv.Value);
             }
 
-            PropertyDescriptor autoIncrementPropertyDescriptor = typeDescriptor.AutoIncrement;
+            MappingPropertyDescriptor autoIncrementPropertyDescriptor = typeDescriptor.AutoIncrement;
             if (autoIncrementPropertyDescriptor == null)
             {
                 this.ExecuteNonQuery(e);
@@ -248,7 +248,7 @@ namespace Chloe
                 throw new NotSupportedException(string.Format("Can not call this method because entity '{0}' has multiple keys.", typeDescriptor.Definition.Type.FullName));
             }
 
-            PropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
+            MappingPropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
@@ -263,7 +263,7 @@ namespace Chloe
             foreach (var kv in insertColumns)
             {
                 MemberInfo key = kv.Key;
-                PropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
+                MappingPropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
 
                 if (propertyDescriptor == null)
                     throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
@@ -343,11 +343,11 @@ namespace Chloe
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<PropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
+            Dictionary<MappingPropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
-            Dictionary<PropertyDescriptor, DbExpression> updateColumns = new Dictionary<PropertyDescriptor, DbExpression>();
-            foreach (PropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            Dictionary<MappingPropertyDescriptor, DbExpression> updateColumns = new Dictionary<MappingPropertyDescriptor, DbExpression>();
+            foreach (MappingPropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
                 if (propertyDescriptor.IsPrimaryKey)
                 {
@@ -409,7 +409,7 @@ namespace Chloe
             foreach (var kv in updateColumns)
             {
                 MemberInfo key = kv.Key;
-                PropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
+                MappingPropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
 
                 if (propertyDescriptor == null)
                     throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
@@ -440,9 +440,9 @@ namespace Chloe
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<PropertyDescriptor, object> keyValueMap = new Dictionary<PropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
+            Dictionary<MappingPropertyDescriptor, object> keyValueMap = new Dictionary<MappingPropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
 
-            foreach (PropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
+            foreach (MappingPropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
             {
                 object keyVal = keyPropertyDescriptor.GetValue(entity);
                 keyValueMap.Add(keyPropertyDescriptor, keyVal);

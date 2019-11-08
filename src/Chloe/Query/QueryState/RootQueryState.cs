@@ -58,7 +58,7 @@ namespace Chloe.Query.QueryState
             DbTableSegment tableExp = resultElement.FromTable.Table;
             DbTable table = new DbTable(alias);
 
-            foreach (PropertyDescriptor item in typeDescriptor.PropertyDescriptors)
+            foreach (MappingPropertyDescriptor item in typeDescriptor.PropertyDescriptors)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
 

@@ -13,7 +13,7 @@ namespace Chloe.Query.Visitors
     {
         public static DbExpression Parse(LambdaExpression filterPredicate, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
-            return GeneralExpressionParser.Parse(ExpressionVisitorBase.ReBuildFilterPredicate(filterPredicate), scopeParameters, scopeTables);
+            return GeneralExpressionParser.Parse(BooleanResultExpressionTransformer.Transform(filterPredicate), scopeParameters, scopeTables);
         }
     }
 }

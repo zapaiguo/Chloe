@@ -13,7 +13,7 @@ namespace Chloe.Core
     {
         object Entity { get; }
         TypeDescriptor TypeDescriptor { get; }
-        bool HasChanged(PropertyDescriptor propertyDescriptor, object val);
+        bool HasChanged(MappingPropertyDescriptor propertyDescriptor, object val);
         void Refresh();
     }
 
@@ -33,7 +33,7 @@ namespace Chloe.Core
         public object Entity { get { return this._entity; } }
         public TypeDescriptor TypeDescriptor { get { return this._typeDescriptor; } }
 
-        public bool HasChanged(PropertyDescriptor propertyDescriptor, object val)
+        public bool HasChanged(MappingPropertyDescriptor propertyDescriptor, object val)
         {
             object oldVal;
             if (!this._fakes.TryGetValue(propertyDescriptor.Property, out oldVal))
@@ -61,7 +61,7 @@ namespace Chloe.Core
             }
 
             object entity = this._entity;
-            foreach (PropertyDescriptor propertyDescriptor in this.TypeDescriptor.PropertyDescriptors)
+            foreach (MappingPropertyDescriptor propertyDescriptor in this.TypeDescriptor.PropertyDescriptors)
             {
                 var val = propertyDescriptor.GetValue(entity);
 

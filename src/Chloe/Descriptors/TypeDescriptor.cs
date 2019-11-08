@@ -14,14 +14,14 @@ namespace Chloe.Descriptors
 {
     public class TypeDescriptor
     {
-        Dictionary<MemberInfo, PropertyDescriptor> _propertyDescriptorMap;
+        Dictionary<MemberInfo, MappingPropertyDescriptor> _propertyDescriptorMap;
         Dictionary<MemberInfo, DbColumnAccessExpression> _propertyColumnMap;
         DefaultExpressionParser _expressionParser = null;
 
         public TypeDescriptor(TypeDefinition definition)
         {
             this.Definition = definition;
-            this.PropertyDescriptors = this.Definition.Properties.Select(a => new PropertyDescriptor(a, this)).ToList().AsReadOnly();
+            this.PropertyDescriptors = this.Definition.Properties.Select(a => new MappingPropertyDescriptor(a, this)).ToList().AsReadOnly();
 
             this.PrimaryKeys = this.PropertyDescriptors.Where(a => a.Definition.IsPrimaryKey).ToList().AsReadOnly();
             this.AutoIncrement = this.PropertyDescriptors.Where(a => a.Definition.IsAutoIncrement).FirstOrDefault();
@@ -31,10 +31,12 @@ namespace Chloe.Descriptors
         }
 
         public TypeDefinition Definition { get; private set; }
-        public ReadOnlyCollection<PropertyDescriptor> PropertyDescriptors { get; private set; }
-        public ReadOnlyCollection<PropertyDescriptor> PrimaryKeys { get; private set; }
+        public ReadOnlyCollection<MappingPropertyDescriptor> PropertyDescriptors { get; private set; }
+        public ReadOnlyCollection<NavigationPropertyDescriptor> NavigationPropertyDescriptors { get; private set; }
+        public ReadOnlyCollection<NavigationCollectionDescriptor> NavigationCollectionDescriptors { get; private set; }
+        public ReadOnlyCollection<MappingPropertyDescriptor> PrimaryKeys { get; private set; }
         /* It will return null if an entity has no auto increment member. */
-        public PropertyDescriptor AutoIncrement { get; private set; }
+        public MappingPropertyDescriptor AutoIncrement { get; private set; }
 
         public DbTable Table { get { return this.Definition.Table; } }
 
@@ -54,10 +56,10 @@ namespace Chloe.Descriptors
         {
             return this.PrimaryKeys.Count > 0;
         }
-        public PropertyDescriptor TryGetPropertyDescriptor(MemberInfo member)
+        public MappingPropertyDescriptor TryGetPropertyDescriptor(MemberInfo member)
         {
             member = member.AsReflectedMemberOf(this.Definition.Type);
-            PropertyDescriptor propertyDescriptor;
+            MappingPropertyDescriptor propertyDescriptor;
             this._propertyDescriptorMap.TryGetValue(member, out propertyDescriptor);
             return propertyDescriptor;
         }

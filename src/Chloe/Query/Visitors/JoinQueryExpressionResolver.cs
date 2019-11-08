@@ -50,7 +50,7 @@ namespace Chloe.Query.Visitors
             MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.Definition.Type.GetConstructor(Type.EmptyTypes));
 
             DbTable table = new DbTable(alias);
-            foreach (PropertyDescriptor item in typeDescriptor.PropertyDescriptors)
+            foreach (MappingPropertyDescriptor item in typeDescriptor.PropertyDescriptors)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
                 moe.AddMappingMemberExpression(item.Property, columnAccessExpression);

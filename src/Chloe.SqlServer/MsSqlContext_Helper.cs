@@ -20,7 +20,7 @@ namespace Chloe.SqlServer
 {
     public partial class MsSqlContext : DbContext
     {
-        static Action<TEntity, IDataReader> GetMapper<TEntity>(PropertyDescriptor propertyDescriptor, int ordinal)
+        static Action<TEntity, IDataReader> GetMapper<TEntity>(MappingPropertyDescriptor propertyDescriptor, int ordinal)
         {
             Action<TEntity, IDataReader> mapper = (TEntity entity, IDataReader reader) =>
             {
@@ -35,7 +35,7 @@ namespace Chloe.SqlServer
             return mapper;
         }
 
-        static string AppendInsertRangeSqlTemplate(DbTable table, List<PropertyDescriptor> mappingPropertyDescriptors)
+        static string AppendInsertRangeSqlTemplate(DbTable table, List<MappingPropertyDescriptor> mappingPropertyDescriptors)
         {
             StringBuilder sqlBuilder = new StringBuilder();
 
@@ -45,7 +45,7 @@ namespace Chloe.SqlServer
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
             {
-                PropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
+                MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
                 if (i > 0)
                     sqlBuilder.Append(",");
                 sqlBuilder.Append(Utils.QuoteName(mappingPropertyDescriptor.Column.Name));
