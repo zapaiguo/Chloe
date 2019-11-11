@@ -49,16 +49,15 @@ namespace Chloe.Query.QueryState
 
             resultElement.FromTable = CreateRootTable(dbTable, alias, lockType);
 
-            ConstructorInfo constructor = typeDescriptor.Definition.Type.GetConstructor(Type.EmptyTypes);
+            ConstructorInfo constructor = typeDescriptor.GetDefaultConstructor();
             if (constructor == null)
                 throw new ArgumentException(string.Format("The type of '{0}' does't define a none parameter constructor.", type.FullName));
 
             MappingObjectExpression moe = new MappingObjectExpression(constructor);
-
-            DbTableSegment tableExp = resultElement.FromTable.Table;
+           
             DbTable table = new DbTable(alias);
 
-            foreach (MappingPropertyDescriptor item in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor item in typeDescriptor.PropertyDescriptors)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
 

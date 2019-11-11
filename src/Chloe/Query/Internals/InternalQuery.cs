@@ -1,5 +1,6 @@
 ﻿using Chloe.Core;
 using Chloe.Core.Visitors;
+using Chloe.Data;
 using Chloe.Infrastructure;
 using Chloe.Mapper;
 using Chloe.Query.Mapping;
@@ -44,7 +45,10 @@ namespace Chloe.Query.Internals
         public IEnumerator<T> GetEnumerator()
         {
             DbCommandFactor commandFactor = this.GenerateCommandFactor();
-            var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(this._query.DbContext.AdoSession, commandFactor);
+            var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(commandFactor, cmdFactor =>
+            {
+                return this._query.DbContext.AdoSession.ExecuteReader(cmdFactor.CommandText, cmdFactor.Parameters, CommandType.Text);
+            });
             return enumerator;
         }
         IEnumerator IEnumerable.GetEnumerator()

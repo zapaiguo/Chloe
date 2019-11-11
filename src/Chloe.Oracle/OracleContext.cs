@@ -45,9 +45,9 @@ namespace Chloe.Oracle
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            List<MappingPropertyDescriptor> outputColumns = new List<MappingPropertyDescriptor>();
-            Dictionary<MappingPropertyDescriptor, DbExpression> insertColumns = new Dictionary<MappingPropertyDescriptor, DbExpression>();
-            foreach (MappingPropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            List<PrimitivePropertyDescriptor> outputColumns = new List<PrimitivePropertyDescriptor>();
+            Dictionary<PrimitivePropertyDescriptor, DbExpression> insertColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
                 if (propertyDescriptor.IsAutoIncrement)
                 {
@@ -86,7 +86,7 @@ namespace Chloe.Oracle
 
             for (int i = 0; i < outputColumns.Count; i++)
             {
-                MappingPropertyDescriptor propertyDescriptor = outputColumns[i];
+                PrimitivePropertyDescriptor propertyDescriptor = outputColumns[i];
                 string putputColumnName = Utils.GenOutputColumnParameterName(propertyDescriptor.Column.Name);
                 DbParam outputParam = outputParams.Where(a => a.Name == putputColumnName).First();
                 var outputValue = PublicHelper.ConvertObjType(outputParam.Value, propertyDescriptor.PropertyType);
@@ -107,7 +107,7 @@ namespace Chloe.Oracle
                 throw new NotSupportedException(string.Format("Can not call this method because entity '{0}' has multiple keys.", typeDescriptor.Definition.Type.FullName));
             }
 
-            MappingPropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
+            PrimitivePropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
@@ -122,7 +122,7 @@ namespace Chloe.Oracle
             foreach (var kv in insertColumns)
             {
                 MemberInfo key = kv.Key;
-                MappingPropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
+                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
 
                 if (propertyDescriptor == null)
                     throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
@@ -149,7 +149,7 @@ namespace Chloe.Oracle
                 insertExp.InsertColumns.Add(propertyDescriptor.Column, expressionParser.Parse(kv.Value));
             }
 
-            foreach (MappingPropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
                 if (propertyDescriptor.IsAutoIncrement && propertyDescriptor.IsPrimaryKey)
                 {
@@ -211,7 +211,7 @@ namespace Chloe.Oracle
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            List<MappingPropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -235,7 +235,7 @@ namespace Chloe.Oracle
                         if (j > 0)
                             sqlBuilder.Append(",");
 
-                        MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
+                        PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
 
                         if (keepIdentity == false && mappingPropertyDescriptor.HasSequence())
                         {
@@ -344,7 +344,7 @@ namespace Chloe.Oracle
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            List<MappingPropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -368,7 +368,7 @@ namespace Chloe.Oracle
                         if (j > 0)
                             sqlBuilder.Append(",");
 
-                        MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
+                        PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
 
                         object val = mappingPropertyDescriptor.GetValue(entity);
                         if (val == null)
@@ -457,11 +457,11 @@ namespace Chloe.Oracle
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<MappingPropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
+            Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
-            Dictionary<MappingPropertyDescriptor, DbExpression> updateColumns = new Dictionary<MappingPropertyDescriptor, DbExpression>();
-            foreach (MappingPropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            Dictionary<PrimitivePropertyDescriptor, DbExpression> updateColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
                 if (keyValueMap.ContainsKey(propertyDescriptor))
                 {
@@ -499,7 +499,7 @@ namespace Chloe.Oracle
             return ret;
         }
 
-        string AppendInsertRangeSqlTemplate(DbTable table, List<MappingPropertyDescriptor> mappingPropertyDescriptors, bool keepIdentity)
+        string AppendInsertRangeSqlTemplate(DbTable table, List<PrimitivePropertyDescriptor> mappingPropertyDescriptors, bool keepIdentity)
         {
             StringBuilder sqlBuilder = new StringBuilder();
 
@@ -509,7 +509,7 @@ namespace Chloe.Oracle
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
             {
-                MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
+                PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
                 if (i > 0)
                     sqlBuilder.Append(",");
                 sqlBuilder.Append(this.QuoteName(mappingPropertyDescriptor.Column.Name));
@@ -522,7 +522,7 @@ namespace Chloe.Oracle
                 sqlBuilder.Append(" SELECT ");
                 for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
                 {
-                    MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
+                    PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
                     if (i > 0)
                         sqlBuilder.Append(",");
 
@@ -539,7 +539,7 @@ namespace Chloe.Oracle
             string sqlTemplate = sqlBuilder.ToString();
             return sqlTemplate;
         }
-        string AppendInsertRangeSqlTemplate(DbTable table, List<MappingPropertyDescriptor> mappingPropertyDescriptors)
+        string AppendInsertRangeSqlTemplate(DbTable table, List<PrimitivePropertyDescriptor> mappingPropertyDescriptors)
         {
             StringBuilder sqlBuilder = new StringBuilder();
 
@@ -549,7 +549,7 @@ namespace Chloe.Oracle
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
             {
-                MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
+                PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
                 if (i > 0)
                     sqlBuilder.Append(",");
                 sqlBuilder.Append(this.QuoteName(mappingPropertyDescriptor.Column.Name));
@@ -560,7 +560,7 @@ namespace Chloe.Oracle
             sqlBuilder.Append(" SELECT ");
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
             {
-                MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
+                PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
                 if (i > 0)
                     sqlBuilder.Append(",");
 

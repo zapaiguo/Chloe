@@ -52,7 +52,7 @@ namespace Chloe.Query
         {
             throw new NotImplementedException();
         }
-        public IIncludableQuery<T, TProperty> Include<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> p)
+        public IIncludableQuery<T, TCollectionItem> IncludeMany<TCollectionItem>(Expression<Func<T, IEnumerable<TCollectionItem>>> p)
         {
             throw new NotImplementedException();
         }

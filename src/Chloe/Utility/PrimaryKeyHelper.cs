@@ -36,7 +36,7 @@ namespace Chloe.Utility
             {
                 /* a => a.Key == key */
 
-                MappingPropertyDescriptor keyDescriptor = typeDescriptor.PrimaryKeys[0];
+                PrimitivePropertyDescriptor keyDescriptor = typeDescriptor.PrimaryKeys[0];
                 Expression propOrField = Expression.PropertyOrField(parameter, keyDescriptor.Property.Name);
                 Expression wrappedValue = ExpressionExtension.MakeWrapperAccess(key, keyDescriptor.PropertyType);
                 conditionBody = Expression.Equal(propOrField, wrappedValue);
@@ -53,7 +53,7 @@ namespace Chloe.Utility
                 ConstantExpression keyConstantExp = Expression.Constant(key);
                 if (keyObjectType == entityType)
                 {
-                    foreach (MappingPropertyDescriptor primaryKey in typeDescriptor.PrimaryKeys)
+                    foreach (PrimitivePropertyDescriptor primaryKey in typeDescriptor.PrimaryKeys)
                     {
                         Expression propOrField = Expression.PropertyOrField(parameter, primaryKey.Property.Name);
                         Expression keyValue = Expression.MakeMemberAccess(keyConstantExp, primaryKey.Property);
@@ -65,7 +65,7 @@ namespace Chloe.Utility
                 {
                     for (int i = 0; i < typeDescriptor.PrimaryKeys.Count; i++)
                     {
-                        MappingPropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys[i];
+                        PrimitivePropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys[i];
                         MemberInfo keyMember = keyPropertyDescriptor.Property;
                         MemberInfo inputKeyMember = keyObjectType.GetMember(keyMember.Name).FirstOrDefault();
                         if (inputKeyMember == null)
@@ -88,22 +88,22 @@ namespace Chloe.Utility
             Expression<Func<TEntity, bool>> condition = Expression.Lambda<Func<TEntity, bool>>(conditionBody, parameter);
             return condition;
         }
-        public static Dictionary<MappingPropertyDescriptor, object> CreateKeyValueMap(TypeDescriptor typeDescriptor)
+        public static Dictionary<PrimitivePropertyDescriptor, object> CreateKeyValueMap(TypeDescriptor typeDescriptor)
         {
-            Dictionary<MappingPropertyDescriptor, object> keyValueMap = new Dictionary<MappingPropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
-            foreach (MappingPropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
+            Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = new Dictionary<PrimitivePropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
+            foreach (PrimitivePropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
             {
                 keyValueMap.Add(keyPropertyDescriptor, null);
             }
 
             return keyValueMap;
         }
-        public static DbExpression MakeCondition(Dictionary<MappingPropertyDescriptor, object> keyValueMap, DbTable dbTable)
+        public static DbExpression MakeCondition(Dictionary<PrimitivePropertyDescriptor, object> keyValueMap, DbTable dbTable)
         {
             DbExpression conditionExp = null;
             foreach (var kv in keyValueMap)
             {
-                MappingPropertyDescriptor keyPropertyDescriptor = kv.Key;
+                PrimitivePropertyDescriptor keyPropertyDescriptor = kv.Key;
                 object keyVal = kv.Value;
 
                 if (keyVal == null)

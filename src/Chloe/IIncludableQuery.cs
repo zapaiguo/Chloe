@@ -6,10 +6,10 @@ using System.Text;
 
 namespace Chloe
 {
-    public interface IIncludableQuery<TEntity, TProperty> : IQuery<TEntity>
+    public interface IIncludableQuery<TEntity, TNavigation> : IQuery<TEntity>
     {
-        IIncludableQuery<TEntity, TProperty> Where(Expression<Func<TProperty, bool>> predicate);
-        IIncludableQuery<TEntity, TInclude> Include<TInclude>(Expression<Func<TProperty, TInclude>> p);
-        IIncludableQuery<TEntity, TInclude> Include<TInclude>(Expression<Func<TProperty, IEnumerable<TInclude>>> p);
+        IIncludableQuery<TEntity, TNavigation> WithCodition(Expression<Func<TNavigation, bool>> predicate);
+        IIncludableQuery<TEntity, TProperty> ThenInclude<TProperty>(Expression<Func<TNavigation, TProperty>> p);
+        IIncludableQuery<TEntity, TCollectionItem> ThenIncludeMany<TCollectionItem>(Expression<Func<TNavigation, IEnumerable<TCollectionItem>>> p);
     }
 }

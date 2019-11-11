@@ -52,10 +52,10 @@ namespace Chloe.MySql
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            var e = typeDescriptor.PropertyDescriptors as IEnumerable<MappingPropertyDescriptor>;
+            var e = typeDescriptor.PropertyDescriptors as IEnumerable<PrimitivePropertyDescriptor>;
             if (keepIdentity == false)
                 e = e.Where(a => a.IsAutoIncrement == false);
-            List<MappingPropertyDescriptor> mappingPropertyDescriptors = e.ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = e.ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -79,7 +79,7 @@ namespace Chloe.MySql
                         if (j > 0)
                             sqlBuilder.Append(",");
 
-                        MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
+                        PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
 
                         object val = mappingPropertyDescriptor.GetValue(entity);
                         if (val == null)
@@ -172,7 +172,7 @@ namespace Chloe.MySql
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            List<MappingPropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -196,7 +196,7 @@ namespace Chloe.MySql
                         if (j > 0)
                             sqlBuilder.Append(",");
 
-                        MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
+                        PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
 
                         object val = mappingPropertyDescriptor.GetValue(entity);
                         if (val == null)
@@ -273,7 +273,7 @@ namespace Chloe.MySql
             }
         }
 
-        static string AppendInsertRangeSqlTemplate(DbTable table, List<MappingPropertyDescriptor> mappingPropertyDescriptors)
+        static string AppendInsertRangeSqlTemplate(DbTable table, List<PrimitivePropertyDescriptor> mappingPropertyDescriptors)
         {
             StringBuilder sqlBuilder = new StringBuilder();
 
@@ -283,7 +283,7 @@ namespace Chloe.MySql
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
             {
-                MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
+                PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
                 if (i > 0)
                     sqlBuilder.Append(",");
                 sqlBuilder.Append(Utils.QuoteName(mappingPropertyDescriptor.Column.Name));
@@ -325,7 +325,7 @@ namespace Chloe.MySql
             foreach (var kv in updateColumns)
             {
                 MemberInfo key = kv.Key;
-                MappingPropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
+                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
 
                 if (propertyDescriptor == null)
                     throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));

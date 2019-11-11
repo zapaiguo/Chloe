@@ -49,11 +49,11 @@ namespace Chloe.SqlServer
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            Dictionary<MappingPropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
+            Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
-            Dictionary<MappingPropertyDescriptor, DbExpression> insertColumns = new Dictionary<MappingPropertyDescriptor, DbExpression>();
-            List<MappingPropertyDescriptor> outputColumns = new List<MappingPropertyDescriptor>();
-            foreach (MappingPropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            Dictionary<PrimitivePropertyDescriptor, DbExpression> insertColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
+            List<PrimitivePropertyDescriptor> outputColumns = new List<PrimitivePropertyDescriptor>();
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
                 if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.IsTimestamp())
                 {
@@ -80,7 +80,7 @@ namespace Chloe.SqlServer
                 insertColumns.Add(propertyDescriptor, valExp);
             }
 
-            MappingPropertyDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null && !a.Key.IsAutoIncrement).Select(a => a.Key).FirstOrDefault();
+            PrimitivePropertyDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null && !a.Key.IsAutoIncrement).Select(a => a.Key).FirstOrDefault();
             if (nullValueKey != null)
             {
                 /* 主键为空并且主键又不是自增列 */
@@ -115,7 +115,7 @@ namespace Chloe.SqlServer
             }
             else
             {
-                foreach (MappingPropertyDescriptor outputColumn in outputColumns)
+                foreach (PrimitivePropertyDescriptor outputColumn in outputColumns)
                 {
                     mappers.Add(GetMapper<TEntity>(outputColumn, insertExp.Returns.Count));
                     insertExp.Returns.Add(outputColumn.Column);
@@ -148,7 +148,7 @@ namespace Chloe.SqlServer
                 throw new NotSupportedException(string.Format("Can not call this method because entity '{0}' has multiple keys.", typeDescriptor.Definition.Type.FullName));
             }
 
-            MappingPropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
+            PrimitivePropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
@@ -163,7 +163,7 @@ namespace Chloe.SqlServer
             foreach (var kv in insertColumns)
             {
                 MemberInfo key = kv.Key;
-                MappingPropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
+                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
 
                 if (propertyDescriptor == null)
                     throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
@@ -258,11 +258,11 @@ namespace Chloe.SqlServer
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            var e = typeDescriptor.PropertyDescriptors as IEnumerable<MappingPropertyDescriptor>;
+            var e = typeDescriptor.PropertyDescriptors as IEnumerable<PrimitivePropertyDescriptor>;
             if (keepIdentity == false)
                 e = e.Where(a => a.IsAutoIncrement == false);
 
-            List<MappingPropertyDescriptor> mappingPropertyDescriptors = e.Where(a => !a.IsTimestamp()).ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = e.Where(a => !a.IsTimestamp()).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -286,7 +286,7 @@ namespace Chloe.SqlServer
                         if (j > 0)
                             sqlBuilder.Append(",");
 
-                        MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
+                        PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
                         object val = mappingPropertyDescriptor.GetValue(entity);
                         if (val == null)
                         {
@@ -392,7 +392,7 @@ namespace Chloe.SqlServer
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            List<MappingPropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false && !a.IsTimestamp()).ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false && !a.IsTimestamp()).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -416,7 +416,7 @@ namespace Chloe.SqlServer
                         if (j > 0)
                             sqlBuilder.Append(",");
 
-                        MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
+                        PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
 
                         if (mappingPropertyDescriptor.HasSequence())
                         {
@@ -575,13 +575,13 @@ namespace Chloe.SqlServer
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<MappingPropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
+            Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
-            Dictionary<MappingPropertyDescriptor, DbExpression> updateColumns = new Dictionary<MappingPropertyDescriptor, DbExpression>();
-            MappingPropertyDescriptor timestampProperty = null;
+            Dictionary<PrimitivePropertyDescriptor, DbExpression> updateColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
+            PrimitivePropertyDescriptor timestampProperty = null;
             object timestampValue = null;
-            foreach (MappingPropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
                 if (propertyDescriptor.IsPrimaryKey)
                 {
@@ -665,9 +665,9 @@ namespace Chloe.SqlServer
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<MappingPropertyDescriptor, object> keyValueMap = new Dictionary<MappingPropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
+            Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = new Dictionary<PrimitivePropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
 
-            foreach (MappingPropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
+            foreach (PrimitivePropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
             {
                 object keyVal = keyPropertyDescriptor.GetValue(entity);
                 keyValueMap.Add(keyPropertyDescriptor, keyVal);
@@ -675,7 +675,7 @@ namespace Chloe.SqlServer
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
 
-            MappingPropertyDescriptor timestampProperty = typeDescriptor.PropertyDescriptors.Where(a => a.IsTimestamp()).FirstOrDefault();
+            PrimitivePropertyDescriptor timestampProperty = typeDescriptor.PropertyDescriptors.Where(a => a.IsTimestamp()).FirstOrDefault();
             if (timestampProperty != null)
             {
                 object timestampValue = timestampProperty.GetValue(entity);
@@ -698,7 +698,7 @@ namespace Chloe.SqlServer
 
             for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
             {
-                MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
+                PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
 
                 Type dataType = mappingPropertyDescriptor.PropertyType.GetUnderlyingType();
                 if (dataType.IsEnum)
@@ -712,7 +712,7 @@ namespace Chloe.SqlServer
                 DataRow dr = dt.NewRow();
                 for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
                 {
-                    MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
+                    PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
                     object value = mappingPropertyDescriptor.Property.GetMemberValue(model);
                     if (mappingPropertyDescriptor.PropertyType.GetUnderlyingType().IsEnum)
                     {

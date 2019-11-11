@@ -11,14 +11,14 @@ using System.Threading;
 
 namespace Chloe.Descriptors
 {
-    public class MappingPropertyDescriptor : PropertyDescriptor
+    public class PrimitivePropertyDescriptor : PropertyDescriptor
     {
-        public MappingPropertyDescriptor(MappingPropertyDefinition definition, TypeDescriptor declaringTypeDescriptor) : base(definition, declaringTypeDescriptor)
+        public PrimitivePropertyDescriptor(PrimitivePropertyDefinition definition, TypeDescriptor declaringTypeDescriptor) : base(definition, declaringTypeDescriptor)
         {
             this.Definition = definition;
         }
 
-        public new MappingPropertyDefinition Definition { get; private set; }
+        public new PrimitivePropertyDefinition Definition { get; private set; }
 
         public bool IsPrimaryKey { get { return this.Definition.IsPrimaryKey; } }
         public bool IsAutoIncrement { get { return this.Definition.IsAutoIncrement; } }

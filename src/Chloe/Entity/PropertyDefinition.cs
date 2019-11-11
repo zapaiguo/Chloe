@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Chloe.Entity
 {
-    public class PropertyDefinition
+    public abstract class PropertyDefinition
     {
         protected PropertyDefinition(PropertyInfo property, IList<object> annotations)
         {
@@ -17,6 +17,7 @@ namespace Chloe.Entity
             this.Property = property;
             this.Annotations = annotations.Where(a => a != null).ToList().AsReadOnly();
         }
+        public abstract TypeKind Kind { get; }
         public PropertyInfo Property { get; private set; }
         public ReadOnlyCollection<object> Annotations { get; private set; }
     }

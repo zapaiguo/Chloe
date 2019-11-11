@@ -11,7 +11,7 @@ namespace Chloe
         IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector);
 
         IIncludableQuery<T, TProperty> Include<TProperty>(Expression<Func<T, TProperty>> p);
-        IIncludableQuery<T, TProperty> Include<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> p);
+        IIncludableQuery<T, TCollectionItem> IncludeMany<TCollectionItem>(Expression<Func<T, IEnumerable<TCollectionItem>>> p);
 
         IQuery<T> Where(Expression<Func<T, bool>> predicate);
         IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> keySelector);

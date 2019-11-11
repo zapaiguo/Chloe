@@ -6,16 +6,16 @@ using System.Text;
 
 namespace Chloe.Entity
 {
-    public class NavigationPropertyDefinition : PropertyDefinition
+    public class ComplexPropertyDefinition : PropertyDefinition
     {
-        public NavigationPropertyDefinition(PropertyInfo property, string foreignKey, IList<object> annotations) : base(property, annotations)
+        public ComplexPropertyDefinition(PropertyInfo property, string foreignKey, IList<object> annotations) : base(property, annotations)
         {
             if (string.IsNullOrEmpty(foreignKey))
                 throw new ArgumentException("'foreignKey' can not be null.");
 
             this.ForeignKey = foreignKey;
         }
-
+        public override TypeKind Kind { get { return TypeKind.Complex; } }
         public string ForeignKey { get; private set; }
     }
 }

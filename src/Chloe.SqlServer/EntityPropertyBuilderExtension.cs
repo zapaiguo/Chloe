@@ -38,7 +38,7 @@ namespace Chloe.SqlServer
         /// </summary>
         /// <param name="propertyDescriptor"></param>
         /// <returns></returns>
-        public static bool IsTimestamp(this MappingPropertyDescriptor propertyDescriptor)
+        public static bool IsTimestamp(this PrimitivePropertyDescriptor propertyDescriptor)
         {
             return propertyDescriptor.HasAnnotation(UtilConstants.TypeOfTimestamp);
         }

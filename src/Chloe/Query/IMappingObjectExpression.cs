@@ -12,6 +12,8 @@ namespace Chloe.Query
 {
     public interface IMappingObjectExpression
     {
+        //bool HasMany { get; }
+        Type ObjectType { get; }
         IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery);
         IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTable table);
         void AddMappingConstructorParameter(ParameterInfo p, DbExpression exp);

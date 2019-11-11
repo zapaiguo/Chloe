@@ -16,6 +16,7 @@ namespace Chloe.Query
         public MappingObjectExpression(ConstructorInfo constructor)
             : this(EntityConstructorDescriptor.GetInstance(constructor))
         {
+            this.ObjectType = constructor.DeclaringType;
         }
         public MappingObjectExpression(EntityConstructorDescriptor constructorDescriptor)
         {
@@ -26,8 +27,12 @@ namespace Chloe.Query
             this.ComplexMembers = new Dictionary<MemberInfo, IMappingObjectExpression>();
         }
 
+        public Type ObjectType { get; private set; }
         public DbExpression PrimaryKey { get; set; }
         public DbExpression NullChecking { get; set; }
+
+        public DbExpression Condition { get; set; }
+        public DbExpression Filter { get; set; }
 
         /// <summary>
         /// 返回类型

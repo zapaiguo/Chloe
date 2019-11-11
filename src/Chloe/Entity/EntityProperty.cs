@@ -25,9 +25,9 @@ namespace Chloe.Entity
         public byte? Scale { get; set; }
         public byte? Precision { get; set; }
 
-        public MappingPropertyDefinition MakeDefinition()
+        public PrimitivePropertyDefinition MakeDefinition()
         {
-            MappingPropertyDefinition definition = new MappingPropertyDefinition(this.Property, new DbColumn(this.ColumnName, this.Property.PropertyType, this.DbType, this.Size, this.Scale, this.Precision), this.IsPrimaryKey, this.IsAutoIncrement, this.SequenceName, this.Annotations);
+            PrimitivePropertyDefinition definition = new PrimitivePropertyDefinition(this.Property, new DbColumn(this.ColumnName, this.Property.PropertyType, this.DbType, this.Size, this.Scale, this.Precision), this.IsPrimaryKey, this.IsAutoIncrement, this.SequenceName, this.Annotations);
             return definition;
         }
     }

@@ -45,10 +45,10 @@ namespace Chloe.PostgreSQL
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            Dictionary<MappingPropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
+            Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
-            Dictionary<MappingPropertyDescriptor, DbExpression> insertColumns = new Dictionary<MappingPropertyDescriptor, DbExpression>();
-            foreach (MappingPropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            Dictionary<PrimitivePropertyDescriptor, DbExpression> insertColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
                 if (propertyDescriptor.IsAutoIncrement)
                     continue;
@@ -71,7 +71,7 @@ namespace Chloe.PostgreSQL
                 insertColumns.Add(propertyDescriptor, valExp);
             }
 
-            MappingPropertyDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null && !a.Key.IsAutoIncrement).Select(a => a.Key).FirstOrDefault();
+            PrimitivePropertyDescriptor nullValueKey = keyValueMap.Where(a => a.Value == null && !a.Key.IsAutoIncrement).Select(a => a.Key).FirstOrDefault();
             if (nullValueKey != null)
             {
                 /* 主键为空并且主键又不是自增列 */
@@ -127,7 +127,7 @@ namespace Chloe.PostgreSQL
                 throw new NotSupportedException(string.Format("Can not call this method because entity '{0}' has multiple keys.", typeDescriptor.Definition.Type.FullName));
             }
 
-            MappingPropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
+            PrimitivePropertyDescriptor keyPropertyDescriptor = typeDescriptor.PrimaryKeys.FirstOrDefault();
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
@@ -142,7 +142,7 @@ namespace Chloe.PostgreSQL
             foreach (var kv in insertColumns)
             {
                 MemberInfo key = kv.Key;
-                MappingPropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
+                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
 
                 if (propertyDescriptor == null)
                     throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
@@ -229,10 +229,10 @@ namespace Chloe.PostgreSQL
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            var e = typeDescriptor.PropertyDescriptors as IEnumerable<MappingPropertyDescriptor>;
+            var e = typeDescriptor.PropertyDescriptors as IEnumerable<PrimitivePropertyDescriptor>;
             if (keepIdentity == false)
                 e = e.Where(a => a.IsAutoIncrement == false);
-            List<MappingPropertyDescriptor> mappingPropertyDescriptors = e.ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = e.ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -256,7 +256,7 @@ namespace Chloe.PostgreSQL
                         if (j > 0)
                             sqlBuilder.Append(",");
 
-                        MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
+                        PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
                         object val = mappingPropertyDescriptor.GetValue(entity);
                         if (val == null)
                         {
@@ -351,7 +351,7 @@ namespace Chloe.PostgreSQL
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            List<MappingPropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -375,7 +375,7 @@ namespace Chloe.PostgreSQL
                         if (j > 0)
                             sqlBuilder.Append(",");
 
-                        MappingPropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
+                        PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
 
                         if (mappingPropertyDescriptor.HasSequence())
                         {

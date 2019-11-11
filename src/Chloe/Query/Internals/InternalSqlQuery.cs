@@ -234,7 +234,7 @@ namespace Chloe.Query.Internals
                     string columnName = null;
                     if (typeDescriptor != null)
                     {
-                        MappingPropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(member);
+                        PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(member);
                         if (propertyDescriptor != null)
                             columnName = propertyDescriptor.Column.Name;
                     }

@@ -20,6 +20,7 @@ namespace Chloe.Query
             this._exp = exp;
         }
 
+        public Type ObjectType { get { return this._type; } }
         public DbExpression Expression { get { return this._exp; } }
 
         public DbExpression NullChecking { get; set; }

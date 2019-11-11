@@ -9,19 +9,20 @@ using System.Linq;
 using System.Reflection;
 using Chloe.InternalExtensions;
 using Chloe.Utility;
+using Chloe.Exceptions;
 
 namespace Chloe.Descriptors
 {
     public class TypeDescriptor
     {
-        Dictionary<MemberInfo, MappingPropertyDescriptor> _propertyDescriptorMap;
+        Dictionary<MemberInfo, PrimitivePropertyDescriptor> _propertyDescriptorMap;
         Dictionary<MemberInfo, DbColumnAccessExpression> _propertyColumnMap;
         DefaultExpressionParser _expressionParser = null;
 
         public TypeDescriptor(TypeDefinition definition)
         {
             this.Definition = definition;
-            this.PropertyDescriptors = this.Definition.Properties.Select(a => new MappingPropertyDescriptor(a, this)).ToList().AsReadOnly();
+            this.PropertyDescriptors = this.Definition.Properties.Select(a => new PrimitivePropertyDescriptor(a, this)).ToList().AsReadOnly();
 
             this.PrimaryKeys = this.PropertyDescriptors.Where(a => a.Definition.IsPrimaryKey).ToList().AsReadOnly();
             this.AutoIncrement = this.PropertyDescriptors.Where(a => a.Definition.IsAutoIncrement).FirstOrDefault();
@@ -31,12 +32,12 @@ namespace Chloe.Descriptors
         }
 
         public TypeDefinition Definition { get; private set; }
-        public ReadOnlyCollection<MappingPropertyDescriptor> PropertyDescriptors { get; private set; }
-        public ReadOnlyCollection<NavigationPropertyDescriptor> NavigationPropertyDescriptors { get; private set; }
-        public ReadOnlyCollection<NavigationCollectionDescriptor> NavigationCollectionDescriptors { get; private set; }
-        public ReadOnlyCollection<MappingPropertyDescriptor> PrimaryKeys { get; private set; }
+        public ReadOnlyCollection<PrimitivePropertyDescriptor> PropertyDescriptors { get; private set; }
+        public ReadOnlyCollection<ComplexPropertyDescriptor> NavigationPropertyDescriptors { get; private set; }
+        public ReadOnlyCollection<CollectionPropertyDescriptor> NavigationCollectionDescriptors { get; private set; }
+        public ReadOnlyCollection<PrimitivePropertyDescriptor> PrimaryKeys { get; private set; }
         /* It will return null if an entity has no auto increment member. */
-        public MappingPropertyDescriptor AutoIncrement { get; private set; }
+        public PrimitivePropertyDescriptor AutoIncrement { get; private set; }
 
         public DbTable Table { get { return this.Definition.Table; } }
 
@@ -52,16 +53,34 @@ namespace Chloe.Descriptors
                 return new DefaultExpressionParser(this, explicitDbTable);
         }
 
+        public ConstructorInfo GetDefaultConstructor()
+        {
+            return this.Definition.Type.GetConstructor(Type.EmptyTypes);
+        }
+
         public bool HasPrimaryKey()
         {
             return this.PrimaryKeys.Count > 0;
         }
-        public MappingPropertyDescriptor TryGetPropertyDescriptor(MemberInfo member)
+        public PrimitivePropertyDescriptor TryGetPropertyDescriptor(MemberInfo member)
         {
             member = member.AsReflectedMemberOf(this.Definition.Type);
-            MappingPropertyDescriptor propertyDescriptor;
+            PrimitivePropertyDescriptor propertyDescriptor;
             this._propertyDescriptorMap.TryGetValue(member, out propertyDescriptor);
             return propertyDescriptor;
+        }
+        public PrimitivePropertyDescriptor GetPropertyDescriptor(MemberInfo member)
+        {
+            member = member.AsReflectedMemberOf(this.Definition.Type);
+            PrimitivePropertyDescriptor propertyDescriptor;
+            if (!this._propertyDescriptorMap.TryGetValue(member, out propertyDescriptor))
+                throw new ChloeException($"Cannot find property named {member.Name}");
+
+            return propertyDescriptor;
+        }
+        public PropertyDescriptor GetNavigationDescriptor(MemberInfo member)
+        {
+            throw new NotImplementedException();
         }
         public DbColumnAccessExpression TryGetColumnAccessExpression(MemberInfo member)
         {

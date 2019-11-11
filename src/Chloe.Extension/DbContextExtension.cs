@@ -41,7 +41,7 @@ namespace Chloe
             List<MemberBinding> bindings = new List<MemberBinding>();
 
             ConstantExpression entityConstantExp = Expression.Constant(entity);
-            foreach (MappingPropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
             {
                 if (propertyDescriptor.IsPrimaryKey || propertyDescriptor.IsAutoIncrement)
                 {
@@ -114,7 +114,7 @@ namespace Chloe
 
             ParameterExpression parameter = Expression.Parameter(entityType, "a");
             Expression conditionBody = null;
-            foreach (MappingPropertyDescriptor primaryKey in typeDescriptor.PrimaryKeys)
+            foreach (PrimitivePropertyDescriptor primaryKey in typeDescriptor.PrimaryKeys)
             {
                 Expression propOrField = Expression.PropertyOrField(parameter, primaryKey.Property.Name);
                 Expression keyValue = Expression.MakeMemberAccess(entityConstantExp, primaryKey.Property);
