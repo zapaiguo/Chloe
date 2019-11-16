@@ -89,12 +89,12 @@ namespace Chloe.Query
                 if (MappingTypeSystem.IsMappingType(pi.ParameterType))
                 {
                     DbExpression dbExpression = this.ResolveExpression(argExp);
-                    result.AddMappingConstructorParameter(pi, dbExpression);
+                    result.AddConstructorParameter(pi, dbExpression);
                 }
                 else
                 {
                     IObjectModel subResult = this.Visit(argExp);
-                    result.AddComplexConstructorParameter(pi, subResult);
+                    result.AddConstructorParameter(pi, subResult);
                 }
             }
 

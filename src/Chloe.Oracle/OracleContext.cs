@@ -47,7 +47,7 @@ namespace Chloe.Oracle
 
             List<PrimitivePropertyDescriptor> outputColumns = new List<PrimitivePropertyDescriptor>();
             Dictionary<PrimitivePropertyDescriptor, DbExpression> insertColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
-            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 if (propertyDescriptor.IsAutoIncrement)
                 {
@@ -122,10 +122,7 @@ namespace Chloe.Oracle
             foreach (var kv in insertColumns)
             {
                 MemberInfo key = kv.Key;
-                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
-
-                if (propertyDescriptor == null)
-                    throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
+                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.GetPrimitivePropertyDescriptor(key);
 
                 if (propertyDescriptor.IsAutoIncrement)
                     throw new ChloeException(string.Format("Could not insert value into the auto increment column '{0}'.", propertyDescriptor.Column.Name));
@@ -149,7 +146,7 @@ namespace Chloe.Oracle
                 insertExp.InsertColumns.Add(propertyDescriptor.Column, expressionParser.Parse(kv.Value));
             }
 
-            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 if (propertyDescriptor.IsAutoIncrement && propertyDescriptor.IsPrimaryKey)
                 {
@@ -211,7 +208,7 @@ namespace Chloe.Oracle
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PrimitivePropertyDescriptors.ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -344,7 +341,7 @@ namespace Chloe.Oracle
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
@@ -461,7 +458,7 @@ namespace Chloe.Oracle
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<PrimitivePropertyDescriptor, DbExpression> updateColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
-            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 if (keyValueMap.ContainsKey(propertyDescriptor))
                 {

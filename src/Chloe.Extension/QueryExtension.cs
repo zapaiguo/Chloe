@@ -86,7 +86,7 @@ namespace Chloe
             Type modelType = typeof(TModel);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entityType);
-            var mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.ToDictionary(a => a.Property.Name, a => a);
+            var mappingPropertyDescriptors = typeDescriptor.PrimitivePropertyDescriptors.ToDictionary(a => a.Property.Name, a => a);
 
             var props = modelType.GetProperties();
             ParameterExpression parameter = Expression.Parameter(typeDescriptor.Definition.Type, "a");
@@ -161,7 +161,7 @@ namespace Chloe
             Type entityType = source.ElementType;
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entityType);
-            var mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.ToList();
+            var mappingPropertyDescriptors = typeDescriptor.PrimitivePropertyDescriptors.ToList();
 
             ParameterExpression parameter = Expression.Parameter(entityType, "a");
             foreach (var mappingPropertyDescriptor in mappingPropertyDescriptors)

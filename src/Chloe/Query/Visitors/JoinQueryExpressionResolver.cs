@@ -47,10 +47,10 @@ namespace Chloe.Query.Visitors
             string alias = this._queryModel.GenerateUniqueTableAlias(dbTable.Name);
 
             DbTableSegment tableSeg = CreateTableSegment(dbTable, alias, exp.Lock);
-            ComplexObjectModel model = new ComplexObjectModel(typeDescriptor.Definition.Type.GetConstructor(Type.EmptyTypes));
+            ComplexObjectModel model = new ComplexObjectModel(typeDescriptor.Definition.Type);
 
             DbTable table = new DbTable(alias);
-            foreach (PrimitivePropertyDescriptor item in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor item in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
                 model.AddPrimitiveMember(item.Property, columnAccessExpression);

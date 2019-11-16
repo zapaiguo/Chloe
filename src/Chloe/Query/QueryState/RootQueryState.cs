@@ -57,7 +57,7 @@ namespace Chloe.Query.QueryState
            
             DbTable table = new DbTable(alias);
 
-            foreach (PrimitivePropertyDescriptor item in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor item in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
 

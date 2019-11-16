@@ -13,15 +13,18 @@ namespace Chloe.Query
 {
     public class ComplexObjectModel : IObjectModel
     {
+        public ComplexObjectModel(Type objectType) : this(objectType.GetConstructor(Type.EmptyTypes))
+        {
+        }
         public ComplexObjectModel(ConstructorInfo constructor)
             : this(EntityConstructorDescriptor.GetInstance(constructor))
         {
-            this.ObjectType = constructor.DeclaringType;
         }
         public ComplexObjectModel(EntityConstructorDescriptor constructorDescriptor)
         {
+            this.ObjectType = constructorDescriptor.ConstructorInfo.DeclaringType;
             this.ConstructorDescriptor = constructorDescriptor;
-            this.MappingConstructorParameters = new Dictionary<ParameterInfo, DbExpression>();
+            this.PrimitiveConstructorParameters = new Dictionary<ParameterInfo, DbExpression>();
             this.ComplexConstructorParameters = new Dictionary<ParameterInfo, IObjectModel>();
             this.PrimitiveMembers = new Dictionary<MemberInfo, DbExpression>();
             this.ComplexMembers = new Dictionary<MemberInfo, IObjectModel>();
@@ -38,18 +41,18 @@ namespace Chloe.Query
         /// 返回类型
         /// </summary>
         public EntityConstructorDescriptor ConstructorDescriptor { get; private set; }
-        public Dictionary<ParameterInfo, DbExpression> MappingConstructorParameters { get; private set; }
+        public Dictionary<ParameterInfo, DbExpression> PrimitiveConstructorParameters { get; private set; }
         public Dictionary<ParameterInfo, IObjectModel> ComplexConstructorParameters { get; private set; }
         public Dictionary<MemberInfo, DbExpression> PrimitiveMembers { get; protected set; }
         public Dictionary<MemberInfo, IObjectModel> ComplexMembers { get; protected set; }
 
-        public void AddMappingConstructorParameter(ParameterInfo p, DbExpression exp)
+        public void AddConstructorParameter(ParameterInfo p, DbExpression primitiveExp)
         {
-            this.MappingConstructorParameters.Add(p, exp);
+            this.PrimitiveConstructorParameters.Add(p, primitiveExp);
         }
-        public void AddComplexConstructorParameter(ParameterInfo p, IObjectModel model)
+        public void AddConstructorParameter(ParameterInfo p, IObjectModel complexModel)
         {
-            this.ComplexConstructorParameters.Add(p, model);
+            this.ComplexConstructorParameters.Add(p, complexModel);
         }
         public void AddPrimitiveMember(MemberInfo memberInfo, DbExpression exp)
         {
@@ -78,7 +81,7 @@ namespace Chloe.Query
                     return null;
                 }
 
-                if (!this.MappingConstructorParameters.TryGetValue(p, out ret))
+                if (!this.PrimitiveConstructorParameters.TryGetValue(p, out ret))
                 {
                     return null;
                 }
@@ -200,7 +203,7 @@ namespace Chloe.Query
         {
             MappingEntity mappingEntity = new MappingEntity(this.ConstructorDescriptor);
 
-            foreach (var kv in this.MappingConstructorParameters)
+            foreach (var kv in this.PrimitiveConstructorParameters)
             {
                 ParameterInfo pi = kv.Key;
                 DbExpression exp = kv.Value;
@@ -256,7 +259,7 @@ namespace Chloe.Query
         {
             ComplexObjectModel newModel = new ComplexObjectModel(this.ConstructorDescriptor);
 
-            foreach (var kv in this.MappingConstructorParameters)
+            foreach (var kv in this.PrimitiveConstructorParameters)
             {
                 ParameterInfo pi = kv.Key;
                 DbExpression exp = kv.Value;
@@ -264,7 +267,7 @@ namespace Chloe.Query
                 DbColumnAccessExpression cae = null;
                 cae = ObjectModelHelper.ParseColumnAccessExpression(sqlQuery, table, exp, pi.Name);
 
-                newModel.AddMappingConstructorParameter(pi, cae);
+                newModel.AddConstructorParameter(pi, cae);
             }
 
             foreach (var kv in this.ComplexConstructorParameters)
@@ -273,7 +276,7 @@ namespace Chloe.Query
                 IObjectModel val = kv.Value;
 
                 IObjectModel complexMappingMember = val.ToNewObjectModel(sqlQuery, table);
-                newModel.AddComplexConstructorParameter(pi, complexMappingMember);
+                newModel.AddConstructorParameter(pi, complexMappingMember);
             }
 
             foreach (var kv in this.PrimitiveMembers)

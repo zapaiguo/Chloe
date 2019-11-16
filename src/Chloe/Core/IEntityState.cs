@@ -53,7 +53,7 @@ namespace Chloe.Core
         {
             if (this._fakes == null)
             {
-                this._fakes = new Dictionary<MemberInfo, object>(this.TypeDescriptor.PropertyDescriptors.Count);
+                this._fakes = new Dictionary<MemberInfo, object>(this.TypeDescriptor.PrimitivePropertyDescriptors.Count);
             }
             else
             {
@@ -61,7 +61,7 @@ namespace Chloe.Core
             }
 
             object entity = this._entity;
-            foreach (PrimitivePropertyDescriptor propertyDescriptor in this.TypeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in this.TypeDescriptor.PrimitivePropertyDescriptors)
             {
                 var val = propertyDescriptor.GetValue(entity);
 

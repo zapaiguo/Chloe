@@ -177,7 +177,7 @@ namespace Chloe
             Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
             Dictionary<PrimitivePropertyDescriptor, DbExpression> insertColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
-            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 if (propertyDescriptor.IsAutoIncrement)
                     continue;
@@ -264,10 +264,7 @@ namespace Chloe
             foreach (var kv in insertColumns)
             {
                 MemberInfo key = kv.Key;
-                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
-
-                if (propertyDescriptor == null)
-                    throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
+                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.GetPrimitivePropertyDescriptor(key);
 
                 if (propertyDescriptor.IsAutoIncrement)
                     throw new ChloeException(string.Format("Could not insert value into the identity column '{0}'.", propertyDescriptor.Column.Name));
@@ -348,7 +345,7 @@ namespace Chloe
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<PrimitivePropertyDescriptor, DbExpression> updateColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
-            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 if (propertyDescriptor.IsPrimaryKey)
                 {
@@ -410,10 +407,7 @@ namespace Chloe
             foreach (var kv in updateColumns)
             {
                 MemberInfo key = kv.Key;
-                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
-
-                if (propertyDescriptor == null)
-                    throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
+                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.GetPrimitivePropertyDescriptor(key);
 
                 if (propertyDescriptor.IsPrimaryKey)
                     throw new ChloeException(string.Format("Could not update the primary key '{0}'.", propertyDescriptor.Column.Name));

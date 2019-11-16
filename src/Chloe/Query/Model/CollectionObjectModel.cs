@@ -24,11 +24,11 @@ namespace Chloe.Query
             this.ElementModel = elementModel;
         }
 
-        public void AddMappingConstructorParameter(ParameterInfo p, DbExpression exp)
+        public void AddConstructorParameter(ParameterInfo p, DbExpression primitiveExp)
         {
             throw new NotSupportedException();
         }
-        public void AddComplexConstructorParameter(ParameterInfo p, IObjectModel model)
+        public void AddConstructorParameter(ParameterInfo p, IObjectModel complexModel)
         {
             throw new NotSupportedException();
         }

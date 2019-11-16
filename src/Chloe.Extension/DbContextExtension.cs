@@ -41,7 +41,7 @@ namespace Chloe
             List<MemberBinding> bindings = new List<MemberBinding>();
 
             ConstantExpression entityConstantExp = Expression.Constant(entity);
-            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 if (propertyDescriptor.IsPrimaryKey || propertyDescriptor.IsAutoIncrement)
                 {
@@ -101,7 +101,7 @@ namespace Chloe
             foreach (string field in fields)
             {
                 MemberInfo memberInfo = entityType.GetMember(field)[0];
-                var propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(memberInfo);
+                var propertyDescriptor = typeDescriptor.FindPrimitivePropertyDescriptor(memberInfo);
 
                 if (propertyDescriptor == null)
                     throw new ArgumentException(string.Format("Could not find the member '{0}' from entity.", propertyDescriptor.Column.Name));

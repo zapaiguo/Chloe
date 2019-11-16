@@ -48,7 +48,7 @@ namespace Chloe.PostgreSQL
             Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
             Dictionary<PrimitivePropertyDescriptor, DbExpression> insertColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
-            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PropertyDescriptors)
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 if (propertyDescriptor.IsAutoIncrement)
                     continue;
@@ -87,7 +87,7 @@ namespace Chloe.PostgreSQL
             }
 
             List<Action<TEntity, IDataReader>> mappers = new List<Action<TEntity, IDataReader>>();
-            foreach (var item in typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement || a.HasSequence()))
+            foreach (var item in typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.IsAutoIncrement || a.HasSequence()))
             {
                 mappers.Add(GetMapper<TEntity>(item, insertExp.Returns.Count));
                 insertExp.Returns.Add(item.Column);
@@ -142,10 +142,7 @@ namespace Chloe.PostgreSQL
             foreach (var kv in insertColumns)
             {
                 MemberInfo key = kv.Key;
-                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.TryGetPropertyDescriptor(key);
-
-                if (propertyDescriptor == null)
-                    throw new ChloeException(string.Format("The member '{0}' does not map any column.", key.Name));
+                PrimitivePropertyDescriptor propertyDescriptor = typeDescriptor.GetPrimitivePropertyDescriptor(key);
 
                 if (propertyDescriptor.IsAutoIncrement)
                     throw new ChloeException(string.Format("Could not insert value into the identity column '{0}'.", propertyDescriptor.Column.Name));
@@ -169,7 +166,7 @@ namespace Chloe.PostgreSQL
                 insertExp.InsertColumns.Add(propertyDescriptor.Column, expressionParser.Parse(kv.Value));
             }
 
-            foreach (var item in typeDescriptor.PropertyDescriptors.Where(a => a.HasSequence()))
+            foreach (var item in typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.HasSequence()))
             {
                 DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(item);
                 insertExp.InsertColumns.Add(item.Column, getNextValueForSequenceExp);
@@ -229,7 +226,7 @@ namespace Chloe.PostgreSQL
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            var e = typeDescriptor.PropertyDescriptors as IEnumerable<PrimitivePropertyDescriptor>;
+            var e = typeDescriptor.PrimitivePropertyDescriptors as IEnumerable<PrimitivePropertyDescriptor>;
             if (keepIdentity == false)
                 e = e.Where(a => a.IsAutoIncrement == false);
             List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = e.ToList();
@@ -351,7 +348,7 @@ namespace Chloe.PostgreSQL
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);

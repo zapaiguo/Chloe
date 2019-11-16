@@ -72,7 +72,7 @@ namespace Chloe.SQLite
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            var e = typeDescriptor.PropertyDescriptors as IEnumerable<PrimitivePropertyDescriptor>;
+            var e = typeDescriptor.PrimitivePropertyDescriptors as IEnumerable<PrimitivePropertyDescriptor>;
             if (keepIdentity == false)
                 e = e.Where(a => a.IsAutoIncrement == false);
             List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = e.ToList();
@@ -191,7 +191,7 @@ namespace Chloe.SQLite
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
+            List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);

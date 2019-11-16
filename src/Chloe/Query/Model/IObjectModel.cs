@@ -16,8 +16,8 @@ namespace Chloe.Query
         Type ObjectType { get; }
         IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery);
         IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table);
-        void AddMappingConstructorParameter(ParameterInfo p, DbExpression exp);
-        void AddComplexConstructorParameter(ParameterInfo p, IObjectModel model);
+        void AddConstructorParameter(ParameterInfo p, DbExpression primitiveExp);
+        void AddConstructorParameter(ParameterInfo p, IObjectModel complexModel);
         void AddPrimitiveMember(MemberInfo memberInfo, DbExpression exp);
         void AddComplexMember(MemberInfo memberInfo, IObjectModel model);
         DbExpression GetPrimitiveMember(MemberInfo memberInfo);

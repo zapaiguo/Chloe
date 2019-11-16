@@ -136,7 +136,7 @@ namespace Chloe.Query.QueryState
         public virtual IQueryState Accept(IncludeExpression exp)
         {
             IObjectModel owner = this._queryModel.ResultModel;
-            NavigationNode navigationNode = exp.NavigationChain;
+            NavigationNode navigationNode = exp.NavigationNode;
             while (navigationNode != null)
             {
                 TypeDescriptor ownerDescriptor = EntityTypeContainer.GetDescriptor(owner.ObjectType);
@@ -144,44 +144,43 @@ namespace Chloe.Query.QueryState
 
                 if (navigationDescriptor.Definition.Kind == TypeKind.Primitive)
                 {
-                    throw new NotSupportedException($"{navigationNode.Property.Name} is not navigation property.");
+                    throw new NotSupportedException($"'{navigationNode.Property.Name}' is not navigation property.");
                 }
 
                 if (navigationDescriptor.Definition.Kind == TypeKind.Complex)
                 {
-                    TypeDescriptor navigationTypeDescriptor = EntityTypeContainer.GetDescriptor(navigationDescriptor.PropertyType);
-                    ComplexObjectModel objectModel = new ComplexObjectModel(navigationTypeDescriptor.GetDefaultConstructor());
-                    owner.AddComplexMember(navigationDescriptor.Property, objectModel);
+                    ComplexObjectModel objectModel = this.GenComplexObjectModel(navigationDescriptor.PropertyType, navigationNode);
 
-                    objectModel.Condition = FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], objectModel } }, this._queryModel.ScopeTables);
-                    objectModel.Filter = FilterPredicateParser.Parse(navigationNode.Filter, new ScopeParameterDictionary(1) { { navigationNode.Filter.Parameters[0], objectModel } }, this._queryModel.ScopeTables);
-
-                    navigationNode = navigationNode.Next;
+                    owner.AddComplexMember(navigationNode.Property, objectModel);
                     owner = objectModel;
-                    continue;
                 }
-
-                Type collectionType = navigationDescriptor.PropertyType;
-                TypeDescriptor elementTypeDescriptor = EntityTypeContainer.GetDescriptor(collectionType.GetGenericArguments()[0]);
-                ComplexObjectModel elementModel = new ComplexObjectModel(elementTypeDescriptor.GetDefaultConstructor());
-                DbTable table = new DbTable(this._queryModel.GenerateUniqueTableAlias(elementTypeDescriptor.Table.Name));
-                foreach (PrimitivePropertyDescriptor propertyDescriptor in elementTypeDescriptor.PropertyDescriptors)
+                else
                 {
-                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, propertyDescriptor.Column);
-                    elementModel.AddPrimitiveMember(propertyDescriptor.Property, columnAccessExpression);
+                    Type collectionType = navigationDescriptor.PropertyType;
+                    ComplexObjectModel elementModel = this.GenComplexObjectModel(collectionType.GetGenericArguments()[0], navigationNode);
+
+                    CollectionObjectModel navModel = new CollectionObjectModel(navigationNode.Property.PropertyType, elementModel);
+                    owner.AddComplexMember(navigationNode.Property, navModel);
+
+                    owner = navModel;
                 }
-
-                CollectionObjectModel navModel = new CollectionObjectModel(navigationNode.Property.PropertyType, elementModel);
-                owner.AddComplexMember(navigationNode.Property, navModel);
-
-                elementModel.Condition = FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], elementModel } }, this._queryModel.ScopeTables);
-                elementModel.Filter = FilterPredicateParser.Parse(navigationNode.Filter, new ScopeParameterDictionary(1) { { navigationNode.Filter.Parameters[0], elementModel } }, this._queryModel.ScopeTables);
 
                 navigationNode = navigationNode.Next;
-                owner = navModel;
             }
 
             throw new NotImplementedException();
+        }
+
+        ComplexObjectModel GenComplexObjectModel(Type objectType, NavigationNode navigationNode)
+        {
+            TypeDescriptor navigationTypeDescriptor = EntityTypeContainer.GetDescriptor(objectType);
+            DbTable table = new DbTable(this._queryModel.GenerateUniqueTableAlias(navigationTypeDescriptor.Table.Name));
+            ComplexObjectModel objectModel = navigationTypeDescriptor.GenObjectModel(table);
+
+            objectModel.Condition = FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], objectModel } }, this._queryModel.ScopeTables);
+            objectModel.Filter = FilterPredicateParser.Parse(navigationNode.Filter, new ScopeParameterDictionary(1) { { navigationNode.Filter.Parameters[0], objectModel } }, this._queryModel.ScopeTables);
+
+            return objectModel;
         }
 
         public virtual QueryModel CreateNewResult(LambdaExpression selector)

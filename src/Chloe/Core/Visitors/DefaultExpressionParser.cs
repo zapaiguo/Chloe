@@ -44,14 +44,9 @@ namespace Chloe.Core.Visitors
                 {
                     if (first)
                     {
-                        DbColumnAccessExpression dbColumnAccessExpression = this._typeDescriptor.TryGetColumnAccessExpression(me.Member);
+                        DbColumnAccessExpression dbColumnAccessExpression = this._typeDescriptor.GetColumnAccessExpression(me.Member);
                         if (this._explicitDbTable != null)
                             dbColumnAccessExpression = new DbColumnAccessExpression(this._explicitDbTable, dbColumnAccessExpression.Column);
-
-                        if (dbColumnAccessExpression == null)
-                        {
-                            throw new ChloeException(string.Format("The member '{0}' does not map any column.", me.Member.Name));
-                        }
 
                         dbExp = dbColumnAccessExpression;
                         first = false;

@@ -13,7 +13,7 @@ namespace Chloe.Descriptors
         {
             this.Definition = definition;
 
-            PrimitivePropertyDescriptor foreignKeyProperty = declaringTypeDescriptor.PropertyDescriptors.Where(a => a.Property.Name == definition.ForeignKey).FirstOrDefault();
+            PrimitivePropertyDescriptor foreignKeyProperty = declaringTypeDescriptor.PrimitivePropertyDescriptors.Where(a => a.Property.Name == definition.ForeignKey).FirstOrDefault();
 
             if (foreignKeyProperty == null)
                 throw new ChloeException($"Can not find property named '{definition.ForeignKey}'");

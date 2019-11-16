@@ -12,9 +12,9 @@ namespace Chloe.Query.QueryExpressions
         public IncludeExpression(Type elementType, QueryExpression prevExpression, QueryExpressionType expressionType, NavigationNode navigationNode)
            : base(expressionType, elementType, prevExpression)
         {
-            this.NavigationChain = navigationNode;
+            this.NavigationNode = navigationNode;
         }
-        public NavigationNode NavigationChain { get; private set; }
+        public NavigationNode NavigationNode { get; private set; }
 
         public override T Accept<T>(QueryExpressionVisitor<T> visitor)
         {
