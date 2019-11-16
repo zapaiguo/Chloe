@@ -21,6 +21,7 @@ namespace Chloe.Query
         }
 
         public Type ObjectType { get { return this._type; } }
+        public TypeKind TypeKind { get { return TypeKind.Complex; } }
         public DbExpression Expression { get { return this._exp; } }
 
         public DbExpression NullChecking { get; set; }
@@ -29,7 +30,7 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
-        public void AddConstructorParameter(ParameterInfo p, IObjectModel complexModel)
+        public void AddConstructorParameter(ParameterInfo p, ComplexObjectModel complexModel)
         {
             throw new NotSupportedException();
         }
@@ -37,18 +38,29 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
-        public void AddComplexMember(MemberInfo p, IObjectModel model)
-        {
-            throw new NotSupportedException();
-        }
         public DbExpression GetPrimitiveMember(MemberInfo memberInfo)
         {
             throw new NotSupportedException();
         }
-        public IObjectModel GetComplexMember(MemberInfo memberInfo)
+
+        public void AddComplexMember(MemberInfo p, ComplexObjectModel model)
         {
             throw new NotSupportedException();
         }
+        public ComplexObjectModel GetComplexMember(MemberInfo memberInfo)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void AddCollectionMember(MemberInfo p, CollectionObjectModel model)
+        {
+            throw new NotSupportedException();
+        }
+        public CollectionObjectModel GetCollectionMember(MemberInfo memberInfo)
+        {
+            throw new NotSupportedException();
+        }
+
         public DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter)
         {
             Stack<MemberExpression> memberExpressions = ExpressionExtension.Reverse(memberExpressionDeriveParameter);

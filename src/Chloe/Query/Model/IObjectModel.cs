@@ -14,14 +14,21 @@ namespace Chloe.Query
     {
         //bool HasMany { get; }
         Type ObjectType { get; }
+        TypeKind TypeKind { get; }
         IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery);
         IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table);
         void AddConstructorParameter(ParameterInfo p, DbExpression primitiveExp);
-        void AddConstructorParameter(ParameterInfo p, IObjectModel complexModel);
+        void AddConstructorParameter(ParameterInfo p, ComplexObjectModel complexModel);
+
         void AddPrimitiveMember(MemberInfo memberInfo, DbExpression exp);
-        void AddComplexMember(MemberInfo memberInfo, IObjectModel model);
         DbExpression GetPrimitiveMember(MemberInfo memberInfo);
-        IObjectModel GetComplexMember(MemberInfo memberInfo);
+
+        void AddComplexMember(MemberInfo memberInfo, ComplexObjectModel model);
+        ComplexObjectModel GetComplexMember(MemberInfo memberInfo);
+
+        void AddCollectionMember(MemberInfo memberInfo, CollectionObjectModel model);
+        CollectionObjectModel GetCollectionMember(MemberInfo memberInfo);
+
         DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter);
         IObjectModel GetComplexMember(MemberExpression exp);
 

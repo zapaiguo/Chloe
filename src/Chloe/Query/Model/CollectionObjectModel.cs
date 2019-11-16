@@ -16,6 +16,7 @@ namespace Chloe.Query
         Type _collectionType;
 
         public Type ObjectType { get { return this._collectionType; } }
+        public TypeKind TypeKind { get { return TypeKind.Complex; } }
         public ComplexObjectModel ElementModel { get; private set; }
 
         public CollectionObjectModel(Type collectionType, ComplexObjectModel elementModel)
@@ -28,7 +29,7 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
-        public void AddConstructorParameter(ParameterInfo p, IObjectModel complexModel)
+        public void AddConstructorParameter(ParameterInfo p, ComplexObjectModel complexModel)
         {
             throw new NotSupportedException();
         }
@@ -36,18 +37,29 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
-        public void AddComplexMember(MemberInfo p, IObjectModel model)
-        {
-            throw new NotSupportedException();
-        }
         public DbExpression GetPrimitiveMember(MemberInfo memberInfo)
         {
             throw new NotSupportedException();
         }
-        public IObjectModel GetComplexMember(MemberInfo memberInfo)
+
+        public void AddComplexMember(MemberInfo p, ComplexObjectModel model)
         {
             throw new NotSupportedException();
         }
+        public ComplexObjectModel GetComplexMember(MemberInfo memberInfo)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void AddCollectionMember(MemberInfo p, CollectionObjectModel model)
+        {
+            throw new NotSupportedException();
+        }
+        public CollectionObjectModel GetCollectionMember(MemberInfo memberInfo)
+        {
+            throw new NotSupportedException();
+        }
+
         public DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter)
         {
             throw new NotSupportedException();

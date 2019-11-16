@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Chloe.Query
 {
-    class QueryModel
+    public class QueryModel
     {
         public QueryModel(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {

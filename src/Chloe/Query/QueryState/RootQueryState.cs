@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Collections.Generic;
 using Chloe.Utility;
 using Chloe.Infrastructure;
+using Chloe.Query.QueryExpressions;
 
 namespace Chloe.Query.QueryState
 {
@@ -32,6 +33,14 @@ namespace Chloe.Query.QueryState
             return base.ToFromQueryModel();
         }
 
+        public override IQueryState Accept(IncludeExpression exp)
+        {
+            ComplexObjectModel owner = (ComplexObjectModel)this.QueryModel.ResultModel;
+            owner.Include(exp.NavigationNode, this.QueryModel);
+
+            return this;
+        }
+
         static QueryModel CreateQueryModel(Type type, string explicitTableName, LockType lockType, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
             if (type.IsAbstract || type.IsInterface)
@@ -54,7 +63,7 @@ namespace Chloe.Query.QueryState
                 throw new ArgumentException(string.Format("The type of '{0}' does't define a none parameter constructor.", type.FullName));
 
             ComplexObjectModel model = new ComplexObjectModel(constructor);
-           
+
             DbTable table = new DbTable(alias);
 
             foreach (PrimitivePropertyDescriptor item in typeDescriptor.PrimitivePropertyDescriptors)

@@ -94,7 +94,7 @@ namespace Chloe.Query
                 else
                 {
                     IObjectModel subResult = this.Visit(argExp);
-                    result.AddConstructorParameter(pi, subResult);
+                    result.AddConstructorParameter(pi, (ComplexObjectModel)subResult);
                 }
             }
 
@@ -125,7 +125,7 @@ namespace Chloe.Query
                 {
                     //对于非数据库映射类型，只支持 NewExpression 和 MemberInitExpression
                     IObjectModel subResult = this.Visit(memberAssignment.Expression);
-                    result.AddComplexMember(member, subResult);
+                    result.AddComplexMember(member, (ComplexObjectModel)subResult);
                 }
             }
 

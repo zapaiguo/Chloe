@@ -22,7 +22,7 @@ namespace Chloe.Query.QueryExpressions
         }
     }
 
-    class NavigationNode
+    public class NavigationNode
     {
         public PropertyInfo Property { get; set; }
         public LambdaExpression Condition { get; set; }

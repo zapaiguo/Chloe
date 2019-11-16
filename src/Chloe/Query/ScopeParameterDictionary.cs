@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Chloe.Query
 {
-    class ScopeParameterDictionary : Dictionary<ParameterExpression, IObjectModel>
+    public class ScopeParameterDictionary : Dictionary<ParameterExpression, IObjectModel>
     {
         public ScopeParameterDictionary()
         {

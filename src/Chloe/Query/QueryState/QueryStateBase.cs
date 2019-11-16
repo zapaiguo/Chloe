@@ -135,52 +135,7 @@ namespace Chloe.Query.QueryState
         }
         public virtual IQueryState Accept(IncludeExpression exp)
         {
-            IObjectModel owner = this._queryModel.ResultModel;
-            NavigationNode navigationNode = exp.NavigationNode;
-            while (navigationNode != null)
-            {
-                TypeDescriptor ownerDescriptor = EntityTypeContainer.GetDescriptor(owner.ObjectType);
-                PropertyDescriptor navigationDescriptor = ownerDescriptor.GetPropertyDescriptor(navigationNode.Property);
-
-                if (navigationDescriptor.Definition.Kind == TypeKind.Primitive)
-                {
-                    throw new NotSupportedException($"'{navigationNode.Property.Name}' is not navigation property.");
-                }
-
-                if (navigationDescriptor.Definition.Kind == TypeKind.Complex)
-                {
-                    ComplexObjectModel objectModel = this.GenComplexObjectModel(navigationDescriptor.PropertyType, navigationNode);
-
-                    owner.AddComplexMember(navigationNode.Property, objectModel);
-                    owner = objectModel;
-                }
-                else
-                {
-                    Type collectionType = navigationDescriptor.PropertyType;
-                    ComplexObjectModel elementModel = this.GenComplexObjectModel(collectionType.GetGenericArguments()[0], navigationNode);
-
-                    CollectionObjectModel navModel = new CollectionObjectModel(navigationNode.Property.PropertyType, elementModel);
-                    owner.AddComplexMember(navigationNode.Property, navModel);
-
-                    owner = navModel;
-                }
-
-                navigationNode = navigationNode.Next;
-            }
-
-            throw new NotImplementedException();
-        }
-
-        ComplexObjectModel GenComplexObjectModel(Type objectType, NavigationNode navigationNode)
-        {
-            TypeDescriptor navigationTypeDescriptor = EntityTypeContainer.GetDescriptor(objectType);
-            DbTable table = new DbTable(this._queryModel.GenerateUniqueTableAlias(navigationTypeDescriptor.Table.Name));
-            ComplexObjectModel objectModel = navigationTypeDescriptor.GenObjectModel(table);
-
-            objectModel.Condition = FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], objectModel } }, this._queryModel.ScopeTables);
-            objectModel.Filter = FilterPredicateParser.Parse(navigationNode.Filter, new ScopeParameterDictionary(1) { { navigationNode.Filter.Parameters[0], objectModel } }, this._queryModel.ScopeTables);
-
-            return objectModel;
+            throw new NotSupportedException("Cannot call include method now.");
         }
 
         public virtual QueryModel CreateNewResult(LambdaExpression selector)
