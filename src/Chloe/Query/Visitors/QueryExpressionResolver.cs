@@ -67,21 +67,21 @@ namespace Chloe.Query.Visitors
         {
             IQueryState qs = QueryExpressionResolver.Resolve(exp.PrevExpression, this._scopeParameters, this._scopeTables);
 
-            ResultElement resultElement = qs.ToFromQueryResult();
+            QueryModel queryModel = qs.ToFromQueryModel();
 
             List<IObjectModel> modelList = new List<IObjectModel>();
-            modelList.Add(resultElement.ResultModel);
+            modelList.Add(queryModel.ResultModel);
 
             foreach (JoiningQueryInfo joiningQueryInfo in exp.JoinedQueries)
             {
-                ScopeParameterDictionary scopeParameters = resultElement.ScopeParameters.Clone(resultElement.ScopeParameters.Count + modelList.Count);
+                ScopeParameterDictionary scopeParameters = queryModel.ScopeParameters.Clone(queryModel.ScopeParameters.Count + modelList.Count);
                 for (int i = 0; i < modelList.Count; i++)
                 {
                     ParameterExpression p = joiningQueryInfo.Condition.Parameters[i];
                     scopeParameters[p] = modelList[i];
                 }
 
-                JoinQueryResult joinQueryResult = JoinQueryExpressionResolver.Resolve(joiningQueryInfo.Query.QueryExpression, resultElement, joiningQueryInfo.JoinType, joiningQueryInfo.Condition, scopeParameters);
+                JoinQueryResult joinQueryResult = JoinQueryExpressionResolver.Resolve(joiningQueryInfo.Query.QueryExpression, queryModel, joiningQueryInfo.JoinType, joiningQueryInfo.Condition, scopeParameters);
 
                 var nullChecking = DbExpression.CaseWhen(new DbCaseWhenExpression.WhenThenExpressionPair(joinQueryResult.JoinTable.Condition, DbConstantExpression.One), DbConstantExpression.Null, DbConstantExpression.One.Type);
 
@@ -105,20 +105,20 @@ namespace Chloe.Query.Visitors
                     }
                 }
 
-                resultElement.FromTable.JoinTables.Add(joinQueryResult.JoinTable);
+                queryModel.FromTable.JoinTables.Add(joinQueryResult.JoinTable);
                 modelList.Add(joinQueryResult.ResultModel);
             }
 
-            ScopeParameterDictionary scopeParameters1 = resultElement.ScopeParameters.Clone(resultElement.ScopeParameters.Count + modelList.Count);
+            ScopeParameterDictionary scopeParameters1 = queryModel.ScopeParameters.Clone(queryModel.ScopeParameters.Count + modelList.Count);
             for (int i = 0; i < modelList.Count; i++)
             {
                 ParameterExpression p = exp.Selector.Parameters[i];
                 scopeParameters1[p] = modelList[i];
             }
-            IObjectModel model = SelectorResolver.Resolve(exp.Selector, scopeParameters1, resultElement.ScopeTables);
-            resultElement.ResultModel = model;
+            IObjectModel model = SelectorResolver.Resolve(exp.Selector, scopeParameters1, queryModel.ScopeTables);
+            queryModel.ResultModel = model;
 
-            GeneralQueryState queryState = new GeneralQueryState(resultElement);
+            GeneralQueryState queryState = new GeneralQueryState(queryModel);
             return queryState;
         }
         public override IQueryState Visit(GroupingQueryExpression exp)

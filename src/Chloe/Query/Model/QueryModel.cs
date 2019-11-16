@@ -9,12 +9,9 @@ using System.Text;
 
 namespace Chloe.Query
 {
-    /// <summary>
-    /// 查询的结果集
-    /// </summary>
-    class ResultElement
+    class QueryModel
     {
-        public ResultElement(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public QueryModel(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
             this.Orderings = new List<DbOrdering>();
             this.GroupSegments = new List<DbExpression>();

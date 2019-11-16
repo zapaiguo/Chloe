@@ -3,22 +3,22 @@ namespace Chloe.Query.QueryState
 {
     class GeneralQueryState : QueryStateBase, IQueryState
     {
-        public GeneralQueryState(ResultElement resultElement)
-            : base(resultElement)
+        public GeneralQueryState(QueryModel queryModel)
+            : base(queryModel)
         {
         }
 
-        public override ResultElement ToFromQueryResult()
+        public override QueryModel ToFromQueryModel()
         {
-            if (this.Result.Condition == null)
+            if (this.QueryModel.Condition == null)
             {
-                ResultElement result = new ResultElement(this.Result.ScopeParameters, this.Result.ScopeTables);
-                result.FromTable = this.Result.FromTable;
-                result.ResultModel = this.Result.ResultModel;
+                QueryModel result = new QueryModel(this.QueryModel.ScopeParameters, this.QueryModel.ScopeTables);
+                result.FromTable = this.QueryModel.FromTable;
+                result.ResultModel = this.QueryModel.ResultModel;
                 return result;
             }
 
-            return base.ToFromQueryResult();
+            return base.ToFromQueryModel();
         }
 
     }

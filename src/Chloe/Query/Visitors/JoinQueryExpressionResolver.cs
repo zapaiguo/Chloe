@@ -15,23 +15,23 @@ namespace Chloe.Query.Visitors
 {
     class JoinQueryExpressionResolver : QueryExpressionVisitor<JoinQueryResult>
     {
-        ResultElement _resultElement;
+        QueryModel _queryModel;
         JoinType _joinType;
 
         LambdaExpression _conditionExpression;
         ScopeParameterDictionary _scopeParameters;
 
-        JoinQueryExpressionResolver(ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters)
+        JoinQueryExpressionResolver(QueryModel queryModel, JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters)
         {
-            this._resultElement = resultElement;
+            this._queryModel = queryModel;
             this._joinType = joinType;
             this._conditionExpression = conditionExpression;
             this._scopeParameters = scopeParameters;
         }
 
-        public static JoinQueryResult Resolve(QueryExpression queryExpression, ResultElement resultElement, JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters)
+        public static JoinQueryResult Resolve(QueryExpression queryExpression, QueryModel queryModel, JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters)
         {
-            JoinQueryExpressionResolver resolver = new JoinQueryExpressionResolver(resultElement, joinType, conditionExpression, scopeParameters);
+            JoinQueryExpressionResolver resolver = new JoinQueryExpressionResolver(queryModel, joinType, conditionExpression, scopeParameters);
             return queryExpression.Accept(resolver);
         }
 
@@ -44,7 +44,7 @@ namespace Chloe.Query.Visitors
             DbTable dbTable = typeDescriptor.Table;
             if (explicitTableName != null)
                 dbTable = new DbTable(explicitTableName, dbTable.Schema);
-            string alias = this._resultElement.GenerateUniqueTableAlias(dbTable.Name);
+            string alias = this._queryModel.GenerateUniqueTableAlias(dbTable.Name);
 
             DbTableSegment tableSeg = CreateTableSegment(dbTable, alias, exp.Lock);
             ComplexObjectModel model = new ComplexObjectModel(typeDescriptor.Definition.Type.GetConstructor(Type.EmptyTypes));
@@ -61,7 +61,7 @@ namespace Chloe.Query.Visitors
 
             //TODO 解析 on 条件表达式
             var scopeParameters = this._scopeParameters.Clone(this._conditionExpression.Parameters.Last(), model);
-            DbExpression condition = GeneralExpressionParser.Parse(this._conditionExpression, scopeParameters, this._resultElement.ScopeTables);
+            DbExpression condition = GeneralExpressionParser.Parse(this._conditionExpression, scopeParameters, this._queryModel.ScopeTables);
 
             DbJoinTableExpression joinTable = new DbJoinTableExpression(this._joinType.AsDbJoinType(), tableSeg, condition);
 
@@ -119,8 +119,8 @@ namespace Chloe.Query.Visitors
 
         JoinQueryResult Visit(QueryExpression exp)
         {
-            IQueryState state = QueryExpressionResolver.Resolve(exp, this._scopeParameters, this._resultElement.ScopeTables);
-            JoinQueryResult ret = state.ToJoinQueryResult(this._joinType, this._conditionExpression, this._scopeParameters, this._resultElement.ScopeTables, this._resultElement.GenerateUniqueTableAlias());
+            IQueryState state = QueryExpressionResolver.Resolve(exp, this._scopeParameters, this._queryModel.ScopeTables);
+            JoinQueryResult ret = state.ToJoinQueryResult(this._joinType, this._conditionExpression, this._scopeParameters, this._queryModel.ScopeTables, this._queryModel.GenerateUniqueTableAlias());
             return ret;
         }
         static DbTableSegment CreateTableSegment(DbTable table, string alias, LockType @lock)

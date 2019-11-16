@@ -14,40 +14,40 @@ namespace Chloe.Query.QueryState
     {
         Type _elementType;
         public RootQueryState(Type elementType, string explicitTableName, LockType @lock, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
-            : base(CreateResultElement(elementType, explicitTableName, @lock, scopeParameters, scopeTables))
+            : base(CreateQueryModel(elementType, explicitTableName, @lock, scopeParameters, scopeTables))
         {
             this._elementType = elementType;
         }
 
-        public override ResultElement ToFromQueryResult()
+        public override QueryModel ToFromQueryModel()
         {
-            if (this.Result.Condition == null)
+            if (this.QueryModel.Condition == null)
             {
-                ResultElement result = new ResultElement(this.Result.ScopeParameters, this.Result.ScopeTables);
-                result.FromTable = this.Result.FromTable;
-                result.ResultModel = this.Result.ResultModel;
+                QueryModel result = new QueryModel(this.QueryModel.ScopeParameters, this.QueryModel.ScopeTables);
+                result.FromTable = this.QueryModel.FromTable;
+                result.ResultModel = this.QueryModel.ResultModel;
                 return result;
             }
 
-            return base.ToFromQueryResult();
+            return base.ToFromQueryModel();
         }
 
-        static ResultElement CreateResultElement(Type type, string explicitTableName, LockType lockType, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        static QueryModel CreateQueryModel(Type type, string explicitTableName, LockType lockType, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
             if (type.IsAbstract || type.IsInterface)
                 throw new ArgumentException("The type of input can not be abstract class or interface.");
 
-            //TODO init _resultElement
-            ResultElement resultElement = new ResultElement(scopeParameters, scopeTables);
+            //TODO init queryModel
+            QueryModel queryModel = new QueryModel(scopeParameters, scopeTables);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(type);
 
             DbTable dbTable = typeDescriptor.Table;
             if (explicitTableName != null)
                 dbTable = new DbTable(explicitTableName, dbTable.Schema);
-            string alias = resultElement.GenerateUniqueTableAlias(dbTable.Name);
+            string alias = queryModel.GenerateUniqueTableAlias(dbTable.Name);
 
-            resultElement.FromTable = CreateRootTable(dbTable, alias, lockType);
+            queryModel.FromTable = CreateRootTable(dbTable, alias, lockType);
 
             ConstructorInfo constructor = typeDescriptor.GetDefaultConstructor();
             if (constructor == null)
@@ -66,9 +66,9 @@ namespace Chloe.Query.QueryState
                     model.PrimaryKey = columnAccessExpression;
             }
 
-            resultElement.ResultModel = model;
+            queryModel.ResultModel = model;
 
-            return resultElement;
+            return queryModel;
         }
         static DbFromTableExpression CreateRootTable(DbTable table, string alias, LockType lockType)
         {

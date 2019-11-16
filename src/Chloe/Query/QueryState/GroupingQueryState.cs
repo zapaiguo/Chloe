@@ -9,8 +9,8 @@ namespace Chloe.Query.QueryState
 {
     class GroupingQueryState : QueryStateBase
     {
-        public GroupingQueryState(ResultElement resultElement)
-            : base(resultElement)
+        public GroupingQueryState(QueryModel queryModel)
+            : base(queryModel)
         {
         }
 

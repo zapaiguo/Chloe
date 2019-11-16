@@ -9,8 +9,8 @@ namespace Chloe.Query.QueryState
 {
     class DistinctQueryState : SubQueryState
     {
-        public DistinctQueryState(ResultElement resultElement)
-            : base(resultElement)
+        public DistinctQueryState(QueryModel queryModel)
+            : base(queryModel)
         {
         }
 

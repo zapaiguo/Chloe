@@ -7,8 +7,8 @@ namespace Chloe.Query.QueryState
     internal sealed class TakeQueryState : SubQueryState
     {
         int _count;
-        public TakeQueryState(ResultElement resultElement, int count)
-            : base(resultElement)
+        public TakeQueryState(QueryModel queryModel, int count)
+            : base(queryModel)
         {
             this.Count = count;
         }
@@ -42,7 +42,7 @@ namespace Chloe.Query.QueryState
             return this;
         }
 
-        public override IQueryState CreateQueryState(ResultElement result)
+        public override IQueryState CreateQueryState(QueryModel result)
         {
             return new TakeQueryState(result, this.Count);
         }

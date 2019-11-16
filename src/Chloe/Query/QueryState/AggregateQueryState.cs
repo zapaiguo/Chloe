@@ -7,8 +7,8 @@ namespace Chloe.Query.QueryState
 {
     class AggregateQueryState : QueryStateBase, IQueryState
     {
-        public AggregateQueryState(ResultElement resultElement)
-            : base(resultElement)
+        public AggregateQueryState(QueryModel queryModel)
+            : base(queryModel)
         {
         }
     }

@@ -7,8 +7,8 @@ namespace Chloe.Query.QueryState
     internal sealed class SkipQueryState : SubQueryState
     {
         int _count;
-        public SkipQueryState(ResultElement resultElement, int count)
-            : base(resultElement)
+        public SkipQueryState(QueryModel queryModel, int count)
+            : base(queryModel)
         {
             this.Count = count;
         }
@@ -46,10 +46,10 @@ namespace Chloe.Query.QueryState
         }
         public override IQueryState Accept(TakeExpression exp)
         {
-            var state = new LimitQueryState(this.Result, this.Count, exp.Count);
+            var state = new LimitQueryState(this.QueryModel, this.Count, exp.Count);
             return state;
         }
-        public override IQueryState CreateQueryState(ResultElement result)
+        public override IQueryState CreateQueryState(QueryModel result)
         {
             return new SkipQueryState(result, this.Count);
         }
