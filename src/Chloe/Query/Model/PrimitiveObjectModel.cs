@@ -10,11 +10,11 @@ using System.Reflection;
 
 namespace Chloe.Query
 {
-    public class MappingFieldExpression : IMappingObjectExpression
+    public class PrimitiveObjectModel : IObjectModel
     {
         Type _type;
         DbExpression _exp;
-        public MappingFieldExpression(Type type, DbExpression exp)
+        public PrimitiveObjectModel(Type type, DbExpression exp)
         {
             this._type = type;
             this._exp = exp;
@@ -29,23 +29,23 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
-        public void AddComplexConstructorParameter(ParameterInfo p, IMappingObjectExpression exp)
+        public void AddComplexConstructorParameter(ParameterInfo p, IObjectModel model)
         {
             throw new NotSupportedException();
         }
-        public void AddMappingMemberExpression(MemberInfo p, DbExpression exp)
+        public void AddPrimitiveMember(MemberInfo p, DbExpression exp)
         {
             throw new NotSupportedException();
         }
-        public void AddComplexMemberExpression(MemberInfo p, IMappingObjectExpression exp)
+        public void AddComplexMember(MemberInfo p, IObjectModel model)
         {
             throw new NotSupportedException();
         }
-        public DbExpression GetMappingMemberExpression(MemberInfo memberInfo)
+        public DbExpression GetPrimitiveMember(MemberInfo memberInfo)
         {
             throw new NotSupportedException();
         }
-        public IMappingObjectExpression GetComplexMemberExpression(MemberInfo memberInfo)
+        public IObjectModel GetComplexMember(MemberInfo memberInfo)
         {
             throw new NotSupportedException();
         }
@@ -69,7 +69,7 @@ namespace Chloe.Query
 
             return ret;
         }
-        public IMappingObjectExpression GetComplexMemberExpression(MemberExpression exp)
+        public IObjectModel GetComplexMember(MemberExpression exp)
         {
             throw new NotSupportedException();
         }
@@ -77,24 +77,24 @@ namespace Chloe.Query
         public IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery)
         {
             int ordinal;
-            ordinal = MappingObjectExpressionHelper.TryGetOrAddColumn(sqlQuery, this._exp).Value;
+            ordinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, this._exp).Value;
 
             MappingField mf = new MappingField(this._type, ordinal);
 
-            mf.CheckNullOrdinal = MappingObjectExpressionHelper.TryGetOrAddColumn(sqlQuery, this.NullChecking);
+            mf.CheckNullOrdinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, this.NullChecking);
 
             return mf;
         }
 
 
-        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTable table)
+        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table)
         {
             DbColumnAccessExpression cae = null;
-            cae = MappingObjectExpressionHelper.ParseColumnAccessExpression(sqlQuery, table, this._exp);
+            cae = ObjectModelHelper.ParseColumnAccessExpression(sqlQuery, table, this._exp);
 
-            MappingFieldExpression mf = new MappingFieldExpression(this._type, cae);
+            PrimitiveObjectModel mf = new PrimitiveObjectModel(this._type, cae);
 
-            mf.NullChecking = MappingObjectExpressionHelper.TryGetOrAddNullChecking(sqlQuery, table, this.NullChecking);
+            mf.NullChecking = ObjectModelHelper.TryGetOrAddNullChecking(sqlQuery, table, this.NullChecking);
 
             return mf;
         }

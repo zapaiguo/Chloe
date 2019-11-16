@@ -8,7 +8,7 @@ namespace Chloe.Query
 {
     public class JoinQueryResult
     {
-        public IMappingObjectExpression MappingObjectExpression { get; set; }
+        public IObjectModel ResultModel { get; set; }
         public DbJoinTableExpression JoinTable { get; set; }
     }
 }

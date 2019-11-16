@@ -12,7 +12,7 @@ using Chloe.Utility;
 
 namespace Chloe.Query
 {
-    class SelectorResolver : ExpressionVisitor<IMappingObjectExpression>
+    class SelectorResolver : ExpressionVisitor<IObjectModel>
     {
         ExpressionVisitorBase _visitor;
         ScopeParameterDictionary _scopeParameters;
@@ -23,28 +23,28 @@ namespace Chloe.Query
             this._scopeTables = scopeTables;
         }
 
-        public static IMappingObjectExpression Resolve(LambdaExpression selector, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public static IObjectModel Resolve(LambdaExpression selector, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
         {
             SelectorResolver resolver = new SelectorResolver(scopeParameters, scopeTables);
             return resolver.Visit(selector);
         }
 
-        IMappingObjectExpression FindMoe(ParameterExpression exp)
+        IObjectModel FindModel(ParameterExpression exp)
         {
-            IMappingObjectExpression moe = this._scopeParameters.Get(exp);
-            return moe;
+            IObjectModel model = this._scopeParameters.Get(exp);
+            return model;
         }
         DbExpression ResolveExpression(Expression exp)
         {
             return this._visitor.Visit(exp);
         }
-        IMappingObjectExpression ResolveComplexMember(MemberExpression exp)
+        IObjectModel ResolveComplexMember(MemberExpression exp)
         {
             ParameterExpression p;
             if (ExpressionExtension.IsDerivedFromParameter(exp, out p))
             {
-                IMappingObjectExpression moe = this.FindMoe(p);
-                return moe.GetComplexMemberExpression(exp);
+                IObjectModel model = this.FindModel(p);
+                return model.GetComplexMember(exp);
             }
             else
             {
@@ -52,10 +52,10 @@ namespace Chloe.Query
             }
         }
 
-        public override IMappingObjectExpression Visit(Expression exp)
+        public override IObjectModel Visit(Expression exp)
         {
             if (exp == null)
-                return default(IMappingObjectExpression);
+                return default(IObjectModel);
             switch (exp.NodeType)
             {
                 case ExpressionType.Lambda:
@@ -73,14 +73,14 @@ namespace Chloe.Query
             }
         }
 
-        protected override IMappingObjectExpression VisitLambda(LambdaExpression exp)
+        protected override IObjectModel VisitLambda(LambdaExpression exp)
         {
             this._visitor = new GeneralExpressionParser(this._scopeParameters, this._scopeTables);
             return this.Visit(exp.Body);
         }
-        protected override IMappingObjectExpression VisitNew(NewExpression exp)
+        protected override IObjectModel VisitNew(NewExpression exp)
         {
-            IMappingObjectExpression result = new MappingObjectExpression(exp.Constructor);
+            IObjectModel result = new ComplexObjectModel(exp.Constructor);
             ParameterInfo[] parames = exp.Constructor.GetParameters();
             for (int i = 0; i < parames.Length; i++)
             {
@@ -93,16 +93,16 @@ namespace Chloe.Query
                 }
                 else
                 {
-                    IMappingObjectExpression subResult = this.Visit(argExp);
+                    IObjectModel subResult = this.Visit(argExp);
                     result.AddComplexConstructorParameter(pi, subResult);
                 }
             }
 
             return result;
         }
-        protected override IMappingObjectExpression VisitMemberInit(MemberInitExpression exp)
+        protected override IObjectModel VisitMemberInit(MemberInitExpression exp)
         {
-            IMappingObjectExpression result = this.Visit(exp.NewExpression);
+            IObjectModel result = this.Visit(exp.NewExpression);
 
             foreach (MemberBinding binding in exp.Bindings)
             {
@@ -119,13 +119,13 @@ namespace Chloe.Query
                 if (MappingTypeSystem.IsMappingType(memberType))
                 {
                     DbExpression dbExpression = this.ResolveExpression(memberAssignment.Expression);
-                    result.AddMappingMemberExpression(member, dbExpression);
+                    result.AddPrimitiveMember(member, dbExpression);
                 }
                 else
                 {
                     //对于非数据库映射类型，只支持 NewExpression 和 MemberInitExpression
-                    IMappingObjectExpression subResult = this.Visit(memberAssignment.Expression);
-                    result.AddComplexMemberExpression(member, subResult);
+                    IObjectModel subResult = this.Visit(memberAssignment.Expression);
+                    result.AddComplexMember(member, subResult);
                 }
             }
 
@@ -136,26 +136,26 @@ namespace Chloe.Query
         /// </summary>
         /// <param name="exp"></param>
         /// <returns></returns>
-        protected override IMappingObjectExpression VisitMemberAccess(MemberExpression exp)
+        protected override IObjectModel VisitMemberAccess(MemberExpression exp)
         {
             //create MappingFieldExpression object if exp is map type
             if (MappingTypeSystem.IsMappingType(exp.Type))
             {
                 DbExpression dbExp = this.ResolveExpression(exp);
-                MappingFieldExpression ret = new MappingFieldExpression(exp.Type, dbExp);
+                PrimitiveObjectModel ret = new PrimitiveObjectModel(exp.Type, dbExp);
                 return ret;
             }
 
             //如 a.Order a.User 等形式
             return this.ResolveComplexMember(exp);
         }
-        protected override IMappingObjectExpression VisitParameter(ParameterExpression exp)
+        protected override IObjectModel VisitParameter(ParameterExpression exp)
         {
-            IMappingObjectExpression moe = this.FindMoe(exp);
-            return moe;
+            IObjectModel model = this.FindModel(exp);
+            return model;
         }
 
-        IMappingObjectExpression VisistMapTypeSelector(Expression exp)
+        IObjectModel VisistMapTypeSelector(Expression exp)
         {
             if (!MappingTypeSystem.IsMappingType(exp.Type))
             {
@@ -163,7 +163,7 @@ namespace Chloe.Query
             }
 
             DbExpression dbExp = this.ResolveExpression(exp);
-            MappingFieldExpression ret = new MappingFieldExpression(exp.Type, dbExp);
+            PrimitiveObjectModel ret = new PrimitiveObjectModel(exp.Type, dbExp);
             return ret;
         }
     }

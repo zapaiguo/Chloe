@@ -45,10 +45,10 @@ namespace Chloe.Query.Visitors
             return visitor.Visit(exp);
         }
 
-        IMappingObjectExpression FindMoe(ParameterExpression exp)
+        IObjectModel FindModel(ParameterExpression exp)
         {
-            IMappingObjectExpression moe = this._scopeParameters.Get(exp);
-            return moe;
+            IObjectModel model = this._scopeParameters.Get(exp);
+            return model;
         }
 
         protected override DbExpression VisitLambda(LambdaExpression lambda)
@@ -61,8 +61,8 @@ namespace Chloe.Query.Visitors
             ParameterExpression p;
             if (ExpressionExtension.IsDerivedFromParameter(exp, out p))
             {
-                IMappingObjectExpression moe = this.FindMoe(p);
-                return moe.GetDbExpression(exp);
+                IObjectModel model = this.FindModel(p);
+                return model.GetDbExpression(exp);
             }
 
             if (IsComeFrom_First_Or_FirstOrDefault(exp))
@@ -82,9 +82,9 @@ namespace Chloe.Query.Visitors
 
             if (MappingTypeSystem.IsMappingType(exp.Type))
             {
-                IMappingObjectExpression moe = this.FindMoe(exp);
-                MappingFieldExpression mfe = (MappingFieldExpression)moe;
-                return mfe.Expression;
+                IObjectModel model = this.FindModel(exp);
+                PrimitiveObjectModel resultModel = (PrimitiveObjectModel)model;
+                return resultModel.Expression;
             }
             else
                 throw new NotSupportedException(exp.ToString());

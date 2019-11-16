@@ -26,7 +26,7 @@ namespace Chloe.Query.QueryState
 
         public virtual IQueryState Accept(WhereExpression exp)
         {
-            ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(exp.Predicate.Parameters[0], this._resultElement.MappingObjectExpression);
+            ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(exp.Predicate.Parameters[0], this._resultElement.ResultModel);
 
             DbExpression whereCondition = FilterPredicateParser.Parse(exp.Predicate, scopeParameters, this._resultElement.ScopeTables);
             this._resultElement.AppendCondition(whereCondition);
@@ -71,18 +71,18 @@ namespace Chloe.Query.QueryState
             foreach (Expression argument in exp.Arguments)
             {
                 var arg = (LambdaExpression)argument;
-                ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(arg.Parameters[0], this._resultElement.MappingObjectExpression);
+                ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(arg.Parameters[0], this._resultElement.ResultModel);
 
                 var dbArgument = GeneralExpressionParser.Parse(arg, scopeParameters, this._resultElement.ScopeTables);
                 dbArguments.Add(dbArgument);
             }
 
             DbAggregateExpression dbAggregateExp = new DbAggregateExpression(exp.ElementType, exp.Method, dbArguments);
-            MappingFieldExpression mfe = new MappingFieldExpression(exp.ElementType, dbAggregateExp);
+            PrimitiveObjectModel resultModel = new PrimitiveObjectModel(exp.ElementType, dbAggregateExp);
 
             ResultElement result = new ResultElement(this._resultElement.ScopeParameters, this._resultElement.ScopeTables);
 
-            result.MappingObjectExpression = mfe;
+            result.ResultModel = resultModel;
             result.FromTable = this._resultElement.FromTable;
             result.AppendCondition(this._resultElement.Condition);
 
@@ -94,14 +94,14 @@ namespace Chloe.Query.QueryState
             foreach (LambdaExpression item in exp.GroupKeySelectors)
             {
                 var keySelector = (LambdaExpression)item;
-                ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(keySelector.Parameters[0], this._resultElement.MappingObjectExpression);
+                ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(keySelector.Parameters[0], this._resultElement.ResultModel);
 
                 this._resultElement.GroupSegments.AddRange(GroupKeySelectorParser.Parse(keySelector, scopeParameters, this._resultElement.ScopeTables));
             }
 
             foreach (LambdaExpression havingPredicate in exp.HavingPredicates)
             {
-                ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(havingPredicate.Parameters[0], this._resultElement.MappingObjectExpression);
+                ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(havingPredicate.Parameters[0], this._resultElement.ResultModel);
 
                 var havingCondition = FilterPredicateParser.Parse(havingPredicate, scopeParameters, this._resultElement.ScopeTables);
                 this._resultElement.AppendHavingCondition(havingCondition);
@@ -116,7 +116,7 @@ namespace Chloe.Query.QueryState
                 {
                     GroupingQueryOrdering groupOrdering = exp.Orderings[i];
 
-                    ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(groupOrdering.KeySelector.Parameters[0], this._resultElement.MappingObjectExpression);
+                    ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(groupOrdering.KeySelector.Parameters[0], this._resultElement.ResultModel);
 
                     DbExpression orderingDbExp = GeneralExpressionParser.Parse(groupOrdering.KeySelector, scopeParameters, this._resultElement.ScopeTables);
 
@@ -135,7 +135,7 @@ namespace Chloe.Query.QueryState
         }
         public virtual IQueryState Accept(IncludeExpression exp)
         {
-            IMappingObjectExpression owner = this._resultElement.MappingObjectExpression;
+            IObjectModel owner = this._resultElement.ResultModel;
             NavigationNode navigationNode = exp.NavigationChain;
             while (navigationNode != null)
             {
@@ -150,8 +150,8 @@ namespace Chloe.Query.QueryState
                 if (navigationDescriptor.Definition.Kind == TypeKind.Complex)
                 {
                     TypeDescriptor navigationTypeDescriptor = EntityTypeContainer.GetDescriptor(navigationDescriptor.PropertyType);
-                    MappingObjectExpression objectModel = new MappingObjectExpression(navigationTypeDescriptor.GetDefaultConstructor());
-                    owner.AddComplexMemberExpression(navigationDescriptor.Property, objectModel);
+                    ComplexObjectModel objectModel = new ComplexObjectModel(navigationTypeDescriptor.GetDefaultConstructor());
+                    owner.AddComplexMember(navigationDescriptor.Property, objectModel);
 
                     objectModel.Condition = FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], objectModel } }, this._resultElement.ScopeTables);
                     objectModel.Filter = FilterPredicateParser.Parse(navigationNode.Filter, new ScopeParameterDictionary(1) { { navigationNode.Filter.Parameters[0], objectModel } }, this._resultElement.ScopeTables);
@@ -163,16 +163,16 @@ namespace Chloe.Query.QueryState
 
                 Type collectionType = navigationDescriptor.PropertyType;
                 TypeDescriptor elementTypeDescriptor = EntityTypeContainer.GetDescriptor(collectionType.GetGenericArguments()[0]);
-                MappingObjectExpression elementModel = new MappingObjectExpression(elementTypeDescriptor.GetDefaultConstructor());
+                ComplexObjectModel elementModel = new ComplexObjectModel(elementTypeDescriptor.GetDefaultConstructor());
                 DbTable table = new DbTable(this._resultElement.GenerateUniqueTableAlias(elementTypeDescriptor.Table.Name));
                 foreach (PrimitivePropertyDescriptor propertyDescriptor in elementTypeDescriptor.PropertyDescriptors)
                 {
                     DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, propertyDescriptor.Column);
-                    elementModel.AddMappingMemberExpression(propertyDescriptor.Property, columnAccessExpression);
+                    elementModel.AddPrimitiveMember(propertyDescriptor.Property, columnAccessExpression);
                 }
 
-                MappingCollectionExpression navModel = new MappingCollectionExpression(navigationNode.Property.PropertyType, elementModel);
-                owner.AddComplexMemberExpression(navigationNode.Property, navModel);
+                CollectionObjectModel navModel = new CollectionObjectModel(navigationNode.Property.PropertyType, elementModel);
+                owner.AddComplexMember(navigationNode.Property, navModel);
 
                 elementModel.Condition = FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], elementModel } }, this._resultElement.ScopeTables);
                 elementModel.Filter = FilterPredicateParser.Parse(navigationNode.Filter, new ScopeParameterDictionary(1) { { navigationNode.Filter.Parameters[0], elementModel } }, this._resultElement.ScopeTables);
@@ -189,10 +189,10 @@ namespace Chloe.Query.QueryState
             ResultElement result = new ResultElement(this._resultElement.ScopeParameters, this._resultElement.ScopeTables);
             result.FromTable = this._resultElement.FromTable;
 
-            ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(selector.Parameters[0], this._resultElement.MappingObjectExpression);
+            ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(selector.Parameters[0], this._resultElement.ResultModel);
 
-            IMappingObjectExpression r = SelectorResolver.Resolve(selector, scopeParameters, this._resultElement.ScopeTables);
-            result.MappingObjectExpression = r;
+            IObjectModel r = SelectorResolver.Resolve(selector, scopeParameters, this._resultElement.ScopeTables);
+            result.ResultModel = r;
             result.Orderings.AddRange(this._resultElement.Orderings);
             result.AppendCondition(this._resultElement.Condition);
 
@@ -212,7 +212,7 @@ namespace Chloe.Query.QueryState
 
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
 
-            var objectActivatorCreator = this._resultElement.MappingObjectExpression.GenarateObjectActivatorCreator(sqlQuery);
+            var objectActivatorCreator = this._resultElement.ResultModel.GenarateObjectActivatorCreator(sqlQuery);
 
             data.SqlQuery = sqlQuery;
             data.ObjectActivatorCreator = objectActivatorCreator;
@@ -235,8 +235,8 @@ namespace Chloe.Query.QueryState
             DbTable table = new DbTable(tableSeg.Alias);
 
             //TODO 根据旧的生成新 MappingMembers
-            IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, table);
-            result.MappingObjectExpression = newMoe;
+            IObjectModel newModel = this.Result.ResultModel.ToNewObjectModel(sqlQuery, table);
+            result.ResultModel = newModel;
 
             //得将 subQuery.SqlQuery.Orders 告诉 以下创建的 result
             //将 orderPart 传递下去
@@ -289,7 +289,7 @@ namespace Chloe.Query.QueryState
 
         protected DbOrdering ParseOrderExpression(OrderExpression orderExp)
         {
-            ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(orderExp.KeySelector.Parameters[0], this._resultElement.MappingObjectExpression);
+            ScopeParameterDictionary scopeParameters = this._resultElement.ScopeParameters.Clone(orderExp.KeySelector.Parameters[0], this._resultElement.ResultModel);
 
             DbExpression dbExpression = GeneralExpressionParser.Parse(orderExp.KeySelector, scopeParameters, this._resultElement.ScopeTables);
             DbOrderType orderType;
@@ -321,10 +321,10 @@ namespace Chloe.Query.QueryState
             DbFromTableExpression fromTable = new DbFromTableExpression(tableSeg);
 
             DbTable table = new DbTable(tableSeg.Alias);
-            IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, table);
+            IObjectModel newModel = this.Result.ResultModel.ToNewObjectModel(sqlQuery, table);
 
             result.FromTable = fromTable;
-            result.MappingObjectExpression = newMoe;
+            result.ResultModel = newModel;
             return result;
         }
 
@@ -337,16 +337,16 @@ namespace Chloe.Query.QueryState
             DbTableSegment tableSeg = new DbTableSegment(subQuery, alias, LockType.Unspecified);
 
             DbTable table = new DbTable(tableSeg.Alias);
-            IMappingObjectExpression newMoe = this.Result.MappingObjectExpression.ToNewObjectExpression(sqlQuery, table);
+            IObjectModel newModel = this.Result.ResultModel.ToNewObjectModel(sqlQuery, table);
 
-            scopeParameters[conditionExpression.Parameters[conditionExpression.Parameters.Count - 1]] = newMoe;
+            scopeParameters[conditionExpression.Parameters[conditionExpression.Parameters.Count - 1]] = newModel;
 
             DbExpression condition = GeneralExpressionParser.Parse(conditionExpression, scopeParameters, scopeTables);
 
             DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType.AsDbJoinType(), tableSeg, condition);
 
             JoinQueryResult result = new JoinQueryResult();
-            result.MappingObjectExpression = newMoe;
+            result.ResultModel = newModel;
             result.JoinTable = joinTable;
             return result;
         }

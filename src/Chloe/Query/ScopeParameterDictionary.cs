@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Chloe.Query
 {
-    class ScopeParameterDictionary : Dictionary<ParameterExpression, IMappingObjectExpression>
+    class ScopeParameterDictionary : Dictionary<ParameterExpression, IObjectModel>
     {
         public ScopeParameterDictionary()
         {
@@ -14,15 +14,15 @@ namespace Chloe.Query
         public ScopeParameterDictionary(int capacity) : base(capacity)
         {
         }
-        public IMappingObjectExpression Get(ParameterExpression parameter)
+        public IObjectModel Get(ParameterExpression parameter)
         {
-            IMappingObjectExpression moe;
-            if (!this.TryGetValue(parameter, out moe))
+            IObjectModel model;
+            if (!this.TryGetValue(parameter, out model))
             {
                 throw new Exception("Can not find the ParameterExpression");
             }
 
-            return moe;
+            return model;
         }
 
         public ScopeParameterDictionary Clone()
@@ -39,7 +39,7 @@ namespace Chloe.Query
 
             return ret;
         }
-        public ScopeParameterDictionary Clone(ParameterExpression key, IMappingObjectExpression valueOfkey)
+        public ScopeParameterDictionary Clone(ParameterExpression key, IObjectModel valueOfkey)
         {
             ScopeParameterDictionary ret = this.Clone(this.Count + 1);
             ret[key] = valueOfkey;

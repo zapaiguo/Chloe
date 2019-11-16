@@ -25,7 +25,7 @@ namespace Chloe.Query.QueryState
             {
                 ResultElement result = new ResultElement(this.Result.ScopeParameters, this.Result.ScopeTables);
                 result.FromTable = this.Result.FromTable;
-                result.MappingObjectExpression = this.Result.MappingObjectExpression;
+                result.ResultModel = this.Result.ResultModel;
                 return result;
             }
 
@@ -53,7 +53,7 @@ namespace Chloe.Query.QueryState
             if (constructor == null)
                 throw new ArgumentException(string.Format("The type of '{0}' does't define a none parameter constructor.", type.FullName));
 
-            MappingObjectExpression moe = new MappingObjectExpression(constructor);
+            ComplexObjectModel model = new ComplexObjectModel(constructor);
            
             DbTable table = new DbTable(alias);
 
@@ -61,12 +61,12 @@ namespace Chloe.Query.QueryState
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
 
-                moe.AddMappingMemberExpression(item.Property, columnAccessExpression);
+                model.AddPrimitiveMember(item.Property, columnAccessExpression);
                 if (item.IsPrimaryKey)
-                    moe.PrimaryKey = columnAccessExpression;
+                    model.PrimaryKey = columnAccessExpression;
             }
 
-            resultElement.MappingObjectExpression = moe;
+            resultElement.ResultModel = model;
 
             return resultElement;
         }

@@ -30,7 +30,7 @@ namespace Chloe.Query
                 this.ScopeParameters = scopeParameters.Clone();
         }
 
-        public IMappingObjectExpression MappingObjectExpression { get; set; }
+        public IObjectModel ResultModel { get; set; }
 
         /// <summary>
         /// Orderings 是否是传承下来的

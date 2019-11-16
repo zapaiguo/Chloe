@@ -10,25 +10,25 @@ using System.Reflection;
 
 namespace Chloe.Query
 {
-    public interface IMappingObjectExpression
+    public interface IObjectModel
     {
         //bool HasMany { get; }
         Type ObjectType { get; }
         IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery);
-        IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTable table);
+        IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table);
         void AddMappingConstructorParameter(ParameterInfo p, DbExpression exp);
-        void AddComplexConstructorParameter(ParameterInfo p, IMappingObjectExpression exp);
-        void AddMappingMemberExpression(MemberInfo memberInfo, DbExpression exp);
-        void AddComplexMemberExpression(MemberInfo memberInfo, IMappingObjectExpression moe);
-        DbExpression GetMappingMemberExpression(MemberInfo memberInfo);
-        IMappingObjectExpression GetComplexMemberExpression(MemberInfo memberInfo);
+        void AddComplexConstructorParameter(ParameterInfo p, IObjectModel model);
+        void AddPrimitiveMember(MemberInfo memberInfo, DbExpression exp);
+        void AddComplexMember(MemberInfo memberInfo, IObjectModel model);
+        DbExpression GetPrimitiveMember(MemberInfo memberInfo);
+        IObjectModel GetComplexMember(MemberInfo memberInfo);
         DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter);
-        IMappingObjectExpression GetComplexMemberExpression(MemberExpression exp);
+        IObjectModel GetComplexMember(MemberExpression exp);
 
         void SetNullChecking(DbExpression exp);
     }
 
-    public static class MappingObjectExpressionHelper
+    public static class ObjectModelHelper
     {
         public static DbExpression TryGetOrAddNullChecking(DbSqlQueryExpression sqlQuery, DbTable table, DbExpression exp)
         {

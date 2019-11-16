@@ -14,7 +14,7 @@ namespace Chloe.Query.QueryState
             {
                 ResultElement result = new ResultElement(this.Result.ScopeParameters, this.Result.ScopeTables);
                 result.FromTable = this.Result.FromTable;
-                result.MappingObjectExpression = this.Result.MappingObjectExpression;
+                result.ResultModel = this.Result.ResultModel;
                 return result;
             }
 

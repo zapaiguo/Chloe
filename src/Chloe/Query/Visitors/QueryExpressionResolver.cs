@@ -69,16 +69,16 @@ namespace Chloe.Query.Visitors
 
             ResultElement resultElement = qs.ToFromQueryResult();
 
-            List<IMappingObjectExpression> moeList = new List<IMappingObjectExpression>();
-            moeList.Add(resultElement.MappingObjectExpression);
+            List<IObjectModel> modelList = new List<IObjectModel>();
+            modelList.Add(resultElement.ResultModel);
 
             foreach (JoiningQueryInfo joiningQueryInfo in exp.JoinedQueries)
             {
-                ScopeParameterDictionary scopeParameters = resultElement.ScopeParameters.Clone(resultElement.ScopeParameters.Count + moeList.Count);
-                for (int i = 0; i < moeList.Count; i++)
+                ScopeParameterDictionary scopeParameters = resultElement.ScopeParameters.Clone(resultElement.ScopeParameters.Count + modelList.Count);
+                for (int i = 0; i < modelList.Count; i++)
                 {
                     ParameterExpression p = joiningQueryInfo.Condition.Parameters[i];
-                    scopeParameters[p] = moeList[i];
+                    scopeParameters[p] = modelList[i];
                 }
 
                 JoinQueryResult joinQueryResult = JoinQueryExpressionResolver.Resolve(joiningQueryInfo.Query.QueryExpression, resultElement, joiningQueryInfo.JoinType, joiningQueryInfo.Condition, scopeParameters);
@@ -87,36 +87,36 @@ namespace Chloe.Query.Visitors
 
                 if (joiningQueryInfo.JoinType == JoinType.LeftJoin)
                 {
-                    joinQueryResult.MappingObjectExpression.SetNullChecking(nullChecking);
+                    joinQueryResult.ResultModel.SetNullChecking(nullChecking);
                 }
                 else if (joiningQueryInfo.JoinType == JoinType.RightJoin)
                 {
-                    foreach (IMappingObjectExpression item in moeList)
+                    foreach (IObjectModel item in modelList)
                     {
                         item.SetNullChecking(nullChecking);
                     }
                 }
                 else if (joiningQueryInfo.JoinType == JoinType.FullJoin)
                 {
-                    joinQueryResult.MappingObjectExpression.SetNullChecking(nullChecking);
-                    foreach (IMappingObjectExpression item in moeList)
+                    joinQueryResult.ResultModel.SetNullChecking(nullChecking);
+                    foreach (IObjectModel item in modelList)
                     {
                         item.SetNullChecking(nullChecking);
                     }
                 }
 
                 resultElement.FromTable.JoinTables.Add(joinQueryResult.JoinTable);
-                moeList.Add(joinQueryResult.MappingObjectExpression);
+                modelList.Add(joinQueryResult.ResultModel);
             }
 
-            ScopeParameterDictionary scopeParameters1 = resultElement.ScopeParameters.Clone(resultElement.ScopeParameters.Count + moeList.Count);
-            for (int i = 0; i < moeList.Count; i++)
+            ScopeParameterDictionary scopeParameters1 = resultElement.ScopeParameters.Clone(resultElement.ScopeParameters.Count + modelList.Count);
+            for (int i = 0; i < modelList.Count; i++)
             {
                 ParameterExpression p = exp.Selector.Parameters[i];
-                scopeParameters1[p] = moeList[i];
+                scopeParameters1[p] = modelList[i];
             }
-            IMappingObjectExpression moe = SelectorResolver.Resolve(exp.Selector, scopeParameters1, resultElement.ScopeTables);
-            resultElement.MappingObjectExpression = moe;
+            IObjectModel model = SelectorResolver.Resolve(exp.Selector, scopeParameters1, resultElement.ScopeTables);
+            resultElement.ResultModel = model;
 
             GeneralQueryState queryState = new GeneralQueryState(resultElement);
             return queryState;

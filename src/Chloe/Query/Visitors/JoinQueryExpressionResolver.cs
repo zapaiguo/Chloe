@@ -47,26 +47,26 @@ namespace Chloe.Query.Visitors
             string alias = this._resultElement.GenerateUniqueTableAlias(dbTable.Name);
 
             DbTableSegment tableSeg = CreateTableSegment(dbTable, alias, exp.Lock);
-            MappingObjectExpression moe = new MappingObjectExpression(typeDescriptor.Definition.Type.GetConstructor(Type.EmptyTypes));
+            ComplexObjectModel model = new ComplexObjectModel(typeDescriptor.Definition.Type.GetConstructor(Type.EmptyTypes));
 
             DbTable table = new DbTable(alias);
             foreach (PrimitivePropertyDescriptor item in typeDescriptor.PropertyDescriptors)
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
-                moe.AddMappingMemberExpression(item.Property, columnAccessExpression);
+                model.AddPrimitiveMember(item.Property, columnAccessExpression);
 
                 if (item.IsPrimaryKey)
-                    moe.PrimaryKey = columnAccessExpression;
+                    model.PrimaryKey = columnAccessExpression;
             }
 
             //TODO 解析 on 条件表达式
-            var scopeParameters = this._scopeParameters.Clone(this._conditionExpression.Parameters.Last(), moe);
+            var scopeParameters = this._scopeParameters.Clone(this._conditionExpression.Parameters.Last(), model);
             DbExpression condition = GeneralExpressionParser.Parse(this._conditionExpression, scopeParameters, this._resultElement.ScopeTables);
 
             DbJoinTableExpression joinTable = new DbJoinTableExpression(this._joinType.AsDbJoinType(), tableSeg, condition);
 
             JoinQueryResult result = new JoinQueryResult();
-            result.MappingObjectExpression = moe;
+            result.ResultModel = model;
             result.JoinTable = joinTable;
 
             return result;

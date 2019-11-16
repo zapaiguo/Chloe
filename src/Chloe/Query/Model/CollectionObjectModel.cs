@@ -11,14 +11,14 @@ using Chloe.Infrastructure;
 
 namespace Chloe.Query
 {
-    public class MappingCollectionExpression : IMappingObjectExpression
+    public class CollectionObjectModel : IObjectModel
     {
         Type _collectionType;
 
         public Type ObjectType { get { return this._collectionType; } }
-        public MappingObjectExpression ElementModel { get; private set; }
+        public ComplexObjectModel ElementModel { get; private set; }
 
-        public MappingCollectionExpression(Type collectionType, MappingObjectExpression elementModel)
+        public CollectionObjectModel(Type collectionType, ComplexObjectModel elementModel)
         {
             this._collectionType = collectionType;
             this.ElementModel = elementModel;
@@ -28,23 +28,23 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
-        public void AddComplexConstructorParameter(ParameterInfo p, IMappingObjectExpression exp)
+        public void AddComplexConstructorParameter(ParameterInfo p, IObjectModel model)
         {
             throw new NotSupportedException();
         }
-        public void AddMappingMemberExpression(MemberInfo p, DbExpression exp)
+        public void AddPrimitiveMember(MemberInfo p, DbExpression exp)
         {
             throw new NotSupportedException();
         }
-        public void AddComplexMemberExpression(MemberInfo p, IMappingObjectExpression exp)
+        public void AddComplexMember(MemberInfo p, IObjectModel model)
         {
             throw new NotSupportedException();
         }
-        public DbExpression GetMappingMemberExpression(MemberInfo memberInfo)
+        public DbExpression GetPrimitiveMember(MemberInfo memberInfo)
         {
             throw new NotSupportedException();
         }
-        public IMappingObjectExpression GetComplexMemberExpression(MemberInfo memberInfo)
+        public IObjectModel GetComplexMember(MemberInfo memberInfo)
         {
             throw new NotSupportedException();
         }
@@ -52,7 +52,7 @@ namespace Chloe.Query
         {
             throw new NotSupportedException();
         }
-        public IMappingObjectExpression GetComplexMemberExpression(MemberExpression exp)
+        public IObjectModel GetComplexMember(MemberExpression exp)
         {
             throw new NotSupportedException();
         }
@@ -64,7 +64,7 @@ namespace Chloe.Query
         }
 
 
-        public IMappingObjectExpression ToNewObjectExpression(DbSqlQueryExpression sqlQuery, DbTable table)
+        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table)
         {
             //创建 List
             throw new NotImplementedException();
