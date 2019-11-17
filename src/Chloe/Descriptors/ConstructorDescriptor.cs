@@ -7,11 +7,11 @@ using System.Reflection;
 
 namespace Chloe.Descriptors
 {
-    public class EntityConstructorDescriptor
+    public class ConstructorDescriptor
     {
-        EntityMemberMapper _mapper = null;
-        EntityConstructor _entityConstructor = null;
-        EntityConstructorDescriptor(ConstructorInfo constructorInfo)
+        ObjectMemberMapper _mapper = null;
+        ObjectConstructor _objectConstructor = null;
+        ConstructorDescriptor(ConstructorInfo constructorInfo)
         {
             this.ConstructorInfo = constructorInfo;
             this.Init();
@@ -40,39 +40,39 @@ namespace Chloe.Descriptors
         public Dictionary<MemberInfo, ParameterInfo> MemberParameterMap { get; private set; }
         public Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> GetInstanceCreator()
         {
-            EntityConstructor entityConstructor = null;
-            if (null == this._entityConstructor)
+            ObjectConstructor objectConstructor = null;
+            if (null == this._objectConstructor)
             {
-                this._entityConstructor = EntityConstructor.GetInstance(this.ConstructorInfo);
+                this._objectConstructor = ObjectConstructor.GetInstance(this.ConstructorInfo);
             }
 
-            entityConstructor = this._entityConstructor;
-            return entityConstructor.InstanceCreator;
+            objectConstructor = this._objectConstructor;
+            return objectConstructor.InstanceCreator;
         }
-        public EntityMemberMapper GetEntityMemberMapper()
+        public ObjectMemberMapper GetEntityMemberMapper()
         {
-            EntityMemberMapper mapper = null;
+            ObjectMemberMapper mapper = null;
             if (null == this._mapper)
             {
-                this._mapper = EntityMemberMapper.GetInstance(this.ConstructorInfo.DeclaringType);
+                this._mapper = ObjectMemberMapper.GetInstance(this.ConstructorInfo.DeclaringType);
             }
 
             mapper = this._mapper;
             return mapper;
         }
 
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, EntityConstructorDescriptor> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, EntityConstructorDescriptor>();
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, ConstructorDescriptor> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, ConstructorDescriptor>();
 
-        public static EntityConstructorDescriptor GetInstance(ConstructorInfo constructorInfo)
+        public static ConstructorDescriptor GetInstance(ConstructorInfo constructorInfo)
         {
-            EntityConstructorDescriptor instance;
+            ConstructorDescriptor instance;
             if (!InstanceCache.TryGetValue(constructorInfo, out instance))
             {
                 lock (constructorInfo)
                 {
                     if (!InstanceCache.TryGetValue(constructorInfo, out instance))
                     {
-                        instance = new EntityConstructorDescriptor(constructorInfo);
+                        instance = new ConstructorDescriptor(constructorInfo);
                         InstanceCache.GetOrAdd(constructorInfo, instance);
                     }
                 }

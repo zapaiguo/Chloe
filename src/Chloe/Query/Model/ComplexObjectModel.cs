@@ -20,10 +20,10 @@ namespace Chloe.Query
         {
         }
         public ComplexObjectModel(ConstructorInfo constructor)
-            : this(EntityConstructorDescriptor.GetInstance(constructor))
+            : this(ConstructorDescriptor.GetInstance(constructor))
         {
         }
-        public ComplexObjectModel(EntityConstructorDescriptor constructorDescriptor)
+        public ComplexObjectModel(ConstructorDescriptor constructorDescriptor)
         {
             this.ObjectType = constructorDescriptor.ConstructorInfo.DeclaringType;
             this.ConstructorDescriptor = constructorDescriptor;
@@ -45,12 +45,31 @@ namespace Chloe.Query
         /// <summary>
         /// 返回类型
         /// </summary>
-        public EntityConstructorDescriptor ConstructorDescriptor { get; private set; }
+        public ConstructorDescriptor ConstructorDescriptor { get; private set; }
         public Dictionary<ParameterInfo, DbExpression> PrimitiveConstructorParameters { get; private set; }
         public Dictionary<ParameterInfo, ComplexObjectModel> ComplexConstructorParameters { get; private set; }
         public Dictionary<MemberInfo, DbExpression> PrimitiveMembers { get; protected set; }
         public Dictionary<MemberInfo, ComplexObjectModel> ComplexMembers { get; protected set; }
         public Dictionary<MemberInfo, CollectionObjectModel> CollectionMembers { get; protected set; }
+
+        public bool IsNavModel { get; set; }
+        public bool IsRootObject { get; set; }
+        public bool HasOneToMany
+        {
+            get
+            {
+                if (this.CollectionMembers.Count > 0)
+                    return true;
+
+                foreach (var item in this.ComplexMembers)
+                {
+                    if (item.Value.HasOneToMany)
+                        return true;
+                }
+
+                return false;
+            }
+        }
 
         public void AddConstructorParameter(ParameterInfo p, DbExpression primitiveExp)
         {
@@ -223,7 +242,7 @@ namespace Chloe.Query
         }
         public IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery)
         {
-            MappingEntity mappingEntity = new MappingEntity(this.ConstructorDescriptor);
+            ComplexObjectActivatorCreator activatorCreator = new ComplexObjectActivatorCreator(this.ConstructorDescriptor);
 
             foreach (var kv in this.PrimitiveConstructorParameters)
             {
@@ -234,9 +253,9 @@ namespace Chloe.Query
                 ordinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, exp, pi.Name).Value;
 
                 if (exp == this.NullChecking)
-                    mappingEntity.CheckNullOrdinal = ordinal;
+                    activatorCreator.CheckNullOrdinal = ordinal;
 
-                mappingEntity.ConstructorParameters.Add(pi, ordinal);
+                activatorCreator.ConstructorParameters.Add(pi, ordinal);
             }
 
             foreach (var kv in this.ComplexConstructorParameters)
@@ -245,7 +264,7 @@ namespace Chloe.Query
                 IObjectModel val = kv.Value;
 
                 IObjectActivatorCreator complexMappingMember = val.GenarateObjectActivatorCreator(sqlQuery);
-                mappingEntity.ConstructorEntityParameters.Add(pi, complexMappingMember);
+                activatorCreator.ConstructorEntityParameters.Add(pi, complexMappingMember);
             }
 
             foreach (var kv in this.PrimitiveMembers)
@@ -257,9 +276,9 @@ namespace Chloe.Query
                 ordinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, exp, member.Name).Value;
 
                 if (exp == this.NullChecking)
-                    mappingEntity.CheckNullOrdinal = ordinal;
+                    activatorCreator.CheckNullOrdinal = ordinal;
 
-                mappingEntity.MappingMembers.Add(member, ordinal);
+                activatorCreator.MappingMembers.Add(member, ordinal);
             }
 
             foreach (var kv in this.ComplexMembers)
@@ -268,13 +287,13 @@ namespace Chloe.Query
                 IObjectModel val = kv.Value;
 
                 IObjectActivatorCreator complexMappingMember = val.GenarateObjectActivatorCreator(sqlQuery);
-                mappingEntity.ComplexMembers.Add(kv.Key, complexMappingMember);
+                activatorCreator.ComplexMembers.Add(kv.Key, complexMappingMember);
             }
 
-            if (mappingEntity.CheckNullOrdinal == null)
-                mappingEntity.CheckNullOrdinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, this.NullChecking);
+            if (activatorCreator.CheckNullOrdinal == null)
+                activatorCreator.CheckNullOrdinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, this.NullChecking);
 
-            return mappingEntity;
+            return activatorCreator;
         }
 
         public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table)
@@ -367,7 +386,7 @@ namespace Chloe.Query
                 {
                     Type collectionType = navigationDescriptor.PropertyType;
                     ComplexObjectModel elementModel = this.GenComplexObjectModel(collectionType.GetGenericArguments()[0], navigationNode, queryModel);
-                    navModel = new CollectionObjectModel(navigationNode.Property.PropertyType, elementModel);
+                    navModel = new CollectionObjectModel(this.ObjectType, navigationNode.Property, elementModel);
                     this.AddCollectionMember(navigationNode.Property, navModel);
                 }
 

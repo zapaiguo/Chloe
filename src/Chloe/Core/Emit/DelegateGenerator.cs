@@ -157,5 +157,12 @@ namespace Chloe.Core.Emit
 
             return ret;
         }
+
+        public static Func<object> CreateInstanceActivator(Type type)
+        {
+            var body = Expression.New(type.GetConstructor(Type.EmptyTypes));
+            var ret = Expression.Lambda<Func<object>>(body).Compile();
+            return ret;
+        }
     }
 }

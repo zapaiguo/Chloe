@@ -9,9 +9,9 @@ using System.Text;
 
 namespace Chloe.Mapper
 {
-    public class EntityConstructor
+    public class ObjectConstructor
     {
-        EntityConstructor(ConstructorInfo constructorInfo)
+        ObjectConstructor(ConstructorInfo constructorInfo)
         {
             if (constructorInfo.DeclaringType.IsAbstract)
                 throw new ArgumentException("The type can not be abstract class.");
@@ -30,18 +30,18 @@ namespace Chloe.Mapper
         public ConstructorInfo ConstructorInfo { get; private set; }
         public Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> InstanceCreator { get; private set; }
 
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, EntityConstructor> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, EntityConstructor>();
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, ObjectConstructor> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, ObjectConstructor>();
 
-        public static EntityConstructor GetInstance(ConstructorInfo constructorInfo)
+        public static ObjectConstructor GetInstance(ConstructorInfo constructorInfo)
         {
-            EntityConstructor instance;
+            ObjectConstructor instance;
             if (!InstanceCache.TryGetValue(constructorInfo, out instance))
             {
                 lock (constructorInfo)
                 {
                     if (!InstanceCache.TryGetValue(constructorInfo, out instance))
                     {
-                        instance = new EntityConstructor(constructorInfo);
+                        instance = new ObjectConstructor(constructorInfo);
                         InstanceCache.GetOrAdd(constructorInfo, instance);
                     }
                 }

@@ -91,11 +91,11 @@ namespace Chloe.Query
             int ordinal;
             ordinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, this._exp).Value;
 
-            MappingField mf = new MappingField(this._type, ordinal);
+            PrimitiveObjectActivatorCreator activatorCreator = new PrimitiveObjectActivatorCreator(this._type, ordinal);
 
-            mf.CheckNullOrdinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, this.NullChecking);
+            activatorCreator.CheckNullOrdinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, this.NullChecking);
 
-            return mf;
+            return activatorCreator;
         }
 
 

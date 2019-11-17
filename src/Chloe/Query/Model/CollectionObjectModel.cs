@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Chloe.Infrastructure;
+using Chloe.Mapper;
 
 namespace Chloe.Query
 {
@@ -18,10 +19,14 @@ namespace Chloe.Query
         public Type ObjectType { get { return this._collectionType; } }
         public TypeKind TypeKind { get { return TypeKind.Complex; } }
         public ComplexObjectModel ElementModel { get; private set; }
+        public Type OwnerType { get; private set; }
+        public PropertyInfo AssociatedProperty { get; private set; }
 
-        public CollectionObjectModel(Type collectionType, ComplexObjectModel elementModel)
+        public CollectionObjectModel(Type ownerType, PropertyInfo associatedProperty, ComplexObjectModel elementModel)
         {
-            this._collectionType = collectionType;
+            this.OwnerType = ownerType;
+            this.AssociatedProperty = associatedProperty;
+            this._collectionType = associatedProperty.PropertyType;
             this.ElementModel = elementModel;
         }
 
@@ -71,8 +76,9 @@ namespace Chloe.Query
 
         public IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery)
         {
-            //创建 List
-            throw new NotImplementedException();
+            IObjectActivatorCreator elementActivatorCreator = this.ElementModel.GenarateObjectActivatorCreator(sqlQuery);
+            CollectionObjectActivatorCreator ret = new CollectionObjectActivatorCreator(this._collectionType, this.OwnerType, elementActivatorCreator);
+            return ret;
         }
 
 

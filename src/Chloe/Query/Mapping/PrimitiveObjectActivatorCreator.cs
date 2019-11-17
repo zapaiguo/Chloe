@@ -1,0 +1,41 @@
+﻿using Chloe.Core;
+using Chloe.Mapper;
+using Chloe.Mapper.Activators;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+
+namespace Chloe.Query.Mapping
+{
+    public class PrimitiveObjectActivatorCreator : IObjectActivatorCreator
+    {
+        public PrimitiveObjectActivatorCreator(Type type, int readerOrdinal)
+        {
+            this.ObjectType = type;
+            this.ReaderOrdinal = readerOrdinal;
+        }
+
+        public Type ObjectType { get; private set; }
+        public int ReaderOrdinal { get; private set; }
+        public int? CheckNullOrdinal { get; set; }
+
+        public IObjectActivator CreateObjectActivator()
+        {
+            return this.CreateObjectActivator(null);
+        }
+        public IObjectActivator CreateObjectActivator(IDbContext dbContext)
+        {
+            Func<IDataReader, int, object> fn = MappingTypeConstructor.GetInstance(this.ObjectType).InstanceCreator;
+            PrimitiveObjectActivator activator = new PrimitiveObjectActivator(fn, this.ReaderOrdinal);
+            return activator;
+        }
+
+        public IFitter CreateFitter(IDbContext dbContext)
+        {
+            throw new NotSupportedException();
+        }
+    }
+}

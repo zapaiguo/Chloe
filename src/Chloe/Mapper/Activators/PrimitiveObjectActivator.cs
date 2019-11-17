@@ -5,13 +5,13 @@ using System.Data;
 using System.Linq;
 using System.Text;
 
-namespace Chloe.Mapper
+namespace Chloe.Mapper.Activators
 {
-    public class MappingFieldActivator : IObjectActivator
+    public class PrimitiveObjectActivator : IObjectActivator
     {
         Func<IDataReader, int, object> _fn = null;
         int _readerOrdinal;
-        public MappingFieldActivator(Func<IDataReader, int, object> fn, int readerOrdinal)
+        public PrimitiveObjectActivator(Func<IDataReader, int, object> fn, int readerOrdinal)
         {
             this._fn = fn;
             this._readerOrdinal = readerOrdinal;
@@ -24,7 +24,7 @@ namespace Chloe.Mapper
             }
             catch (Exception ex)
             {
-                throw new ChloeException(ObjectActivator.AppendErrorMsg(reader, this._readerOrdinal, ex), ex);
+                throw new ChloeException(ComplexObjectActivator.AppendErrorMsg(reader, this._readerOrdinal, ex), ex);
             }
         }
     }

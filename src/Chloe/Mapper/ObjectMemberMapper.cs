@@ -13,12 +13,12 @@ using Chloe.Utility;
 
 namespace Chloe.Mapper
 {
-    public class EntityMemberMapper
+    public class ObjectMemberMapper
     {
         Dictionary<MemberInfo, IMRM> _mappingMemberMappers;
         Dictionary<MemberInfo, Action<object, object>> _complexMemberSetters;
 
-        EntityMemberMapper(Type t)
+        ObjectMemberMapper(Type t)
         {
             this.Type = t;
             this.Init();
@@ -68,7 +68,7 @@ namespace Chloe.Mapper
             this._mappingMemberMappers.TryGetValue(memberInfo, out mapper);
             return mapper;
         }
-        public Action<object, object> TryGetComplexMemberSetter(MemberInfo memberInfo)
+        public Action<object, object> FindComplexMemberSetter(MemberInfo memberInfo)
         {
             memberInfo = memberInfo.AsReflectedMemberOf(this.Type);
             Action<object, object> valueSetter = null;
@@ -76,18 +76,18 @@ namespace Chloe.Mapper
             return valueSetter;
         }
 
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, EntityMemberMapper> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, EntityMemberMapper>();
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, ObjectMemberMapper> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, ObjectMemberMapper>();
 
-        public static EntityMemberMapper GetInstance(Type type)
+        public static ObjectMemberMapper GetInstance(Type type)
         {
-            EntityMemberMapper instance;
+            ObjectMemberMapper instance;
             if (!InstanceCache.TryGetValue(type, out instance))
             {
                 lock (type)
                 {
                     if (!InstanceCache.TryGetValue(type, out instance))
                     {
-                        instance = new EntityMemberMapper(type);
+                        instance = new ObjectMemberMapper(type);
                         InstanceCache.GetOrAdd(type, instance);
                     }
                 }

@@ -1,4 +1,5 @@
 ﻿using Chloe.Exceptions;
+using Chloe.Mapper.Binders;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,9 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Chloe.Mapper
+namespace Chloe.Mapper.Activators
 {
-    public class ObjectActivator : IObjectActivator
+    public class ComplexObjectActivator : IObjectActivator
     {
         int? _checkNullOrdinal;
         Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> _instanceCreator;
@@ -18,7 +19,7 @@ namespace Chloe.Mapper
 
         ReaderOrdinalEnumerator _readerOrdinalEnumerator;
         ObjectActivatorEnumerator _objectActivatorEnumerator;
-        public ObjectActivator(Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator, List<int> readerOrdinals, List<IObjectActivator> objectActivators, List<IValueSetter> memberSetters, int? checkNullOrdinal)
+        public ComplexObjectActivator(Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator, List<int> readerOrdinals, List<IObjectActivator> objectActivators, List<IValueSetter> memberSetters, int? checkNullOrdinal)
         {
             this._instanceCreator = instanceCreator;
             this._readerOrdinals = readerOrdinals;
@@ -76,7 +77,7 @@ namespace Chloe.Mapper
             }
             catch (Exception ex)
             {
-                MappingMemberBinder binder = memberSetter as MappingMemberBinder;
+                PrimitiveMemberBinder binder = memberSetter as PrimitiveMemberBinder;
                 if (binder != null)
                 {
                     throw new ChloeException(AppendErrorMsg(reader, binder.Ordinal, ex), ex);
@@ -105,7 +106,7 @@ namespace Chloe.Mapper
         }
     }
 
-    public class ObjectActivatorWithTracking : ObjectActivator
+    public class ObjectActivatorWithTracking : ComplexObjectActivator
     {
         IDbContext _dbContext;
         public ObjectActivatorWithTracking(Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator, List<int> readerOrdinals, List<IObjectActivator> objectActivators, List<IValueSetter> memberSetters, int? checkNullOrdinal, IDbContext dbContext)

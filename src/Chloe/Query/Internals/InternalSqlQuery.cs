@@ -14,6 +14,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using Chloe.Mapper.Binders;
+using Chloe.Mapper.Activators;
 
 namespace Chloe.Query.Internals
 {
@@ -124,8 +126,8 @@ namespace Chloe.Query.Internals
 
                 if (type != UtilConstants.TypeOfObject && MappingTypeSystem.IsMappingType(type))
                 {
-                    MappingField mf = new MappingField(type, 0);
-                    this._objectActivator = mf.CreateObjectActivator();
+                    PrimitiveObjectActivatorCreator activatorCreator = new PrimitiveObjectActivatorCreator(type, 0);
+                    this._objectActivator = activatorCreator.CreateObjectActivator();
                     this._reader = this.ExecuteReader();
                     return;
                 }
@@ -173,7 +175,7 @@ namespace Chloe.Query.Internals
                         cache = TryGetCacheInfoFromList(caches, reader);
                         if (cache == null)
                         {
-                            ObjectActivator activator = CreateObjectActivator(type, reader);
+                            ComplexObjectActivator activator = CreateObjectActivator(type, reader);
                             cache = new CacheInfo(activator, reader);
                             caches.Add(cache);
                         }
@@ -182,19 +184,19 @@ namespace Chloe.Query.Internals
 
                 return cache.ObjectActivator;
             }
-            static ObjectActivator CreateObjectActivator(Type type, IDataReader reader)
+            static ComplexObjectActivator CreateObjectActivator(Type type, IDataReader reader)
             {
                 ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes);
                 if (constructor == null)
                     throw new ArgumentException(string.Format("The type of '{0}' does't define a none parameter constructor.", type.FullName));
 
-                EntityConstructorDescriptor constructorDescriptor = EntityConstructorDescriptor.GetInstance(constructor);
-                EntityMemberMapper mapper = constructorDescriptor.GetEntityMemberMapper();
+                ConstructorDescriptor constructorDescriptor = ConstructorDescriptor.GetInstance(constructor);
+                ObjectMemberMapper mapper = constructorDescriptor.GetEntityMemberMapper();
                 Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator = constructorDescriptor.GetInstanceCreator();
                 List<IValueSetter> memberSetters = PrepareValueSetters(type, reader, mapper);
-                return new ObjectActivator(instanceCreator, null, null, memberSetters, null);
+                return new ComplexObjectActivator(instanceCreator, null, null, memberSetters, null);
             }
-            static List<IValueSetter> PrepareValueSetters(Type type, IDataReader reader, EntityMemberMapper mapper)
+            static List<IValueSetter> PrepareValueSetters(Type type, IDataReader reader, ObjectMemberMapper mapper)
             {
                 List<IValueSetter> memberSetters = new List<IValueSetter>(reader.FieldCount);
 
@@ -218,7 +220,7 @@ namespace Chloe.Query.Internals
                     if (mMapper == null)
                         continue;
 
-                    MappingMemberBinder memberBinder = new MappingMemberBinder(mMapper, i);
+                    PrimitiveMemberBinder memberBinder = new PrimitiveMemberBinder(mMapper, i);
                     memberSetters.Add(memberBinder);
                 }
 
@@ -291,8 +293,8 @@ namespace Chloe.Query.Internals
         public class CacheInfo
         {
             ReaderFieldInfo[] _readerFields;
-            ObjectActivator _objectActivator;
-            public CacheInfo(ObjectActivator activator, IDataReader reader)
+            ComplexObjectActivator _objectActivator;
+            public CacheInfo(ComplexObjectActivator activator, IDataReader reader)
             {
                 int fieldCount = reader.FieldCount;
                 var readerFields = new ReaderFieldInfo[fieldCount];
@@ -306,7 +308,7 @@ namespace Chloe.Query.Internals
                 this._objectActivator = activator;
             }
 
-            public ObjectActivator ObjectActivator { get { return this._objectActivator; } }
+            public ComplexObjectActivator ObjectActivator { get { return this._objectActivator; } }
 
             public bool IsTheSameFields(IDataReader reader)
             {

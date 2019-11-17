@@ -4,13 +4,13 @@ using System.Data;
 using System.Linq;
 using System.Text;
 
-namespace Chloe.Mapper
+namespace Chloe.Mapper.Binders
 {
-    public class MappingMemberBinder : IValueSetter
+    public class PrimitiveMemberBinder : IValueSetter
     {
         IMRM _mMapper;
         int _ordinal;
-        public MappingMemberBinder(IMRM mMapper, int ordinal)
+        public PrimitiveMemberBinder(IMRM mMapper, int ordinal)
         {
             this._mMapper = mMapper;
             this._ordinal = ordinal;
