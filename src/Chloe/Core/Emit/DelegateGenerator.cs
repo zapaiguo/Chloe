@@ -15,6 +15,21 @@ namespace Chloe.Core.Emit
 {
     public static class DelegateGenerator
     {
+        public static Func<IDataReader, int, object> CreateDataReaderGetValueHandler(Type valueType)
+        {
+            var reader = Expression.Parameter(typeof(IDataReader), "reader");
+            var ordinal = Expression.Parameter(typeof(int), "ordinal");
+
+            var readerMethod = DataReaderConstant.GetReaderMethod(valueType);
+
+            var getValue = Expression.Call(null, readerMethod, reader, ordinal);
+
+            var lambda = Expression.Lambda<Func<IDataReader, int, object>>(getValue, reader, ordinal);
+            var del = lambda.Compile();
+
+            return del;
+        }
+
         public static Action<object, IDataReader, int> CreateSetValueFromReaderDelegate(MemberInfo member)
         {
             Action<object, IDataReader, int> del = null;

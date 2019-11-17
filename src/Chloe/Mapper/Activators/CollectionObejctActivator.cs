@@ -19,19 +19,21 @@ namespace Chloe.Mapper.Activators
             Func<object> activator = ActivatorCache.GetOrAdd(collectionType, type =>
            {
                var typeDefinition = type.GetGenericTypeDefinition();
-               var listType = typeof(List<>);
-               if (typeDefinition.IsAssignableFrom(listType))
+               Type implTypeDefinition = null;
+               if (typeDefinition.IsAssignableFrom(typeof(List<>)))
                {
-                   return DelegateGenerator.CreateInstanceActivator(listType.MakeGenericType(type.GetGenericArguments()[0]));
+                   implTypeDefinition = typeof(List<>);
+               }
+               else if (typeDefinition.IsAssignableFrom(typeof(Collection<>)))
+               {
+                   implTypeDefinition = typeof(Collection<>);
+               }
+               else
+               {
+                   throw new NotSupportedException($"Not supported collection type '{type.Name}'");
                }
 
-               var cType = typeof(Collection<>);
-               if (typeDefinition.IsAssignableFrom(cType))
-               {
-                   return DelegateGenerator.CreateInstanceActivator(cType.MakeGenericType(type.GetGenericArguments()[0]));
-               }
-
-               throw new NotSupportedException($"Not supported collection type '{type.Name}'");
+               return DelegateGenerator.CreateInstanceActivator(implTypeDefinition.MakeGenericType(type.GetGenericArguments()[0]));
            });
 
             return activator;

@@ -229,7 +229,7 @@ namespace Chloe
                 throw new ChloeException("Unable to get the identity value.");
             }
 
-            retIdentity = PublicHelper.ConvertObjType(retIdentity, autoIncrementPropertyDescriptor.PropertyType);
+            retIdentity = PublicHelper.ConvertObjectType(retIdentity, autoIncrementPropertyDescriptor.PropertyType);
             autoIncrementPropertyDescriptor.SetValue(entity, retIdentity);
             return entity;
         }
@@ -313,7 +313,7 @@ namespace Chloe
                 throw new ChloeException("Unable to get the identity value.");
             }
 
-            retIdentity = PublicHelper.ConvertObjType(retIdentity, typeDescriptor.AutoIncrement.PropertyType);
+            retIdentity = PublicHelper.ConvertObjectType(retIdentity, typeDescriptor.AutoIncrement.PropertyType);
             return retIdentity;
         }
         [Obsolete("This method will be removed in future versions.")]

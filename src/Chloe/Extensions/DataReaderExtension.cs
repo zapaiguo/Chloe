@@ -188,14 +188,14 @@ namespace Chloe.Extensions
             Type fieldType = reader.GetFieldType(ordinal);
 
             object value;
-            if (fieldType == UtilConstants.TypeOfByte)
+            if (fieldType == UtilConstants.TypeOfInt32)
+                value = reader.GetInt32(ordinal);
+            else if (fieldType == UtilConstants.TypeOfByte)
                 value = reader.GetByte(ordinal);
             else if (fieldType == UtilConstants.TypeOfInt16)
                 value = reader.GetInt16(ordinal);
-            else if (fieldType == UtilConstants.TypeOfInt64)
-                value = reader.GetInt64(ordinal);
             else
-                value = reader.GetInt32(ordinal);
+                value = reader.GetInt64(ordinal);
 
             return (TEnum)Enum.ToObject(typeof(TEnum), value);
         }

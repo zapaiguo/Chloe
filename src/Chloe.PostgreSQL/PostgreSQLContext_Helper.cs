@@ -27,7 +27,7 @@ namespace Chloe.PostgreSQL
                 if (value == null || value == DBNull.Value)
                     throw new ChloeException("Unable to get the identity/sequence value.");
 
-                value = PublicHelper.ConvertObjType(value, propertyDescriptor.PropertyType);
+                value = PublicHelper.ConvertObjectType(value, propertyDescriptor.PropertyType);
                 propertyDescriptor.SetValue(entity, value);
             };
 

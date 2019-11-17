@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Chloe.Core.Emit;
+using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 
 namespace Chloe.Extensions
 {
     static class DataReaderConstant
     {
-        #region
-        internal static MethodInfo GetReaderMethod(Type type)
+        public static MethodInfo GetReaderMethod(Type type)
         {
             MethodInfo result;
             bool isNullable = false;
@@ -82,6 +84,28 @@ namespace Chloe.Extensions
             return result;
         }
 
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Func<IDataReader, int, object>> GetValueHandlerCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Func<IDataReader, int, object>>();
+        public static Func<IDataReader, int, object> GetGetValueHandler(Type type)
+        {
+            var handler = GetValueHandlerCache.GetOrAdd(type, valueType =>
+             {
+                 MappingTypeInfo mappingTypeInfo = MappingTypeSystem.GetMappingTypeInfo(valueType);
+
+                 if (mappingTypeInfo != null && mappingTypeInfo.MappingType != null)
+                 {
+                     return (IDataReader reader, int ordinal) =>
+                     {
+                         return mappingTypeInfo.MappingType.ReadFromDataReader(reader, ordinal);
+                     };
+                 }
+
+                 return DelegateGenerator.CreateDataReaderGetValueHandler(valueType);
+             });
+
+            return handler;
+        }
+
+
         #region
         internal static readonly MethodInfo Reader_GetInt16 = typeof(DataReaderExtension).GetMethod("GetInt16");
         internal static readonly MethodInfo Reader_GetInt16_Nullable = typeof(DataReaderExtension).GetMethod("GetInt16_Nullable");
@@ -114,8 +138,5 @@ namespace Chloe.Extensions
         internal static readonly MethodInfo Reader_GetTValue = typeof(DataReaderExtension).GetMethod("GetTValue");
         internal static readonly MethodInfo Reader_GetTValue_Nullable = typeof(DataReaderExtension).GetMethod("GetTValue_Nullable");
         #endregion
-
-        #endregion
-
     }
 }

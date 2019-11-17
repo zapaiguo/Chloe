@@ -204,7 +204,7 @@ namespace Chloe.PostgreSQL
                 throw new ChloeException("Unable to get the identity/sequence value.");
             }
 
-            ret = PublicHelper.ConvertObjType(ret, typeDescriptor.AutoIncrement.PropertyType);
+            ret = PublicHelper.ConvertObjectType(ret, typeDescriptor.AutoIncrement.PropertyType);
             return ret;
         }
 

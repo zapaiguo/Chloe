@@ -1,4 +1,5 @@
 ﻿using Chloe.Descriptors;
+using Chloe.Extensions;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
@@ -24,13 +25,13 @@ namespace Chloe.Mapper
             for (int i = 0; i < this._keys.Count; i++)
             {
                 var kv = this._keys[i];
-                object keyReaderValue = reader.GetValue(kv.Item2);
+                object keyReaderValue = DataReaderConstant.GetGetValueHandler(kv.Item1.PropertyType)(reader, kv.Item2);
                 keyReaderValue = keyReaderValue == DBNull.Value ? null : keyReaderValue;
 
                 if (keyReaderValue == null)
                     return false;
 
-                keyReaderValue = PublicHelper.ConvertObjType(keyReaderValue, kv.Item1.PropertyType);
+                keyReaderValue = PublicHelper.ConvertObjectType(keyReaderValue, kv.Item1.PropertyType);
                 object keyValue = kv.Item1.GetValue(entity);
 
                 if (keyValue == null)

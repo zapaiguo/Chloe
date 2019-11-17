@@ -47,13 +47,18 @@ namespace Chloe.Utility
             DbMethodCallExpression getNextValueForSequenceExp = new DbMethodCallExpression(null, nextValueForSequenceMethod, arguments);
             return getNextValueForSequenceExp;
         }
-        public static object ConvertObjType(object obj, Type conversionType)
+        public static object ConvertObjectType(object obj, Type conversionType)
         {
             if (obj == null)
                 return null;
 
+            Type objType = obj.GetType();
+
+            if (objType == conversionType)
+                return obj;
+
             conversionType = conversionType.GetUnderlyingType();
-            if (obj.GetType() != conversionType)
+            if (objType != conversionType)
                 return Convert.ChangeType(obj, conversionType);
 
             return obj;

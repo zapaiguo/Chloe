@@ -89,7 +89,7 @@ namespace Chloe.Oracle
                 PrimitivePropertyDescriptor propertyDescriptor = outputColumns[i];
                 string putputColumnName = Utils.GenOutputColumnParameterName(propertyDescriptor.Column.Name);
                 DbParam outputParam = outputParams.Where(a => a.Name == putputColumnName).First();
-                var outputValue = PublicHelper.ConvertObjType(outputParam.Value, propertyDescriptor.PropertyType);
+                var outputValue = PublicHelper.ConvertObjectType(outputParam.Value, propertyDescriptor.PropertyType);
                 outputColumns[i].SetValue(entity, outputValue);
             }
 
@@ -184,7 +184,7 @@ namespace Chloe.Oracle
             {
                 string outputColumnName = Utils.GenOutputColumnParameterName(keyPropertyDescriptor.Column.Name);
                 DbParam outputParam = parameters.Where(a => a.Direction == ParamDirection.Output && a.Name == outputColumnName).First();
-                keyVal = PublicHelper.ConvertObjType(outputParam.Value, keyPropertyDescriptor.PropertyType);
+                keyVal = PublicHelper.ConvertObjectType(outputParam.Value, keyPropertyDescriptor.PropertyType);
             }
 
             return keyVal; /* It will return null if an entity does not define primary key. */
