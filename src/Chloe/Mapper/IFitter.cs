@@ -64,6 +64,10 @@ namespace Chloe.Mapper
             if (entity == null || !this._entityRowCompare.IsEntityRow(entity, reader))
             {
                 entity = this._elementActivator.CreateInstance(reader);
+
+                if (entity == null)
+                    return;
+
                 this._elementOwnerProperty.SetValue(entity, owner); //entity.XX = owner
                 entityContainer.Add(entity);
             }

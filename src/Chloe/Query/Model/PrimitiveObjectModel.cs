@@ -99,7 +99,7 @@ namespace Chloe.Query
         }
 
 
-        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table)
+        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable)
         {
             DbColumnAccessExpression cae = null;
             cae = ObjectModelHelper.ParseColumnAccessExpression(sqlQuery, table, this._exp);

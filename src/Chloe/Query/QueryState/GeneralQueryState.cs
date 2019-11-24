@@ -12,10 +12,10 @@ namespace Chloe.Query.QueryState
         {
             if (this.QueryModel.Condition == null)
             {
-                QueryModel result = new QueryModel(this.QueryModel.ScopeParameters, this.QueryModel.ScopeTables);
-                result.FromTable = this.QueryModel.FromTable;
-                result.ResultModel = this.QueryModel.ResultModel;
-                return result;
+                QueryModel newQueryModel = new QueryModel(this.QueryModel.ScopeParameters, this.QueryModel.ScopeTables, this.QueryModel.IgnoreFilters);
+                newQueryModel.FromTable = this.QueryModel.FromTable;
+                newQueryModel.ResultModel = this.QueryModel.ResultModel;
+                return newQueryModel;
             }
 
             return base.ToFromQueryModel();

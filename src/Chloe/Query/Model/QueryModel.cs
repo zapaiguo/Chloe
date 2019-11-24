@@ -1,4 +1,5 @@
 ﻿using Chloe.DbExpressions;
+using Chloe.InternalExtensions;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,11 @@ namespace Chloe.Query
 {
     public class QueryModel
     {
-        public QueryModel(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public QueryModel(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables) : this(scopeParameters, scopeTables, false)
         {
-            this.Orderings = new List<DbOrdering>();
-            this.GroupSegments = new List<DbExpression>();
-
+        }
+        public QueryModel(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables, bool ignoreFilters)
+        {
             if (scopeTables == null)
                 this.ScopeTables = new KeyDictionary<string>();
             else
@@ -25,6 +26,8 @@ namespace Chloe.Query
                 this.ScopeParameters = new ScopeParameterDictionary();
             else
                 this.ScopeParameters = scopeParameters.Clone();
+
+            this.IgnoreFilters = ignoreFilters;
         }
 
         public IObjectModel ResultModel { get; set; }
@@ -34,8 +37,10 @@ namespace Chloe.Query
         /// </summary>
         public bool InheritOrderings { get; set; }
 
-        public List<DbOrdering> Orderings { get; private set; }
-        public List<DbExpression> GroupSegments { get; private set; }
+        public bool IgnoreFilters { get; set; }
+        public List<DbOrdering> Orderings { get; private set; } = new List<DbOrdering>();
+        public List<DbExpression> GroupSegments { get; private set; } = new List<DbExpression>();
+        public List<DbExpression> Filters { get; private set; } = new List<DbExpression>();
 
         /// <summary>
         /// 如 takequery 了以后，则 table 的 Expression 类似 (select T.Id.. from User as T),Alias 则为新生成的
@@ -48,10 +53,7 @@ namespace Chloe.Query
         public ScopeParameterDictionary ScopeParameters { get; private set; }
         public void AppendCondition(DbExpression condition)
         {
-            if (this.Condition == null)
-                this.Condition = condition;
-            else
-                this.Condition = new DbAndExpression(this.Condition, condition);
+            this.Condition = this.Condition.And(condition);
         }
         public void AppendHavingCondition(DbExpression condition)
         {
@@ -59,6 +61,43 @@ namespace Chloe.Query
                 this.HavingCondition = condition;
             else
                 this.HavingCondition = new DbAndExpression(this.HavingCondition, condition);
+        }
+
+        public DbSqlQueryExpression CreateSqlQuery()
+        {
+            DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
+
+            sqlQuery.Table = this.FromTable;
+            sqlQuery.Orderings.AddRange(this.Orderings);
+            sqlQuery.Condition = this.Condition;
+
+            if (!this.IgnoreFilters)
+            {
+                for (int i = 0; i < this.Filters.Count; i++)
+                {
+                    var filter = this.Filters[i];
+                    sqlQuery.Condition = sqlQuery.Condition.And(filter);
+                }
+            }
+
+            sqlQuery.GroupSegments.AddRange(this.GroupSegments);
+            sqlQuery.HavingCondition = this.HavingCondition;
+
+            return sqlQuery;
+        }
+        public QueryModel Clone()
+        {
+            QueryModel newQueryModel = new QueryModel(this.ScopeParameters, this.ScopeTables, this.IgnoreFilters);
+            newQueryModel.FromTable = this.FromTable;
+
+            newQueryModel.ResultModel = this.ResultModel;
+            newQueryModel.Orderings.AddRange(this.Orderings);
+            newQueryModel.Condition = this.Condition;
+
+            newQueryModel.GroupSegments.AddRange(this.GroupSegments);
+            newQueryModel.AppendHavingCondition(this.HavingCondition);
+
+            return newQueryModel;
         }
 
         public string GenerateUniqueTableAlias(string prefix = UtilConstants.DefaultTableAlias)

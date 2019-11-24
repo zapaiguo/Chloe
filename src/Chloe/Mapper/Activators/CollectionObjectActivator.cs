@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Chloe.Mapper.Activators
 {
-    public class CollectionObejctActivator : IObjectActivator
+    public class CollectionObjectActivator : IObjectActivator
     {
         Type _collectionType;
         Func<object> _activator;
@@ -39,7 +39,7 @@ namespace Chloe.Mapper.Activators
             return activator;
         }
 
-        public CollectionObejctActivator(Type collectionType)
+        public CollectionObjectActivator(Type collectionType)
         {
             this._collectionType = collectionType;
             this._activator = GetActivator(collectionType);

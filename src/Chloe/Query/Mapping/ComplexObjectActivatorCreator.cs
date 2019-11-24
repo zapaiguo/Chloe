@@ -18,12 +18,13 @@ namespace Chloe.Query.Mapping
             this.ConstructorDescriptor = constructorDescriptor;
             this.ConstructorParameters = new Dictionary<ParameterInfo, int>();
             this.ConstructorEntityParameters = new Dictionary<ParameterInfo, IObjectActivatorCreator>();
-            this.MappingMembers = new Dictionary<MemberInfo, int>();
+            this.PrimitiveMembers = new Dictionary<MemberInfo, int>();
             this.ComplexMembers = new Dictionary<MemberInfo, IObjectActivatorCreator>();
             this.CollectionMembers = new Dictionary<MemberInfo, IObjectActivatorCreator>();
         }
 
         public Type ObjectType { get { return this.ConstructorDescriptor.ConstructorInfo.DeclaringType; } }
+        public bool IsRoot { get; set; }
         public int? CheckNullOrdinal { get; set; }
         public ConstructorDescriptor ConstructorDescriptor { get; private set; }
         public Dictionary<ParameterInfo, int> ConstructorParameters { get; private set; }
@@ -32,15 +33,13 @@ namespace Chloe.Query.Mapping
         /// <summary>
         /// 映射成员集合。以 MemberInfo 为 key，读取 DataReader 时的 Ordinal 为 value
         /// </summary>
-        public Dictionary<MemberInfo, int> MappingMembers { get; private set; }
+        public Dictionary<MemberInfo, int> PrimitiveMembers { get; private set; }
         /// <summary>
         /// 复杂类型成员集合。
         /// </summary>
         public Dictionary<MemberInfo, IObjectActivatorCreator> ComplexMembers { get; private set; }
         public Dictionary<MemberInfo, IObjectActivatorCreator> CollectionMembers { get; private set; }
 
-        public bool HasMany { get { return this.CollectionMembers.Count > 0; } }
-        public bool IsRootObject { get { return this.CollectionMembers.Count > 0; } }
 
         public IObjectActivator CreateObjectActivator()
         {
@@ -49,8 +48,8 @@ namespace Chloe.Query.Mapping
         public IObjectActivator CreateObjectActivator(IDbContext dbContext)
         {
             ObjectMemberMapper mapper = this.ConstructorDescriptor.GetEntityMemberMapper();
-            List<IValueSetter> memberSetters = new List<IValueSetter>(this.MappingMembers.Count + this.ComplexMembers.Count);
-            foreach (var kv in this.MappingMembers)
+            List<IValueSetter> memberSetters = new List<IValueSetter>(this.PrimitiveMembers.Count + this.ComplexMembers.Count);
+            foreach (var kv in this.PrimitiveMembers)
             {
                 IMRM mMapper = mapper.TryGetMappingMemberMapper(kv.Key);
                 PrimitiveMemberBinder binder = new PrimitiveMemberBinder(mMapper, kv.Value);
@@ -70,19 +69,26 @@ namespace Chloe.Query.Mapping
             List<int> readerOrdinals = this.ConstructorParameters.Select(a => a.Value).ToList();
             List<IObjectActivator> objectActivators = this.ConstructorEntityParameters.Select(a => a.Value.CreateObjectActivator()).ToList();
 
-            ComplexObjectActivator ret;
+            IObjectActivator objectActivator;
             if (dbContext != null)
-                ret = new ObjectActivatorWithTracking(instanceCreator, readerOrdinals, objectActivators, memberSetters, this.CheckNullOrdinal, dbContext);
+                objectActivator = new ObjectActivatorWithTracking(instanceCreator, readerOrdinals, objectActivators, memberSetters, this.CheckNullOrdinal, dbContext);
             else
-                ret = new ComplexObjectActivator(instanceCreator, readerOrdinals, objectActivators, memberSetters, this.CheckNullOrdinal);
+                objectActivator = new ComplexObjectActivator(instanceCreator, readerOrdinals, objectActivators, memberSetters, this.CheckNullOrdinal);
 
-            if (this.IsRootObject)
+            if (this.IsRoot && this.HasMany())
             {
+                TypeDescriptor entityTypeDescriptor = EntityTypeContainer.GetDescriptor(this.ObjectType);
+                List<Tuple<PropertyDescriptor, int>> keys = new List<Tuple<PropertyDescriptor, int>>(entityTypeDescriptor.PrimaryKeys.Count);
+                foreach (PrimitivePropertyDescriptor primaryKey in entityTypeDescriptor.PrimaryKeys)
+                {
+                    keys.Add(new Tuple<PropertyDescriptor, int>(primaryKey, this.PrimitiveMembers[primaryKey.Definition.Property]));
+                }
 
-
+                IEntityRowCompare entityRowCompare = new EntityRowCompare(keys);
+                objectActivator = new RootEntityActivator(objectActivator, this.CreateFitter(dbContext), entityRowCompare);
             }
 
-            return ret;
+            return objectActivator;
         }
 
         public IFitter CreateFitter(IDbContext dbContext)
@@ -97,6 +103,21 @@ namespace Chloe.Query.Mapping
 
             ComplexObjectFitter fitter = new ComplexObjectFitter(includings);
             return fitter;
+        }
+
+        public bool HasMany()
+        {
+            if (this.CollectionMembers.Count > 0)
+                return true;
+
+            foreach (var kv in this.ComplexMembers)
+            {
+                ComplexObjectActivatorCreator activatorCreator = kv.Value as ComplexObjectActivatorCreator;
+                if (activatorCreator.HasMany())
+                    return true;
+            }
+
+            return false;
         }
     }
 }

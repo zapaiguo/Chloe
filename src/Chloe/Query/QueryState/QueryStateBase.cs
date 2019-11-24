@@ -52,7 +52,7 @@ namespace Chloe.Query.QueryState
         }
         public virtual IQueryState Accept(SelectExpression exp)
         {
-            QueryModel result = this.CreateNewResult(exp.Selector);
+            QueryModel result = this.CreateNewQueryModel(exp.Selector);
             return this.CreateQueryState(result);
         }
         public virtual IQueryState Accept(SkipExpression exp)
@@ -80,13 +80,13 @@ namespace Chloe.Query.QueryState
             DbAggregateExpression dbAggregateExp = new DbAggregateExpression(exp.ElementType, exp.Method, dbArguments);
             PrimitiveObjectModel resultModel = new PrimitiveObjectModel(exp.ElementType, dbAggregateExp);
 
-            QueryModel result = new QueryModel(this._queryModel.ScopeParameters, this._queryModel.ScopeTables);
+            QueryModel queryModel = new QueryModel(this._queryModel.ScopeParameters, this._queryModel.ScopeTables, this._queryModel.IgnoreFilters);
 
-            result.ResultModel = resultModel;
-            result.FromTable = this._queryModel.FromTable;
-            result.AppendCondition(this._queryModel.Condition);
+            queryModel.ResultModel = resultModel;
+            queryModel.FromTable = this._queryModel.FromTable;
+            queryModel.AppendCondition(this._queryModel.Condition);
 
-            AggregateQueryState state = new AggregateQueryState(result);
+            AggregateQueryState state = new AggregateQueryState(queryModel);
             return state;
         }
         public virtual IQueryState Accept(GroupingQueryExpression exp)
@@ -125,8 +125,8 @@ namespace Chloe.Query.QueryState
                 }
             }
 
-            var newResult = this.CreateNewResult(exp.Selector);
-            return new GroupingQueryState(newResult);
+            QueryModel newQueryModel = this.CreateNewQueryModel(exp.Selector);
+            return new GroupingQueryState(newQueryModel);
         }
         public virtual IQueryState Accept(DistinctExpression exp)
         {
@@ -138,22 +138,15 @@ namespace Chloe.Query.QueryState
             throw new NotSupportedException("Cannot call include method now.");
         }
 
-        public virtual QueryModel CreateNewResult(LambdaExpression selector)
+        public virtual QueryModel CreateNewQueryModel(LambdaExpression selector)
         {
-            QueryModel result = new QueryModel(this._queryModel.ScopeParameters, this._queryModel.ScopeTables);
-            result.FromTable = this._queryModel.FromTable;
+            QueryModel newQueryModel = this._queryModel.Clone();
 
             ScopeParameterDictionary scopeParameters = this._queryModel.ScopeParameters.Clone(selector.Parameters[0], this._queryModel.ResultModel);
+            IObjectModel newResultModel = SelectorResolver.Resolve(selector, scopeParameters, this._queryModel.ScopeTables);
+            newQueryModel.ResultModel = newResultModel;
 
-            IObjectModel r = SelectorResolver.Resolve(selector, scopeParameters, this._queryModel.ScopeTables);
-            result.ResultModel = r;
-            result.Orderings.AddRange(this._queryModel.Orderings);
-            result.AppendCondition(this._queryModel.Condition);
-
-            result.GroupSegments.AddRange(this._queryModel.GroupSegments);
-            result.AppendHavingCondition(this._queryModel.HavingCondition);
-
-            return result;
+            return newQueryModel;
         }
         public virtual IQueryState CreateQueryState(QueryModel result)
         {
@@ -166,7 +159,12 @@ namespace Chloe.Query.QueryState
 
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
 
+            ComplexObjectModel complexObjectModel = this._queryModel.ResultModel as ComplexObjectModel;
+            if (complexObjectModel != null)
+                complexObjectModel.SetupCollection(this._queryModel);
+
             var objectActivatorCreator = this._queryModel.ResultModel.GenarateObjectActivatorCreator(sqlQuery);
+            objectActivatorCreator.IsRoot = true;
 
             data.SqlQuery = sqlQuery;
             data.ObjectActivatorCreator = objectActivatorCreator;
@@ -179,18 +177,18 @@ namespace Chloe.Query.QueryState
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
-            QueryModel result = new QueryModel(this._queryModel.ScopeParameters, this._queryModel.ScopeTables);
+            QueryModel newQueryModel = new QueryModel(this._queryModel.ScopeParameters, this._queryModel.ScopeTables, this._queryModel.IgnoreFilters);
 
-            DbTableSegment tableSeg = new DbTableSegment(subQuery, result.GenerateUniqueTableAlias(), LockType.Unspecified);
+            DbTableSegment tableSeg = new DbTableSegment(subQuery, newQueryModel.GenerateUniqueTableAlias(), LockType.Unspecified);
             DbFromTableExpression fromTable = new DbFromTableExpression(tableSeg);
 
-            result.FromTable = fromTable;
+            newQueryModel.FromTable = fromTable;
 
-            DbTable table = new DbTable(tableSeg.Alias);
+            DbTable aliasTable = new DbTable(tableSeg.Alias);
 
-            //TODO 根据旧的生成新 MappingMembers
-            IObjectModel newModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, table);
-            result.ResultModel = newModel;
+            //TODO 根据旧的生成新 ResultModel
+            IObjectModel newResultModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, aliasTable, fromTable);
+            newQueryModel.ResultModel = newResultModel;
 
             //得将 subQuery.SqlQuery.Orders 告诉 以下创建的 result
             //将 orderPart 传递下去
@@ -217,27 +215,19 @@ namespace Chloe.Query.QueryState
                         sqlQuery.ColumnSegments.Add(columnSeg);
                     }
 
-                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, DbColumn.MakeColumn(orderingExp, alias));
-                    result.Orderings.Add(new DbOrdering(columnAccessExpression, ordering.OrderType));
+                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(aliasTable, DbColumn.MakeColumn(orderingExp, alias));
+                    newQueryModel.Orderings.Add(new DbOrdering(columnAccessExpression, ordering.OrderType));
                 }
             }
 
-            result.InheritOrderings = true;
+            newQueryModel.InheritOrderings = true;
 
-            GeneralQueryState queryState = new GeneralQueryState(result);
+            GeneralQueryState queryState = new GeneralQueryState(newQueryModel);
             return queryState;
         }
         public virtual DbSqlQueryExpression CreateSqlQuery()
         {
-            DbSqlQueryExpression sqlQuery = new DbSqlQueryExpression();
-
-            sqlQuery.Table = this._queryModel.FromTable;
-            sqlQuery.Orderings.AddRange(this._queryModel.Orderings);
-            sqlQuery.Condition = this._queryModel.Condition;
-
-            sqlQuery.GroupSegments.AddRange(this._queryModel.GroupSegments);
-            sqlQuery.HavingCondition = this._queryModel.HavingCondition;
-
+            DbSqlQueryExpression sqlQuery = this._queryModel.CreateSqlQuery();
             return sqlQuery;
         }
 
@@ -265,21 +255,21 @@ namespace Chloe.Query.QueryState
 
         public virtual QueryModel ToFromQueryModel()
         {
-            QueryModel result = new QueryModel(this._queryModel.ScopeParameters, this._queryModel.ScopeTables);
+            QueryModel queryModel = new QueryModel(this._queryModel.ScopeParameters, this._queryModel.ScopeTables, this._queryModel.IgnoreFilters);
 
-            string alias = result.GenerateUniqueTableAlias(UtilConstants.DefaultTableAlias);
+            string alias = queryModel.GenerateUniqueTableAlias(UtilConstants.DefaultTableAlias);
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
             DbTableSegment tableSeg = new DbTableSegment(subQuery, alias, LockType.Unspecified);
             DbFromTableExpression fromTable = new DbFromTableExpression(tableSeg);
 
-            DbTable table = new DbTable(tableSeg.Alias);
-            IObjectModel newModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, table);
+            DbTable aliasTable = new DbTable(tableSeg.Alias);
+            IObjectModel newModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, aliasTable, fromTable);
 
-            result.FromTable = fromTable;
-            result.ResultModel = newModel;
-            return result;
+            queryModel.FromTable = fromTable;
+            queryModel.ResultModel = newModel;
+            return queryModel;
         }
 
         public virtual JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables, string tableAlias)
@@ -289,15 +279,15 @@ namespace Chloe.Query.QueryState
 
             string alias = tableAlias;
             DbTableSegment tableSeg = new DbTableSegment(subQuery, alias, LockType.Unspecified);
+            DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType.AsDbJoinType(), tableSeg);
 
-            DbTable table = new DbTable(tableSeg.Alias);
-            IObjectModel newModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, table);
+            DbTable aliasTable = new DbTable(tableSeg.Alias);
+            IObjectModel newModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, aliasTable, joinTable);
 
             scopeParameters[conditionExpression.Parameters[conditionExpression.Parameters.Count - 1]] = newModel;
 
             DbExpression condition = GeneralExpressionParser.Parse(conditionExpression, scopeParameters, scopeTables);
-
-            DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType.AsDbJoinType(), tableSeg, condition);
+            joinTable.Condition = condition;
 
             JoinQueryResult result = new JoinQueryResult();
             result.ResultModel = newModel;

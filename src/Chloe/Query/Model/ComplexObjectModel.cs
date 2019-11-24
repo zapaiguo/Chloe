@@ -11,12 +11,13 @@ using System.Reflection;
 using Chloe.Query.QueryExpressions;
 using Chloe.Infrastructure;
 using Chloe.Query.Visitors;
+using Chloe.Exceptions;
 
 namespace Chloe.Query
 {
     public class ComplexObjectModel : IObjectModel
     {
-        public ComplexObjectModel(Type objectType) : this(objectType.GetConstructor(Type.EmptyTypes))
+        public ComplexObjectModel(Type objectType) : this(GetDefaultConstructor(objectType))
         {
         }
         public ComplexObjectModel(ConstructorInfo constructor)
@@ -34,11 +35,27 @@ namespace Chloe.Query
             this.CollectionMembers = new Dictionary<MemberInfo, CollectionObjectModel>();
         }
 
+        static ConstructorInfo GetDefaultConstructor(Type type)
+        {
+            var ret = type.GetDefaultConstructor();
+            if (ret == null)
+            {
+                throw new ArgumentException(string.Format("The type of '{0}' does't define a none parameter constructor.", type.FullName));
+            }
+
+            return ret;
+        }
+
         public Type ObjectType { get; private set; }
         public TypeKind TypeKind { get { return TypeKind.Complex; } }
         public DbExpression PrimaryKey { get; set; }
         public DbExpression NullChecking { get; set; }
 
+        public DbMainTableExpression DependentTable { get; set; }
+        /// <summary>
+        /// 导航集合属性
+        /// </summary>
+        public List<NavigationNode> IncludeCollections { get; set; } = new List<NavigationNode>();
         public DbExpression Condition { get; set; }
         public DbExpression Filter { get; set; }
 
@@ -52,24 +69,6 @@ namespace Chloe.Query
         public Dictionary<MemberInfo, ComplexObjectModel> ComplexMembers { get; protected set; }
         public Dictionary<MemberInfo, CollectionObjectModel> CollectionMembers { get; protected set; }
 
-        public bool IsNavModel { get; set; }
-        public bool IsRootObject { get; set; }
-        public bool HasOneToMany
-        {
-            get
-            {
-                if (this.CollectionMembers.Count > 0)
-                    return true;
-
-                foreach (var item in this.ComplexMembers)
-                {
-                    if (item.Value.HasOneToMany)
-                        return true;
-                }
-
-                return false;
-            }
-        }
 
         public void AddConstructorParameter(ParameterInfo p, DbExpression primitiveExp)
         {
@@ -278,16 +277,19 @@ namespace Chloe.Query
                 if (exp == this.NullChecking)
                     activatorCreator.CheckNullOrdinal = ordinal;
 
-                activatorCreator.MappingMembers.Add(member, ordinal);
+                activatorCreator.PrimitiveMembers.Add(member, ordinal);
             }
 
             foreach (var kv in this.ComplexMembers)
             {
-                MemberInfo member = kv.Key;
-                IObjectModel val = kv.Value;
+                IObjectActivatorCreator complexMemberActivatorCreator = kv.Value.GenarateObjectActivatorCreator(sqlQuery);
+                activatorCreator.ComplexMembers.Add(kv.Key, complexMemberActivatorCreator);
+            }
 
-                IObjectActivatorCreator complexMappingMember = val.GenarateObjectActivatorCreator(sqlQuery);
-                activatorCreator.ComplexMembers.Add(kv.Key, complexMappingMember);
+            foreach (var kv in this.CollectionMembers)
+            {
+                IObjectActivatorCreator collectionMemberActivatorCreator = kv.Value.GenarateObjectActivatorCreator(sqlQuery);
+                activatorCreator.CollectionMembers.Add(kv.Key, collectionMemberActivatorCreator);
             }
 
             if (activatorCreator.CheckNullOrdinal == null)
@@ -296,9 +298,11 @@ namespace Chloe.Query
             return activatorCreator;
         }
 
-        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table)
+        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable)
         {
             ComplexObjectModel newModel = new ComplexObjectModel(this.ConstructorDescriptor);
+            newModel.DependentTable = dependentTable;
+            newModel.IncludeCollections.AddRange(this.IncludeCollections);
 
             foreach (var kv in this.PrimitiveConstructorParameters)
             {
@@ -316,8 +320,8 @@ namespace Chloe.Query
                 ParameterInfo pi = kv.Key;
                 IObjectModel val = kv.Value;
 
-                IObjectModel complexMappingMember = val.ToNewObjectModel(sqlQuery, table);
-                newModel.AddConstructorParameter(pi, (ComplexObjectModel)complexMappingMember);
+                ComplexObjectModel complexMemberModel = val.ToNewObjectModel(sqlQuery, table, dependentTable) as ComplexObjectModel;
+                newModel.AddConstructorParameter(pi, complexMemberModel);
             }
 
             foreach (var kv in this.PrimitiveMembers)
@@ -325,8 +329,7 @@ namespace Chloe.Query
                 MemberInfo member = kv.Key;
                 DbExpression exp = kv.Value;
 
-                DbColumnAccessExpression cae = null;
-                cae = ObjectModelHelper.ParseColumnAccessExpression(sqlQuery, table, exp, member.Name);
+                DbColumnAccessExpression cae = ObjectModelHelper.ParseColumnAccessExpression(sqlQuery, table, exp, member.Name);
 
                 newModel.AddPrimitiveMember(member, cae);
 
@@ -343,8 +346,8 @@ namespace Chloe.Query
                 MemberInfo member = kv.Key;
                 IObjectModel val = kv.Value;
 
-                IObjectModel complexMappingMember = val.ToNewObjectModel(sqlQuery, table);
-                newModel.AddComplexMember(member, (ComplexObjectModel)complexMappingMember);
+                ComplexObjectModel complexMemberModel = val.ToNewObjectModel(sqlQuery, table, dependentTable) as ComplexObjectModel;
+                newModel.AddComplexMember(member, complexMemberModel);
             }
 
             if (newModel.NullChecking == null)
@@ -353,7 +356,7 @@ namespace Chloe.Query
             return newModel;
         }
 
-        public void Include(NavigationNode navigationNode, QueryModel queryModel)
+        public void Include(NavigationNode navigationNode, QueryModel queryModel, bool handleCollection)
         {
             TypeDescriptor descriptor = EntityTypeContainer.GetDescriptor(this.ObjectType);
             PropertyDescriptor navigationDescriptor = descriptor.GetPropertyDescriptor(navigationNode.Property);
@@ -370,7 +373,7 @@ namespace Chloe.Query
 
                 if (objectModel == null)
                 {
-                    objectModel = this.GenComplexObjectModel(navigationDescriptor.PropertyType, navigationNode, queryModel);
+                    objectModel = this.GenComplexObjectModel(navigationDescriptor as ComplexPropertyDescriptor, navigationNode, queryModel);
                     this.AddComplexMember(navigationNode.Property, objectModel);
                 }
                 else
@@ -380,12 +383,18 @@ namespace Chloe.Query
             }
             else
             {
-                CollectionObjectModel navModel = this.GetCollectionMember(navigationNode.Property);
+                if (!handleCollection)
+                {
+                    this.IncludeCollections.Add(navigationNode);
+                    return;
+                }
 
+                CollectionObjectModel navModel = this.GetCollectionMember(navigationNode.Property);
                 if (navModel == null)
                 {
                     Type collectionType = navigationDescriptor.PropertyType;
-                    ComplexObjectModel elementModel = this.GenComplexObjectModel(collectionType.GetGenericArguments()[0], navigationNode, queryModel);
+                    TypeDescriptor elementTypeDescriptor = EntityTypeContainer.GetDescriptor(collectionType.GetGenericArguments()[0]);
+                    ComplexObjectModel elementModel = this.GenCollectionElementObjectModel(elementTypeDescriptor, navigationNode, queryModel);
                     navModel = new CollectionObjectModel(this.ObjectType, navigationNode.Property, elementModel);
                     this.AddCollectionMember(navigationNode.Property, navModel);
                 }
@@ -395,19 +404,99 @@ namespace Chloe.Query
 
             if (navigationNode.Next != null)
             {
-                objectModel.Include(navigationNode.Next, queryModel);
+                objectModel.Include(navigationNode.Next, queryModel, handleCollection);
             }
         }
-        ComplexObjectModel GenComplexObjectModel(Type objectType, NavigationNode navigationNode, QueryModel queryModel)
+        public void SetupCollection(QueryModel queryModel)
         {
-            TypeDescriptor navigationTypeDescriptor = EntityTypeContainer.GetDescriptor(objectType);
-            DbTable table = new DbTable(queryModel.GenerateUniqueTableAlias(navigationTypeDescriptor.Table.Name));
-            ComplexObjectModel objectModel = navigationTypeDescriptor.GenObjectModel(table);
+            for (int i = 0; i < this.IncludeCollections.Count; i++)
+            {
+                NavigationNode navigationNode = this.IncludeCollections[i];
+                this.Include(navigationNode, queryModel, true);
+            }
 
-            objectModel.Condition = FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], objectModel } }, queryModel.ScopeTables);
-            objectModel.Filter = FilterPredicateParser.Parse(navigationNode.Filter, new ScopeParameterDictionary(1) { { navigationNode.Filter.Parameters[0], objectModel } }, queryModel.ScopeTables);
+            foreach (var kv in this.ComplexMembers)
+            {
+                var memberObjectModel = kv.Value as ComplexObjectModel;
+                memberObjectModel.SetupCollection(queryModel);
+            }
+        }
 
-            return objectModel;
+        public bool HasMany()
+        {
+            if (this.IncludeCollections.Count > 0)
+                return true;
+
+            foreach (var kv in this.ComplexMembers)
+            {
+                var memberObjectModel = kv.Value as ComplexObjectModel;
+                if (memberObjectModel.HasMany())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        ComplexObjectModel GenComplexObjectModel(ComplexPropertyDescriptor navigationDescriptor, NavigationNode navigationNode, QueryModel queryModel)
+        {
+            TypeDescriptor navigationTypeDescriptor = EntityTypeContainer.GetDescriptor(navigationDescriptor.PropertyType);
+
+            DbTable dbTable = navigationTypeDescriptor.Table;
+            DbTableExpression tableExp = new DbTableExpression(dbTable);
+            string alias = queryModel.GenerateUniqueTableAlias(dbTable.Name);
+            DbTableSegment joinTableSeg = new DbTableSegment(tableExp, alias, queryModel.FromTable.Table.Lock);
+
+            DbTable aliasTable = new DbTable(alias);
+            ComplexObjectModel navigationObjectModel = navigationTypeDescriptor.GenObjectModel(aliasTable);
+            navigationObjectModel.NullChecking = navigationObjectModel.PrimaryKey;
+
+            DbExpression foreignKeyColumn = this.GetPrimitiveMember(navigationDescriptor.ForeignKeyProperty.Property);
+            DbExpression joinCondition = DbExpression.Equal(foreignKeyColumn, navigationObjectModel.PrimaryKey);
+            DbJoinTableExpression joinTableExp = new DbJoinTableExpression(DbJoinType.LeftJoin, joinTableSeg, joinCondition);
+            this.DependentTable.JoinTables.Add(joinTableExp);
+
+            navigationObjectModel.DependentTable = joinTableExp;
+            navigationObjectModel.Condition = FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], navigationObjectModel } }, queryModel.ScopeTables);
+            navigationObjectModel.Filter = FilterPredicateParser.Parse(navigationNode.Filter, new ScopeParameterDictionary(1) { { navigationNode.Filter.Parameters[0], navigationObjectModel } }, queryModel.ScopeTables);
+
+            queryModel.AppendCondition(navigationObjectModel.Condition);
+            queryModel.Filters.Add(navigationObjectModel.Filter);
+
+            return navigationObjectModel;
+        }
+        ComplexObjectModel GenCollectionElementObjectModel(TypeDescriptor elementTypeDescriptor, NavigationNode navigationNode, QueryModel queryModel)
+        {
+            DbTable dbTable = elementTypeDescriptor.Table;
+            DbTableExpression tableExp = new DbTableExpression(dbTable);
+            string alias = queryModel.GenerateUniqueTableAlias(dbTable.Name);
+            DbTableSegment joinTableSeg = new DbTableSegment(tableExp, alias, queryModel.FromTable.Table.Lock);
+
+            DbTable aliasTable = new DbTable(alias);
+            ComplexObjectModel elementObjectModel = elementTypeDescriptor.GenObjectModel(aliasTable);
+            elementObjectModel.NullChecking = elementObjectModel.PrimaryKey;
+
+            ComplexPropertyDescriptor navigationDescriptor = elementTypeDescriptor.ComplexPropertyDescriptors.Where(a => a.PropertyType == this.ObjectType).FirstOrDefault();
+
+            if (navigationDescriptor == null)
+            {
+                throw new ChloeException($"You have to define a navigation property which type is '{this.ObjectType.FullName}' on class '{elementTypeDescriptor.Definition.Type.FullName}'.");
+            }
+
+            DbExpression elementForeignKeyColumn = this.GetPrimitiveMember(navigationDescriptor.ForeignKeyProperty.Property);
+            DbExpression joinCondition = DbExpression.Equal(this.PrimaryKey, elementForeignKeyColumn);
+            DbJoinTableExpression joinTableExp = new DbJoinTableExpression(DbJoinType.LeftJoin, joinTableSeg, joinCondition);
+            this.DependentTable.JoinTables.Add(joinTableExp);
+
+            elementObjectModel.DependentTable = joinTableExp;
+            elementObjectModel.Condition = FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], elementObjectModel } }, queryModel.ScopeTables);
+            elementObjectModel.Filter = FilterPredicateParser.Parse(navigationNode.Filter, new ScopeParameterDictionary(1) { { navigationNode.Filter.Parameters[0], elementObjectModel } }, queryModel.ScopeTables);
+
+            queryModel.AppendCondition(elementObjectModel.Condition);
+            queryModel.Filters.Add(elementObjectModel.Filter);
+
+            return elementObjectModel;
         }
 
         public void SetNullChecking(DbExpression exp)

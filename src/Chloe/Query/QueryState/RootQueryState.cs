@@ -1,5 +1,6 @@
 ﻿using Chloe.DbExpressions;
 using System;
+using System.Linq;
 using Chloe.Descriptors;
 using System.Reflection;
 using Chloe.InternalExtensions;
@@ -13,21 +14,19 @@ namespace Chloe.Query.QueryState
 {
     internal sealed class RootQueryState : QueryStateBase
     {
-        Type _elementType;
         public RootQueryState(Type elementType, string explicitTableName, LockType @lock, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
-            : base(CreateQueryModel(elementType, explicitTableName, @lock, scopeParameters, scopeTables))
+           : base(CreateQueryModel(elementType, explicitTableName, @lock, scopeParameters, scopeTables))
         {
-            this._elementType = elementType;
         }
 
         public override QueryModel ToFromQueryModel()
         {
             if (this.QueryModel.Condition == null)
             {
-                QueryModel result = new QueryModel(this.QueryModel.ScopeParameters, this.QueryModel.ScopeTables);
-                result.FromTable = this.QueryModel.FromTable;
-                result.ResultModel = this.QueryModel.ResultModel;
-                return result;
+                QueryModel newQueryModel = new QueryModel(this.QueryModel.ScopeParameters, this.QueryModel.ScopeTables, this.QueryModel.IgnoreFilters);
+                newQueryModel.FromTable = this.QueryModel.FromTable;
+                newQueryModel.ResultModel = this.QueryModel.ResultModel;
+                return newQueryModel;
             }
 
             return base.ToFromQueryModel();
@@ -36,7 +35,7 @@ namespace Chloe.Query.QueryState
         public override IQueryState Accept(IncludeExpression exp)
         {
             ComplexObjectModel owner = (ComplexObjectModel)this.QueryModel.ResultModel;
-            owner.Include(exp.NavigationNode, this.QueryModel);
+            owner.Include(exp.NavigationNode, this.QueryModel, false);
 
             return this;
         }
@@ -58,22 +57,9 @@ namespace Chloe.Query.QueryState
 
             queryModel.FromTable = CreateRootTable(dbTable, alias, lockType);
 
-            ConstructorInfo constructor = typeDescriptor.GetDefaultConstructor();
-            if (constructor == null)
-                throw new ArgumentException(string.Format("The type of '{0}' does't define a none parameter constructor.", type.FullName));
-
-            ComplexObjectModel model = new ComplexObjectModel(constructor);
-
-            DbTable table = new DbTable(alias);
-
-            foreach (PrimitivePropertyDescriptor item in typeDescriptor.PrimitivePropertyDescriptors)
-            {
-                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
-
-                model.AddPrimitiveMember(item.Property, columnAccessExpression);
-                if (item.IsPrimaryKey)
-                    model.PrimaryKey = columnAccessExpression;
-            }
+            DbTable aliasTable = new DbTable(alias);
+            ComplexObjectModel model = typeDescriptor.GenObjectModel(aliasTable);
+            model.DependentTable = queryModel.FromTable;
 
             queryModel.ResultModel = model;
 

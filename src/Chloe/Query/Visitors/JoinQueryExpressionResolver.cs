@@ -47,17 +47,9 @@ namespace Chloe.Query.Visitors
             string alias = this._queryModel.GenerateUniqueTableAlias(dbTable.Name);
 
             DbTableSegment tableSeg = CreateTableSegment(dbTable, alias, exp.Lock);
-            ComplexObjectModel model = new ComplexObjectModel(typeDescriptor.Definition.Type);
 
-            DbTable table = new DbTable(alias);
-            foreach (PrimitivePropertyDescriptor item in typeDescriptor.PrimitivePropertyDescriptors)
-            {
-                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, item.Column);
-                model.AddPrimitiveMember(item.Property, columnAccessExpression);
-
-                if (item.IsPrimaryKey)
-                    model.PrimaryKey = columnAccessExpression;
-            }
+            DbTable aliasTable = new DbTable(alias);
+            ComplexObjectModel model = typeDescriptor.GenObjectModel(aliasTable);
 
             //TODO 解析 on 条件表达式
             var scopeParameters = this._scopeParameters.Clone(this._conditionExpression.Parameters.Last(), model);

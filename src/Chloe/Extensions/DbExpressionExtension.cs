@@ -182,5 +182,16 @@ namespace Chloe.InternalExtensions
 
             return false;
         }
+
+        public static DbExpression And(this DbExpression left, DbExpression right)
+        {
+            if (left == null)
+                return right;
+
+            if (right == null)
+                return left;
+
+            return new DbAndExpression(left, right);
+        }
     }
 }

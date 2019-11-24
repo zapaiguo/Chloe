@@ -19,6 +19,7 @@ namespace Chloe.Query.Mapping
         }
 
         public Type ObjectType { get; private set; }
+        public bool IsRoot { get; set; }
         public int ReaderOrdinal { get; private set; }
         public int? CheckNullOrdinal { get; set; }
 

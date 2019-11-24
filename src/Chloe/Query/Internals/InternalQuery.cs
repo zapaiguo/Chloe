@@ -3,6 +3,7 @@ using Chloe.Core.Visitors;
 using Chloe.Data;
 using Chloe.Infrastructure;
 using Chloe.Mapper;
+using Chloe.Mapper.Activators;
 using Chloe.Query.Mapping;
 using Chloe.Query.QueryState;
 using Chloe.Query.Visitors;
@@ -47,7 +48,14 @@ namespace Chloe.Query.Internals
             DbCommandFactor commandFactor = this.GenerateCommandFactor();
             var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(commandFactor, cmdFactor =>
             {
-                return this._query.DbContext.AdoSession.ExecuteReader(cmdFactor.CommandText, cmdFactor.Parameters, CommandType.Text);
+                IDataReader dataReader = this._query.DbContext.AdoSession.ExecuteReader(cmdFactor.CommandText, cmdFactor.Parameters, CommandType.Text);
+
+                if (commandFactor.ObjectActivator is RootEntityActivator)
+                {
+                    dataReader = new QueryDataReader(dataReader);
+                }
+
+                return dataReader;
             });
             return enumerator;
         }

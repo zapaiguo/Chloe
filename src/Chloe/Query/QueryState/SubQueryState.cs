@@ -50,5 +50,20 @@ namespace Chloe.Query.QueryState
             IQueryState state = this.AsSubQueryState();
             return state.Accept(exp);
         }
+
+        public override MappingData GenerateMappingData()
+        {
+            ComplexObjectModel complexObjectModel = this.QueryModel.ResultModel as ComplexObjectModel;
+
+            if (complexObjectModel == null)
+                return base.GenerateMappingData();
+
+            if (complexObjectModel.HasMany())
+            {
+                return base.AsSubQueryState().GenerateMappingData();
+            }
+
+            return base.GenerateMappingData();
+        }
     }
 }

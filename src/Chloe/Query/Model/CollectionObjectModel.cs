@@ -16,12 +16,6 @@ namespace Chloe.Query
     {
         Type _collectionType;
 
-        public Type ObjectType { get { return this._collectionType; } }
-        public TypeKind TypeKind { get { return TypeKind.Complex; } }
-        public ComplexObjectModel ElementModel { get; private set; }
-        public Type OwnerType { get; private set; }
-        public PropertyInfo AssociatedProperty { get; private set; }
-
         public CollectionObjectModel(Type ownerType, PropertyInfo associatedProperty, ComplexObjectModel elementModel)
         {
             this.OwnerType = ownerType;
@@ -29,6 +23,14 @@ namespace Chloe.Query
             this._collectionType = associatedProperty.PropertyType;
             this.ElementModel = elementModel;
         }
+
+        public Type ObjectType { get { return this._collectionType; } }
+        public TypeKind TypeKind { get { return TypeKind.Complex; } }
+        public ComplexObjectModel ElementModel { get; private set; }
+        public Type OwnerType { get; private set; }
+        public PropertyInfo AssociatedProperty { get; private set; }
+
+
 
         public void AddConstructorParameter(ParameterInfo p, DbExpression primitiveExp)
         {
@@ -82,7 +84,7 @@ namespace Chloe.Query
         }
 
 
-        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table)
+        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable)
         {
             //创建 List
             throw new NotImplementedException();

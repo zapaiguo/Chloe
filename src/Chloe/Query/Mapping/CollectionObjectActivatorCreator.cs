@@ -20,6 +20,7 @@ namespace Chloe.Query.Mapping
         }
 
         public Type ObjectType { get { return this.CollectionType; } }
+        public bool IsRoot { get; set; }
         public Type CollectionType { get; private set; }
         public Type OwnerType { get; private set; }
         public IObjectActivatorCreator ElementActivatorCreator { get; private set; }
@@ -30,7 +31,7 @@ namespace Chloe.Query.Mapping
         }
         public IObjectActivator CreateObjectActivator(IDbContext dbContext)
         {
-            CollectionObejctActivator ret = new CollectionObejctActivator(this.CollectionType);
+            CollectionObjectActivator ret = new CollectionObjectActivator(this.CollectionType);
             return ret;
         }
 
@@ -44,7 +45,7 @@ namespace Chloe.Query.Mapping
             List<Tuple<PropertyDescriptor, int>> keys = new List<Tuple<PropertyDescriptor, int>>(elementTypeDescriptor.PrimaryKeys.Count);
             foreach (PrimitivePropertyDescriptor primaryKey in elementTypeDescriptor.PrimaryKeys)
             {
-                keys.Add(new Tuple<PropertyDescriptor, int>(primaryKey, elementActivatorCreator.MappingMembers[primaryKey.Definition.Property]));
+                keys.Add(new Tuple<PropertyDescriptor, int>(primaryKey, elementActivatorCreator.PrimitiveMembers[primaryKey.Definition.Property]));
             }
 
             IEntityRowCompare entityRowCompare = new EntityRowCompare(keys);

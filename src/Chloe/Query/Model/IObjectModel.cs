@@ -12,11 +12,10 @@ namespace Chloe.Query
 {
     public interface IObjectModel
     {
-        //bool HasMany { get; }
         Type ObjectType { get; }
         TypeKind TypeKind { get; }
         IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery);
-        IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table);
+        IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable);
         void AddConstructorParameter(ParameterInfo p, DbExpression primitiveExp);
         void AddConstructorParameter(ParameterInfo p, ComplexObjectModel complexModel);
 

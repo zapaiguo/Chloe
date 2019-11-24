@@ -103,6 +103,11 @@ namespace Chloe.InternalExtensions
             return type.Assembly;
         }
 
+        public static ConstructorInfo GetDefaultConstructor(this Type type)
+        {
+            return type.GetConstructor(Type.EmptyTypes);
+        }
+
 #if NETFX
         public static IEnumerable<Attribute> GetCustomAttributes(this MemberInfo member)
         {

@@ -114,6 +114,9 @@ namespace Chloe.Descriptors
             {
                 DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(table, propertyDescriptor.Column);
                 model.AddPrimitiveMember(propertyDescriptor.Property, columnAccessExpression);
+
+                if (propertyDescriptor.IsPrimaryKey)
+                    model.PrimaryKey = columnAccessExpression;
             }
 
             return model;
