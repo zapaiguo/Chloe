@@ -7,14 +7,14 @@ using System.Text;
 
 namespace Chloe.Core.Visitors
 {
-    public class JoinConditionExpressionParser : DbExpressionVisitor
+    public class JoinConditionExpressionTransformer : DbExpressionVisitor
     {
         public static readonly MethodInfo MethodInfo_Sql_Equals = typeof(Sql).GetMethods().Where(a => a.Name == "Equals" && a.IsStatic && a.IsGenericMethod).First();
         public static readonly MethodInfo MethodInfo_Sql_NotEquals = typeof(Sql).GetMethod("NotEquals");
 
-        static readonly JoinConditionExpressionParser _joinConditionExpressionParser = new JoinConditionExpressionParser();
+        static readonly JoinConditionExpressionTransformer _joinConditionExpressionParser = new JoinConditionExpressionTransformer();
 
-        public static DbExpression Parse(DbExpression exp)
+        public static DbExpression Transform(DbExpression exp)
         {
             return exp.Accept(_joinConditionExpressionParser);
         }

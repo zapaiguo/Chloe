@@ -426,7 +426,7 @@ namespace Chloe.MySql
             this._sqlBuilder.Append(joinString);
             this.AppendTableSegment(joinTablePart.Table);
             this._sqlBuilder.Append(" ON ");
-            JoinConditionExpressionParser.Parse(joinTablePart.Condition).Accept(this);
+            JoinConditionExpressionTransformer.Transform(joinTablePart.Condition).Accept(this);
             this.VisitDbJoinTableExpressions(joinTablePart.JoinTables);
 
             return exp;
