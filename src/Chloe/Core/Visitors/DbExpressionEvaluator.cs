@@ -149,5 +149,13 @@ namespace Chloe.Core.Visitors
         {
             return exp.Value;
         }
+        public override object Visit(DbCoalesceExpression exp)
+        {
+            object left = exp.CheckExpression.Accept(this);
+            if (left == null)
+                return exp.ReplacementValue.Accept(this);
+
+            return left;
+        }
     }
 }
