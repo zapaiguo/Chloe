@@ -11,7 +11,7 @@ namespace Chloe.Query.Visitors
 {
     class FilterPredicateParser : ExpressionVisitor<DbExpression>
     {
-        public static DbExpression Parse(LambdaExpression filterPredicate, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public static DbExpression Parse(LambdaExpression filterPredicate, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
         {
             return GeneralExpressionParser.Parse(BooleanResultExpressionTransformer.Transform(filterPredicate), scopeParameters, scopeTables);
         }

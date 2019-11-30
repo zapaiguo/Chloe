@@ -19,7 +19,7 @@ namespace Chloe.Query.Visitors
         static List<string> AggregateMethods;
 
         ScopeParameterDictionary _scopeParameters;
-        KeyDictionary<string> _scopeTables;
+        StringSet _scopeTables;
 
         static GeneralExpressionParser()
         {
@@ -34,12 +34,12 @@ namespace Chloe.Query.Visitors
             AggregateMethods = aggregateMethods;
         }
 
-        public GeneralExpressionParser(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public GeneralExpressionParser(ScopeParameterDictionary scopeParameters, StringSet scopeTables)
         {
             this._scopeParameters = scopeParameters;
             this._scopeTables = scopeTables;
         }
-        public static DbExpression Parse(Expression exp, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public static DbExpression Parse(Expression exp, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
         {
             GeneralExpressionParser visitor = new GeneralExpressionParser(scopeParameters, scopeTables);
             return visitor.Visit(exp);

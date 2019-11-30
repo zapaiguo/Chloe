@@ -13,7 +13,7 @@ namespace Chloe.Query.QueryState
         MappingData GenerateMappingData();
 
         QueryModel ToFromQueryModel();
-        JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables, string tableAlias);
+        JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, StringSet scopeTables, string tableAlias);
 
         IQueryState Accept(WhereExpression exp);
         IQueryState Accept(OrderExpression exp);

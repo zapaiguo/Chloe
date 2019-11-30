@@ -15,7 +15,7 @@ namespace Chloe.SqlServer
     {
         static EvaluableDbExpressionTransformer _transformer = new EvaluableDbExpressionTransformer();
 
-        static KeyDictionary<MemberInfo> _toTranslateMembers = new KeyDictionary<MemberInfo>();
+        static HashSet<MemberInfo> _toTranslateMembers = new HashSet<MemberInfo>();
         static EvaluableDbExpressionTransformer()
         {
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_String_Length);
@@ -34,7 +34,7 @@ namespace Chloe.SqlServer
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Millisecond);
             _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_DayOfWeek);
 
-            _toTranslateMembers = _toTranslateMembers.Clone();
+            _toTranslateMembers.TrimExcess();
         }
 
         public static DbExpression Transform(DbExpression exp)
@@ -44,7 +44,7 @@ namespace Chloe.SqlServer
 
         public override bool CanTranslateToSql(DbMemberExpression exp)
         {
-            return _toTranslateMembers.Exists(exp.Member);
+            return _toTranslateMembers.Contains(exp.Member);
         }
         public override bool CanTranslateToSql(DbMethodCallExpression exp)
         {

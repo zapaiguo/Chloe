@@ -26,7 +26,7 @@ namespace Chloe.Query.Internals
 
         DbCommandFactor GenerateCommandFactor()
         {
-            IQueryState qs = QueryExpressionResolver.Resolve(this._query.QueryExpression, new ScopeParameterDictionary(), new KeyDictionary<string>());
+            IQueryState qs = QueryExpressionResolver.Resolve(this._query.QueryExpression, new ScopeParameterDictionary(), new StringSet());
             MappingData data = qs.GenerateMappingData();
 
             IObjectActivator objectActivator;

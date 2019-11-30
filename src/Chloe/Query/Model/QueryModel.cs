@@ -12,13 +12,13 @@ namespace Chloe.Query
 {
     public class QueryModel
     {
-        public QueryModel(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables) : this(scopeParameters, scopeTables, false)
+        public QueryModel(ScopeParameterDictionary scopeParameters, StringSet scopeTables) : this(scopeParameters, scopeTables, false)
         {
         }
-        public QueryModel(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables, bool ignoreFilters)
+        public QueryModel(ScopeParameterDictionary scopeParameters, StringSet scopeTables, bool ignoreFilters)
         {
             if (scopeTables == null)
-                this.ScopeTables = new KeyDictionary<string>();
+                this.ScopeTables = new StringSet();
             else
                 this.ScopeTables = scopeTables.Clone();
 
@@ -49,7 +49,7 @@ namespace Chloe.Query
         public DbExpression Condition { get; set; }
         public DbExpression HavingCondition { get; set; }
 
-        public KeyDictionary<string> ScopeTables { get; private set; }
+        public StringSet ScopeTables { get; private set; }
         public ScopeParameterDictionary ScopeParameters { get; private set; }
         public void AppendCondition(DbExpression condition)
         {
@@ -105,13 +105,13 @@ namespace Chloe.Query
             string alias = prefix;
             int i = 0;
             DbFromTableExpression fromTable = this.FromTable;
-            while (this.ScopeTables.ContainsKey(alias) || ExistTableAlias(fromTable, alias))
+            while (this.ScopeTables.Contains(alias) || ExistTableAlias(fromTable, alias))
             {
                 alias = prefix + i.ToString();
                 i++;
             }
 
-            this.ScopeTables[alias] = alias;
+            this.ScopeTables.Add(alias);
 
             return alias;
         }

@@ -12,14 +12,14 @@ namespace Chloe.Query.Visitors
     class GroupKeySelectorParser : ExpressionVisitor<DbExpression[]>
     {
         ScopeParameterDictionary _scopeParameters;
-        KeyDictionary<string> _scopeTables;
-        public GroupKeySelectorParser(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        StringSet _scopeTables;
+        public GroupKeySelectorParser(ScopeParameterDictionary scopeParameters, StringSet scopeTables)
         {
             this._scopeParameters = scopeParameters;
             this._scopeTables = scopeTables;
         }
 
-        public static DbExpression[] Parse(Expression keySelector, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public static DbExpression[] Parse(Expression keySelector, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
         {
             return new GroupKeySelectorParser(scopeParameters, scopeTables).Visit(keySelector);
         }

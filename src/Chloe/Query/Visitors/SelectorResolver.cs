@@ -16,14 +16,14 @@ namespace Chloe.Query
     {
         ExpressionVisitorBase _visitor;
         ScopeParameterDictionary _scopeParameters;
-        KeyDictionary<string> _scopeTables;
-        SelectorResolver(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        StringSet _scopeTables;
+        SelectorResolver(ScopeParameterDictionary scopeParameters, StringSet scopeTables)
         {
             this._scopeParameters = scopeParameters;
             this._scopeTables = scopeTables;
         }
 
-        public static IObjectModel Resolve(LambdaExpression selector, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public static IObjectModel Resolve(LambdaExpression selector, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
         {
             SelectorResolver resolver = new SelectorResolver(scopeParameters, scopeTables);
             return resolver.Visit(selector);

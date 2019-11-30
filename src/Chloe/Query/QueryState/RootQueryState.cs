@@ -14,7 +14,7 @@ namespace Chloe.Query.QueryState
 {
     internal sealed class RootQueryState : QueryStateBase
     {
-        public RootQueryState(Type elementType, string explicitTableName, LockType @lock, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public RootQueryState(Type elementType, string explicitTableName, LockType @lock, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
            : base(CreateQueryModel(elementType, explicitTableName, @lock, scopeParameters, scopeTables))
         {
         }
@@ -40,7 +40,7 @@ namespace Chloe.Query.QueryState
             return this;
         }
 
-        static QueryModel CreateQueryModel(Type type, string explicitTableName, LockType lockType, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        static QueryModel CreateQueryModel(Type type, string explicitTableName, LockType lockType, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
         {
             if (type.IsAbstract || type.IsInterface)
                 throw new ArgumentException("The type of input can not be abstract class or interface.");

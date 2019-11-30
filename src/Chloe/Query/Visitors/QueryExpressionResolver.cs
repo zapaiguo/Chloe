@@ -10,13 +10,13 @@ namespace Chloe.Query.Visitors
     class QueryExpressionResolver : QueryExpressionVisitor<IQueryState>
     {
         ScopeParameterDictionary _scopeParameters;
-        KeyDictionary<string> _scopeTables;
-        QueryExpressionResolver(ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        StringSet _scopeTables;
+        QueryExpressionResolver(ScopeParameterDictionary scopeParameters, StringSet scopeTables)
         {
             this._scopeParameters = scopeParameters;
             this._scopeTables = scopeTables;
         }
-        public static IQueryState Resolve(QueryExpression queryExpression, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables)
+        public static IQueryState Resolve(QueryExpression queryExpression, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
         {
             QueryExpressionResolver resolver = new QueryExpressionResolver(scopeParameters, scopeTables);
             return queryExpression.Accept(resolver);
@@ -128,6 +128,12 @@ namespace Chloe.Query.Visitors
             return state;
         }
         public override IQueryState Visit(DistinctExpression exp)
+        {
+            IQueryState prevState = exp.PrevExpression.Accept(this);
+            IQueryState state = prevState.Accept(exp);
+            return state;
+        }
+        public override IQueryState Visit(IncludeExpression exp)
         {
             IQueryState prevState = exp.PrevExpression.Accept(this);
             IQueryState state = prevState.Accept(exp);

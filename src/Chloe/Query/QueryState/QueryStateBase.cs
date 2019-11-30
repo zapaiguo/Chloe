@@ -272,7 +272,7 @@ namespace Chloe.Query.QueryState
             return queryModel;
         }
 
-        public virtual JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, KeyDictionary<string> scopeTables, string tableAlias)
+        public virtual JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, StringSet scopeTables, string tableAlias)
         {
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
