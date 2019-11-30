@@ -64,6 +64,14 @@ namespace Chloe.Query.Mapping
                 memberSetters.Add(binder);
             }
 
+            foreach (var kv in this.CollectionMembers)
+            {
+                Action<object, object> del = mapper.FindComplexMemberSetter(kv.Key);
+                IObjectActivator memberActivtor = kv.Value.CreateObjectActivator(dbContext);
+                CollectionMemberBinder binder = new CollectionMemberBinder(del, memberActivtor);
+                memberSetters.Add(binder);
+            }
+
             Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator = this.ConstructorDescriptor.GetInstanceCreator();
 
             List<int> readerOrdinals = this.ConstructorParameters.Select(a => a.Value).ToList();

@@ -12,6 +12,7 @@ using Chloe.Query.QueryExpressions;
 using Chloe.Infrastructure;
 using Chloe.Query.Visitors;
 using Chloe.Exceptions;
+using Chloe.Utility;
 
 namespace Chloe.Query
 {
@@ -56,7 +57,6 @@ namespace Chloe.Query
         /// 导航集合属性
         /// </summary>
         public List<NavigationNode> IncludeCollections { get; set; } = new List<NavigationNode>();
-        public DbExpression Condition { get; set; }
         public DbExpression Filter { get; set; }
 
         /// <summary>
@@ -378,7 +378,10 @@ namespace Chloe.Query
                 }
                 else
                 {
-                    objectModel.AppendCondition(FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], objectModel } }, queryModel.ScopeTables));
+                    DbExpression condition = this.ParseCondition(navigationNode.Condition, objectModel, queryModel.ScopeTables);
+
+                    var joinTable = objectModel.DependentTable as DbJoinTableExpression;
+                    joinTable.AppendCondition(condition);
                 }
             }
             else
@@ -389,17 +392,24 @@ namespace Chloe.Query
                     return;
                 }
 
-                CollectionObjectModel navModel = this.GetCollectionMember(navigationNode.Property);
-                if (navModel == null)
+                CollectionObjectModel collectionModel = this.GetCollectionMember(navigationNode.Property);
+                if (collectionModel == null)
                 {
                     Type collectionType = navigationDescriptor.PropertyType;
                     TypeDescriptor elementTypeDescriptor = EntityTypeContainer.GetDescriptor(collectionType.GetGenericArguments()[0]);
                     ComplexObjectModel elementModel = this.GenCollectionElementObjectModel(elementTypeDescriptor, navigationNode, queryModel);
-                    navModel = new CollectionObjectModel(this.ObjectType, navigationNode.Property, elementModel);
-                    this.AddCollectionMember(navigationNode.Property, navModel);
+                    collectionModel = new CollectionObjectModel(this.ObjectType, navigationNode.Property, elementModel);
+                    this.AddCollectionMember(navigationNode.Property, collectionModel);
+                }
+                else
+                {
+                    DbExpression condition = this.ParseCondition(navigationNode.Condition, collectionModel.ElementModel, queryModel.ScopeTables);
+
+                    var joinTable = collectionModel.ElementModel.DependentTable as DbJoinTableExpression;
+                    joinTable.AppendCondition(condition);
                 }
 
-                objectModel = navModel.ElementModel;
+                objectModel = collectionModel.ElementModel;
             }
 
             if (navigationNode.Next != null)
@@ -458,11 +468,14 @@ namespace Chloe.Query
             this.DependentTable.JoinTables.Add(joinTableExp);
 
             navigationObjectModel.DependentTable = joinTableExp;
-            navigationObjectModel.Condition = FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], navigationObjectModel } }, queryModel.ScopeTables);
-            navigationObjectModel.Filter = FilterPredicateParser.Parse(navigationNode.Filter, new ScopeParameterDictionary(1) { { navigationNode.Filter.Parameters[0], navigationObjectModel } }, queryModel.ScopeTables);
 
-            queryModel.AppendCondition(navigationObjectModel.Condition);
-            queryModel.Filters.Add(navigationObjectModel.Filter);
+            DbExpression condition = this.ParseCondition(navigationNode.Condition, navigationObjectModel, queryModel.ScopeTables);
+            //AndWhere的条件放到join条件里去
+            joinTableExp.AppendCondition(condition);
+
+            navigationObjectModel.Filter = this.ParseCondition(navigationNode.Filter, navigationObjectModel, queryModel.ScopeTables);
+
+            //queryModel.Filters.Add(navigationObjectModel.Filter);
 
             return navigationObjectModel;
         }
@@ -484,17 +497,19 @@ namespace Chloe.Query
                 throw new ChloeException($"You have to define a navigation property which type is '{this.ObjectType.FullName}' on class '{elementTypeDescriptor.Definition.Type.FullName}'.");
             }
 
-            DbExpression elementForeignKeyColumn = this.GetPrimitiveMember(navigationDescriptor.ForeignKeyProperty.Property);
+            DbExpression elementForeignKeyColumn = elementObjectModel.GetPrimitiveMember(navigationDescriptor.ForeignKeyProperty.Property);
             DbExpression joinCondition = DbExpression.Equal(this.PrimaryKey, elementForeignKeyColumn);
             DbJoinTableExpression joinTableExp = new DbJoinTableExpression(DbJoinType.LeftJoin, joinTableSeg, joinCondition);
             this.DependentTable.JoinTables.Add(joinTableExp);
 
             elementObjectModel.DependentTable = joinTableExp;
-            elementObjectModel.Condition = FilterPredicateParser.Parse(navigationNode.Condition, new ScopeParameterDictionary(1) { { navigationNode.Condition.Parameters[0], elementObjectModel } }, queryModel.ScopeTables);
-            elementObjectModel.Filter = FilterPredicateParser.Parse(navigationNode.Filter, new ScopeParameterDictionary(1) { { navigationNode.Filter.Parameters[0], elementObjectModel } }, queryModel.ScopeTables);
+            var condition = this.ParseCondition(navigationNode.Condition, elementObjectModel, queryModel.ScopeTables);
+            //AndWhere的条件放到join条件里去
+            joinTableExp.AppendCondition(condition);
 
-            queryModel.AppendCondition(elementObjectModel.Condition);
-            queryModel.Filters.Add(elementObjectModel.Filter);
+            elementObjectModel.Filter = this.ParseCondition(navigationNode.Filter, elementObjectModel, queryModel.ScopeTables);
+
+            //queryModel.Filters.Add(elementObjectModel.Filter);
 
             return elementObjectModel;
         }
@@ -520,12 +535,11 @@ namespace Chloe.Query
             }
         }
 
-        public void AppendCondition(DbExpression condition)
+        DbExpression ParseCondition(LambdaExpression condition, ComplexObjectModel objectModel, StringSet scopeTables)
         {
-            if (this.Condition == null)
-                this.Condition = condition;
-            else
-                this.Condition = new DbAndExpression(this.Condition, condition);
+            if (condition == null)
+                return null;
+            return FilterPredicateParser.Parse(condition, new ScopeParameterDictionary(1) { { condition.Parameters[0], objectModel } }, scopeTables);
         }
     }
 }

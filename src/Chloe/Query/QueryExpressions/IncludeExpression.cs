@@ -9,8 +9,8 @@ namespace Chloe.Query.QueryExpressions
 {
     class IncludeExpression : QueryExpression
     {
-        public IncludeExpression(Type elementType, QueryExpression prevExpression, QueryExpressionType expressionType, NavigationNode navigationNode)
-           : base(expressionType, elementType, prevExpression)
+        public IncludeExpression(Type elementType, QueryExpression prevExpression, NavigationNode navigationNode)
+           : base(QueryExpressionType.Include, elementType, prevExpression)
         {
             this.NavigationNode = navigationNode;
         }
@@ -24,9 +24,36 @@ namespace Chloe.Query.QueryExpressions
 
     public class NavigationNode
     {
+        public NavigationNode()
+        {
+        }
+        public NavigationNode(PropertyInfo property)
+        {
+            this.Property = property;
+        }
         public PropertyInfo Property { get; set; }
         public LambdaExpression Condition { get; set; }
         public LambdaExpression Filter { get; set; }
         public NavigationNode Next { get; set; }
+
+        public NavigationNode Clone()
+        {
+            NavigationNode current = new NavigationNode(this.Property) { Condition = this.Condition, Filter = this.Filter };
+
+            if (this.Next != null)
+            {
+                current.Next = current.Clone();
+            }
+
+            return current;
+        }
+
+        public NavigationNode GetLast()
+        {
+            if (this.Next == null)
+                return this;
+
+            return this.Next.GetLast();
+        }
     }
 }

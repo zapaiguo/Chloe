@@ -8,8 +8,8 @@ namespace Chloe
 {
     public interface IIncludableQuery<TEntity, TNavigation> : IQuery<TEntity>
     {
-        IIncludableQuery<TEntity, TNavigation> WithCodition(Expression<Func<TNavigation, bool>> predicate);
-        IIncludableQuery<TEntity, TProperty> ThenInclude<TProperty>(Expression<Func<TNavigation, TProperty>> p);
-        IIncludableQuery<TEntity, TCollectionItem> ThenIncludeMany<TCollectionItem>(Expression<Func<TNavigation, IEnumerable<TCollectionItem>>> p);
+        IIncludableQuery<TEntity, TNavigation> AndWhere(Expression<Func<TNavigation, bool>> predicate);
+        IIncludableQuery<TEntity, TProperty> ThenInclude<TProperty>(Expression<Func<TNavigation, TProperty>> navigationPath);
+        IIncludableQuery<TEntity, TCollectionItem> ThenIncludeMany<TCollectionItem>(Expression<Func<TNavigation, IEnumerable<TCollectionItem>>> navigationPath);
     }
 }

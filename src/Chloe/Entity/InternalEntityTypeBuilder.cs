@@ -135,6 +135,10 @@ namespace Chloe.Entity
 
         bool IsSupportedCollectionType(Type type)
         {
+            if (!type.IsGenericType)
+                return false;
+
+            type = type.GetGenericTypeDefinition();
             return type.IsAssignableFrom(typeof(List<>)) || type.IsAssignableFrom(typeof(Collection<>));
         }
     }

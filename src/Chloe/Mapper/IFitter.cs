@@ -59,7 +59,7 @@ namespace Chloe.Mapper
 
             object entity = null;
             if (entityContainer.Count > 0)
-                entity = entityContainer[entityContainer.Count];
+                entity = entityContainer[entityContainer.Count - 1];
 
             if (entity == null || !this._entityRowCompare.IsEntityRow(entity, reader))
             {

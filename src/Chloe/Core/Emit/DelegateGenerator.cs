@@ -23,8 +23,9 @@ namespace Chloe.Core.Emit
             var readerMethod = DataReaderConstant.GetReaderMethod(valueType);
 
             var getValue = Expression.Call(null, readerMethod, reader, ordinal);
+            var toObject = Expression.Convert(getValue, typeof(object));
 
-            var lambda = Expression.Lambda<Func<IDataReader, int, object>>(getValue, reader, ordinal);
+            var lambda = Expression.Lambda<Func<IDataReader, int, object>>(toObject, reader, ordinal);
             var del = lambda.Compile();
 
             return del;

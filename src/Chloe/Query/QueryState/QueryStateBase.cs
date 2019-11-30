@@ -157,11 +157,11 @@ namespace Chloe.Query.QueryState
         {
             MappingData data = new MappingData();
 
-            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
-
             ComplexObjectModel complexObjectModel = this._queryModel.ResultModel as ComplexObjectModel;
             if (complexObjectModel != null)
                 complexObjectModel.SetupCollection(this._queryModel);
+
+            DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
 
             var objectActivatorCreator = this._queryModel.ResultModel.GenarateObjectActivatorCreator(sqlQuery);
             objectActivatorCreator.IsRoot = true;

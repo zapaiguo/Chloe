@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Core.Visitors;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -28,6 +29,22 @@ namespace Chloe.Extensions
             }
 
             throw new ArgumentException();
+        }
+
+        public static LambdaExpression And(this LambdaExpression a, LambdaExpression b)
+        {
+            if (a == null)
+                return b;
+            if (b == null)
+                return a;
+
+            Type rootType = a.Parameters[0].Type;
+            var memberParam = Expression.Parameter(rootType, "root");
+            var aNewBody = ParameterExpressionReplacer.Replace(a.Body, memberParam);
+            var bNewBody = ParameterExpressionReplacer.Replace(b.Body, memberParam);
+            var newBody = Expression.And(aNewBody, bNewBody);
+            var lambda = Expression.Lambda(a.Type, newBody, memberParam);
+            return lambda;
         }
 
         internal static bool IsDerivedFromParameter(this MemberExpression exp)

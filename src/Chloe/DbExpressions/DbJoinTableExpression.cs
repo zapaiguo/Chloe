@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Chloe.InternalExtensions;
+using System.Collections.Generic;
 
 namespace Chloe.DbExpressions
 {
@@ -22,6 +23,11 @@ namespace Chloe.DbExpressions
         public override T Accept<T>(DbExpressionVisitor<T> visitor)
         {
             return visitor.Visit(this);
+        }
+
+        internal void AppendCondition(DbExpression condition)
+        {
+            this.Condition = this.Condition.And(condition);
         }
     }
 }

@@ -50,7 +50,7 @@ namespace Chloe.Query.Internals
             {
                 IDataReader dataReader = this._query.DbContext.AdoSession.ExecuteReader(cmdFactor.CommandText, cmdFactor.Parameters, CommandType.Text);
 
-                if (commandFactor.ObjectActivator is RootEntityActivator)
+                if (cmdFactor.ObjectActivator is RootEntityActivator)
                 {
                     dataReader = new QueryDataReader(dataReader);
                 }

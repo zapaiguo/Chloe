@@ -48,13 +48,13 @@ namespace Chloe.Query
             return new Query<TResult>(this._dbContext, e, this._trackEntity);
         }
 
-        public IIncludableQuery<T, TProperty> Include<TProperty>(Expression<Func<T, TProperty>> p)
+        public IIncludableQuery<T, TProperty> Include<TProperty>(Expression<Func<T, TProperty>> navigationPath)
         {
-            throw new NotImplementedException();
+            return new IncludableQuery<T, TProperty>(this._dbContext, this._trackEntity, this.QueryExpression, navigationPath);
         }
-        public IIncludableQuery<T, TCollectionItem> IncludeMany<TCollectionItem>(Expression<Func<T, IEnumerable<TCollectionItem>>> p)
+        public IIncludableQuery<T, TCollectionItem> IncludeMany<TCollectionItem>(Expression<Func<T, IEnumerable<TCollectionItem>>> navigationPath)
         {
-            throw new NotImplementedException();
+            return new IncludableQuery<T, TCollectionItem>(this._dbContext, this._trackEntity, this.QueryExpression, navigationPath);
         }
 
         public IQuery<T> Where(Expression<Func<T, bool>> predicate)
