@@ -316,11 +316,7 @@ namespace Chloe
             retIdentity = PublicHelper.ConvertObjectType(retIdentity, typeDescriptor.AutoIncrement.PropertyType);
             return retIdentity;
         }
-        [Obsolete("This method will be removed in future versions.")]
-        public virtual void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false, string table = null)
-        {
-            throw new NotImplementedException();
-        }
+
         public virtual void InsertRange<TEntity>(List<TEntity> entities)
         {
             this.InsertRange(entities, null);

@@ -77,15 +77,6 @@ namespace Chloe
         object Insert<TEntity>(Expression<Func<TEntity>> content);
         object Insert<TEntity>(Expression<Func<TEntity>> content, string table);
 
-        /// <summary>
-        /// 批量插入操作
-        /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <param name="entities"></param>
-        /// <param name="keepIdentity">是否要把自增属性值插入到数据库</param>
-        /// <param name="table"></param>
-        [Obsolete("This method will be removed in future versions.")]
-        void InsertRange<TEntity>(List<TEntity> entities, bool keepIdentity = false, string table = null);
         void InsertRange<TEntity>(List<TEntity> entities);
         void InsertRange<TEntity>(List<TEntity> entities, string table);
 
