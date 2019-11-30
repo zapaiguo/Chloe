@@ -93,7 +93,7 @@ namespace Chloe.Descriptors
         {
             PropertyDescriptor propertyDescriptor = this.FindPropertyDescriptor(member);
             if (propertyDescriptor == null)
-                throw new ChloeException($"Cannot find property descriptor which named {member.Name}");
+                throw new ChloeException($"Cannot find property descriptor which named '{member.Name}'.");
 
             return propertyDescriptor;
         }

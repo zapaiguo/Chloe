@@ -105,8 +105,17 @@ namespace Chloe.Entity
         }
         public IComplexPropertyBuilder HasOne(string property)
         {
-            PropertyInfo entityProperty = this.GetEntityProperty(property);
-            IComplexPropertyBuilder propertyBuilder = Activator.CreateInstance(typeof(ComplexPropertyBuilder<>).MakeGenericType(entityProperty.PropertyType), entityProperty) as IComplexPropertyBuilder;
+            ComplexProperty complexProperty = this.EntityType.ComplexProperties.Where(a => a.Property.Name == property).FirstOrDefault();
+
+            if (complexProperty == null)
+            {
+                PropertyInfo propertyInfo = this.GetEntityProperty(property);
+                complexProperty = new ComplexProperty(propertyInfo);
+                this.EntityType.ComplexProperties.Add(complexProperty);
+            }
+
+            IComplexPropertyBuilder propertyBuilder = Activator.CreateInstance(typeof(ComplexPropertyBuilder<>).MakeGenericType(complexProperty.Property.PropertyType), complexProperty) as IComplexPropertyBuilder;
+
             return propertyBuilder;
         }
 
@@ -118,8 +127,16 @@ namespace Chloe.Entity
         }
         public ICollectionPropertyBuilder HasMany(string property)
         {
-            PropertyInfo entityProperty = this.GetEntityProperty(property);
-            ICollectionPropertyBuilder propertyBuilder = Activator.CreateInstance(typeof(CollectionPropertyBuilder<>).MakeGenericType(entityProperty.PropertyType), entityProperty) as ICollectionPropertyBuilder;
+            CollectionProperty collectionProperty = this.EntityType.CollectionProperties.Where(a => a.Property.Name == property).FirstOrDefault();
+
+            if (collectionProperty == null)
+            {
+                PropertyInfo propertyInfo = this.GetEntityProperty(property);
+                collectionProperty = new CollectionProperty(propertyInfo);
+                this.EntityType.CollectionProperties.Add(collectionProperty);
+            }
+
+            ICollectionPropertyBuilder propertyBuilder = Activator.CreateInstance(typeof(CollectionPropertyBuilder<>).MakeGenericType(collectionProperty.Property.PropertyType), collectionProperty) as ICollectionPropertyBuilder;
             return propertyBuilder;
         }
 
@@ -128,7 +145,7 @@ namespace Chloe.Entity
             PropertyInfo entityProperty = this.EntityType.Type.GetProperty(property);
 
             if (entityProperty == null)
-                throw new ArgumentException($"Cannot find the property named '{property}'.");
+                throw new ArgumentException($"Cannot find property named '{property}'.");
 
             return entityProperty;
         }
