@@ -24,7 +24,12 @@ namespace Chloe.Descriptors
         public TypeDescriptor(TypeDefinition definition)
         {
             this.Definition = definition;
-            this.PrimitivePropertyDescriptors = this.Definition.Properties.Select(a => new PrimitivePropertyDescriptor(a, this)).ToList().AsReadOnly();
+            this.PrimitivePropertyDescriptors = this.Definition.PrimitiveProperties.Select(a => new PrimitivePropertyDescriptor(a, this)).ToList().AsReadOnly();
+            this.ComplexPropertyDescriptors = this.Definition.ComplexProperties.Select(a => new ComplexPropertyDescriptor(a, this)).ToList().AsReadOnly();
+            this.CollectionPropertyDescriptors = this.Definition.CollectionProperties.Select(a => new CollectionPropertyDescriptor(a, this)).ToList().AsReadOnly();
+
+            var allPropertyDescriptors = this.PrimitivePropertyDescriptors.AsEnumerable<PropertyDescriptor>().Concat(this.ComplexPropertyDescriptors.AsEnumerable<PropertyDescriptor>()).Concat(this.CollectionPropertyDescriptors.AsEnumerable<PropertyDescriptor>());
+            this._propertyDescriptorMap = PublicHelper.Clone(allPropertyDescriptors.ToDictionary(a => (MemberInfo)a.Definition.Property, a => a));
 
             this.PrimaryKeys = this.PrimitivePropertyDescriptors.Where(a => a.Definition.IsPrimaryKey).ToList().AsReadOnly();
             this.AutoIncrement = this.PrimitivePropertyDescriptors.Where(a => a.Definition.IsAutoIncrement).FirstOrDefault();

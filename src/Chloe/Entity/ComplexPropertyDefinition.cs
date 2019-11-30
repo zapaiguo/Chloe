@@ -8,7 +8,7 @@ namespace Chloe.Entity
 {
     public class ComplexPropertyDefinition : PropertyDefinition
     {
-        public ComplexPropertyDefinition(PropertyInfo property, string foreignKey, IList<object> annotations) : base(property, annotations)
+        public ComplexPropertyDefinition(PropertyInfo property, IList<object> annotations, string foreignKey) : base(property, annotations)
         {
             if (string.IsNullOrEmpty(foreignKey))
                 throw new ArgumentException("'foreignKey' can not be null.");

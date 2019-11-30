@@ -14,7 +14,7 @@ namespace Chloe.Entity
         {
             this.EntityType = new EntityType(typeof(TEntity));
 
-            foreach (EntityProperty property in this.EntityType.Properties)
+            foreach (PrimitiveProperty property in this.EntityType.PrimitiveProperties)
             {
                 if (property.Property.Name.ToLower() == "id")
                 {
@@ -77,24 +77,60 @@ namespace Chloe.Entity
         }
         public IEntityTypeBuilder Ignore(string property)
         {
-            this.EntityType.Properties.RemoveAll(a => a.Property.Name == property);
+            this.EntityType.PrimitiveProperties.RemoveAll(a => a.Property.Name == property);
             return this;
         }
-        public IEntityPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> property)
+        public IPrimitivePropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> property)
         {
             string propertyName = PropertyNameExtractor.Extract(property);
-            IEntityPropertyBuilder<TProperty> propertyBuilder = this.Property(propertyName) as IEntityPropertyBuilder<TProperty>;
+            IPrimitivePropertyBuilder<TProperty> propertyBuilder = this.Property(propertyName) as IPrimitivePropertyBuilder<TProperty>;
             return propertyBuilder;
         }
-        public IEntityPropertyBuilder Property(string property)
+        public IPrimitivePropertyBuilder Property(string property)
         {
-            EntityProperty entityProperty = this.EntityType.Properties.FirstOrDefault(a => a.Property.Name == property);
+            PrimitiveProperty entityProperty = this.EntityType.PrimitiveProperties.FirstOrDefault(a => a.Property.Name == property);
 
             if (entityProperty == null)
                 throw new ArgumentException($"The mapping property list doesn't contain property named '{property}'.");
 
-            IEntityPropertyBuilder propertyBuilder = Activator.CreateInstance(typeof(EntityPropertyBuilder<>).MakeGenericType(entityProperty.Property.PropertyType), entityProperty) as IEntityPropertyBuilder;
+            IPrimitivePropertyBuilder propertyBuilder = Activator.CreateInstance(typeof(PrimitivePropertyBuilder<>).MakeGenericType(entityProperty.Property.PropertyType), entityProperty) as IPrimitivePropertyBuilder;
             return propertyBuilder;
+        }
+
+        public IComplexPropertyBuilder<TProperty> HasOne<TProperty>(Expression<Func<TEntity, TProperty>> property)
+        {
+            string propertyName = PropertyNameExtractor.Extract(property);
+            IComplexPropertyBuilder<TProperty> propertyBuilder = this.HasOne(propertyName) as IComplexPropertyBuilder<TProperty>;
+            return propertyBuilder;
+        }
+        public IComplexPropertyBuilder HasOne(string property)
+        {
+            PropertyInfo entityProperty = this.GetEntityProperty(property);
+            IComplexPropertyBuilder propertyBuilder = Activator.CreateInstance(typeof(ComplexPropertyBuilder<>).MakeGenericType(entityProperty.PropertyType), entityProperty) as IComplexPropertyBuilder;
+            return propertyBuilder;
+        }
+
+        public ICollectionPropertyBuilder<TProperty> HasMany<TProperty>(Expression<Func<TEntity, TProperty>> property)
+        {
+            string propertyName = PropertyNameExtractor.Extract(property);
+            ICollectionPropertyBuilder<TProperty> propertyBuilder = this.HasMany(propertyName) as ICollectionPropertyBuilder<TProperty>;
+            return propertyBuilder;
+        }
+        public ICollectionPropertyBuilder HasMany(string property)
+        {
+            PropertyInfo entityProperty = this.GetEntityProperty(property);
+            ICollectionPropertyBuilder propertyBuilder = Activator.CreateInstance(typeof(CollectionPropertyBuilder<>).MakeGenericType(entityProperty.PropertyType), entityProperty) as ICollectionPropertyBuilder;
+            return propertyBuilder;
+        }
+
+        PropertyInfo GetEntityProperty(string property)
+        {
+            PropertyInfo entityProperty = this.EntityType.Type.GetProperty(property);
+
+            if (entityProperty == null)
+                throw new ArgumentException($"Cannot find the property named '{property}'.");
+
+            return entityProperty;
         }
     }
 }

@@ -7,15 +7,13 @@ using System.Text;
 
 namespace Chloe.Entity
 {
-    public class EntityProperty
+    public class PrimitiveProperty : PropertyBase
     {
-        public EntityProperty(PropertyInfo property)
+        public PrimitiveProperty(PropertyInfo property) : base(property)
         {
-            this.Property = property;
             this.ColumnName = property.Name;
         }
-        public PropertyInfo Property { get; private set; }
-        public List<object> Annotations { get; private set; } = new List<object>();
+
         public string ColumnName { get; set; }
         public string SequenceName { get; set; }
         public bool IsPrimaryKey { get; set; }

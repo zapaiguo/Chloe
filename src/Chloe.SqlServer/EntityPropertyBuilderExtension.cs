@@ -16,7 +16,7 @@ namespace Chloe.SqlServer
         /// <typeparam name="TProperty"></typeparam>
         /// <param name="entityPropertyBuilder"></param>
         /// <returns></returns>
-        public static IEntityPropertyBuilder<TProperty> IsTimestamp<TProperty>(this IEntityPropertyBuilder<TProperty> entityPropertyBuilder)
+        public static IPrimitivePropertyBuilder<TProperty> IsTimestamp<TProperty>(this IPrimitivePropertyBuilder<TProperty> entityPropertyBuilder)
         {
             return entityPropertyBuilder.HasAnnotation(new TimestampAttribute());
         }
@@ -25,7 +25,7 @@ namespace Chloe.SqlServer
         /// </summary>
         /// <param name="entityPropertyBuilder"></param>
         /// <returns></returns>
-        public static IEntityPropertyBuilder IsTimestamp(this IEntityPropertyBuilder entityPropertyBuilder)
+        public static IPrimitivePropertyBuilder IsTimestamp(this IPrimitivePropertyBuilder entityPropertyBuilder)
         {
             return entityPropertyBuilder.HasAnnotation(new TimestampAttribute());
         }

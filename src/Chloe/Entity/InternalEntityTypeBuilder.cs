@@ -6,6 +6,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Chloe.InternalExtensions;
+using Chloe.Infrastructure;
+using System.Collections.ObjectModel;
 
 namespace Chloe.Entity
 {
@@ -15,6 +17,7 @@ namespace Chloe.Entity
         {
             this.ConfigureTableMapping();
             this.ConfigureColumnMapping();
+            this.ConfigureNavigationProperty();
         }
 
         void ConfigureTableMapping()
@@ -36,10 +39,10 @@ namespace Chloe.Entity
         }
         void ConfigureColumnMapping()
         {
-            var propertyInfos = this.EntityType.Properties.Select(a => a.Property).ToList();
+            var propertyInfos = this.EntityType.PrimitiveProperties.Select(a => a.Property).ToList();
             foreach (PropertyInfo propertyInfo in propertyInfos)
             {
-                IEntityPropertyBuilder propertyBuilder = this.Property(propertyInfo.Name);
+                IPrimitivePropertyBuilder propertyBuilder = this.Property(propertyInfo.Name);
 
                 propertyBuilder.IsPrimaryKey(false);
                 propertyBuilder.IsAutoIncrement(false);
@@ -80,11 +83,11 @@ namespace Chloe.Entity
                 }
             }
 
-            List<EntityProperty> primaryKeys = this.EntityType.Properties.Where(a => a.IsPrimaryKey).ToList();
+            List<PrimitiveProperty> primaryKeys = this.EntityType.PrimitiveProperties.Where(a => a.IsPrimaryKey).ToList();
             if (primaryKeys.Count == 0)
             {
                 //如果没有定义任何主键，则从所有映射的属性中查找名为 id 的属性作为主键
-                EntityProperty idNameProperty = this.EntityType.Properties.Find(a => a.Property.Name.ToLower() == "id" && !a.Property.IsDefined(typeof(ColumnAttribute)));
+                PrimitiveProperty idNameProperty = this.EntityType.PrimitiveProperties.Find(a => a.Property.Name.ToLower() == "id" && !a.Property.IsDefined(typeof(ColumnAttribute)));
 
                 if (idNameProperty != null)
                 {
@@ -93,16 +96,46 @@ namespace Chloe.Entity
                 }
             }
 
-            if (primaryKeys.Count == 1 && this.EntityType.Properties.Count(a => a.IsAutoIncrement) == 0)
+            if (primaryKeys.Count == 1 && this.EntityType.PrimitiveProperties.Count(a => a.IsAutoIncrement) == 0)
             {
                 /* 如果没有显示定义自增成员，并且主键只有 1 个，如果该主键满足一定条件，则默认其是自增列 */
-                EntityProperty primaryKey = primaryKeys[0];
+                PrimitiveProperty primaryKey = primaryKeys[0];
 
                 if (string.IsNullOrEmpty(primaryKey.SequenceName) && Utils.IsAutoIncrementType(primaryKey.Property.PropertyType) && !primaryKey.Property.IsDefined(typeof(NonAutoIncrementAttribute)))
                 {
                     primaryKey.IsAutoIncrement = true;
                 }
             }
+        }
+
+        void ConfigureNavigationProperty()
+        {
+            PropertyInfo[] properties = this.EntityType.Type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(a => a.GetSetMethod() != null && a.GetGetMethod() != null).ToArray();
+
+            foreach (PropertyInfo property in properties)
+            {
+                if (MappingTypeSystem.IsMappingType(property.PropertyType))
+                    continue;
+
+                if (this.IsSupportedCollectionType(property.PropertyType))
+                {
+                    this.EntityType.CollectionProperties.Add(new CollectionProperty(property));
+                    continue;
+                }
+
+                ForeignKeyAttribute foreignKeyAttribute = property.GetCustomAttribute<ForeignKeyAttribute>();
+                if (foreignKeyAttribute != null)
+                {
+                    ComplexProperty complexProperty = new ComplexProperty(property);
+                    complexProperty.ForeignKey = foreignKeyAttribute.Name;
+                    this.EntityType.ComplexProperties.Add(complexProperty);
+                }
+            }
+        }
+
+        bool IsSupportedCollectionType(Type type)
+        {
+            return type.IsAssignableFrom(typeof(List<>)) || type.IsAssignableFrom(typeof(Collection<>));
         }
     }
 }

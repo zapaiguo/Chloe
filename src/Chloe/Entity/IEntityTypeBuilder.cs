@@ -12,7 +12,9 @@ namespace Chloe.Entity
         IEntityTypeBuilder HasSchema(string schema);
         IEntityTypeBuilder HasAnnotation(object value);
         IEntityTypeBuilder Ignore(string property);
-        IEntityPropertyBuilder Property(string property);
+        IPrimitivePropertyBuilder Property(string property);
+        IComplexPropertyBuilder HasOne(string property);
+        ICollectionPropertyBuilder HasMany(string property);
     }
 
     public interface IEntityTypeBuilder<TEntity> : IEntityTypeBuilder
@@ -21,6 +23,8 @@ namespace Chloe.Entity
         new IEntityTypeBuilder<TEntity> HasSchema(string schema);
         new IEntityTypeBuilder<TEntity> HasAnnotation(object value);
         IEntityTypeBuilder<TEntity> Ignore(Expression<Func<TEntity, object>> property);
-        IEntityPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> property);
+        IPrimitivePropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> property);
+        IComplexPropertyBuilder<TProperty> HasOne<TProperty>(Expression<Func<TEntity, TProperty>> property);
+        ICollectionPropertyBuilder<TProperty> HasMany<TProperty>(Expression<Func<TEntity, TProperty>> property);
     }
 }
