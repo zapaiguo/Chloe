@@ -72,31 +72,31 @@ namespace Chloe.Query.Visitors
             List<IObjectModel> modelList = new List<IObjectModel>();
             modelList.Add(queryModel.ResultModel);
 
-            foreach (JoiningQueryInfo joiningQueryInfo in exp.JoinedQueries)
+            foreach (JoinQueryInfo joinQueryInfo in exp.JoinedQueries)
             {
                 ScopeParameterDictionary scopeParameters = queryModel.ScopeParameters.Clone(queryModel.ScopeParameters.Count + modelList.Count);
                 for (int i = 0; i < modelList.Count; i++)
                 {
-                    ParameterExpression p = joiningQueryInfo.Condition.Parameters[i];
+                    ParameterExpression p = joinQueryInfo.Condition.Parameters[i];
                     scopeParameters[p] = modelList[i];
                 }
 
-                JoinQueryResult joinQueryResult = JoinQueryExpressionResolver.Resolve(joiningQueryInfo.Query.QueryExpression, queryModel, joiningQueryInfo.JoinType, joiningQueryInfo.Condition, scopeParameters);
+                JoinQueryResult joinQueryResult = JoinQueryExpressionResolver.Resolve(joinQueryInfo.Query.QueryExpression, queryModel, joinQueryInfo.JoinType, joinQueryInfo.Condition, scopeParameters);
 
                 var nullChecking = DbExpression.CaseWhen(new DbCaseWhenExpression.WhenThenExpressionPair(joinQueryResult.JoinTable.Condition, DbConstantExpression.One), DbConstantExpression.Null, DbConstantExpression.One.Type);
 
-                if (joiningQueryInfo.JoinType == JoinType.LeftJoin)
+                if (joinQueryInfo.JoinType == JoinType.LeftJoin)
                 {
                     joinQueryResult.ResultModel.SetNullChecking(nullChecking);
                 }
-                else if (joiningQueryInfo.JoinType == JoinType.RightJoin)
+                else if (joinQueryInfo.JoinType == JoinType.RightJoin)
                 {
                     foreach (IObjectModel item in modelList)
                     {
                         item.SetNullChecking(nullChecking);
                     }
                 }
-                else if (joiningQueryInfo.JoinType == JoinType.FullJoin)
+                else if (joinQueryInfo.JoinType == JoinType.FullJoin)
                 {
                     joinQueryResult.ResultModel.SetNullChecking(nullChecking);
                     foreach (IObjectModel item in modelList)

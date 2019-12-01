@@ -7,9 +7,9 @@ using System.Text;
 
 namespace Chloe.Query
 {
-    class JoiningQueryInfo
+    class JoinQueryInfo
     {
-        public JoiningQueryInfo(QueryBase query, JoinType joinType, LambdaExpression condition)
+        public JoinQueryInfo(QueryBase query, JoinType joinType, LambdaExpression condition)
         {
             this.Query = query;
             this.JoinType = joinType;

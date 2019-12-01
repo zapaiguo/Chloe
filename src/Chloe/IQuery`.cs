@@ -24,18 +24,18 @@ namespace Chloe
         IQuery<T> Distinct();
 
 
-        IJoiningQuery<T, TOther> Join<TOther>(JoinType joinType, Expression<Func<T, TOther, bool>> on);
-        IJoiningQuery<T, TOther> Join<TOther>(IQuery<TOther> q, JoinType joinType, Expression<Func<T, TOther, bool>> on);
+        IJoinQuery<T, TOther> Join<TOther>(JoinType joinType, Expression<Func<T, TOther, bool>> on);
+        IJoinQuery<T, TOther> Join<TOther>(IQuery<TOther> q, JoinType joinType, Expression<Func<T, TOther, bool>> on);
 
-        IJoiningQuery<T, TOther> InnerJoin<TOther>(Expression<Func<T, TOther, bool>> on);
-        IJoiningQuery<T, TOther> LeftJoin<TOther>(Expression<Func<T, TOther, bool>> on);
-        IJoiningQuery<T, TOther> RightJoin<TOther>(Expression<Func<T, TOther, bool>> on);
-        IJoiningQuery<T, TOther> FullJoin<TOther>(Expression<Func<T, TOther, bool>> on);
+        IJoinQuery<T, TOther> InnerJoin<TOther>(Expression<Func<T, TOther, bool>> on);
+        IJoinQuery<T, TOther> LeftJoin<TOther>(Expression<Func<T, TOther, bool>> on);
+        IJoinQuery<T, TOther> RightJoin<TOther>(Expression<Func<T, TOther, bool>> on);
+        IJoinQuery<T, TOther> FullJoin<TOther>(Expression<Func<T, TOther, bool>> on);
 
-        IJoiningQuery<T, TOther> InnerJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on);
-        IJoiningQuery<T, TOther> LeftJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on);
-        IJoiningQuery<T, TOther> RightJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on);
-        IJoiningQuery<T, TOther> FullJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on);
+        IJoinQuery<T, TOther> InnerJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on);
+        IJoinQuery<T, TOther> LeftJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on);
+        IJoinQuery<T, TOther> RightJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on);
+        IJoinQuery<T, TOther> FullJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on);
 
         T First();
         T First(Expression<Func<T, bool>> predicate);

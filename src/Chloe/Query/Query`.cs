@@ -105,47 +105,47 @@ namespace Chloe.Query
             return new Query<T>(this._dbContext, e, this._trackEntity);
         }
 
-        public IJoiningQuery<T, TOther> Join<TOther>(JoinType joinType, Expression<Func<T, TOther, bool>> on)
+        public IJoinQuery<T, TOther> Join<TOther>(JoinType joinType, Expression<Func<T, TOther, bool>> on)
         {
             return this.Join<TOther>(this._dbContext.Query<TOther>(), joinType, on);
         }
-        public IJoiningQuery<T, TOther> Join<TOther>(IQuery<TOther> q, JoinType joinType, Expression<Func<T, TOther, bool>> on)
+        public IJoinQuery<T, TOther> Join<TOther>(IQuery<TOther> q, JoinType joinType, Expression<Func<T, TOther, bool>> on)
         {
             Utils.CheckNull(q);
             Utils.CheckNull(on);
-            return new JoiningQuery<T, TOther>(this, (Query<TOther>)q, joinType, on);
+            return new JoinQuery<T, TOther>(this, (Query<TOther>)q, joinType, on);
         }
 
-        public IJoiningQuery<T, TOther> InnerJoin<TOther>(Expression<Func<T, TOther, bool>> on)
+        public IJoinQuery<T, TOther> InnerJoin<TOther>(Expression<Func<T, TOther, bool>> on)
         {
             return this.InnerJoin<TOther>(this._dbContext.Query<TOther>(), on);
         }
-        public IJoiningQuery<T, TOther> LeftJoin<TOther>(Expression<Func<T, TOther, bool>> on)
+        public IJoinQuery<T, TOther> LeftJoin<TOther>(Expression<Func<T, TOther, bool>> on)
         {
             return this.LeftJoin<TOther>(this._dbContext.Query<TOther>(), on);
         }
-        public IJoiningQuery<T, TOther> RightJoin<TOther>(Expression<Func<T, TOther, bool>> on)
+        public IJoinQuery<T, TOther> RightJoin<TOther>(Expression<Func<T, TOther, bool>> on)
         {
             return this.RightJoin<TOther>(this._dbContext.Query<TOther>(), on);
         }
-        public IJoiningQuery<T, TOther> FullJoin<TOther>(Expression<Func<T, TOther, bool>> on)
+        public IJoinQuery<T, TOther> FullJoin<TOther>(Expression<Func<T, TOther, bool>> on)
         {
             return this.FullJoin<TOther>(this._dbContext.Query<TOther>(), on);
         }
 
-        public IJoiningQuery<T, TOther> InnerJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
+        public IJoinQuery<T, TOther> InnerJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
         {
             return this.Join<TOther>(q, JoinType.InnerJoin, on);
         }
-        public IJoiningQuery<T, TOther> LeftJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
+        public IJoinQuery<T, TOther> LeftJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
         {
             return this.Join<TOther>(q, JoinType.LeftJoin, on);
         }
-        public IJoiningQuery<T, TOther> RightJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
+        public IJoinQuery<T, TOther> RightJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
         {
             return this.Join<TOther>(q, JoinType.RightJoin, on);
         }
-        public IJoiningQuery<T, TOther> FullJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
+        public IJoinQuery<T, TOther> FullJoin<TOther>(IQuery<TOther> q, Expression<Func<T, TOther, bool>> on)
         {
             return this.Join<TOther>(q, JoinType.FullJoin, on);
         }

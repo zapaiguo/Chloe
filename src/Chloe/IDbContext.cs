@@ -40,7 +40,7 @@ namespace Chloe
         /// <typeparam name="T2"></typeparam>
         /// <param name="joinInfo"></param>
         /// <returns></returns>
-        IJoiningQuery<T1, T2> JoinQuery<T1, T2>(Expression<Func<T1, T2, object[]>> joinInfo);
+        IJoinQuery<T1, T2> JoinQuery<T1, T2>(Expression<Func<T1, T2, object[]>> joinInfo);
         /// <summary>
         /// context.JoinQuery&lt;User, City, Province&gt;((user, city, province) => new object[] 
         /// { 
@@ -53,9 +53,9 @@ namespace Chloe
         /// <typeparam name="T3"></typeparam>
         /// <param name="joinInfo"></param>
         /// <returns></returns>
-        IJoiningQuery<T1, T2, T3> JoinQuery<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> joinInfo);
-        IJoiningQuery<T1, T2, T3, T4> JoinQuery<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, object[]>> joinInfo);
-        IJoiningQuery<T1, T2, T3, T4, T5> JoinQuery<T1, T2, T3, T4, T5>(Expression<Func<T1, T2, T3, T4, T5, object[]>> joinInfo);
+        IJoinQuery<T1, T2, T3> JoinQuery<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> joinInfo);
+        IJoinQuery<T1, T2, T3, T4> JoinQuery<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, object[]>> joinInfo);
+        IJoinQuery<T1, T2, T3, T4, T5> JoinQuery<T1, T2, T3, T4, T5>(Expression<Func<T1, T2, T3, T4, T5, object[]>> joinInfo);
 
         IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters);
         IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters);

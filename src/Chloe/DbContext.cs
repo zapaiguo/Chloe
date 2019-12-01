@@ -96,7 +96,7 @@ namespace Chloe
             return q.FirstOrDefault();
         }
 
-        public virtual IJoiningQuery<T1, T2> JoinQuery<T1, T2>(Expression<Func<T1, T2, object[]>> joinInfo)
+        public virtual IJoinQuery<T1, T2> JoinQuery<T1, T2>(Expression<Func<T1, T2, object[]>> joinInfo)
         {
             KeyValuePairList<JoinType, Expression> joinInfos = ResolveJoinInfo(joinInfo);
             var ret = this.Query<T1>()
@@ -104,7 +104,7 @@ namespace Chloe
 
             return ret;
         }
-        public virtual IJoiningQuery<T1, T2, T3> JoinQuery<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> joinInfo)
+        public virtual IJoinQuery<T1, T2, T3> JoinQuery<T1, T2, T3>(Expression<Func<T1, T2, T3, object[]>> joinInfo)
         {
             KeyValuePairList<JoinType, Expression> joinInfos = ResolveJoinInfo(joinInfo);
             var ret = this.Query<T1>()
@@ -113,7 +113,7 @@ namespace Chloe
 
             return ret;
         }
-        public virtual IJoiningQuery<T1, T2, T3, T4> JoinQuery<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, object[]>> joinInfo)
+        public virtual IJoinQuery<T1, T2, T3, T4> JoinQuery<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, object[]>> joinInfo)
         {
             KeyValuePairList<JoinType, Expression> joinInfos = ResolveJoinInfo(joinInfo);
             var ret = this.Query<T1>()
@@ -123,7 +123,7 @@ namespace Chloe
 
             return ret;
         }
-        public virtual IJoiningQuery<T1, T2, T3, T4, T5> JoinQuery<T1, T2, T3, T4, T5>(Expression<Func<T1, T2, T3, T4, T5, object[]>> joinInfo)
+        public virtual IJoinQuery<T1, T2, T3, T4, T5> JoinQuery<T1, T2, T3, T4, T5>(Expression<Func<T1, T2, T3, T4, T5, object[]>> joinInfo)
         {
             KeyValuePairList<JoinType, Expression> joinInfos = ResolveJoinInfo(joinInfo);
             var ret = this.Query<T1>()
