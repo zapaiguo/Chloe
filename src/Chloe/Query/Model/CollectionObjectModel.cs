@@ -12,11 +12,11 @@ using Chloe.Mapper;
 
 namespace Chloe.Query
 {
-    public class CollectionObjectModel : IObjectModel
+    public class CollectionObjectModel : ObjectModelBase
     {
         Type _collectionType;
 
-        public CollectionObjectModel(Type ownerType, PropertyInfo associatedProperty, ComplexObjectModel elementModel)
+        public CollectionObjectModel(Type ownerType, PropertyInfo associatedProperty, ComplexObjectModel elementModel) : base(associatedProperty.PropertyType)
         {
             this.OwnerType = ownerType;
             this.AssociatedProperty = associatedProperty;
@@ -24,71 +24,16 @@ namespace Chloe.Query
             this.ElementModel = elementModel;
         }
 
-        public Type ObjectType { get { return this._collectionType; } }
-        public TypeKind TypeKind { get { return TypeKind.Complex; } }
+        public override TypeKind TypeKind { get { return TypeKind.Collection; } }
         public ComplexObjectModel ElementModel { get; private set; }
         public Type OwnerType { get; private set; }
         public PropertyInfo AssociatedProperty { get; private set; }
 
-        public void AddConstructorParameter(ParameterInfo p, DbExpression primitiveExp)
-        {
-            throw new NotSupportedException();
-        }
-        public void AddConstructorParameter(ParameterInfo p, ComplexObjectModel complexModel)
-        {
-            throw new NotSupportedException();
-        }
-        public void AddPrimitiveMember(MemberInfo p, DbExpression exp)
-        {
-            throw new NotSupportedException();
-        }
-        public DbExpression GetPrimitiveMember(MemberInfo memberInfo)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void AddComplexMember(MemberInfo p, ComplexObjectModel model)
-        {
-            throw new NotSupportedException();
-        }
-        public ComplexObjectModel GetComplexMember(MemberInfo memberInfo)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void AddCollectionMember(MemberInfo p, CollectionObjectModel model)
-        {
-            throw new NotSupportedException();
-        }
-        public CollectionObjectModel GetCollectionMember(MemberInfo memberInfo)
-        {
-            throw new NotSupportedException();
-        }
-
-        public DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter)
-        {
-            throw new NotSupportedException();
-        }
-        public IObjectModel GetComplexMember(MemberExpression exp)
-        {
-            throw new NotSupportedException();
-        }
-
-        public IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery)
+        public override IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery)
         {
             IObjectActivatorCreator elementActivatorCreator = this.ElementModel.GenarateObjectActivatorCreator(sqlQuery);
             CollectionObjectActivatorCreator ret = new CollectionObjectActivatorCreator(this._collectionType, this.OwnerType, elementActivatorCreator);
             return ret;
-        }
-
-        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetNullChecking(DbExpression exp)
-        {
-
         }
     }
 }

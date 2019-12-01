@@ -10,65 +10,26 @@ using System.Reflection;
 
 namespace Chloe.Query
 {
-    public class PrimitiveObjectModel : IObjectModel
+    public class PrimitiveObjectModel : ObjectModelBase
     {
-        Type _type;
-        DbExpression _exp;
-        public PrimitiveObjectModel(Type type, DbExpression exp)
+        public PrimitiveObjectModel(Type primitiveType, DbExpression exp) : base(primitiveType)
         {
-            this._type = type;
-            this._exp = exp;
+            this.Expression = exp;
         }
 
-        public Type ObjectType { get { return this._type; } }
-        public TypeKind TypeKind { get { return TypeKind.Complex; } }
-        public DbExpression Expression { get { return this._exp; } }
+        public override TypeKind TypeKind { get { return TypeKind.Primitive; } }
+        public DbExpression Expression { get; private set; }
 
         public DbExpression NullChecking { get; set; }
 
-        public void AddConstructorParameter(ParameterInfo p, DbExpression primitiveExp)
-        {
-            throw new NotSupportedException();
-        }
-        public void AddConstructorParameter(ParameterInfo p, ComplexObjectModel complexModel)
-        {
-            throw new NotSupportedException();
-        }
-        public void AddPrimitiveMember(MemberInfo p, DbExpression exp)
-        {
-            throw new NotSupportedException();
-        }
-        public DbExpression GetPrimitiveMember(MemberInfo memberInfo)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void AddComplexMember(MemberInfo p, ComplexObjectModel model)
-        {
-            throw new NotSupportedException();
-        }
-        public ComplexObjectModel GetComplexMember(MemberInfo memberInfo)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void AddCollectionMember(MemberInfo p, CollectionObjectModel model)
-        {
-            throw new NotSupportedException();
-        }
-        public CollectionObjectModel GetCollectionMember(MemberInfo memberInfo)
-        {
-            throw new NotSupportedException();
-        }
-
-        public DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter)
+        public override DbExpression GetDbExpression(MemberExpression memberExpressionDeriveParameter)
         {
             Stack<MemberExpression> memberExpressions = ExpressionExtension.Reverse(memberExpressionDeriveParameter);
 
             if (memberExpressions.Count == 0)
                 throw new Exception();
 
-            DbExpression ret = this._exp;
+            DbExpression ret = this.Expression;
 
             foreach (MemberExpression memberExpression in memberExpressions)
             {
@@ -81,41 +42,35 @@ namespace Chloe.Query
 
             return ret;
         }
-        public IObjectModel GetComplexMember(MemberExpression exp)
-        {
-            throw new NotSupportedException();
-        }
 
-        public IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery)
+        public override IObjectActivatorCreator GenarateObjectActivatorCreator(DbSqlQueryExpression sqlQuery)
         {
             int ordinal;
-            ordinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, this._exp).Value;
+            ordinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, this.Expression).Value;
 
-            PrimitiveObjectActivatorCreator activatorCreator = new PrimitiveObjectActivatorCreator(this._type, ordinal);
+            PrimitiveObjectActivatorCreator activatorCreator = new PrimitiveObjectActivatorCreator(this.ObjectType, ordinal);
 
             activatorCreator.CheckNullOrdinal = ObjectModelHelper.TryGetOrAddColumn(sqlQuery, this.NullChecking);
 
             return activatorCreator;
         }
 
-
-        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable)
+        public override IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable)
         {
             DbColumnAccessExpression cae = null;
-            cae = ObjectModelHelper.ParseColumnAccessExpression(sqlQuery, table, this._exp);
+            cae = ObjectModelHelper.ParseColumnAccessExpression(sqlQuery, table, this.Expression);
 
-            PrimitiveObjectModel objectModel = new PrimitiveObjectModel(this._type, cae);
+            PrimitiveObjectModel objectModel = new PrimitiveObjectModel(this.ObjectType, cae);
 
             objectModel.NullChecking = ObjectModelHelper.TryGetOrAddNullChecking(sqlQuery, table, this.NullChecking);
 
             return objectModel;
         }
 
-        public void SetNullChecking(DbExpression exp)
+        public override void SetNullChecking(DbExpression exp)
         {
             if (this.NullChecking == null)
                 this.NullChecking = exp;
         }
-
     }
 }
