@@ -76,9 +76,10 @@ namespace Chloe.Entity
                         propertyBuilder.IsAutoIncrement();
                     }
 
-                    if (propertyAttribute is SequenceAttribute)
+                    SequenceAttribute sequenceAttribute = propertyAttribute as SequenceAttribute;
+                    if (sequenceAttribute != null)
                     {
-                        propertyBuilder.HasSequence((propertyAttribute as SequenceAttribute).Name);
+                        propertyBuilder.HasSequence(sequenceAttribute.Name, sequenceAttribute.Schema);
                     }
                 }
             }

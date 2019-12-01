@@ -35,14 +35,16 @@ namespace Chloe.Utility
 
             return object.Equals(obj1, obj2);
         }
-        public static DbMethodCallExpression MakeNextValueForSequenceDbExpression(PrimitivePropertyDescriptor propertyDescriptor)
+        public static DbMethodCallExpression MakeNextValueForSequenceDbExpression(PrimitivePropertyDescriptor propertyDescriptor, string defaultSequenceSchema)
         {
-            return MakeNextValueForSequenceDbExpression(propertyDescriptor.PropertyType, propertyDescriptor.Definition.SequenceName);
+            string sequenceSchema = propertyDescriptor.Definition.SequenceSchema;
+            sequenceSchema = string.IsNullOrEmpty(sequenceSchema) ? defaultSequenceSchema : sequenceSchema;
+            return MakeNextValueForSequenceDbExpression(propertyDescriptor.PropertyType, propertyDescriptor.Definition.SequenceName, sequenceSchema);
         }
-        public static DbMethodCallExpression MakeNextValueForSequenceDbExpression(Type retType, string sequenceName)
+        public static DbMethodCallExpression MakeNextValueForSequenceDbExpression(Type retType, string sequenceName, string sequenceSchema)
         {
             MethodInfo nextValueForSequenceMethod = UtilConstants.MethodInfo_Sql_NextValueForSequence.MakeGenericMethod(retType);
-            List<DbExpression> arguments = new List<DbExpression>() { new DbConstantExpression(sequenceName) };
+            List<DbExpression> arguments = new List<DbExpression>(2) { new DbConstantExpression(sequenceName), new DbConstantExpression(sequenceSchema) };
 
             DbMethodCallExpression getNextValueForSequenceExp = new DbMethodCallExpression(null, nextValueForSequenceMethod, arguments);
             return getNextValueForSequenceExp;

@@ -22,7 +22,17 @@ namespace Chloe.SqlServer.MethodHandlers
             if (string.IsNullOrEmpty(sequenceName))
                 throw new ArgumentException("The sequence name cannot be empty.");
 
-            generator.SqlBuilder.Append("NEXT VALUE FOR ", sequenceName);
+            string sequenceSchema = (string)exp.Arguments[1].Evaluate();
+
+            generator.SqlBuilder.Append("NEXT VALUE FOR ");
+
+            if (!string.IsNullOrEmpty(sequenceSchema))
+            {
+                generator.QuoteName(sequenceSchema);
+                generator.SqlBuilder.Append(".");
+            }
+
+            generator.QuoteName(sequenceName);
         }
     }
 }

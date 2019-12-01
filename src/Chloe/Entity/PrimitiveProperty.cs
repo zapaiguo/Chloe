@@ -16,6 +16,7 @@ namespace Chloe.Entity
 
         public string ColumnName { get; set; }
         public string SequenceName { get; set; }
+        public string SequenceSchema { get; set; }
         public bool IsPrimaryKey { get; set; }
         public bool IsAutoIncrement { get; set; }
         public DbType? DbType { get; set; }
@@ -25,7 +26,7 @@ namespace Chloe.Entity
 
         public PrimitivePropertyDefinition MakeDefinition()
         {
-            PrimitivePropertyDefinition definition = new PrimitivePropertyDefinition(this.Property, new DbColumn(this.ColumnName, this.Property.PropertyType, this.DbType, this.Size, this.Scale, this.Precision), this.IsPrimaryKey, this.IsAutoIncrement, this.SequenceName, this.Annotations);
+            PrimitivePropertyDefinition definition = new PrimitivePropertyDefinition(this.Property, new DbColumn(this.ColumnName, this.Property.PropertyType, this.DbType, this.Size, this.Scale, this.Precision), this.IsPrimaryKey, this.IsAutoIncrement, this.SequenceName, this.SequenceSchema, this.Annotations);
             return definition;
         }
     }

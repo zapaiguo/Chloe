@@ -116,14 +116,15 @@ namespace Chloe.Entity
             return this;
         }
 
-        public IPrimitivePropertyBuilder<TProperty> HasSequence(string name)
+        public IPrimitivePropertyBuilder<TProperty> HasSequence(string name, string schema)
         {
-            this.AsNonGenericBuilder().HasSequence(name);
+            this.AsNonGenericBuilder().HasSequence(name, schema);
             return this;
         }
-        IPrimitivePropertyBuilder IPrimitivePropertyBuilder.HasSequence(string name)
+        IPrimitivePropertyBuilder IPrimitivePropertyBuilder.HasSequence(string name, string schema)
         {
             this.Property.SequenceName = name;
+            this.Property.SequenceSchema = schema;
             if (!string.IsNullOrEmpty(name))
             {
                 this.Property.IsAutoIncrement = false;

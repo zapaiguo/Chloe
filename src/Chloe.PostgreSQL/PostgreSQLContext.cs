@@ -45,6 +45,8 @@ namespace Chloe.PostgreSQL
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
+            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+
             Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
             Dictionary<PrimitivePropertyDescriptor, DbExpression> insertColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
@@ -55,7 +57,7 @@ namespace Chloe.PostgreSQL
 
                 if (propertyDescriptor.HasSequence())
                 {
-                    DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(propertyDescriptor);
+                    DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(propertyDescriptor, dbTable.Schema);
                     insertColumns.Add(propertyDescriptor, getNextValueForSequenceExp);
                     continue;
                 }
@@ -78,7 +80,6 @@ namespace Chloe.PostgreSQL
                 throw new ChloeException(string.Format("The primary key '{0}' could not be null.", nullValueKey.Property.Name));
             }
 
-            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
             DbInsertExpression insertExp = new DbInsertExpression(dbTable);
 
             foreach (var kv in insertColumns)
@@ -131,11 +132,10 @@ namespace Chloe.PostgreSQL
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
-            DbTable explicitDbTable = null;
-            if (table != null)
-                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
-            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
-            DbInsertExpression insertExp = new DbInsertExpression(explicitDbTable ?? typeDescriptor.Table);
+            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(dbTable);
+            DbInsertExpression insertExp = new DbInsertExpression(dbTable);
 
             object keyVal = null;
 
@@ -168,7 +168,7 @@ namespace Chloe.PostgreSQL
 
             foreach (var item in typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.HasSequence()))
             {
-                DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(item);
+                DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(item, dbTable.Schema);
                 insertExp.InsertColumns.Add(item.Column, getNextValueForSequenceExp);
             }
 
@@ -253,9 +253,18 @@ namespace Chloe.PostgreSQL
 
                         if (mappingPropertyDescriptor.HasSequence())
                         {
-                            sqlBuilder.Append("nextval(");
+                            string sequenceSchema = mappingPropertyDescriptor.Definition.SequenceSchema;
+                            sequenceSchema = string.IsNullOrEmpty(sequenceSchema) ? dbTable.Schema : sequenceSchema;
+
+                            sqlBuilder.Append("nextval('");
+
+                            if (!string.IsNullOrEmpty(sequenceSchema))
+                            {
+                                sqlBuilder.Append(sequenceSchema).Append(".");
+                            }
+
                             sqlBuilder.Append(mappingPropertyDescriptor.Definition.SequenceName);
-                            sqlBuilder.Append(")");
+                            sqlBuilder.Append("')");
                             continue;
                         }
 

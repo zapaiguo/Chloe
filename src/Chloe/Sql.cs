@@ -42,7 +42,7 @@ namespace Chloe
             throw new NotSupportedException();
         }
 
-        public static T NextValueForSequence<T>(string sequenceName)
+        public static T NextValueForSequence<T>(string sequenceName, string sequenceSchema)
         {
             throw new NotSupportedException();
         }

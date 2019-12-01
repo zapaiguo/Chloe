@@ -45,6 +45,8 @@ namespace Chloe.Oracle
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
+            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+
             List<PrimitivePropertyDescriptor> outputColumns = new List<PrimitivePropertyDescriptor>();
             Dictionary<PrimitivePropertyDescriptor, DbExpression> insertColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
             foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
@@ -57,7 +59,7 @@ namespace Chloe.Oracle
 
                 if (propertyDescriptor.HasSequence())
                 {
-                    DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(propertyDescriptor);
+                    DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(propertyDescriptor, dbTable.Schema);
                     insertColumns.Add(propertyDescriptor, getNextValueForSequenceExp);
                     outputColumns.Add(propertyDescriptor);
                     continue;
@@ -69,7 +71,6 @@ namespace Chloe.Oracle
                 insertColumns.Add(propertyDescriptor, valExp);
             }
 
-            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
             DbInsertExpression e = new DbInsertExpression(dbTable);
 
             foreach (var kv in insertColumns)
@@ -111,11 +112,10 @@ namespace Chloe.Oracle
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
-            DbTable explicitDbTable = null;
-            if (table != null)
-                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
-            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
-            DbInsertExpression insertExp = new DbInsertExpression(explicitDbTable ?? typeDescriptor.Table);
+            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(dbTable);
+            DbInsertExpression insertExp = new DbInsertExpression(dbTable);
 
             object keyVal = null;
 
@@ -156,7 +156,7 @@ namespace Chloe.Oracle
 
                 if (propertyDescriptor.HasSequence())
                 {
-                    DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(propertyDescriptor);
+                    DbMethodCallExpression getNextValueForSequenceExp = PublicHelper.MakeNextValueForSequenceDbExpression(propertyDescriptor, dbTable.Schema);
                     insertExp.InsertColumns.Add(propertyDescriptor.Column, getNextValueForSequenceExp);
 
                     if (propertyDescriptor.IsPrimaryKey)

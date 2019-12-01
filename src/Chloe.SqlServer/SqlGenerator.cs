@@ -1030,7 +1030,7 @@ namespace Chloe.SqlServer
             return;
         }
 
-        void QuoteName(string name)
+        internal void QuoteName(string name)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentException("name");

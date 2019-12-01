@@ -18,14 +18,23 @@ namespace Chloe.PostgreSQL.MethodHandlers
         }
         public void Process(DbMethodCallExpression exp, SqlGenerator generator)
         {
+            /* select nextval('public.users_auto_id')  */
+
             string sequenceName = (string)exp.Arguments[0].Evaluate();
             if (string.IsNullOrEmpty(sequenceName))
                 throw new ArgumentException("The sequence name cannot be empty.");
 
-            generator.SqlBuilder.Append("nextval");
-            generator.SqlBuilder.Append("(");
-            generator.QuoteName(sequenceName);
-            generator.SqlBuilder.Append(")");
+            string sequenceSchema = (string)exp.Arguments[1].Evaluate();
+
+            generator.SqlBuilder.Append("nextval('");
+
+            if (!string.IsNullOrEmpty(sequenceSchema))
+            {
+                generator.SqlBuilder.Append(sequenceSchema, ".");
+            }
+
+            generator.SqlBuilder.Append(sequenceName);
+            generator.SqlBuilder.Append("')");
         }
     }
 }
