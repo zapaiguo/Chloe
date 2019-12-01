@@ -104,11 +104,11 @@ namespace Chloe.Query
             DbColumnAccessExpression cae = null;
             cae = ObjectModelHelper.ParseColumnAccessExpression(sqlQuery, table, this._exp);
 
-            PrimitiveObjectModel mf = new PrimitiveObjectModel(this._type, cae);
+            PrimitiveObjectModel objectModel = new PrimitiveObjectModel(this._type, cae);
 
-            mf.NullChecking = ObjectModelHelper.TryGetOrAddNullChecking(sqlQuery, table, this.NullChecking);
+            objectModel.NullChecking = ObjectModelHelper.TryGetOrAddNullChecking(sqlQuery, table, this.NullChecking);
 
-            return mf;
+            return objectModel;
         }
 
         public void SetNullChecking(DbExpression exp)

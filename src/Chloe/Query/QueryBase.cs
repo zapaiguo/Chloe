@@ -11,5 +11,4 @@ namespace Chloe.Query
         public abstract QueryExpression QueryExpression { get; }
         public abstract bool TrackEntity { get; }
     }
-
 }

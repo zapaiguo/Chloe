@@ -400,5 +400,4 @@ namespace Chloe.Query
             return ret;
         }
     }
-
 }

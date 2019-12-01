@@ -19,5 +19,4 @@ namespace Chloe.Query
         public JoinType JoinType { get; set; }
         public LambdaExpression Condition { get; set; }
     }
-
 }

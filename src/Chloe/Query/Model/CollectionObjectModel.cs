@@ -30,8 +30,6 @@ namespace Chloe.Query
         public Type OwnerType { get; private set; }
         public PropertyInfo AssociatedProperty { get; private set; }
 
-
-
         public void AddConstructorParameter(ParameterInfo p, DbExpression primitiveExp)
         {
             throw new NotSupportedException();
@@ -83,10 +81,8 @@ namespace Chloe.Query
             return ret;
         }
 
-
         public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable)
         {
-            //创建 List
             throw new NotImplementedException();
         }
 
