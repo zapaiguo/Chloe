@@ -509,6 +509,14 @@ namespace Chloe.Query
 
             elementObjectModel.Filter = this.ParseCondition(navigationNode.Filter, elementObjectModel, queryModel.ScopeTables);
 
+            bool orderByPrimaryKeyExists = queryModel.Orderings.Where(a => a.Expression == this.PrimaryKey).Any();
+            if (!orderByPrimaryKeyExists)
+            {
+                //结果集分组
+                DbOrdering ordering = new DbOrdering(this.PrimaryKey, DbOrderType.Asc);
+                queryModel.Orderings.Add(ordering);
+            }
+
             //queryModel.Filters.Add(elementObjectModel.Filter);
 
             return elementObjectModel;
