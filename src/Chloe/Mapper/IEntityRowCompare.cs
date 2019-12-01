@@ -14,25 +14,37 @@ namespace Chloe.Mapper
     }
     public class EntityRowCompare : IEntityRowCompare
     {
-        List<Tuple<PropertyDescriptor, int>> _keys;
+        List<Tuple<PropertyDescriptor, int, Func<IDataReader, int, object>>> _keys;
         public EntityRowCompare(List<Tuple<PropertyDescriptor, int>> keys)
         {
-            this._keys = keys;
+            List<Tuple<PropertyDescriptor, int, Func<IDataReader, int, object>>> keyList = new List<Tuple<PropertyDescriptor, int, Func<IDataReader, int, object>>>(keys.Count);
+            for (int i = 0; i < keys.Count; i++)
+            {
+                var tuple = keys[i];
+                Func<IDataReader, int, object> valueGetter = DataReaderConstant.GetGetValueHandler(tuple.Item1.PropertyType);
+
+                keyList.Add(new Tuple<PropertyDescriptor, int, Func<IDataReader, int, object>>(tuple.Item1, tuple.Item2, valueGetter));
+            }
+
+            this._keys = keyList;
         }
 
         public bool IsEntityRow(object entity, IDataReader reader)
         {
             for (int i = 0; i < this._keys.Count; i++)
             {
-                var kv = this._keys[i];
-                object keyReaderValue = DataReaderConstant.GetGetValueHandler(kv.Item1.PropertyType)(reader, kv.Item2);
+                var tuple = this._keys[i];
+                PropertyDescriptor propertyDescriptor = tuple.Item1;
+                int ordinal = tuple.Item2;
+                var valueGetter = tuple.Item3;
+                object keyReaderValue = valueGetter(reader, ordinal);
                 keyReaderValue = keyReaderValue == DBNull.Value ? null : keyReaderValue;
 
                 if (keyReaderValue == null)
                     return false;
 
-                keyReaderValue = PublicHelper.ConvertObjectType(keyReaderValue, kv.Item1.PropertyType);
-                object keyValue = kv.Item1.GetValue(entity);
+                keyReaderValue = PublicHelper.ConvertObjectType(keyReaderValue, propertyDescriptor.PropertyType);
+                object keyValue = propertyDescriptor.GetValue(entity);
 
                 if (keyValue == null)
                     return false;
