@@ -43,42 +43,30 @@ namespace ChloeDemo
         public int? CityId { get; set; }
         public DateTime? OpTime { get; set; }
 
+        [Chloe.Annotations.ForeignKey("CityId")]
+        public City City { get; set; }
+
         /* Marks the column is timestamp type(sqlserver only) */
         //[Chloe.SqlServer.Annotations.TimestampAttribute]
         //public Byte[] RowVersion { get; set; }
-    }
-
-    public class UserMapBase<TUser> : EntityTypeBuilder<TUser> where TUser : UserLite
-    {
-        public UserMapBase()
-        {
-            this.Ignore(a => a.NotMapped);
-            this.Property(a => a.Id).IsAutoIncrement().IsPrimaryKey();
-        }
-    }
-    public class UserMap : UserMapBase<User>
-    {
-        public UserMap()
-        {
-            this.MapTo("Users");
-            this.Ignore(a => a.NotMapped);
-            this.Property(a => a.Gender).HasDbType(DbType.Int32);
-
-            /* Marks the column is timestamp type(sqlserver only) */
-            //this.Property(a => a.RowVersion).IsTimestamp();
-        }
     }
 
     public class City
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int ProvinceId { get; set; }
+        public int? ProvinceId { get; set; }
+
+        [Chloe.Annotations.ForeignKey("ProvinceId")]
+        public Province Province { get; set; }
+        public List<User> Users { get; set; }
     }
 
     public class Province
     {
         public int Id { get; set; }
         public string Name { get; set; }
+
+        public List<City> Cities { get; set; }
     }
 }

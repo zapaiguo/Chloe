@@ -21,6 +21,8 @@ namespace ChloeDemo
 
             /* fluent mapping */
             DbConfiguration.UseTypeBuilders(typeof(UserMap));
+            DbConfiguration.UseTypeBuilders(typeof(CityMap));
+            DbConfiguration.UseTypeBuilders(typeof(ProvinceMap));
 
             SQLiteDemo.Run();
             MsSqlDemo.Run();

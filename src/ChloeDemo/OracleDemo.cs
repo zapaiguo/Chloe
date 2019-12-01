@@ -21,6 +21,7 @@ namespace ChloeDemo
             AggregateQuery();
             GroupQuery();
             ComplexQuery();
+            QueryWithNavigation();
             Insert();
             Update();
             Delete();
@@ -40,7 +41,7 @@ namespace ChloeDemo
         public static void BasicQuery()
         {
             IQuery<User> q = context.Query<User>();
-
+            var ccc = q.Select(a => Sql.NextValueForSequence<int>("USERS_AUTOID", null)).ToList();
             var x = q.Where(a => a.Id >= GetUser().Id).ToList();
 
             q.Where(a => a.Id == 1).FirstOrDefault();
@@ -207,7 +208,6 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
-
         /*复杂查询*/
         public static void ComplexQuery()
         {
@@ -288,6 +288,20 @@ namespace ChloeDemo
              *      (SELECT AVG("USERS"."AGE") AS "C" FROM "USERS" "USERS" WHERE "USERS"."CITYID" = "CITY"."ID") AS "AVGAGE" 
              * FROM "CITY" "CITY"
              */
+
+            ConsoleHelper.WriteLineAndReadKey();
+        }
+        /* 贪婪加载导航属性 */
+        public static void QueryWithNavigation()
+        {
+            object result = null;
+            result = context.Query<User>().Include(a => a.City).ThenInclude(a => a.Province).ToList();
+            result = context.Query<City>().Include(a => a.Province).IncludeMany(a => a.Users).AndWhere(a => a.Age >= 18).ToList();
+            result = context.Query<Province>().IncludeMany(a => a.Cities).ThenIncludeMany(a => a.Users).ToList();
+
+            result = context.Query<Province>().IncludeMany(a => a.Cities).ThenIncludeMany(a => a.Users).Where(a => a.Id > 0).TakePage(1, 20).ToList();
+
+            result = context.Query<City>().IncludeMany(a => a.Users).AndWhere(a => a.Age > 18).ToList();
 
             ConsoleHelper.WriteLineAndReadKey();
         }

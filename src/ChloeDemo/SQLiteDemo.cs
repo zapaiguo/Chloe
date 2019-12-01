@@ -20,6 +20,7 @@ namespace ChloeDemo
             AggregateQuery();
             GroupQuery();
             ComplexQuery();
+            QueryWithNavigation();
             Insert();
             Update();
             Delete();
@@ -200,7 +201,6 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
-
         /*复杂查询*/
         public static void ComplexQuery()
         {
@@ -284,6 +284,21 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
+        /* 贪婪加载导航属性 */
+        public static void QueryWithNavigation()
+        {
+            object result = null;
+            result = context.Query<User>().Include(a => a.City).ThenInclude(a => a.Province).ToList();
+            result = context.Query<City>().Include(a => a.Province).IncludeMany(a => a.Users).AndWhere(a => a.Age >= 18).ToList();
+            result = context.Query<Province>().IncludeMany(a => a.Cities).ThenIncludeMany(a => a.Users).ToList();
+
+            result = context.Query<Province>().IncludeMany(a => a.Cities).ThenIncludeMany(a => a.Users).Where(a => a.Id > 0).TakePage(1, 20).ToList();
+
+            result = context.Query<City>().IncludeMany(a => a.Users).AndWhere(a => a.Age > 18).ToList();
+
+            ConsoleHelper.WriteLineAndReadKey();
+        }
+
 
         public static void Insert()
         {
