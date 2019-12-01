@@ -33,6 +33,9 @@ namespace Chloe.SqlServer
             this.PagingMode = PagingMode.ROW_NUMBER;
             this._databaseProvider = new DatabaseProvider(dbConnectionFactory, this);
         }
+        public MsSqlContext(Func<IDbConnection> dbConnectionFactory) : this(new DbConnectionFactory(dbConnectionFactory))
+        {
+        }
 
         /// <summary>
         /// 分页模式。
