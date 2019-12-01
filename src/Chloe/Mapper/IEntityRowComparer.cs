@@ -8,14 +8,14 @@ using System.Text;
 
 namespace Chloe.Mapper
 {
-    public interface IEntityRowCompare
+    public interface IEntityRowComparer
     {
         bool IsEntityRow(object entity, IDataReader reader);
     }
-    public class EntityRowCompare : IEntityRowCompare
+    public class EntityRowComparer : IEntityRowComparer
     {
         List<Tuple<PropertyDescriptor, int, Func<IDataReader, int, object>>> _keys;
-        public EntityRowCompare(List<Tuple<PropertyDescriptor, int>> keys)
+        public EntityRowComparer(List<Tuple<PropertyDescriptor, int>> keys)
         {
             List<Tuple<PropertyDescriptor, int, Func<IDataReader, int, object>>> keyList = new List<Tuple<PropertyDescriptor, int, Func<IDataReader, int, object>>>(keys.Count);
             for (int i = 0; i < keys.Count; i++)

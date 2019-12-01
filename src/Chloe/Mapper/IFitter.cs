@@ -41,14 +41,14 @@ namespace Chloe.Mapper
     public class CollectionObjectFitter : IFitter
     {
         IObjectActivator _elementActivator;
-        IEntityRowCompare _entityRowCompare;
+        IEntityRowComparer _entityRowComparer;
         IFitter _elementFitter;
         PropertyDescriptor _elementOwnerProperty;
 
-        public CollectionObjectFitter(IObjectActivator elementActivator, IEntityRowCompare entityRowCompare, IFitter elementFitter, PropertyDescriptor elementOwnerProperty)
+        public CollectionObjectFitter(IObjectActivator elementActivator, IEntityRowComparer entityRowComparer, IFitter elementFitter, PropertyDescriptor elementOwnerProperty)
         {
             this._elementActivator = elementActivator;
-            this._entityRowCompare = entityRowCompare;
+            this._entityRowComparer = entityRowComparer;
             this._elementFitter = elementFitter;
             this._elementOwnerProperty = elementOwnerProperty;
         }
@@ -61,7 +61,7 @@ namespace Chloe.Mapper
             if (entityContainer.Count > 0)
                 entity = entityContainer[entityContainer.Count - 1];
 
-            if (entity == null || !this._entityRowCompare.IsEntityRow(entity, reader))
+            if (entity == null || !this._entityRowComparer.IsEntityRow(entity, reader))
             {
                 entity = this._elementActivator.CreateInstance(reader);
 
