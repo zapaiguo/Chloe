@@ -17,7 +17,7 @@ namespace Chloe.Query.Mapping
         {
             this.ConstructorDescriptor = constructorDescriptor;
             this.ConstructorParameters = new Dictionary<ParameterInfo, int>();
-            this.ConstructorEntityParameters = new Dictionary<ParameterInfo, IObjectActivatorCreator>();
+            this.ConstructorComplexParameters = new Dictionary<ParameterInfo, IObjectActivatorCreator>();
             this.PrimitiveMembers = new Dictionary<MemberInfo, int>();
             this.ComplexMembers = new Dictionary<MemberInfo, IObjectActivatorCreator>();
             this.CollectionMembers = new Dictionary<MemberInfo, IObjectActivatorCreator>();
@@ -28,7 +28,7 @@ namespace Chloe.Query.Mapping
         public int? CheckNullOrdinal { get; set; }
         public ConstructorDescriptor ConstructorDescriptor { get; private set; }
         public Dictionary<ParameterInfo, int> ConstructorParameters { get; private set; }
-        public Dictionary<ParameterInfo, IObjectActivatorCreator> ConstructorEntityParameters { get; private set; }
+        public Dictionary<ParameterInfo, IObjectActivatorCreator> ConstructorComplexParameters { get; private set; }
 
         /// <summary>
         /// 映射成员集合。以 MemberInfo 为 key，读取 DataReader 时的 Ordinal 为 value
@@ -75,7 +75,7 @@ namespace Chloe.Query.Mapping
             Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator = this.ConstructorDescriptor.GetInstanceCreator();
 
             List<int> readerOrdinals = this.ConstructorParameters.Select(a => a.Value).ToList();
-            List<IObjectActivator> objectActivators = this.ConstructorEntityParameters.Select(a => a.Value.CreateObjectActivator()).ToList();
+            List<IObjectActivator> objectActivators = this.ConstructorComplexParameters.Select(a => a.Value.CreateObjectActivator()).ToList();
 
             IObjectActivator objectActivator;
             if (dbContext != null)

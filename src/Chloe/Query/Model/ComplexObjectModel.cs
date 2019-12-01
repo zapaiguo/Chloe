@@ -263,7 +263,7 @@ namespace Chloe.Query
                 IObjectModel val = kv.Value;
 
                 IObjectActivatorCreator complexMappingMember = val.GenarateObjectActivatorCreator(sqlQuery);
-                activatorCreator.ConstructorEntityParameters.Add(pi, complexMappingMember);
+                activatorCreator.ConstructorComplexParameters.Add(pi, complexMappingMember);
             }
 
             foreach (var kv in this.PrimitiveMembers)
