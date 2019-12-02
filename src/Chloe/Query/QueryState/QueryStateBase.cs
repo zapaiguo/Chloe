@@ -192,32 +192,29 @@ namespace Chloe.Query.QueryState
 
             //得将 subQuery.SqlQuery.Orders 告诉 以下创建的 result
             //将 orderPart 传递下去
-            if (this.QueryModel.Orderings.Count > 0)
+            for (int i = 0; i < this.QueryModel.Orderings.Count; i++)
             {
-                for (int i = 0; i < this.QueryModel.Orderings.Count; i++)
+                DbOrdering ordering = this.QueryModel.Orderings[i];
+                DbExpression orderingExp = ordering.Expression;
+
+                string alias = null;
+
+                DbColumnSegment columnExpression = sqlQuery.ColumnSegments.Find(a => DbExpressionEqualityComparer.EqualsCompare(orderingExp, a.Body));
+
+                // 对于重复的则不需要往 sqlQuery.Columns 重复添加了
+                if (columnExpression != null)
                 {
-                    DbOrdering ordering = this.QueryModel.Orderings[i];
-                    DbExpression orderingExp = ordering.Expression;
-
-                    string alias = null;
-
-                    DbColumnSegment columnExpression = sqlQuery.ColumnSegments.Find(a => DbExpressionEqualityComparer.EqualsCompare(orderingExp, a.Body));
-
-                    // 对于重复的则不需要往 sqlQuery.Columns 重复添加了
-                    if (columnExpression != null)
-                    {
-                        alias = columnExpression.Alias;
-                    }
-                    else
-                    {
-                        alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
-                        DbColumnSegment columnSeg = new DbColumnSegment(orderingExp, alias);
-                        sqlQuery.ColumnSegments.Add(columnSeg);
-                    }
-
-                    DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(aliasTable, DbColumn.MakeColumn(orderingExp, alias));
-                    newQueryModel.Orderings.Add(new DbOrdering(columnAccessExpression, ordering.OrderType));
+                    alias = columnExpression.Alias;
                 }
+                else
+                {
+                    alias = Utils.GenerateUniqueColumnAlias(sqlQuery);
+                    DbColumnSegment columnSeg = new DbColumnSegment(orderingExp, alias);
+                    sqlQuery.ColumnSegments.Add(columnSeg);
+                }
+
+                DbColumnAccessExpression columnAccessExpression = new DbColumnAccessExpression(aliasTable, DbColumn.MakeColumn(orderingExp, alias));
+                newQueryModel.Orderings.Add(new DbOrdering(columnAccessExpression, ordering.OrderType));
             }
 
             newQueryModel.InheritOrderings = true;
