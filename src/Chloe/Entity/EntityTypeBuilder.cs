@@ -16,10 +16,10 @@ namespace Chloe.Entity
 
             foreach (PrimitiveProperty property in this.EntityType.PrimitiveProperties)
             {
-                if (property.Property.Name.ToLower() == "id")
+                if (string.Equals(property.Property.Name.ToLower(), "id", StringComparison.OrdinalIgnoreCase))
                 {
                     /*默认为主键，且自增*/
-                    property.IsPrimaryKey = true;
+                    property.SetIsPrimaryKey(true);
 
                     if (Utils.IsAutoIncrementType(property.Property.PropertyType))
                         property.IsAutoIncrement = true;

@@ -52,7 +52,7 @@ namespace Chloe.Entity
         }
         IPrimitivePropertyBuilder IPrimitivePropertyBuilder.IsPrimaryKey(bool isPrimaryKey)
         {
-            this.Property.IsPrimaryKey = isPrimaryKey;
+            this.Property.SetIsPrimaryKey(isPrimaryKey);
             return this;
         }
 

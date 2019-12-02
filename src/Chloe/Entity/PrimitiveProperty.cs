@@ -24,6 +24,17 @@ namespace Chloe.Entity
         public byte? Scale { get; set; }
         public byte? Precision { get; set; }
 
+        internal void SetIsPrimaryKey(bool isPrimaryKey)
+        {
+            this.IsPrimaryKey = isPrimaryKey;
+
+            if (isPrimaryKey && this.DbType == null && this.Property.PropertyType == typeof(string))
+            {
+                //如果主键是 string 类型并且未显示指定 DbType，默认为 AnsiString
+                this.DbType = System.Data.DbType.AnsiString;
+            }
+        }
+
         public PrimitivePropertyDefinition MakeDefinition()
         {
             PrimitivePropertyDefinition definition = new PrimitivePropertyDefinition(this.Property, new DbColumn(this.ColumnName, this.Property.PropertyType, this.DbType, this.Size, this.Scale, this.Precision), this.IsPrimaryKey, this.IsAutoIncrement, this.SequenceName, this.SequenceSchema, this.Annotations);

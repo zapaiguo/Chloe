@@ -64,8 +64,9 @@ namespace Chloe.Entity
                         if (!string.IsNullOrEmpty(columnAttribute.Name))
                             propertyBuilder.MapTo(columnAttribute.Name);
 
-                        propertyBuilder.IsPrimaryKey(columnAttribute.IsPrimaryKey);
+                        /* 为防止覆盖 IsPrimaryKey() 里的 DbType 设置，IsPrimaryKey() 方法调用在 HasDbType() 之后 */
                         propertyBuilder.HasDbType(columnAttribute.GetDbType());
+                        propertyBuilder.IsPrimaryKey(columnAttribute.IsPrimaryKey);
                         propertyBuilder.HasSize(columnAttribute.GetSize());
                         propertyBuilder.HasScale(columnAttribute.GetScale());
                         propertyBuilder.HasPrecision(columnAttribute.GetPrecision());
@@ -88,11 +89,11 @@ namespace Chloe.Entity
             if (primaryKeys.Count == 0)
             {
                 //如果没有定义任何主键，则从所有映射的属性中查找名为 id 的属性作为主键
-                PrimitiveProperty idNameProperty = this.EntityType.PrimitiveProperties.Find(a => a.Property.Name.ToLower() == "id" && !a.Property.IsDefined(typeof(ColumnAttribute)));
+                PrimitiveProperty idNameProperty = this.EntityType.PrimitiveProperties.Find(a => string.Equals(a.Property.Name, "id", StringComparison.OrdinalIgnoreCase) && !a.Property.IsDefined(typeof(ColumnAttribute)));
 
                 if (idNameProperty != null)
                 {
-                    idNameProperty.IsPrimaryKey = true;
+                    this.Property(idNameProperty.Property.Name).IsPrimaryKey();
                     primaryKeys.Add(idNameProperty);
                 }
             }
@@ -104,11 +105,10 @@ namespace Chloe.Entity
 
                 if (string.IsNullOrEmpty(primaryKey.SequenceName) && Utils.IsAutoIncrementType(primaryKey.Property.PropertyType) && !primaryKey.Property.IsDefined(typeof(NonAutoIncrementAttribute)))
                 {
-                    primaryKey.IsAutoIncrement = true;
+                    this.Property(primaryKey.Property.Name).IsAutoIncrement();
                 }
             }
         }
-
         void ConfigureNavigationProperty()
         {
             PropertyInfo[] properties = this.EntityType.Type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(a => a.GetSetMethod() != null && a.GetGetMethod() != null).ToArray();
