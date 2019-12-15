@@ -98,6 +98,9 @@ namespace Chloe.SQLite
                         PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
 
                         object val = mappingPropertyDescriptor.GetValue(entity);
+
+                        PublicHelper.NotNullCheck(mappingPropertyDescriptor, val);
+
                         if (val == null)
                         {
                             sqlBuilder.Append("NULL");

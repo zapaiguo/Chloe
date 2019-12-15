@@ -55,6 +55,11 @@ namespace Chloe.Entity
                         this.Ignore(propertyInfo.Name);
                     }
 
+                    if (propertyAttribute is NotNullAttribute)
+                    {
+                        propertyBuilder.IsNullable(false);
+                    }
+
                     propertyBuilder.HasAnnotation(propertyAttribute);
 
                     if (propertyAttribute is ColumnAttribute)
@@ -74,7 +79,7 @@ namespace Chloe.Entity
 
                     if (propertyAttribute is AutoIncrementAttribute)
                     {
-                        propertyBuilder.IsAutoIncrement();
+                        propertyBuilder.IsAutoIncrement(true);
                     }
 
                     SequenceAttribute sequenceAttribute = propertyAttribute as SequenceAttribute;

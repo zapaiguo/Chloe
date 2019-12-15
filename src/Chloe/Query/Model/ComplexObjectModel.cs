@@ -462,9 +462,10 @@ namespace Chloe.Query
             ComplexObjectModel navigationObjectModel = navigationTypeDescriptor.GenObjectModel(aliasTable);
             navigationObjectModel.NullChecking = navigationObjectModel.PrimaryKey;
 
-            DbExpression foreignKeyColumn = this.GetPrimitiveMember(navigationDescriptor.ForeignKeyProperty.Property);
+            PrimitivePropertyDescriptor foreignKeyPropertyDescriptor = navigationDescriptor.ForeignKeyProperty;
+            DbExpression foreignKeyColumn = this.GetPrimitiveMember(foreignKeyPropertyDescriptor.Property);
             DbExpression joinCondition = DbExpression.Equal(foreignKeyColumn, navigationObjectModel.PrimaryKey);
-            DbJoinTableExpression joinTableExp = new DbJoinTableExpression(DbJoinType.LeftJoin, joinTableSeg, joinCondition);
+            DbJoinTableExpression joinTableExp = new DbJoinTableExpression(foreignKeyPropertyDescriptor.IsNullable ? DbJoinType.LeftJoin : DbJoinType.InnerJoin, joinTableSeg, joinCondition);
             this.DependentTable.JoinTables.Add(joinTableExp);
 
             navigationObjectModel.DependentTable = joinTableExp;

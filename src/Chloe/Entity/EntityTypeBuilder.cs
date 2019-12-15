@@ -1,4 +1,5 @@
 ﻿using Chloe.Annotations;
+using Chloe.InternalExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,9 @@ namespace Chloe.Entity
 
             foreach (PrimitiveProperty property in this.EntityType.PrimitiveProperties)
             {
-                if (string.Equals(property.Property.Name.ToLower(), "id", StringComparison.OrdinalIgnoreCase))
+                property.IsNullable = property.Property.PropertyType.CanNull();
+
+                if (string.Equals(property.Property.Name, "id", StringComparison.OrdinalIgnoreCase))
                 {
                     /*默认为主键，且自增*/
                     property.SetIsPrimaryKey(true);

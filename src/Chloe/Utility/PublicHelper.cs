@@ -120,5 +120,12 @@ namespace Chloe.Utility
             return parameters.ToArray();
         }
 
+        public static void NotNullCheck(PrimitivePropertyDescriptor propertyDescriptor, object val)
+        {
+            if (!propertyDescriptor.IsNullable && val == null)
+            {
+                throw new ChloeException($"The property '{propertyDescriptor.Property.Name}' can not be null.");
+            }
+        }
     }
 }

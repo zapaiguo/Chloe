@@ -67,6 +67,8 @@ namespace Chloe.Oracle
 
                 object val = propertyDescriptor.GetValue(entity);
 
+                PublicHelper.NotNullCheck(propertyDescriptor, val);
+
                 DbExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType, propertyDescriptor.Column.DbType);
                 insertColumns.Add(propertyDescriptor, valExp);
             }
@@ -234,6 +236,9 @@ namespace Chloe.Oracle
                         PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[j];
 
                         object val = mappingPropertyDescriptor.GetValue(entity);
+
+                        PublicHelper.NotNullCheck(mappingPropertyDescriptor, val);
+
                         if (val == null)
                         {
                             sqlBuilder.Append("NULL");
@@ -336,6 +341,8 @@ namespace Chloe.Oracle
                     continue;
 
                 object val = propertyDescriptor.GetValue(entity);
+
+                PublicHelper.NotNullCheck(propertyDescriptor, val);
 
                 if (entityState != null && !entityState.HasChanged(propertyDescriptor, val))
                     continue;

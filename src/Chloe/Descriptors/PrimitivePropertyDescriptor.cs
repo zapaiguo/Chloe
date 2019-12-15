@@ -22,6 +22,7 @@ namespace Chloe.Descriptors
 
         public bool IsPrimaryKey { get { return this.Definition.IsPrimaryKey; } }
         public bool IsAutoIncrement { get { return this.Definition.IsAutoIncrement; } }
+        public bool IsNullable { get { return this.Definition.IsNullable; } }
         public DbColumn Column { get { return this.Definition.Column; } }
 
 

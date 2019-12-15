@@ -72,6 +72,17 @@ namespace Chloe.Entity
             return this;
         }
 
+        public IPrimitivePropertyBuilder<TProperty> IsNullable(bool isNullable = true)
+        {
+            this.AsNonGenericBuilder().IsNullable(isNullable);
+            return this;
+        }
+        IPrimitivePropertyBuilder IPrimitivePropertyBuilder.IsNullable(bool isNullable)
+        {
+            this.Property.IsNullable = isNullable;
+            return this;
+        }
+
         public IPrimitivePropertyBuilder<TProperty> HasDbType(DbType? dbType)
         {
             this.AsNonGenericBuilder().HasDbType(dbType);

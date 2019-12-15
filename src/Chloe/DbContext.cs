@@ -189,6 +189,8 @@ namespace Chloe
                     keyValueMap[propertyDescriptor] = val;
                 }
 
+                PublicHelper.NotNullCheck(propertyDescriptor, val);
+
                 DbParameterExpression valExp = DbExpression.Parameter(val, propertyDescriptor.PropertyType, propertyDescriptor.Column.DbType);
                 insertColumns.Add(propertyDescriptor, valExp);
             }
@@ -353,6 +355,8 @@ namespace Chloe
                     continue;
 
                 object val = propertyDescriptor.GetValue(entity);
+
+                PublicHelper.NotNullCheck(propertyDescriptor, val);
 
                 if (entityState != null && !entityState.HasChanged(propertyDescriptor, val))
                     continue;

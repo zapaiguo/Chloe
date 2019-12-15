@@ -6,7 +6,9 @@ namespace Chloe.Annotations
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class ColumnAttribute : Attribute
     {
-        public ColumnAttribute() { }
+        public ColumnAttribute()
+        {
+        }
         public ColumnAttribute(string name)
         {
             this.Name = name;

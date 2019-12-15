@@ -64,6 +64,8 @@ namespace Chloe.PostgreSQL
 
                 object val = propertyDescriptor.GetValue(entity);
 
+                PublicHelper.NotNullCheck(propertyDescriptor, val);
+
                 if (propertyDescriptor.IsPrimaryKey)
                 {
                     keyValueMap[propertyDescriptor] = val;
@@ -269,6 +271,9 @@ namespace Chloe.PostgreSQL
                         }
 
                         object val = mappingPropertyDescriptor.GetValue(entity);
+
+                        PublicHelper.NotNullCheck(mappingPropertyDescriptor, val);
+
                         if (val == null)
                         {
                             sqlBuilder.Append("NULL");

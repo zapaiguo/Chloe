@@ -74,6 +74,16 @@ namespace Chloe.InternalExtensions
 
             return propertyOrField;
         }
+        public static bool CanNull(this Type type)
+        {
+            if (type.IsNullable())
+                return true;
+
+            if (type.IsValueType)
+                return false;
+
+            return true;
+        }
         public static bool IsNullable(this Type type)
         {
             Type underlyingType;

@@ -76,6 +76,8 @@ namespace Chloe.SqlServer
 
                 object val = propertyDescriptor.GetValue(entity);
 
+                PublicHelper.NotNullCheck(propertyDescriptor, val);
+
                 if (propertyDescriptor.IsPrimaryKey)
                 {
                     keyValueMap[propertyDescriptor] = val;
@@ -298,6 +300,9 @@ namespace Chloe.SqlServer
                         }
 
                         object val = mappingPropertyDescriptor.GetValue(entity);
+
+                        PublicHelper.NotNullCheck(mappingPropertyDescriptor, val);
+
                         if (val == null)
                         {
                             sqlBuilder.Append("NULL");
@@ -473,6 +478,8 @@ namespace Chloe.SqlServer
 
                 object val = propertyDescriptor.GetValue(entity);
 
+                PublicHelper.NotNullCheck(propertyDescriptor, val);
+
                 if (entityState != null && !entityState.HasChanged(propertyDescriptor, val))
                     continue;
 
@@ -585,7 +592,10 @@ namespace Chloe.SqlServer
                 for (int i = 0; i < mappingPropertyDescriptors.Count; i++)
                 {
                     PrimitivePropertyDescriptor mappingPropertyDescriptor = mappingPropertyDescriptors[i];
-                    object value = mappingPropertyDescriptor.Property.GetMemberValue(model);
+                    object value = mappingPropertyDescriptor.GetValue(model);
+
+                    PublicHelper.NotNullCheck(mappingPropertyDescriptor, value);
+
                     if (mappingPropertyDescriptor.PropertyType.GetUnderlyingType().IsEnum)
                     {
                         if (value != null)
