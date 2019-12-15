@@ -478,6 +478,23 @@ namespace Chloe
             return this.Delete<TEntity>(condition, table);
         }
 
+        public ITransientTransaction BeginTransaction()
+        {
+            /*
+             * using(ITransientTransaction tran = dbContext.BeginTransaction())
+             * {
+             *      dbContext.Insert()...
+             *      dbContext.Update()...
+             *      dbContext.Delete()...
+             *      tran.Commit();
+             * }
+             */
+            return new TransientTransaction(this);
+        }
+        public ITransientTransaction BeginTransaction(IsolationLevel il)
+        {
+            return new TransientTransaction(this, il);
+        }
         public void UseTransaction(Action action)
         {
             /*
@@ -490,30 +507,21 @@ namespace Chloe
              */
 
             Utils.CheckNull(action);
-            this.Session.BeginTransaction();
-            ExecuteAction(this, action);
+            using (ITransientTransaction tran = this.BeginTransaction())
+            {
+                action();
+                tran.Commit();
+            }
         }
         public void UseTransaction(Action action, IsolationLevel il)
         {
             Utils.CheckNull(action);
-            this.Session.BeginTransaction(il);
-            ExecuteAction(this, action);
-        }
-        static void ExecuteAction(IDbContext dbContext, Action action)
-        {
-            try
+            using (ITransientTransaction tran = this.BeginTransaction(il))
             {
                 action();
-                dbContext.Session.CommitTransaction();
-            }
-            catch
-            {
-                if (dbContext.Session.IsInTransaction)
-                    dbContext.Session.RollbackTransaction();
-                throw;
+                tran.Commit();
             }
         }
-
 
         public virtual void TrackEntity(object entity)
         {

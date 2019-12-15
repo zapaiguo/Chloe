@@ -115,6 +115,8 @@ namespace Chloe
         /// <returns></returns>
         int DeleteByKey<TEntity>(object key, string table);
 
+        ITransientTransaction BeginTransaction();
+        ITransientTransaction BeginTransaction(IsolationLevel il);
         void UseTransaction(Action action);
         void UseTransaction(Action action, IsolationLevel il);
 

@@ -14,7 +14,7 @@ namespace Chloe
         IDbTransaction CurrentTransaction { get; }
         bool IsInTransaction { get; }
         int CommandTimeout { get; set; }
-
+        
         int ExecuteNonQuery(string cmdText, params DbParam[] parameters);
         int ExecuteNonQuery(string cmdText, CommandType cmdType, params DbParam[] parameters);
         int ExecuteNonQuery(string cmdText, object parameter);
