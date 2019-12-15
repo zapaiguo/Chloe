@@ -10,7 +10,7 @@ using Chloe.InternalExtensions;
 
 namespace Chloe.Extensions
 {
-    static class DataReaderConstant
+    public static class DataReaderConstant
     {
         public static MethodInfo GetReaderMethod(Type type)
         {

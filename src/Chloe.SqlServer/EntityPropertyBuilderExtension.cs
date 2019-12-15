@@ -16,6 +16,7 @@ namespace Chloe.SqlServer
         /// <typeparam name="TProperty"></typeparam>
         /// <param name="entityPropertyBuilder"></param>
         /// <returns></returns>
+        [Obsolete("This method will be removed in future versions. Instead of using 'IPrimitivePropertyBuilder.IsRowVersion()'.")]
         public static IPrimitivePropertyBuilder<TProperty> IsTimestamp<TProperty>(this IPrimitivePropertyBuilder<TProperty> entityPropertyBuilder)
         {
             return entityPropertyBuilder.HasAnnotation(new TimestampAttribute());
@@ -25,6 +26,7 @@ namespace Chloe.SqlServer
         /// </summary>
         /// <param name="entityPropertyBuilder"></param>
         /// <returns></returns>
+        [Obsolete("This method will be removed in future versions. Instead of using 'IPrimitivePropertyBuilder.IsRowVersion()'.")]
         public static IPrimitivePropertyBuilder IsTimestamp(this IPrimitivePropertyBuilder entityPropertyBuilder)
         {
             return entityPropertyBuilder.HasAnnotation(new TimestampAttribute());
@@ -40,6 +42,9 @@ namespace Chloe.SqlServer
         /// <returns></returns>
         public static bool IsTimestamp(this PrimitivePropertyDescriptor propertyDescriptor)
         {
+            if (propertyDescriptor.IsRowVersion && propertyDescriptor.PropertyType == UtilConstants.TypeOfByteArray)
+                return true;
+
             return propertyDescriptor.HasAnnotation(UtilConstants.TypeOfTimestamp);
         }
     }

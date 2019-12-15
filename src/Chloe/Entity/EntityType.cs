@@ -57,6 +57,20 @@ namespace Chloe.Entity
                 throw new ChloeException("Auto increment member can not be union key.");
             }
 
+            var rowVersionProperties = primitiveProperties.Where(a => a.IsRowVersion).ToList();
+            if (rowVersionProperties.Count > 1)
+            {
+                throw new NotSupportedException(string.Format("The entity type '{0}' can not define multiple row version members.", this.Type.FullName));
+            }
+            else if (rowVersionProperties.Count == 1)
+            {
+                var rowVersionProperty = rowVersionProperties.First().Property;
+                if (rowVersionProperty.PropertyType != UtilConstants.TypeOfInt32 && rowVersionProperty.PropertyType != UtilConstants.TypeOfInt64 && rowVersionProperty.PropertyType != UtilConstants.TypeOfByteArray)
+                {
+                    throw new ChloeException("Row version member type must be Int32, Int64 or Byte[].");
+                }
+            }
+
             List<ComplexPropertyDefinition> complexProperties = this.ComplexProperties.Select(a => a.MakeDefinition()).ToList();
             List<CollectionPropertyDefinition> collectionProperties = this.CollectionProperties.Select(a => a.MakeDefinition()).ToList();
 

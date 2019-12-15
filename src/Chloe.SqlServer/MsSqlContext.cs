@@ -452,32 +452,33 @@ namespace Chloe.SqlServer
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
+            PairList<PrimitivePropertyDescriptor, object> keyValues = new PairList<PrimitivePropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<PrimitivePropertyDescriptor, DbExpression> updateColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
-            PrimitivePropertyDescriptor timestampProperty = null;
-            object timestampValue = null;
+
+            PrimitivePropertyDescriptor rowVersionDescriptor = null;
+
             foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 if (propertyDescriptor.IsPrimaryKey)
                 {
-                    keyValueMap[propertyDescriptor] = propertyDescriptor.GetValue(entity);
+                    var keyValue = propertyDescriptor.GetValue(entity);
+                    PrimaryKeyHelper.KeyValueNotNull(propertyDescriptor, keyValue);
+                    keyValues.Add(propertyDescriptor, keyValue);
                     continue;
                 }
 
-                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence())
+                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence() || propertyDescriptor.IsRowVersion)
                     continue;
 
                 if (propertyDescriptor.IsTimestamp())
                 {
-                    timestampProperty = propertyDescriptor;
-                    timestampValue = propertyDescriptor.GetValue(entity);
+                    rowVersionDescriptor = propertyDescriptor;
                     continue;
                 }
 
                 object val = propertyDescriptor.GetValue(entity);
-
                 PublicHelper.NotNullCheck(propertyDescriptor, val);
 
                 if (entityState != null && !entityState.HasChanged(propertyDescriptor, val))
@@ -487,17 +488,37 @@ namespace Chloe.SqlServer
                 updateColumns.Add(propertyDescriptor, valExp);
             }
 
+            object timestampValue = null;
+            object rowVersionNewValue = null;
+            if (typeDescriptor.HasRowVersion())
+            {
+                rowVersionDescriptor = typeDescriptor.RowVersion;
+                if (rowVersionDescriptor.IsTimestamp())
+                {
+                    timestampValue = rowVersionDescriptor.GetValue(entity);
+                    PublicHelper.NotNullCheck(rowVersionDescriptor, timestampValue);
+                    keyValues.Add(rowVersionDescriptor, timestampValue);
+                }
+                else
+                {
+                    var rowVersionOldValue = rowVersionDescriptor.GetValue(entity);
+                    rowVersionNewValue = PublicHelper.IncreaseRowVersionNumber(rowVersionOldValue);
+                    updateColumns.Add(rowVersionDescriptor, DbExpression.Parameter(rowVersionNewValue, rowVersionDescriptor.PropertyType, rowVersionDescriptor.Column.DbType));
+                    keyValues.Add(rowVersionDescriptor, rowVersionOldValue);
+                }
+            }
+            else if (rowVersionDescriptor != null)
+            {
+                timestampValue = rowVersionDescriptor.GetValue(entity);
+                PublicHelper.NotNullCheck(rowVersionDescriptor, timestampValue);
+                keyValues.Add(rowVersionDescriptor, timestampValue);
+            }
+
             if (updateColumns.Count == 0)
                 return 0;
 
-            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-
-            if (timestampValue != null)
-            {
-                keyValueMap[timestampProperty] = timestampValue;
-            }
-
-            DbExpression conditionExp = PrimaryKeyHelper.MakeCondition(keyValueMap, dbTable);
+            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbExpression conditionExp = PublicHelper.MakeCondition(keyValues, dbTable);
             DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 
             foreach (var item in updateColumns)
@@ -506,7 +527,7 @@ namespace Chloe.SqlServer
             }
 
             int rowsAffected = 0;
-            if (timestampValue == null)
+            if (rowVersionDescriptor == null)
             {
                 rowsAffected = this.ExecuteNonQuery(e);
                 if (entityState != null)
@@ -514,21 +535,32 @@ namespace Chloe.SqlServer
                 return rowsAffected;
             }
 
-            List<Action<TEntity, IDataReader>> mappers = new List<Action<TEntity, IDataReader>>();
-            mappers.Add(GetMapper<TEntity>(timestampProperty, e.Returns.Count));
-            e.Returns.Add(timestampProperty.Column);
-
-            IDataReader dataReader = this.ExecuteReader(e);
-            using (dataReader)
+            if (rowVersionDescriptor.IsTimestamp())
             {
-                while (dataReader.Read())
+                List<Action<TEntity, IDataReader>> mappers = new List<Action<TEntity, IDataReader>>();
+                mappers.Add(GetMapper<TEntity>(rowVersionDescriptor, e.Returns.Count));
+                e.Returns.Add(rowVersionDescriptor.Column);
+
+                IDataReader dataReader = this.ExecuteReader(e);
+                using (dataReader)
                 {
-                    rowsAffected++;
-                    foreach (var mapper in mappers)
+                    while (dataReader.Read())
                     {
-                        mapper(entity, dataReader);
+                        rowsAffected++;
+                        foreach (var mapper in mappers)
+                        {
+                            mapper(entity, dataReader);
+                        }
                     }
                 }
+
+                PublicHelper.CauseErrorIfOptimisticUpdateFailed(rowsAffected);
+            }
+            else
+            {
+                rowsAffected = this.ExecuteNonQuery(e);
+                PublicHelper.CauseErrorIfOptimisticUpdateFailed(rowsAffected);
+                rowVersionDescriptor.SetValue(entity, rowVersionNewValue);
             }
 
             if (entityState != null)
@@ -544,29 +576,45 @@ namespace Chloe.SqlServer
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = new Dictionary<PrimitivePropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
+            PairList<PrimitivePropertyDescriptor, object> keyValues = new PairList<PrimitivePropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
 
             foreach (PrimitivePropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
             {
-                object keyVal = keyPropertyDescriptor.GetValue(entity);
-                keyValueMap.Add(keyPropertyDescriptor, keyVal);
+                object keyValue = keyPropertyDescriptor.GetValue(entity);
+                PrimaryKeyHelper.KeyValueNotNull(keyPropertyDescriptor, keyValue);
+                keyValues.Add(keyPropertyDescriptor, keyValue);
             }
 
-            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-
-            PrimitivePropertyDescriptor timestampProperty = typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.IsTimestamp()).FirstOrDefault();
-            if (timestampProperty != null)
+            PrimitivePropertyDescriptor rowVersionDescriptor = null;
+            if (typeDescriptor.HasRowVersion())
             {
-                object timestampValue = timestampProperty.GetValue(entity);
-                if (timestampValue != null)
+                rowVersionDescriptor = typeDescriptor.RowVersion;
+                var rowVersionValue = typeDescriptor.RowVersion.GetValue(entity);
+                keyValues.Add(typeDescriptor.RowVersion, rowVersionValue);
+            }
+            else
+            {
+                rowVersionDescriptor = typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.IsTimestamp()).FirstOrDefault();
+                if (rowVersionDescriptor != null)
                 {
-                    keyValueMap[timestampProperty] = timestampValue;
+                    object timestampValue = rowVersionDescriptor.GetValue(entity);
+                    PublicHelper.NotNullCheck(rowVersionDescriptor, timestampValue);
+                    keyValues.Add(rowVersionDescriptor, timestampValue);
                 }
             }
 
-            DbExpression conditionExp = PrimaryKeyHelper.MakeCondition(keyValueMap, dbTable);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
+            DbExpression conditionExp = PublicHelper.MakeCondition(keyValues, dbTable);
             DbDeleteExpression e = new DbDeleteExpression(dbTable, conditionExp);
-            return this.ExecuteNonQuery(e);
+
+            int rowsAffected = this.ExecuteNonQuery(e);
+
+            if (rowVersionDescriptor != null)
+            {
+                PublicHelper.CauseErrorIfOptimisticUpdateFailed(rowsAffected);
+            }
+
+            return rowsAffected;
         }
 
         DataTable ConvertToSqlBulkCopyDataTable<TModel>(List<TModel> modelList, TypeDescriptor typeDescriptor)

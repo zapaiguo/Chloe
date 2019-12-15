@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Linq;
+using Chloe.Exceptions;
 
 namespace Chloe.Entity
 {
     public class PrimitivePropertyDefinition : PropertyDefinition
     {
-        public PrimitivePropertyDefinition(PropertyInfo property, DbColumn column, bool isPrimaryKey, bool isAutoIncrement, bool isNullable, string sequenceName, string sequenceSchema, IList<object> annotations) : base(property, annotations)
+        public PrimitivePropertyDefinition(PropertyInfo property, DbColumn column, bool isPrimaryKey, bool isAutoIncrement, bool isNullable, bool isRowVersion, string sequenceName, string sequenceSchema, IList<object> annotations) : base(property, annotations)
         {
             Utils.CheckNull(column, nameof(column));
 
@@ -17,6 +18,7 @@ namespace Chloe.Entity
             this.IsPrimaryKey = isPrimaryKey;
             this.IsAutoIncrement = isAutoIncrement;
             this.IsNullable = isNullable;
+            this.IsRowVersion = isRowVersion;
             this.SequenceName = sequenceName;
             this.SequenceSchema = sequenceSchema;
         }
@@ -25,6 +27,7 @@ namespace Chloe.Entity
         public bool IsPrimaryKey { get; private set; }
         public bool IsAutoIncrement { get; private set; }
         public bool IsNullable { get; private set; }
+        public bool IsRowVersion { get; private set; }
         public string SequenceName { get; private set; }
         public string SequenceSchema { get; private set; }
     }

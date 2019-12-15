@@ -15,6 +15,7 @@ namespace Chloe.Annotations
         }
         public string Name { get; set; }
         public bool IsPrimaryKey { get; set; }
+        public bool IsRowVersion { get; set; }
         /// <summary>
         /// -1 表示未指定确切的值，用该属性的时候务必做 -1 判断。
         /// </summary>

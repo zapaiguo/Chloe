@@ -127,5 +127,44 @@ namespace Chloe.Utility
                 throw new ChloeException($"The property '{propertyDescriptor.Property.Name}' can not be null.");
             }
         }
+
+        public static object IncreaseRowVersionNumber(object val)
+        {
+            if (val.GetType() == UtilConstants.TypeOfInt32)
+            {
+                return (int)val + 1;
+            }
+
+            return (long)val + 1;
+        }
+
+        public static DbExpression MakeCondition(PairList<PrimitivePropertyDescriptor, object> propertyValuePairs, DbTable dbTable)
+        {
+            DbExpression conditionExp = null;
+            foreach (var pair in propertyValuePairs)
+            {
+                PrimitivePropertyDescriptor propertyDescriptor = pair.Item1;
+                object val = pair.Item2;
+
+                DbExpression left = new DbColumnAccessExpression(dbTable, propertyDescriptor.Column);
+                DbExpression right = DbExpression.Parameter(val, propertyDescriptor.PropertyType, propertyDescriptor.Column.DbType);
+                DbExpression equalExp = new DbEqualExpression(left, right);
+                conditionExp = conditionExp.And(equalExp);
+            }
+
+            return conditionExp;
+        }
+
+        public static void CauseErrorIfOptimisticUpdateFailed(int rowsAffected)
+        {
+            if (rowsAffected <= 0)
+                throw new OptimisticConcurrencyException();
+        }
+
+        public static DbTable CreateDbTable(TypeDescriptor typeDescriptor, string table)
+        {
+            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            return dbTable;
+        }
     }
 }

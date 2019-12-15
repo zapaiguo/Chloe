@@ -325,23 +325,24 @@ namespace Chloe.Oracle
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
+            PairList<PrimitivePropertyDescriptor, object> keyValues = new PairList<PrimitivePropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<PrimitivePropertyDescriptor, DbExpression> updateColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
             foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
-                if (keyValueMap.ContainsKey(propertyDescriptor))
+                if (propertyDescriptor.IsPrimaryKey)
                 {
-                    keyValueMap[propertyDescriptor] = propertyDescriptor.GetValue(entity);
+                    var keyValue = propertyDescriptor.GetValue(entity);
+                    PrimaryKeyHelper.KeyValueNotNull(propertyDescriptor, keyValue);
+                    keyValues.Add(propertyDescriptor, keyValue);
                     continue;
                 }
 
-                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence())
+                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence() || propertyDescriptor.IsRowVersion)
                     continue;
 
                 object val = propertyDescriptor.GetValue(entity);
-
                 PublicHelper.NotNullCheck(propertyDescriptor, val);
 
                 if (entityState != null && !entityState.HasChanged(propertyDescriptor, val))
@@ -351,11 +352,21 @@ namespace Chloe.Oracle
                 updateColumns.Add(propertyDescriptor, valExp);
             }
 
+            object rowVersionNewValue = null;
+            if (typeDescriptor.HasRowVersion())
+            {
+                var rowVersionDescriptor = typeDescriptor.RowVersion;
+                var rowVersionOldValue = rowVersionDescriptor.GetValue(entity);
+                rowVersionNewValue = PublicHelper.IncreaseRowVersionNumber(rowVersionOldValue);
+                updateColumns.Add(rowVersionDescriptor, DbExpression.Parameter(rowVersionNewValue, rowVersionDescriptor.PropertyType, rowVersionDescriptor.Column.DbType));
+                keyValues.Add(rowVersionDescriptor, rowVersionOldValue);
+            }
+
             if (updateColumns.Count == 0)
                 return 0;
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-            DbExpression conditionExp = PrimaryKeyHelper.MakeCondition(keyValueMap, dbTable);
+            DbExpression conditionExp = PublicHelper.MakeCondition(keyValues, dbTable);
             DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 
             foreach (var item in updateColumns)
@@ -363,10 +374,18 @@ namespace Chloe.Oracle
                 e.UpdateColumns.Add(item.Key.Column, item.Value);
             }
 
-            int ret = this.ExecuteNonQuery(e);
+            int rowsAffected = this.ExecuteNonQuery(e);
+
+            if (typeDescriptor.HasRowVersion())
+            {
+                PublicHelper.CauseErrorIfOptimisticUpdateFailed(rowsAffected);
+                typeDescriptor.RowVersion.SetValue(entity, rowVersionNewValue);
+            }
+
             if (entityState != null)
                 entityState.Refresh();
-            return ret;
+
+            return rowsAffected;
         }
 
         string AppendInsertRangeSqlTemplate(DbTable table, List<PrimitivePropertyDescriptor> mappingPropertyDescriptors)

@@ -39,6 +39,7 @@ namespace Chloe.SqlServer
         public static readonly Type TypeOfString = typeof(String);
         public static readonly Type TypeOfObject = typeof(Object);
         public static readonly Type TypeOfTimeSpan = typeof(TimeSpan);
+        public static readonly Type TypeOfByteArray = typeof(Byte[]);
 
         public static readonly Type TypeOfMath = typeof(Math);
         public static readonly Type TypeOfSql = typeof(Sql);

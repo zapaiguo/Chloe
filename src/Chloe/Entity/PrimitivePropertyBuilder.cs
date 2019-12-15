@@ -83,6 +83,17 @@ namespace Chloe.Entity
             return this;
         }
 
+        public IPrimitivePropertyBuilder<TProperty> IsRowVersion(bool isRowVersion = true)
+        {
+            this.AsNonGenericBuilder().IsRowVersion(isRowVersion);
+            return this;
+        }
+        IPrimitivePropertyBuilder IPrimitivePropertyBuilder.IsRowVersion(bool isRowVersion)
+        {
+            this.Property.IsRowVersion = isRowVersion;
+            return this;
+        }
+
         public IPrimitivePropertyBuilder<TProperty> HasDbType(DbType? dbType)
         {
             this.AsNonGenericBuilder().HasDbType(dbType);

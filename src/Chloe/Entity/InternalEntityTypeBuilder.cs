@@ -72,6 +72,7 @@ namespace Chloe.Entity
                         /* 为防止覆盖 IsPrimaryKey() 里的 DbType 设置，IsPrimaryKey() 方法调用在 HasDbType() 之后 */
                         propertyBuilder.HasDbType(columnAttribute.GetDbType());
                         propertyBuilder.IsPrimaryKey(columnAttribute.IsPrimaryKey);
+                        propertyBuilder.IsRowVersion(columnAttribute.IsRowVersion);
                         propertyBuilder.HasSize(columnAttribute.GetSize());
                         propertyBuilder.HasScale(columnAttribute.GetScale());
                         propertyBuilder.HasPrecision(columnAttribute.GetPrecision());

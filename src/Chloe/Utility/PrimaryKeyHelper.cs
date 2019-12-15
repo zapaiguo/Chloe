@@ -14,6 +14,11 @@ namespace Chloe.Utility
 {
     public static class PrimaryKeyHelper
     {
+        public static void KeyValueNotNull(PrimitivePropertyDescriptor keyPropertyDescriptor, object keyValue)
+        {
+            if (keyValue == null)
+                throw new ArgumentException(string.Format("The primary key '{0}' can not be null.", keyPropertyDescriptor.Property.Name));
+        }
         public static Expression<Func<TEntity, bool>> BuildCondition<TEntity>(object key)
         {
             /*
@@ -97,25 +102,6 @@ namespace Chloe.Utility
             }
 
             return keyValueMap;
-        }
-        public static DbExpression MakeCondition(Dictionary<PrimitivePropertyDescriptor, object> keyValueMap, DbTable dbTable)
-        {
-            DbExpression conditionExp = null;
-            foreach (var kv in keyValueMap)
-            {
-                PrimitivePropertyDescriptor keyPropertyDescriptor = kv.Key;
-                object keyVal = kv.Value;
-
-                if (keyVal == null)
-                    throw new ArgumentException(string.Format("The primary key '{0}' could not be null.", keyPropertyDescriptor.Property.Name));
-
-                DbExpression left = new DbColumnAccessExpression(dbTable, keyPropertyDescriptor.Column);
-                DbExpression right = DbExpression.Parameter(keyVal, keyPropertyDescriptor.PropertyType, keyPropertyDescriptor.Column.DbType);
-                DbExpression equalExp = new DbEqualExpression(left, right);
-                conditionExp = conditionExp == null ? equalExp : DbExpression.And(conditionExp, equalExp);
-            }
-
-            return conditionExp;
         }
     }
 }

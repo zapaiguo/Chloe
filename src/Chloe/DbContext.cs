@@ -339,23 +339,25 @@ namespace Chloe
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
+            PairList<PrimitivePropertyDescriptor, object> keyValues = new PairList<PrimitivePropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
 
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<PrimitivePropertyDescriptor, DbExpression> updateColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
+
             foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 if (propertyDescriptor.IsPrimaryKey)
                 {
-                    keyValueMap[propertyDescriptor] = propertyDescriptor.GetValue(entity);
+                    var keyValue = propertyDescriptor.GetValue(entity);
+                    PrimaryKeyHelper.KeyValueNotNull(propertyDescriptor, keyValue);
+                    keyValues.Add(propertyDescriptor, keyValue);
                     continue;
                 }
 
-                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence())
+                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence() || propertyDescriptor.IsRowVersion)
                     continue;
 
                 object val = propertyDescriptor.GetValue(entity);
-
                 PublicHelper.NotNullCheck(propertyDescriptor, val);
 
                 if (entityState != null && !entityState.HasChanged(propertyDescriptor, val))
@@ -365,11 +367,21 @@ namespace Chloe
                 updateColumns.Add(propertyDescriptor, valExp);
             }
 
+            object rowVersionNewValue = null;
+            if (typeDescriptor.HasRowVersion())
+            {
+                var rowVersionDescriptor = typeDescriptor.RowVersion;
+                var rowVersionOldValue = rowVersionDescriptor.GetValue(entity);
+                rowVersionNewValue = PublicHelper.IncreaseRowVersionNumber(rowVersionOldValue);
+                updateColumns.Add(rowVersionDescriptor, DbExpression.Parameter(rowVersionNewValue, rowVersionDescriptor.PropertyType, rowVersionDescriptor.Column.DbType));
+                keyValues.Add(rowVersionDescriptor, rowVersionOldValue);
+            }
+
             if (updateColumns.Count == 0)
                 return 0;
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-            DbExpression conditionExp = PrimaryKeyHelper.MakeCondition(keyValueMap, dbTable);
+            DbExpression conditionExp = PublicHelper.MakeCondition(keyValues, dbTable);
             DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 
             foreach (var item in updateColumns)
@@ -377,10 +389,18 @@ namespace Chloe
                 e.UpdateColumns.Add(item.Key.Column, item.Value);
             }
 
-            int ret = this.ExecuteNonQuery(e);
+            int rowsAffected = this.ExecuteNonQuery(e);
+
+            if (typeDescriptor.HasRowVersion())
+            {
+                PublicHelper.CauseErrorIfOptimisticUpdateFailed(rowsAffected);
+                typeDescriptor.RowVersion.SetValue(entity, rowVersionNewValue);
+            }
+
             if (entityState != null)
                 entityState.Refresh();
-            return ret;
+
+            return rowsAffected;
         }
         public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content)
         {
@@ -435,18 +455,33 @@ namespace Chloe
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
 
-            Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = new Dictionary<PrimitivePropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
+            PairList<PrimitivePropertyDescriptor, object> keyValues = new PairList<PrimitivePropertyDescriptor, object>(typeDescriptor.PrimaryKeys.Count);
 
             foreach (PrimitivePropertyDescriptor keyPropertyDescriptor in typeDescriptor.PrimaryKeys)
             {
-                object keyVal = keyPropertyDescriptor.GetValue(entity);
-                keyValueMap.Add(keyPropertyDescriptor, keyVal);
+                object keyValue = keyPropertyDescriptor.GetValue(entity);
+                PrimaryKeyHelper.KeyValueNotNull(keyPropertyDescriptor, keyValue);
+                keyValues.Add(keyPropertyDescriptor, keyValue);
+            }
+
+            if (typeDescriptor.HasRowVersion())
+            {
+                var rowVersionValue = typeDescriptor.RowVersion.GetValue(entity);
+                keyValues.Add(typeDescriptor.RowVersion, rowVersionValue);
             }
 
             DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-            DbExpression conditionExp = PrimaryKeyHelper.MakeCondition(keyValueMap, dbTable);
+            DbExpression conditionExp = PublicHelper.MakeCondition(keyValues, dbTable);
             DbDeleteExpression e = new DbDeleteExpression(dbTable, conditionExp);
-            return this.ExecuteNonQuery(e);
+
+            int rowsAffected = this.ExecuteNonQuery(e);
+
+            if (typeDescriptor.HasRowVersion())
+            {
+                PublicHelper.CauseErrorIfOptimisticUpdateFailed(rowsAffected);
+            }
+
+            return rowsAffected;
         }
         public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition)
         {

@@ -33,6 +33,7 @@ namespace Chloe.Descriptors
 
             this.PrimaryKeys = this.PrimitivePropertyDescriptors.Where(a => a.Definition.IsPrimaryKey).ToList().AsReadOnly();
             this.AutoIncrement = this.PrimitivePropertyDescriptors.Where(a => a.Definition.IsAutoIncrement).FirstOrDefault();
+            this.RowVersion = this.PrimitivePropertyDescriptors.Where(a => a.Definition.IsRowVersion).FirstOrDefault();
 
             this._primitivePropertyDescriptorMap = PublicHelper.Clone(this.PrimitivePropertyDescriptors.ToDictionary(a => (MemberInfo)a.Definition.Property, a => a));
             this._primitivePropertyColumnMap = PublicHelper.Clone(this.PrimitivePropertyDescriptors.ToDictionary(a => (MemberInfo)a.Definition.Property, a => new DbColumnAccessExpression(this.Definition.Table, a.Definition.Column)));
@@ -45,6 +46,8 @@ namespace Chloe.Descriptors
         public ReadOnlyCollection<PrimitivePropertyDescriptor> PrimaryKeys { get; private set; }
         /* It will return null if an entity has no auto increment member. */
         public PrimitivePropertyDescriptor AutoIncrement { get; private set; }
+
+        public PrimitivePropertyDescriptor RowVersion { get; private set; }
 
         public DbTable Table { get { return this.Definition.Table; } }
 
@@ -68,6 +71,10 @@ namespace Chloe.Descriptors
         public bool HasPrimaryKey()
         {
             return this.PrimaryKeys.Count > 0;
+        }
+        public bool HasRowVersion()
+        {
+            return this.RowVersion != null;
         }
         public PrimitivePropertyDescriptor FindPrimitivePropertyDescriptor(MemberInfo member)
         {
