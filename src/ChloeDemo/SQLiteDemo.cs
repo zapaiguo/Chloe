@@ -505,20 +505,13 @@ namespace ChloeDemo
         }
         public static void DoWithTransaction()
         {
-            context.Session.BeginTransaction();
-            try
+            using (ITransientTransaction tran = context.BeginTransaction())
             {
                 /* do some things here */
                 context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
                 context.Delete<User>(a => a.Id == 1024);
 
-                context.Session.CommitTransaction();
-            }
-            catch
-            {
-                if (context.Session.IsInTransaction)
-                    context.Session.RollbackTransaction();
-                throw;
+                tran.Commit();
             }
 
             ConsoleHelper.WriteLineAndReadKey();
