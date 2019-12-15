@@ -14,9 +14,13 @@ namespace Chloe.Extension
     {
         public static Task<T> MakeTask<T>(Func<T> func)
         {
+#if NET40
             var task = new Task<T>(func);
             task.Start();
             return task;
+#else
+            return Task.FromResult(func());
+#endif
         }
 
         public static DbParam[] BuildParams(IDbContext dbContext, object parameter)

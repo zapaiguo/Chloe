@@ -3,7 +3,8 @@
   <PropertyGroup>
     <!--<TargetFramework>netstandard2.0</TargetFramework>-->
     <!--<TargetFramework>net40</TargetFramework>-->
-    <TargetFrameworks>netstandard2.0;net40</TargetFrameworks>
+    <!--<TargetFramework>net45</TargetFramework>-->
+    <TargetFrameworks>netstandard2.0;net40;net45</TargetFrameworks>
 
     <Version>3.8.0</Version>
     <AssemblyVersion>3.8.0.0</AssemblyVersion>
@@ -23,8 +24,11 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>NETCORE</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <DefineConstants>NET45;NETFX</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
-    <DefineConstants>NETFX</DefineConstants>
+    <DefineConstants>NET40;NETFX</DefineConstants>
   </PropertyGroup>
 
 
