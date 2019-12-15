@@ -12,7 +12,7 @@ namespace ChloeDemo
     {
         static MsSqlContext context = new MsSqlContext(DbHelper.ConnectionString);
 
-        public static void Test()
+        public static void Run()
         {
             MsSqlTest.Query();
             //MsSqlTest.GroupQuery();

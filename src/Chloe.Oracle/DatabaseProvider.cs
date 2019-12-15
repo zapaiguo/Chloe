@@ -24,8 +24,6 @@ namespace Chloe.Oracle
         public IDbConnection CreateConnection()
         {
             IDbConnection conn = this._dbConnectionFactory.CreateConnection();
-            if ((conn is ChloeOracleConnection) == false)
-                conn = new ChloeOracleConnection(conn);
             return conn;
         }
         public IDbExpressionTranslator CreateDbExpressionTranslator()

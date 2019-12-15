@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Data;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -6,165 +7,99 @@ using System.Text;
 
 namespace Chloe.SQLite
 {
-    public class ChloeSQLiteCommand : IDbCommand, IDisposable
+    public class ChloeSQLiteCommand : DbCommandDecorator, IDbCommand, IDisposable
     {
-        IDbCommand _dbCommand;
-        ChloeSQLiteConcurrentConnection _conn;
-        public ChloeSQLiteCommand(IDbCommand dbCommand, ChloeSQLiteConcurrentConnection conn)
+        ChloeSQLiteConcurrentConnection _connection;
+        ChloeSQLiteTransaction _transaction;
+
+        public ChloeSQLiteCommand(ChloeSQLiteConcurrentConnection connection) : base(connection.PersistedConnection.CreateCommand())
         {
-            this._dbCommand = dbCommand;
-            this._conn = conn;
+            this._connection = connection;
         }
 
-        public ChloeSQLiteConcurrentConnection Conn { get { return this._conn; } }
+        public ChloeSQLiteConcurrentConnection ConcurrentConnection { get { return this._connection; } }
 
-        public IDbCommand PersistedDbCommand { get { return this._dbCommand; } }
+        public IDbCommand PersistedDbCommand { get { return this.PersistedCommand; } }
 
-        public string CommandText
+        public override IDbConnection Connection
         {
             get
             {
-                return this._dbCommand.CommandText;
+                return this._connection;
             }
             set
             {
-                this._dbCommand.CommandText = value;
-            }
-        }
-        public int CommandTimeout
-        {
-            get
-            {
-                return this._dbCommand.CommandTimeout;
-            }
-            set
-            {
-                this._dbCommand.CommandTimeout = value;
-            }
-        }
-        public CommandType CommandType
-        {
-            get
-            {
-                return this._dbCommand.CommandType;
-            }
-            set
-            {
-                this._dbCommand.CommandType = value;
-            }
-        }
-        public IDbConnection Connection
-        {
-            get
-            {
-                return this._dbCommand.Connection;
-            }
-            set
-            {
-                this._dbCommand.Connection = value;
-            }
-        }
-        public IDataParameterCollection Parameters
-        {
-            get
-            {
-                return this._dbCommand.Parameters;
-            }
-        }
-        public IDbTransaction Transaction
-        {
-            get
-            {
-                return this._dbCommand.Transaction;
-            }
-            set
-            {
-                ChloeSQLiteTransaction tran = value as ChloeSQLiteTransaction;
-                if (tran != null)
-                    this._dbCommand.Transaction = tran.PersistedTransaction;
-                else
-                    this._dbCommand.Transaction = value;
-            }
-        }
-        public UpdateRowSource UpdatedRowSource
-        {
-            get
-            {
-                return this._dbCommand.UpdatedRowSource;
-            }
-            set
-            {
-                this._dbCommand.UpdatedRowSource = value;
+                ChloeSQLiteConcurrentConnection conn = (ChloeSQLiteConcurrentConnection)value;
+                this._connection = conn;
+                this.PersistedCommand.Connection = conn.PersistedConnection;
             }
         }
 
-        public void Cancel()
+        public override IDbTransaction Transaction
         {
-            this._dbCommand.Cancel();
+            get
+            {
+                return this._transaction;
+            }
+            set
+            {
+                ChloeSQLiteTransaction tran = (ChloeSQLiteTransaction)value;
+                this._transaction = tran;
+                this.PersistedCommand.Transaction = this._transaction.PersistedTransaction;
+            }
         }
-        public IDbDataParameter CreateParameter()
+
+        public override int ExecuteNonQuery()
         {
-            return this._dbCommand.CreateParameter();
-        }
-        public int ExecuteNonQuery()
-        {
-            this._conn.RWLock.BeginWrite();
+            this._connection.RWLock.BeginWrite();
             try
             {
-                return this._dbCommand.ExecuteNonQuery();
+                return this.PersistedCommand.ExecuteNonQuery();
             }
             finally
             {
-                this._conn.RWLock.EndWrite();
+                this._connection.RWLock.EndWrite();
             }
         }
-        public IDataReader ExecuteReader()
+        public override IDataReader ExecuteReader()
         {
-            this._conn.RWLock.BeginRead();
+            this._connection.RWLock.BeginRead();
             try
             {
-                return new ChloeSQLiteDataReader(this._dbCommand.ExecuteReader(), this);
+                return new ChloeSQLiteDataReader(this.PersistedCommand.ExecuteReader(), this);
             }
             catch
             {
-                this._conn.RWLock.EndRead();
+                this._connection.RWLock.EndRead();
                 throw;
             }
         }
-        public IDataReader ExecuteReader(CommandBehavior behavior)
+        public override IDataReader ExecuteReader(CommandBehavior behavior)
         {
-            this._conn.RWLock.BeginRead();
+            this._connection.RWLock.BeginRead();
             try
             {
                 /* 不出异常的话要锁的释放留给 ChloeSQLiteDataReader 去执行 */
-                return new ChloeSQLiteDataReader(this._dbCommand.ExecuteReader(behavior), this);
+                return new ChloeSQLiteDataReader(this.PersistedCommand.ExecuteReader(behavior), this);
             }
             catch
             {
                 /* 出异常的话要释放锁 */
-                this._conn.RWLock.EndRead();
+                this._connection.RWLock.EndRead();
                 throw;
             }
         }
-        public object ExecuteScalar()
+        public override object ExecuteScalar()
         {
-            this._conn.RWLock.BeginRead();
+            this._connection.RWLock.BeginRead();
             try
             {
-                return this._dbCommand.ExecuteScalar();
+                return this.PersistedCommand.ExecuteScalar();
             }
             finally
             {
-                this._conn.RWLock.EndRead();
+                this._connection.RWLock.EndRead();
             }
-        }
-        public void Prepare()
-        {
-            this._dbCommand.Prepare();
-        }
-        public void Dispose()
-        {
-            this._dbCommand.Dispose();
         }
     }
 }

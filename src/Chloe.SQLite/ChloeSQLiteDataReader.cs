@@ -25,7 +25,7 @@ namespace Chloe.SQLite
         {
             if (this._hasReleaseLock == false)
             {
-                this._cmd.Conn.RWLock.EndRead();
+                this._cmd.ConcurrentConnection.RWLock.EndRead();
                 this._hasReleaseLock = true;
             }
         }

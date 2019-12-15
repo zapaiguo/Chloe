@@ -1,4 +1,5 @@
-﻿using Chloe.Utility;
+﻿using Chloe.Data;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,122 +8,53 @@ using System.Text;
 
 namespace Chloe.MySql
 {
-    public class ChloeMySqlCommand : IDbCommand, IDisposable
+    public class ChloeMySqlCommand : DbCommandDecorator, IDbCommand, IDisposable
     {
-        IDbCommand _dbCommand;
-        public ChloeMySqlCommand(IDbCommand dbCommand)
+        ChloeMySqlConnection _connection;
+        ChloeMySqlTransaction _transaction;
+
+        public ChloeMySqlCommand(ChloeMySqlConnection connection) : base(connection.PersistedConnection.CreateCommand())
         {
-            PublicHelper.CheckNull(dbCommand);
-            this._dbCommand = dbCommand;
+            this._connection = connection;
         }
 
-        public IDbCommand PersistedDbCommand { get { return this._dbCommand; } }
+        public IDbCommand PersistedDbCommand { get { return this.PersistedCommand; } }
 
-        public string CommandText
+        public override IDbConnection Connection
         {
             get
             {
-                return this._dbCommand.CommandText;
+                return this._connection;
             }
             set
             {
-                this._dbCommand.CommandText = value;
-            }
-        }
-        public int CommandTimeout
-        {
-            get
-            {
-                return this._dbCommand.CommandTimeout;
-            }
-            set
-            {
-                this._dbCommand.CommandTimeout = value;
-            }
-        }
-        public CommandType CommandType
-        {
-            get
-            {
-                return this._dbCommand.CommandType;
-            }
-            set
-            {
-                this._dbCommand.CommandType = value;
-            }
-        }
-        public IDbConnection Connection
-        {
-            get
-            {
-                return this._dbCommand.Connection;
-            }
-            set
-            {
-                this._dbCommand.Connection = value;
-            }
-        }
-        public IDataParameterCollection Parameters
-        {
-            get
-            {
-                return this._dbCommand.Parameters;
-            }
-        }
-        public IDbTransaction Transaction
-        {
-            get
-            {
-                return this._dbCommand.Transaction;
-            }
-            set
-            {
-                this._dbCommand.Transaction = value;
-            }
-        }
-        public UpdateRowSource UpdatedRowSource
-        {
-            get
-            {
-                return this._dbCommand.UpdatedRowSource;
-            }
-            set
-            {
-                this._dbCommand.UpdatedRowSource = value;
+                ChloeMySqlConnection conn = (ChloeMySqlConnection)value;
+                this._connection = conn;
+                this.PersistedCommand.Connection = conn.PersistedConnection;
             }
         }
 
-        public void Cancel()
+        public override IDbTransaction Transaction
         {
-            this._dbCommand.Cancel();
+            get
+            {
+                return this._transaction;
+            }
+            set
+            {
+                ChloeMySqlTransaction tran = (ChloeMySqlTransaction)value;
+                this._transaction = tran;
+                this.PersistedCommand.Transaction = this._transaction.PersistedTransaction;
+            }
         }
-        public IDbDataParameter CreateParameter()
+
+        public override IDataReader ExecuteReader()
         {
-            return this._dbCommand.CreateParameter();
+            return new ChloeMySqlDataReader(this.PersistedCommand.ExecuteReader());
         }
-        public int ExecuteNonQuery()
+        public override IDataReader ExecuteReader(CommandBehavior behavior)
         {
-            return this._dbCommand.ExecuteNonQuery();
-        }
-        public IDataReader ExecuteReader()
-        {
-            return new ChloeMySqlDataReader(this._dbCommand.ExecuteReader());
-        }
-        public IDataReader ExecuteReader(CommandBehavior behavior)
-        {
-            return new ChloeMySqlDataReader(this._dbCommand.ExecuteReader(behavior));
-        }
-        public object ExecuteScalar()
-        {
-            return this._dbCommand.ExecuteScalar();
-        }
-        public void Prepare()
-        {
-            this._dbCommand.Prepare();
-        }
-        public void Dispose()
-        {
-            this._dbCommand.Dispose();
+            return new ChloeMySqlDataReader(this.PersistedCommand.ExecuteReader(behavior));
         }
     }
 }

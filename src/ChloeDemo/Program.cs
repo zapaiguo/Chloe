@@ -29,6 +29,8 @@ namespace ChloeDemo
             MySqlDemo.Run();
             PostgreSQLDemo.Run();
             OracleDemo.Run();
+
+            MsSqlTest.Run();
         }
 
         /// <summary>

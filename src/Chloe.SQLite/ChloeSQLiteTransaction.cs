@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Data;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -6,17 +7,19 @@ using System.Text;
 
 namespace Chloe.SQLite
 {
-    public class ChloeSQLiteTransaction : IDbTransaction
+    public class ChloeSQLiteTransaction : DbTransactionDecorator, IDbTransaction
     {
-        IDbTransaction _transaction;
-        ChloeSQLiteConcurrentConnection _conn;
+        ChloeSQLiteConcurrentConnection _connection;
         bool _hasFinished = false;
-        public ChloeSQLiteTransaction(IDbTransaction transaction, ChloeSQLiteConcurrentConnection conn)
+        public ChloeSQLiteTransaction(ChloeSQLiteConcurrentConnection connection) : base(connection.PersistedConnection.BeginTransaction())
         {
-            this._transaction = transaction;
-            this._conn = conn;
-
-            this._conn.RWLock.BeginTransaction();
+            this._connection = connection;
+            this._connection.RWLock.BeginTransaction();
+        }
+        public ChloeSQLiteTransaction(ChloeSQLiteConcurrentConnection connection, IsolationLevel il) : base(connection.PersistedConnection.BeginTransaction(il))
+        {
+            this._connection = connection;
+            this._connection.RWLock.BeginTransaction();
         }
 
         ~ChloeSQLiteTransaction()
@@ -24,36 +27,34 @@ namespace Chloe.SQLite
             this.Dispose();
         }
 
-        public IDbTransaction PersistedTransaction { get { return this._transaction; } }
-
         void EndTransaction()
         {
             if (this._hasFinished == false)
             {
-                this._conn.RWLock.EndTransaction();
+                this._connection.RWLock.EndTransaction();
                 this._hasFinished = true;
             }
         }
 
 
-        public IDbConnection Connection { get { return this._transaction.Connection; } }
-        public IsolationLevel IsolationLevel { get { return this._transaction.IsolationLevel; } }
-        public void Commit()
+        public override IDbConnection Connection { get { return this._connection; } }
+
+        public override void Commit()
         {
             try
             {
-                this._transaction.Commit();
+                base.Commit();
             }
             finally
             {
                 this.EndTransaction();
             }
         }
-        public void Rollback()
+        public override void Rollback()
         {
             try
             {
-                this._transaction.Rollback();
+                base.Rollback();
             }
             finally
             {
@@ -61,9 +62,9 @@ namespace Chloe.SQLite
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
-            this._transaction.Dispose();
+            base.Dispose();
             this.EndTransaction();
             GC.SuppressFinalize(this);
         }

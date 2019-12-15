@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Utility;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -12,9 +13,7 @@ namespace Chloe.Data
 
         public DataReaderDecorator(IDataReader reader)
         {
-            if (reader == null)
-                throw new ArgumentNullException();
-
+            PublicHelper.CheckNull(reader);
             this._reader = reader;
         }
 
@@ -56,7 +55,12 @@ namespace Chloe.Data
 
         public virtual bool GetBoolean(int i)
         {
-            return this._reader.GetBoolean(i);
+            Type fieldType = this._reader.GetFieldType(i);
+
+            if (fieldType == UtilConstants.TypeOfBoolean)
+                return this._reader.GetBoolean(i);
+
+            return Convert.ToBoolean(this._reader.GetValue(i));
         }
         public virtual byte GetByte(int i)
         {

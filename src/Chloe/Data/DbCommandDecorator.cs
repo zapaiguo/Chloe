@@ -2,23 +2,22 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text;
 
-namespace Chloe.Oracle
+namespace Chloe.Data
 {
-    public class ChloeOracleCommand : IDbCommand, IDisposable
+    public class DbCommandDecorator : IDbCommand, IDisposable
     {
         IDbCommand _dbCommand;
-        public ChloeOracleCommand(IDbCommand dbCommand)
+        public DbCommandDecorator(IDbCommand dbCommand)
         {
             PublicHelper.CheckNull(dbCommand);
             this._dbCommand = dbCommand;
         }
 
-        public IDbCommand PersistedDbCommand { get { return this._dbCommand; } }
+        public IDbCommand PersistedCommand { get { return this._dbCommand; } }
 
-        public string CommandText
+        public virtual string CommandText
         {
             get
             {
@@ -29,7 +28,7 @@ namespace Chloe.Oracle
                 this._dbCommand.CommandText = value;
             }
         }
-        public int CommandTimeout
+        public virtual int CommandTimeout
         {
             get
             {
@@ -40,7 +39,7 @@ namespace Chloe.Oracle
                 this._dbCommand.CommandTimeout = value;
             }
         }
-        public CommandType CommandType
+        public virtual CommandType CommandType
         {
             get
             {
@@ -51,7 +50,7 @@ namespace Chloe.Oracle
                 this._dbCommand.CommandType = value;
             }
         }
-        public IDbConnection Connection
+        public virtual IDbConnection Connection
         {
             get
             {
@@ -62,14 +61,14 @@ namespace Chloe.Oracle
                 this._dbCommand.Connection = value;
             }
         }
-        public IDataParameterCollection Parameters
+        public virtual IDataParameterCollection Parameters
         {
             get
             {
                 return this._dbCommand.Parameters;
             }
         }
-        public IDbTransaction Transaction
+        public virtual IDbTransaction Transaction
         {
             get
             {
@@ -80,7 +79,7 @@ namespace Chloe.Oracle
                 this._dbCommand.Transaction = value;
             }
         }
-        public UpdateRowSource UpdatedRowSource
+        public virtual UpdateRowSource UpdatedRowSource
         {
             get
             {
@@ -92,35 +91,35 @@ namespace Chloe.Oracle
             }
         }
 
-        public void Cancel()
+        public virtual void Cancel()
         {
             this._dbCommand.Cancel();
         }
-        public IDbDataParameter CreateParameter()
+        public virtual IDbDataParameter CreateParameter()
         {
             return this._dbCommand.CreateParameter();
         }
-        public int ExecuteNonQuery()
+        public virtual int ExecuteNonQuery()
         {
             return this._dbCommand.ExecuteNonQuery();
         }
-        public IDataReader ExecuteReader()
+        public virtual IDataReader ExecuteReader()
         {
-            return new ChloeOracleDataReader(this._dbCommand.ExecuteReader());
+            return this._dbCommand.ExecuteReader();
         }
-        public IDataReader ExecuteReader(CommandBehavior behavior)
+        public virtual IDataReader ExecuteReader(CommandBehavior behavior)
         {
-            return new ChloeOracleDataReader(this._dbCommand.ExecuteReader(behavior));
+            return this._dbCommand.ExecuteReader(behavior);
         }
-        public object ExecuteScalar()
+        public virtual object ExecuteScalar()
         {
             return this._dbCommand.ExecuteScalar();
         }
-        public void Prepare()
+        public virtual void Prepare()
         {
             this._dbCommand.Prepare();
         }
-        public void Dispose()
+        public virtual void Dispose()
         {
             this._dbCommand.Dispose();
         }
