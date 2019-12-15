@@ -45,7 +45,7 @@ namespace Chloe.PostgreSQL
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
 
             Dictionary<PrimitivePropertyDescriptor, object> keyValueMap = PrimaryKeyHelper.CreateKeyValueMap(typeDescriptor);
 
@@ -134,7 +134,7 @@ namespace Chloe.PostgreSQL
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
-            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
 
             DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(dbTable);
             DbInsertExpression insertExp = new DbInsertExpression(dbTable);
@@ -230,7 +230,7 @@ namespace Chloe.PostgreSQL
             List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
-            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
             string sqlTemplate = this.AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors);
 
             Action insertAction = () =>

@@ -195,14 +195,12 @@ namespace Chloe.MySql
 
             Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(content);
 
-            DbTable explicitDbTable = null;
-            if (table != null)
-                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
-            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(dbTable);
 
             DbExpression conditionExp = expressionParser.ParseFilterPredicate(condition);
 
-            MySqlDbUpdateExpression e = new MySqlDbUpdateExpression(explicitDbTable ?? typeDescriptor.Table, conditionExp);
+            MySqlDbUpdateExpression e = new MySqlDbUpdateExpression(dbTable, conditionExp);
 
             foreach (var kv in updateColumns)
             {
@@ -236,13 +234,11 @@ namespace Chloe.MySql
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            DbTable explicitDbTable = null;
-            if (table != null)
-                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
-            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(dbTable);
             DbExpression conditionExp = expressionParser.ParseFilterPredicate(condition);
 
-            MySqlDbDeleteExpression e = new MySqlDbDeleteExpression(explicitDbTable ?? typeDescriptor.Table, conditionExp);
+            MySqlDbDeleteExpression e = new MySqlDbDeleteExpression(dbTable, conditionExp);
             e.Limits = limits;
 
             return this.ExecuteNonQuery(e);

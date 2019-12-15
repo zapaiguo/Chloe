@@ -45,7 +45,7 @@ namespace Chloe.Oracle
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
 
             List<PrimitivePropertyDescriptor> outputColumns = new List<PrimitivePropertyDescriptor>();
             Dictionary<PrimitivePropertyDescriptor, DbExpression> insertColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
@@ -114,7 +114,7 @@ namespace Chloe.Oracle
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
-            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
 
             DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(dbTable);
             DbInsertExpression insertExp = new DbInsertExpression(dbTable);
@@ -212,7 +212,7 @@ namespace Chloe.Oracle
             List<PrimitivePropertyDescriptor> mappingPropertyDescriptors = typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.IsAutoIncrement == false).ToList();
             int maxDbParamsCount = maxParameters - mappingPropertyDescriptors.Count; /* 控制一个 sql 的参数个数 */
 
-            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
             string sqlTemplate = AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors);
 
             Action insertAction = () =>
@@ -365,7 +365,7 @@ namespace Chloe.Oracle
             if (updateColumns.Count == 0)
                 return 0;
 
-            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
             DbExpression conditionExp = PublicHelper.MakeCondition(keyValues, dbTable);
             DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 

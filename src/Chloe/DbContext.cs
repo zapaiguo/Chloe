@@ -202,7 +202,7 @@ namespace Chloe
                 throw new ChloeException(string.Format("The primary key '{0}' could not be null.", nullValueKey.Property.Name));
             }
 
-            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
             DbInsertExpression e = new DbInsertExpression(dbTable);
 
             foreach (var kv in insertColumns)
@@ -380,7 +380,7 @@ namespace Chloe
             if (updateColumns.Count == 0)
                 return 0;
 
-            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
             DbExpression conditionExp = PublicHelper.MakeCondition(keyValues, dbTable);
             DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 
@@ -470,7 +470,7 @@ namespace Chloe
                 keyValues.Add(typeDescriptor.RowVersion, rowVersionValue);
             }
 
-            DbTable dbTable = table == null ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
             DbExpression conditionExp = PublicHelper.MakeCondition(keyValues, dbTable);
             DbDeleteExpression e = new DbDeleteExpression(dbTable, conditionExp);
 
