@@ -23,18 +23,20 @@ namespace Chloe.Data
 
         public override void Close()
         {
-            if (!this.PersistedReader.IsClosed)
+            if (this.PersistedReader.IsClosed)
             {
-                try
-                {
-                    this.PersistedReader.Close();
-                    this.PersistedReader.Dispose();/* Tips：.NET Core 的 SqlServer 驱动 System.Data.SqlClient(4.1.0) 中，调用 DataReader.Dispose() 方法后才能拿到 Output 参数值，这算是坑爹么？？ */
-                    OutputParameter.CallMapValue(this._outputParameters);
-                }
-                finally
-                {
-                    this._adoSession.Complete();
-                }
+                return;
+            }
+
+            try
+            {
+                this.PersistedReader.Close();
+                this.PersistedReader.Dispose();/* Tips：.NET Core 的 SqlServer 驱动 System.Data.SqlClient(4.1.0) 中，调用 DataReader.Dispose() 方法后才能拿到 Output 参数值，这算是坑爹么？？ */
+                OutputParameter.CallMapValue(this._outputParameters);
+            }
+            finally
+            {
+                this._adoSession.Complete();
             }
         }
 
