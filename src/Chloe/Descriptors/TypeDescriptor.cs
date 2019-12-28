@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 using System.Text;
 using System.Linq;
 using System.Reflection;
-using Chloe.InternalExtensions;
+using Chloe.Reflection;
 using Chloe.Utility;
 using Chloe.Exceptions;
 using Chloe.Query;

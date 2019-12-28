@@ -13,6 +13,7 @@ using Chloe.Infrastructure;
 using Chloe.Query.Visitors;
 using Chloe.Exceptions;
 using Chloe.Utility;
+using Chloe.Reflection;
 
 namespace Chloe.Query
 {

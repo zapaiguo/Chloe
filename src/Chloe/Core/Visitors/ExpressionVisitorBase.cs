@@ -5,6 +5,7 @@ using System.Linq;
 using Chloe.DbExpressions;
 using Chloe.Extensions;
 using Chloe.InternalExtensions;
+using Chloe.Reflection;
 
 namespace Chloe.Core.Visitors
 {

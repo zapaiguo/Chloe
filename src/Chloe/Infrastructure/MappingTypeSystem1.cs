@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using Chloe.Core;
 using Chloe.InternalExtensions;
+using Chloe.Reflection;
 using Chloe.Utility;
 
 namespace Chloe.Infrastructure

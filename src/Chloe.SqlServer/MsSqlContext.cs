@@ -6,6 +6,7 @@ using Chloe.Entity;
 using Chloe.Exceptions;
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
+using Chloe.Reflection;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;

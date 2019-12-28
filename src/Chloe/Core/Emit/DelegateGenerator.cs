@@ -59,7 +59,7 @@ namespace Chloe.Core.Emit
             Utils.CheckNull(constructor);
 
             var pExp_reader = Expression.Parameter(typeof(IDataReader), "reader");
-            var pExp_objectActivatorEnumerator = Expression.Parameter(typeof(ObjectActivatorEnumerator), "objectActivatorEnumerator");
+            var pExp_objectActivatorEnumerator = Expression.Parameter(typeof(ArgumentActivatorEnumerator), "objectActivatorEnumerator");
 
             ParameterInfo[] parameters = constructor.GetParameters();
             List<Expression> arguments = new List<Expression>(parameters.Length);
@@ -67,7 +67,7 @@ namespace Chloe.Core.Emit
             foreach (ParameterInfo parameter in parameters)
             {
                 //IObjectActivator oa = objectActivatorEnumerator.Next();
-                var oa = Expression.Call(pExp_objectActivatorEnumerator, ObjectActivatorEnumerator.MethodOfNext);
+                var oa = Expression.Call(pExp_objectActivatorEnumerator, ArgumentActivatorEnumerator.MethodOfNext);
                 //object obj = oa.CreateInstance(IDataReader reader);
                 var entity = Expression.Call(oa, typeof(IObjectActivator).GetMethod("CreateInstance"), pExp_reader);
                 //T argument = (T)obj;
@@ -78,72 +78,6 @@ namespace Chloe.Core.Emit
             var body = Expression.New(constructor, arguments);
 
             InstanceCreator ret = Expression.Lambda<InstanceCreator>(body, pExp_reader, pExp_objectActivatorEnumerator).Compile();
-
-            return ret;
-        }
-        public static Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> CreateObjectGenerator1(ConstructorInfo constructor)
-        {
-            Utils.CheckNull(constructor);
-
-            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> ret = null;
-
-            var pExp_reader = Expression.Parameter(typeof(IDataReader), "reader");
-            var pExp_readerOrdinalEnumerator = Expression.Parameter(typeof(ReaderOrdinalEnumerator), "readerOrdinalEnumerator");
-            var pExp_objectActivatorEnumerator = Expression.Parameter(typeof(ObjectActivatorEnumerator), "objectActivatorEnumerator");
-
-            ParameterInfo[] parameters = constructor.GetParameters();
-            List<Expression> arguments = new List<Expression>(parameters.Length);
-
-            foreach (ParameterInfo parameter in parameters)
-            {
-                if (MappingTypeSystem.IsMappingType(parameter.ParameterType))
-                {
-                    //var readerMethod = DataReaderConstant.GetReaderMethod(parameter.ParameterType);
-                    ////int ordinal = readerOrdinalEnumerator.Next();
-                    //var readerOrdinal = Expression.Call(pExp_readerOrdinalEnumerator, ReaderOrdinalEnumerator.MethodOfNext);
-                    ////DataReaderExtensions.GetValue(reader,readerOrdinal)
-                    //var getValue = Expression.Call(readerMethod, pExp_reader, readerOrdinal);
-                    //arguments.Add(getValue);
-
-                    //IDbValueReader valueReader;
-                    Expression valueReader = Expression.Constant(DataReaderConstant.GetDbValueReader(parameter.ParameterType));
-                    var getValueMethod = typeof(IDbValueReader).GetMethod("GetValue");
-                    //int ordinal = readerOrdinalEnumerator.Next();
-                    var readerOrdinal = Expression.Call(pExp_readerOrdinalEnumerator, ReaderOrdinalEnumerator.MethodOfNext);
-                    //object value = valueReader.GetValue(reader, readerOrdinal)
-                    var getValue = Expression.Call(valueReader, getValueMethod, pExp_reader, readerOrdinal);
-                    //T argument = (T)value;
-                    var argument = Expression.Convert(getValue, parameter.ParameterType);
-                    arguments.Add(getValue);
-                }
-                else
-                {
-                    //IObjectActivator oa = objectActivatorEnumerator.Next();
-                    var oa = Expression.Call(pExp_objectActivatorEnumerator, ObjectActivatorEnumerator.MethodOfNext);
-                    //object obj = oa.CreateInstance(IDataReader reader);
-                    var entity = Expression.Call(oa, typeof(IObjectActivator).GetMethod("CreateInstance"), pExp_reader);
-                    //T argument = (T)obj;
-                    var argument = Expression.Convert(entity, parameter.ParameterType);
-                    arguments.Add(argument);
-                }
-            }
-
-            var body = Expression.New(constructor, arguments);
-
-            ret = Expression.Lambda<Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object>>(body, pExp_reader, pExp_readerOrdinalEnumerator, pExp_objectActivatorEnumerator).Compile();
-
-            return ret;
-        }
-        public static Func<IDataReader, int, object> CreateMappingTypeGenerator(Type type)
-        {
-            var pExp_reader = Expression.Parameter(typeof(IDataReader), "reader");
-            var pExp_readerOrdinal = Expression.Parameter(typeof(int), "readerOrdinal");
-
-            var readerMethod = DataReaderConstant.GetReaderMethod(type);
-            var getValue = Expression.Call(readerMethod, pExp_reader, pExp_readerOrdinal);
-            var body = Expression.Convert(getValue, typeof(object));
-
-            Func<IDataReader, int, object> ret = Expression.Lambda<Func<IDataReader, int, object>>(body, pExp_reader, pExp_readerOrdinal).Compile();
 
             return ret;
         }

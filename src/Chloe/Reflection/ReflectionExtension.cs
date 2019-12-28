@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Chloe.InternalExtensions
+namespace Chloe.Reflection
 {
     public static class ReflectionExtension
     {

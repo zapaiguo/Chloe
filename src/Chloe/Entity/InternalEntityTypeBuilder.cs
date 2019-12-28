@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using Chloe.InternalExtensions;
+using Chloe.Reflection;
 using Chloe.Infrastructure;
 using System.Collections.ObjectModel;
 

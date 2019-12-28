@@ -16,7 +16,7 @@ namespace Chloe.Mapper.Activators
         List<IObjectActivator> _argumentActivators;
         List<IMemberBinder> _memberBinders;
 
-        ObjectActivatorEnumerator _argumentActivatorEnumerator;
+        ArgumentActivatorEnumerator _argumentActivatorEnumerator;
         public ComplexObjectActivator(InstanceCreator instanceCreator, List<IObjectActivator> argumentActivators, List<IMemberBinder> memberBinders, int? checkNullOrdinal)
         {
             this._instanceCreator = instanceCreator;
@@ -24,7 +24,7 @@ namespace Chloe.Mapper.Activators
             this._memberBinders = memberBinders;
             this._checkNullOrdinal = checkNullOrdinal;
 
-            this._argumentActivatorEnumerator = new ObjectActivatorEnumerator(argumentActivators);
+            this._argumentActivatorEnumerator = new ArgumentActivatorEnumerator(argumentActivators);
         }
 
         public void Prepare(IDataReader reader)

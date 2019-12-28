@@ -8,6 +8,7 @@ using Chloe.Core.Emit;
 using Chloe.Data;
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
+using Chloe.Reflection;
 
 namespace Chloe.Extensions
 {

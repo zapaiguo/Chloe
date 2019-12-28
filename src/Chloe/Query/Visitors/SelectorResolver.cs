@@ -9,6 +9,7 @@ using Chloe.Core.Visitors;
 using Chloe.Extensions;
 using Chloe.Infrastructure;
 using Chloe.Utility;
+using Chloe.Reflection;
 
 namespace Chloe.Query
 {

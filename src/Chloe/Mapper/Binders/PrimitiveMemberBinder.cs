@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Chloe.InternalExtensions;
+using Chloe.Reflection;
 
 namespace Chloe.Mapper.Binders
 {

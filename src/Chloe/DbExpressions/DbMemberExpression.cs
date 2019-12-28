@@ -2,6 +2,7 @@
 using System.Reflection;
 using Chloe.InternalExtensions;
 using System.Data;
+using Chloe.Reflection;
 
 namespace Chloe.DbExpressions
 {

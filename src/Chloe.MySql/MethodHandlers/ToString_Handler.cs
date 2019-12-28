@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Chloe.DbExpressions;
 using Chloe.InternalExtensions;
+using Chloe.Reflection;
 
 namespace Chloe.MySql.MethodHandlers
 {
