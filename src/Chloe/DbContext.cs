@@ -12,8 +12,6 @@ using Chloe.Query.Internals;
 using Chloe.Core.Visitors;
 using Chloe.Exceptions;
 using System.Data;
-using Chloe.InternalExtensions;
-using Chloe.Extensions;
 using Chloe.Utility;
 using Chloe.Data;
 using Chloe.Reflection;

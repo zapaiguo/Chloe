@@ -81,7 +81,7 @@ namespace Chloe.Mapper
         public MRM2(MemberInfo member, MappingType mappingType)
         {
             this._mappingType = mappingType;
-            this._valueSetter = DelegateGenerator.CreateValueSetter(member);
+            this._valueSetter = MemberValueSetterContainer.GetMemberValueSetter(member);
         }
 
         public void Map(object instance, IDataReader reader, int ordinal)

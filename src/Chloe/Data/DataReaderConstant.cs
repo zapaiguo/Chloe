@@ -5,12 +5,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Chloe.Core.Emit;
-using Chloe.Data;
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 using Chloe.Reflection;
 
-namespace Chloe.Extensions
+namespace Chloe.Data
 {
     public static class DataReaderConstant
     {
@@ -96,9 +95,6 @@ namespace Chloe.Extensions
                 {
                     return new DbValueReader((IDataReader reader, int ordinal) =>
                     {
-                        if (reader.IsDBNull(ordinal))
-                            return null;
-
                         object value = reader.GetEnum(ordinal, valueType);
                         return value;
                     });

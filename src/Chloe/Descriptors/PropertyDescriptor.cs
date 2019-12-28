@@ -37,7 +37,7 @@ namespace Chloe.Descriptors
                     try
                     {
                         if (null == this._valueGetter)
-                            this._valueGetter = DelegateGenerator.CreateValueGetter(this.Definition.Property);
+                            this._valueGetter = MemberValueGetterContainer.GetMemberValueGetter(this.Definition.Property);
                     }
                     finally
                     {
@@ -61,7 +61,7 @@ namespace Chloe.Descriptors
                     try
                     {
                         if (null == this._valueSetter)
-                            this._valueSetter = DelegateGenerator.CreateValueSetter(this.Definition.Property);
+                            this._valueSetter = MemberValueSetterContainer.GetMemberValueSetter(this.Definition.Property);
                     }
                     finally
                     {

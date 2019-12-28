@@ -4,7 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 
-namespace Chloe.Extensions
+namespace Chloe.Data
 {
     public static class DataReaderExtension
     {
@@ -185,8 +185,12 @@ namespace Chloe.Extensions
 
         public static object GetEnum(this IDataReader reader, int ordinal, Type enumType)
         {
-            Type fieldType = reader.GetFieldType(ordinal);
+            if (reader.IsDBNull(ordinal))
+            {
+                return null;
+            }
 
+            Type fieldType = reader.GetFieldType(ordinal);
             object value;
             if (fieldType == UtilConstants.TypeOfInt32)
                 value = reader.GetInt32(ordinal);
@@ -202,16 +206,20 @@ namespace Chloe.Extensions
         public static TEnum GetEnum<TEnum>(this IDataReader reader, int ordinal) where TEnum : struct
         {
             object value = GetEnum(reader, ordinal, typeof(TEnum));
-            return (TEnum)Enum.ToObject(typeof(TEnum), value);
+
+            if (value == null)
+                throw new InvalidCastException($"The column[{reader.GetName(ordinal)}] value could not be null.");
+
+            return (TEnum)value;
         }
         public static TEnum? GetEnum_Nullable<TEnum>(this IDataReader reader, int ordinal) where TEnum : struct
         {
-            if (reader.IsDBNull(ordinal))
-            {
-                return null;
-            }
+            object value = GetEnum(reader, ordinal, typeof(TEnum));
 
-            return GetEnum<TEnum>(reader, ordinal);
+            if (value == null)
+                return null;
+
+            return (TEnum)value;
         }
 
         public static T GetTValue<T>(this IDataReader reader, int ordinal)
@@ -224,7 +232,7 @@ namespace Chloe.Extensions
             }
             catch (NullReferenceException)
             {
-                throw new InvalidCastException("The column value could not be null.");
+                throw new InvalidCastException($"The column[{reader.GetName(ordinal)}] value could not be null.");
             }
         }
         public static T? GetTValue_Nullable<T>(this IDataReader reader, int ordinal) where T : struct
