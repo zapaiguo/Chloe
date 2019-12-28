@@ -5,5 +5,5 @@ using System.Text;
 
 namespace Chloe.Mapper
 {
-    public delegate object InstanceCreator(IDataReader reader, ArgumentActivatorEnumerator argumentActivatorEnumerator);
+    public delegate object InstanceCreator(IDataReader reader, List<IObjectActivator> argumentActivators);
 }

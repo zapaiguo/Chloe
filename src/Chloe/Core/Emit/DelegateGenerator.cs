@@ -54,20 +54,23 @@ namespace Chloe.Core.Emit
             return del;
         }
 
-        public static InstanceCreator CreateObjectGenerator(ConstructorInfo constructor)
+        public static InstanceCreator CreateInstanceCreator(ConstructorInfo constructor)
         {
             Utils.CheckNull(constructor);
 
             var pExp_reader = Expression.Parameter(typeof(IDataReader), "reader");
-            var pExp_objectActivatorEnumerator = Expression.Parameter(typeof(ArgumentActivatorEnumerator), "objectActivatorEnumerator");
+            var pExp_argumentActivators = Expression.Parameter(typeof(List<IObjectActivator>), "argumentActivators");
+            var getItemMethod = typeof(List<IObjectActivator>).GetMethod("get_Item");
 
             ParameterInfo[] parameters = constructor.GetParameters();
             List<Expression> arguments = new List<Expression>(parameters.Length);
 
-            foreach (ParameterInfo parameter in parameters)
+            for (int i = 0; i < parameters.Length; i++)
             {
-                //IObjectActivator oa = objectActivatorEnumerator.Next();
-                var oa = Expression.Call(pExp_objectActivatorEnumerator, ArgumentActivatorEnumerator.MethodOfNext);
+                ParameterInfo parameter = parameters[i];
+
+                //IObjectActivator oa = argumentActivators[i];
+                var oa = Expression.Call(pExp_argumentActivators, getItemMethod, Expression.Constant(i));
                 //object obj = oa.CreateInstance(IDataReader reader);
                 var entity = Expression.Call(oa, typeof(IObjectActivator).GetMethod("CreateInstance"), pExp_reader);
                 //T argument = (T)obj;
@@ -76,8 +79,7 @@ namespace Chloe.Core.Emit
             }
 
             var body = Expression.New(constructor, arguments);
-
-            InstanceCreator ret = Expression.Lambda<InstanceCreator>(body, pExp_reader, pExp_objectActivatorEnumerator).Compile();
+            InstanceCreator ret = Expression.Lambda<InstanceCreator>(body, pExp_reader, pExp_argumentActivators).Compile();
 
             return ret;
         }
