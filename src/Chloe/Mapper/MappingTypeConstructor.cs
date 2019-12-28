@@ -18,7 +18,6 @@ namespace Chloe.Mapper
 
         void Init()
         {
-
             Func<IDataReader, int, object> fn = DelegateGenerator.CreateMappingTypeGenerator(this.Type);
             this.InstanceCreator = fn;
         }

@@ -12,6 +12,7 @@ namespace Chloe.Mapper
     /// </summary>
     public interface IFitter
     {
+        void Prepare(IDataReader reader);
         void Fill(object obj, object owner, IDataReader reader);
     }
 
@@ -22,6 +23,15 @@ namespace Chloe.Mapper
         public ComplexObjectFitter(List<Tuple<PropertyDescriptor, IFitter>> includings)
         {
             this._includings = includings;
+        }
+
+        public void Prepare(IDataReader reader)
+        {
+            for (int i = 0; i < this._includings.Count; i++)
+            {
+                var kv = this._includings[i];
+                kv.Item2.Prepare(reader);
+            }
         }
 
         public void Fill(object entity, object owner, IDataReader reader)
@@ -51,6 +61,12 @@ namespace Chloe.Mapper
             this._entityRowComparer = entityRowComparer;
             this._elementFitter = elementFitter;
             this._elementOwnerProperty = elementOwnerProperty;
+        }
+
+        public void Prepare(IDataReader reader)
+        {
+            this._elementActivator.Prepare(reader);
+            this._elementFitter.Prepare(reader);
         }
 
         public void Fill(object collection, object owner, IDataReader reader)

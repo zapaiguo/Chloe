@@ -8,6 +8,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Chloe.InternalExtensions;
+using MappingType = Chloe.Infrastructure.MappingType;
+using System.Threading;
+using Chloe.Reflection;
 
 namespace Chloe.Mapper
 {
@@ -16,20 +19,44 @@ namespace Chloe.Mapper
         void Map(object instance, IDataReader reader, int ordinal);
     }
 
+    public class MRMTuple
+    {
+        public Lazy<IMRM> StrongMRM { get; set; }
+        public Lazy<IMRM> SafeMRM { get; set; }
+    }
+
     static class MRMHelper
     {
-        public static IMRM CreateMRM(MemberInfo member, MappingTypeInfo mappingTypeInfo)
+        public static IMRM CreateMRM(MemberInfo member, MappingType mappingType)
         {
-            if (mappingTypeInfo.MappingType == null || member.GetMemberType().GetUnderlyingType().IsEnum /* 枚举比较特殊 */)
+            Type type = ClassGenerator.CreateMRMType(member);
+            IMRM obj = (IMRM)type.GetConstructor(Type.EmptyTypes).Invoke(null);
+            return obj;
+        }
+        public static MRMTuple CreateMRMTuple(MemberInfo member, MappingType mappingType)
+        {
+            MRMTuple mrmTuple = new MRMTuple();
+
+            mrmTuple.StrongMRM = new Lazy<IMRM>(() =>
             {
                 Type type = ClassGenerator.CreateMRMType(member);
-                IMRM obj = (IMRM)type.GetConstructor(Type.EmptyTypes).Invoke(null);
-                return obj;
+                IMRM strongMrm = (IMRM)type.GetConstructor(Type.EmptyTypes).Invoke(null);
+                return strongMrm;
+            }, LazyThreadSafetyMode.ExecutionAndPublication);
+
+            if (member.GetMemberType().GetUnderlyingType().IsEnum /* 枚举比较特殊 */)
+            {
+                mrmTuple.SafeMRM = mrmTuple.StrongMRM;
             }
             else
             {
-                return new MRM2(member, mappingTypeInfo.MappingType);
+                mrmTuple.SafeMRM = new Lazy<IMRM>(() =>
+                {
+                    return new MRM2(member, mappingType);
+                }, LazyThreadSafetyMode.ExecutionAndPublication);
             }
+
+            return mrmTuple;
         }
     }
 
@@ -49,9 +76,9 @@ namespace Chloe.Mapper
 
     class MRM2 : IMRM
     {
-        Action<object, object> _valueSetter;
-        IMappingType _mappingType;
-        public MRM2(MemberInfo member, IMappingType mappingType)
+        MemberValueSetter _valueSetter;
+        MappingType _mappingType;
+        public MRM2(MemberInfo member, MappingType mappingType)
         {
             this._mappingType = mappingType;
             this._valueSetter = DelegateGenerator.CreateValueSetter(member);
@@ -59,8 +86,14 @@ namespace Chloe.Mapper
 
         public void Map(object instance, IDataReader reader, int ordinal)
         {
-            object val = this._mappingType.ReadFromDataReader(reader, ordinal);
-            this._valueSetter(instance, val);
+            object value = reader.GetValue(ordinal);
+            if (value == DBNull.Value)
+            {
+                value = null;
+            }
+
+            value = this._mappingType.DbValueConverter.Convert(value);
+            this._valueSetter(instance, value);
         }
     }
 }

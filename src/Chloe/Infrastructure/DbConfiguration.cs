@@ -43,9 +43,9 @@ namespace Chloe.Infrastructure
             }
         }
 
-        public static void UseMappingType(IMappingType mappingType)
-        {
-            MappingTypeSystem.Configure(mappingType);
-        }
+        //public static void UseMappingType(IMappingType mappingType)
+        //{
+        //    MappingTypeSystem.Configure(mappingType);
+        //}
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Chloe.Core.Emit;
+using Chloe.Data;
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 
@@ -84,23 +85,38 @@ namespace Chloe.Extensions
             return result;
         }
 
-        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Func<IDataReader, int, object>> GetValueHandlerCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Func<IDataReader, int, object>>();
-        public static Func<IDataReader, int, object> GetGetValueHandler(Type type)
+        static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, IDbValueReader> GetValueHandlerCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, IDbValueReader>();
+        public static IDbValueReader GetDbValueReader(Type type)
         {
             var handler = GetValueHandlerCache.GetOrAdd(type, valueType =>
-             {
-                 MappingTypeInfo mappingTypeInfo = MappingTypeSystem.GetMappingTypeInfo(valueType);
+            {
+                valueType = valueType.GetUnderlyingType();
+                if (valueType.IsEnum)
+                {
+                    return new DbValueReader((IDataReader reader, int ordinal) =>
+                    {
+                        if (reader.IsDBNull(ordinal))
+                            return null;
 
-                 if (mappingTypeInfo != null && mappingTypeInfo.MappingType != null)
-                 {
-                     return (IDataReader reader, int ordinal) =>
-                     {
-                         return mappingTypeInfo.MappingType.ReadFromDataReader(reader, ordinal);
-                     };
-                 }
+                        object value = reader.GetEnum(ordinal, valueType);
+                        return value;
+                    });
+                }
 
-                 return DelegateGenerator.CreateDataReaderGetValueHandler(valueType);
-             });
+                Infrastructure.MappingType mappingType = MappingTypeSystem.GetMappingType(valueType);
+
+                return new DbValueReader((IDataReader reader, int ordinal) =>
+                {
+                    object value = reader.GetValue(ordinal);
+                    if (value == DBNull.Value || value == null)
+                        return null;
+
+                    if (value.GetType() == mappingType.Type)
+                        return value;
+
+                    return mappingType.DbValueConverter.Convert(value);
+                });
+            });
 
             return handler;
         }
@@ -132,7 +148,7 @@ namespace Chloe.Extensions
         internal static readonly MethodInfo Reader_GetString = typeof(DataReaderExtension).GetMethod("GetString");
         internal static readonly MethodInfo Reader_GetValue = typeof(DataReaderExtension).GetMethod("GetValue");
 
-        internal static readonly MethodInfo Reader_GetEnum = typeof(DataReaderExtension).GetMethod("GetEnum");
+        internal static readonly MethodInfo Reader_GetEnum = typeof(DataReaderExtension).GetMethod("GetEnum", new Type[] { typeof(int) });
         internal static readonly MethodInfo Reader_GetEnum_Nullable = typeof(DataReaderExtension).GetMethod("GetEnum_Nullable");
 
         internal static readonly MethodInfo Reader_GetTValue = typeof(DataReaderExtension).GetMethod("GetTValue");

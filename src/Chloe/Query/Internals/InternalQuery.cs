@@ -55,6 +55,8 @@ namespace Chloe.Query.Internals
                     dataReader = new QueryDataReader(dataReader);
                 }
 
+                cmdFactor.ObjectActivator.Prepare(dataReader);
+
                 return dataReader;
             });
             return enumerator;

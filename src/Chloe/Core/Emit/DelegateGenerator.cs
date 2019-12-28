@@ -1,7 +1,9 @@
-﻿using Chloe.Extensions;
+﻿using Chloe.Data;
+using Chloe.Extensions;
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 using Chloe.Mapper;
+using Chloe.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -52,7 +54,34 @@ namespace Chloe.Core.Emit
             return del;
         }
 
-        public static Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> CreateObjectGenerator(ConstructorInfo constructor)
+        public static InstanceCreator CreateObjectGenerator(ConstructorInfo constructor)
+        {
+            Utils.CheckNull(constructor);
+
+            var pExp_reader = Expression.Parameter(typeof(IDataReader), "reader");
+            var pExp_objectActivatorEnumerator = Expression.Parameter(typeof(ObjectActivatorEnumerator), "objectActivatorEnumerator");
+
+            ParameterInfo[] parameters = constructor.GetParameters();
+            List<Expression> arguments = new List<Expression>(parameters.Length);
+
+            foreach (ParameterInfo parameter in parameters)
+            {
+                //IObjectActivator oa = objectActivatorEnumerator.Next();
+                var oa = Expression.Call(pExp_objectActivatorEnumerator, ObjectActivatorEnumerator.MethodOfNext);
+                //object obj = oa.CreateInstance(IDataReader reader);
+                var entity = Expression.Call(oa, typeof(IObjectActivator).GetMethod("CreateInstance"), pExp_reader);
+                //T argument = (T)obj;
+                var argument = Expression.Convert(entity, parameter.ParameterType);
+                arguments.Add(argument);
+            }
+
+            var body = Expression.New(constructor, arguments);
+
+            InstanceCreator ret = Expression.Lambda<InstanceCreator>(body, pExp_reader, pExp_objectActivatorEnumerator).Compile();
+
+            return ret;
+        }
+        public static Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> CreateObjectGenerator1(ConstructorInfo constructor)
         {
             Utils.CheckNull(constructor);
 
@@ -69,11 +98,22 @@ namespace Chloe.Core.Emit
             {
                 if (MappingTypeSystem.IsMappingType(parameter.ParameterType))
                 {
-                    var readerMethod = DataReaderConstant.GetReaderMethod(parameter.ParameterType);
+                    //var readerMethod = DataReaderConstant.GetReaderMethod(parameter.ParameterType);
+                    ////int ordinal = readerOrdinalEnumerator.Next();
+                    //var readerOrdinal = Expression.Call(pExp_readerOrdinalEnumerator, ReaderOrdinalEnumerator.MethodOfNext);
+                    ////DataReaderExtensions.GetValue(reader,readerOrdinal)
+                    //var getValue = Expression.Call(readerMethod, pExp_reader, readerOrdinal);
+                    //arguments.Add(getValue);
+
+                    //IDbValueReader valueReader;
+                    Expression valueReader = Expression.Constant(DataReaderConstant.GetDbValueReader(parameter.ParameterType));
+                    var getValueMethod = typeof(IDbValueReader).GetMethod("GetValue");
                     //int ordinal = readerOrdinalEnumerator.Next();
                     var readerOrdinal = Expression.Call(pExp_readerOrdinalEnumerator, ReaderOrdinalEnumerator.MethodOfNext);
-                    //DataReaderExtensions.GetValue(reader,readerOrdinal)
-                    var getValue = Expression.Call(readerMethod, pExp_reader, readerOrdinal);
+                    //object value = valueReader.GetValue(reader, readerOrdinal)
+                    var getValue = Expression.Call(valueReader, getValueMethod, pExp_reader, readerOrdinal);
+                    //T argument = (T)value;
+                    var argument = Expression.Convert(getValue, parameter.ParameterType);
                     arguments.Add(getValue);
                 }
                 else
@@ -82,9 +122,9 @@ namespace Chloe.Core.Emit
                     var oa = Expression.Call(pExp_objectActivatorEnumerator, ObjectActivatorEnumerator.MethodOfNext);
                     //object obj = oa.CreateInstance(IDataReader reader);
                     var entity = Expression.Call(oa, typeof(IObjectActivator).GetMethod("CreateInstance"), pExp_reader);
-                    //(T)entity;
-                    var val = Expression.Convert(entity, parameter.ParameterType);
-                    arguments.Add(val);
+                    //T argument = (T)obj;
+                    var argument = Expression.Convert(entity, parameter.ParameterType);
+                    arguments.Add(argument);
                 }
             }
 
@@ -108,7 +148,7 @@ namespace Chloe.Core.Emit
             return ret;
         }
 
-        public static Action<object, object> CreateValueSetter(MemberInfo propertyOrField)
+        public static MemberValueSetter CreateValueSetter(MemberInfo propertyOrField)
         {
             PropertyInfo propertyInfo = propertyOrField as PropertyInfo;
             if (propertyInfo != null)
@@ -120,7 +160,7 @@ namespace Chloe.Core.Emit
 
             throw new ArgumentException();
         }
-        public static Action<object, object> CreateValueSetter(PropertyInfo propertyInfo)
+        public static MemberValueSetter CreateValueSetter(PropertyInfo propertyInfo)
         {
             var p = Expression.Parameter(typeof(object), "instance");
             var pValue = Expression.Parameter(typeof(object), "value");
@@ -132,12 +172,12 @@ namespace Chloe.Core.Emit
 
             Expression body = setValue;
 
-            var lambda = Expression.Lambda<Action<object, object>>(body, p, pValue);
-            Action<object, object> ret = lambda.Compile();
+            var lambda = Expression.Lambda<MemberValueSetter>(body, p, pValue);
+            MemberValueSetter ret = lambda.Compile();
 
             return ret;
         }
-        public static Action<object, object> CreateValueSetter(FieldInfo fieldInfo)
+        public static MemberValueSetter CreateValueSetter(FieldInfo fieldInfo)
         {
             var p = Expression.Parameter(typeof(object), "instance");
             var pValue = Expression.Parameter(typeof(object), "value");
@@ -149,12 +189,12 @@ namespace Chloe.Core.Emit
 
             Expression body = setValue;
 
-            var lambda = Expression.Lambda<Action<object, object>>(body, p, pValue);
-            Action<object, object> ret = lambda.Compile();
+            var lambda = Expression.Lambda<MemberValueSetter>(body, p, pValue);
+            MemberValueSetter ret = lambda.Compile();
 
             return ret;
         }
-        public static Func<object, object> CreateValueGetter(MemberInfo propertyOrField)
+        public static MemberValueGetter CreateValueGetter(MemberInfo propertyOrField)
         {
             var p = Expression.Parameter(typeof(object), "a");
             var instance = Expression.Convert(p, propertyOrField.DeclaringType);
@@ -168,8 +208,8 @@ namespace Chloe.Core.Emit
                 body = Expression.Convert(memberAccess, typeof(object));
             }
 
-            var lambda = Expression.Lambda<Func<object, object>>(body, p);
-            Func<object, object> ret = lambda.Compile();
+            var lambda = Expression.Lambda<MemberValueGetter>(body, p);
+            MemberValueGetter ret = lambda.Compile();
 
             return ret;
         }

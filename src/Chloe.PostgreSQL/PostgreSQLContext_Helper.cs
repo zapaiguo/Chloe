@@ -4,6 +4,7 @@ using Chloe.DbExpressions;
 using Chloe.Descriptors;
 using Chloe.Entity;
 using Chloe.Exceptions;
+using Chloe.Extensions;
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 using Chloe.Utility;
@@ -21,13 +22,14 @@ namespace Chloe.PostgreSQL
     {
         static Action<TEntity, IDataReader> GetMapper<TEntity>(PrimitivePropertyDescriptor propertyDescriptor, int ordinal)
         {
+            var dbValueReader = DataReaderConstant.GetDbValueReader(propertyDescriptor.PropertyType);
+
             Action<TEntity, IDataReader> mapper = (TEntity entity, IDataReader reader) =>
             {
-                object value = reader.GetValue(ordinal);
+                object value = dbValueReader.GetValue(reader, ordinal);
                 if (value == null || value == DBNull.Value)
-                    throw new ChloeException("Unable to get the identity/sequence value.");
+                    throw new ChloeException($"Unable to get the {propertyDescriptor.Property.Name} value from data reader.");
 
-                value = PublicHelper.ConvertObjectType(value, propertyDescriptor.PropertyType);
                 propertyDescriptor.SetValue(entity, value);
             };
 

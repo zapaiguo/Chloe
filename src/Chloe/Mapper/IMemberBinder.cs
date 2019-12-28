@@ -6,8 +6,9 @@ using System.Text;
 
 namespace Chloe.Mapper
 {
-    public interface IValueSetter
+    public interface IMemberBinder
     {
-        void SetValue(object obj, IDataReader reader);
+        void Prepare(IDataReader reader);
+        void Bind(object obj, IDataReader reader);
     }
 }

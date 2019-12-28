@@ -19,6 +19,12 @@ namespace Chloe.Mapper.Activators
             this._entityRowComparer = entityRowComparer;
         }
 
+        public void Prepare(IDataReader reader)
+        {
+            this._entityActivator.Prepare(reader);
+            this._fitter.Prepare(reader);
+        }
+
         public object CreateInstance(IDataReader reader)
         {
             var entity = this._entityActivator.CreateInstance(reader);

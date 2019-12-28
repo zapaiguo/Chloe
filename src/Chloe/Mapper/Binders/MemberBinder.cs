@@ -1,20 +1,25 @@
-﻿using System;
+﻿using Chloe.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
 namespace Chloe.Mapper.Binders
 {
-    public class MemberBinder : IValueSetter
+    public class MemberBinder : IMemberBinder
     {
-        Action<object, object> _setter;
+        MemberValueSetter _setter;
         IObjectActivator _activtor;
-        public MemberBinder(Action<object, object> setter, IObjectActivator activtor)
+        public MemberBinder(MemberValueSetter setter, IObjectActivator activtor)
         {
             this._setter = setter;
             this._activtor = activtor;
         }
-        public virtual void SetValue(object obj, IDataReader reader)
+        public virtual void Prepare(IDataReader reader)
+        {
+            this._activtor.Prepare(reader);
+        }
+        public virtual void Bind(object obj, IDataReader reader)
         {
             object val = this._activtor.CreateInstance(reader);
             this._setter(obj, val);

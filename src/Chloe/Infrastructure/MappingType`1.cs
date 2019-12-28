@@ -6,9 +6,9 @@ using System.Text;
 
 namespace Chloe.Infrastructure
 {
-    public class MappingType<T> : MappingType
+    public class MappingType1<T> : MappingType1
     {
-        public MappingType(DbType dbType) : base(typeof(T), dbType)
+        public MappingType1(DbType dbType) : base(typeof(T), dbType)
         {
         }
 

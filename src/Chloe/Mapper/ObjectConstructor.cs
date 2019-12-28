@@ -23,12 +23,12 @@ namespace Chloe.Mapper
         void Init()
         {
             ConstructorInfo constructor = this.ConstructorInfo;
-            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> fn = DelegateGenerator.CreateObjectGenerator(constructor);
-            this.InstanceCreator = fn;
+            InstanceCreator instanceCreator = DelegateGenerator.CreateObjectGenerator(constructor);
+            this.InstanceCreator = instanceCreator;
         }
 
         public ConstructorInfo ConstructorInfo { get; private set; }
-        public Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> InstanceCreator { get; private set; }
+        public InstanceCreator InstanceCreator { get; private set; }
 
         static readonly System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, ObjectConstructor> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<ConstructorInfo, ObjectConstructor>();
 

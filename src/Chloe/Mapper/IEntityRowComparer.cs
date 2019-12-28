@@ -1,4 +1,5 @@
-﻿using Chloe.Descriptors;
+﻿using Chloe.Data;
+using Chloe.Descriptors;
 using Chloe.Extensions;
 using Chloe.Utility;
 using System;
@@ -14,18 +15,18 @@ namespace Chloe.Mapper
     }
     public class EntityRowComparer : IEntityRowComparer
     {
-        List<Tuple<PropertyDescriptor, int, Func<IDataReader, int, object>>> _keys;
+        List<Tuple<PropertyDescriptor, int, IDbValueReader>> _keys;
         object _entity;
         object[] _keyValues;
         public EntityRowComparer(List<Tuple<PropertyDescriptor, int>> keys)
         {
-            List<Tuple<PropertyDescriptor, int, Func<IDataReader, int, object>>> keyList = new List<Tuple<PropertyDescriptor, int, Func<IDataReader, int, object>>>(keys.Count);
+            List<Tuple<PropertyDescriptor, int, IDbValueReader>> keyList = new List<Tuple<PropertyDescriptor, int, IDbValueReader>>(keys.Count);
             for (int i = 0; i < keys.Count; i++)
             {
                 var tuple = keys[i];
-                Func<IDataReader, int, object> valueGetter = DataReaderConstant.GetGetValueHandler(tuple.Item1.PropertyType);
+                IDbValueReader dbValueReader = DataReaderConstant.GetDbValueReader(tuple.Item1.PropertyType);
 
-                keyList.Add(new Tuple<PropertyDescriptor, int, Func<IDataReader, int, object>>(tuple.Item1, tuple.Item2, valueGetter));
+                keyList.Add(new Tuple<PropertyDescriptor, int, IDbValueReader>(tuple.Item1, tuple.Item2, dbValueReader));
             }
 
             this._keys = keyList;
@@ -44,15 +45,12 @@ namespace Chloe.Mapper
                     return false;
 
                 var tuple = this._keys[i];
-                PropertyDescriptor propertyDescriptor = tuple.Item1;
                 int ordinal = tuple.Item2;
-                var valueGetter = tuple.Item3;
-                object keyReaderValue = valueGetter(reader, ordinal);
+                var dbValueReader = tuple.Item3;
+                object keyReaderValue = dbValueReader.GetValue(reader, ordinal);
 
-                if (keyReaderValue == null || keyReaderValue == DBNull.Value)
+                if (keyReaderValue == null)
                     return false;
-
-                keyReaderValue = PublicHelper.ConvertObjectType(keyReaderValue, propertyDescriptor.PropertyType);
 
                 if (!keyValue.Equals(keyReaderValue))
                     return false;

@@ -8,13 +8,14 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Linq;
 using System.Threading;
+using Chloe.Reflection;
 
 namespace Chloe.Descriptors
 {
     public class PropertyDescriptor
     {
-        Func<object, object> _valueGetter;
-        Action<object, object> _valueSetter;
+        MemberValueGetter _valueGetter;
+        MemberValueSetter _valueSetter;
 
         protected PropertyDescriptor(PropertyDefinition definition, TypeDescriptor declaringTypeDescriptor)
         {

@@ -8,6 +8,7 @@ using System.Reflection;
 using Chloe.Infrastructure;
 using Chloe.Mapper.Binders;
 using Chloe.Mapper.Activators;
+using Chloe.Reflection;
 
 namespace Chloe.Query.Mapping
 {
@@ -47,41 +48,16 @@ namespace Chloe.Query.Mapping
         }
         public IObjectActivator CreateObjectActivator(IDbContext dbContext)
         {
-            ObjectMemberMapper mapper = this.ConstructorDescriptor.GetEntityMemberMapper();
-            List<IValueSetter> memberSetters = new List<IValueSetter>(this.PrimitiveMembers.Count + this.ComplexMembers.Count);
-            foreach (var kv in this.PrimitiveMembers)
-            {
-                IMRM mMapper = mapper.TryGetMappingMemberMapper(kv.Key);
-                PrimitiveMemberBinder binder = new PrimitiveMemberBinder(mMapper, kv.Value);
-                memberSetters.Add(binder);
-            }
+            InstanceCreator instanceCreator = this.ConstructorDescriptor.GetInstanceCreator();
 
-            foreach (var kv in this.ComplexMembers)
-            {
-                Action<object, object> del = mapper.FindComplexMemberSetter(kv.Key);
-                IObjectActivator memberActivtor = kv.Value.CreateObjectActivator(dbContext);
-                ComplexMemberBinder binder = new ComplexMemberBinder(del, memberActivtor);
-                memberSetters.Add(binder);
-            }
-
-            foreach (var kv in this.CollectionMembers)
-            {
-                Action<object, object> del = mapper.FindComplexMemberSetter(kv.Key);
-                IObjectActivator memberActivtor = kv.Value.CreateObjectActivator(dbContext);
-                CollectionMemberBinder binder = new CollectionMemberBinder(del, memberActivtor);
-                memberSetters.Add(binder);
-            }
-
-            Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator = this.ConstructorDescriptor.GetInstanceCreator();
-
-            List<int> readerOrdinals = this.ConstructorParameters.Select(a => a.Value).ToList();
-            List<IObjectActivator> objectActivators = this.ConstructorComplexParameters.Select(a => a.Value.CreateObjectActivator()).ToList();
+            List<IObjectActivator> argumentActivators = this.CreateArgumentActivators(dbContext);
+            List<IMemberBinder> memberBinders = this.CreateMemberBinders(dbContext);
 
             IObjectActivator objectActivator;
             if (dbContext != null)
-                objectActivator = new ObjectActivatorWithTracking(instanceCreator, readerOrdinals, objectActivators, memberSetters, this.CheckNullOrdinal, dbContext);
+                objectActivator = new ObjectActivatorWithTracking(instanceCreator, argumentActivators, memberBinders, this.CheckNullOrdinal, dbContext);
             else
-                objectActivator = new ComplexObjectActivator(instanceCreator, readerOrdinals, objectActivators, memberSetters, this.CheckNullOrdinal);
+                objectActivator = new ComplexObjectActivator(instanceCreator, argumentActivators, memberBinders, this.CheckNullOrdinal);
 
             if (this.IsRoot && this.HasMany())
             {
@@ -97,6 +73,63 @@ namespace Chloe.Query.Mapping
             }
 
             return objectActivator;
+        }
+
+        List<IMemberBinder> CreateMemberBinders(IDbContext dbContext)
+        {
+            ObjectMemberMapper mapper = this.ConstructorDescriptor.GetEntityMemberMapper();
+            List<IMemberBinder> memberBinders = new List<IMemberBinder>(this.PrimitiveMembers.Count + this.ComplexMembers.Count);
+            foreach (var kv in this.PrimitiveMembers)
+            {
+                MRMTuple mrmTuple = mapper.GetMappingMemberMapper(kv.Key);
+                PrimitiveMemberBinder binder = new PrimitiveMemberBinder(kv.Key, mrmTuple, kv.Value);
+                memberBinders.Add(binder);
+            }
+
+            foreach (var kv in this.ComplexMembers)
+            {
+                MemberValueSetter setter = mapper.GetMemberSetter(kv.Key);
+                IObjectActivator memberActivtor = kv.Value.CreateObjectActivator(dbContext);
+                ComplexMemberBinder binder = new ComplexMemberBinder(setter, memberActivtor);
+                memberBinders.Add(binder);
+            }
+
+            foreach (var kv in this.CollectionMembers)
+            {
+                MemberValueSetter setter = mapper.GetMemberSetter(kv.Key);
+                IObjectActivator memberActivtor = kv.Value.CreateObjectActivator(dbContext);
+                CollectionMemberBinder binder = new CollectionMemberBinder(setter, memberActivtor);
+                memberBinders.Add(binder);
+            }
+
+            return memberBinders;
+        }
+        List<IObjectActivator> CreateArgumentActivators(IDbContext dbContext)
+        {
+            ParameterInfo[] parameters = this.ConstructorDescriptor.ConstructorInfo.GetParameters();
+            List<IObjectActivator> argumentActivators = new List<IObjectActivator>(parameters.Length);
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                IObjectActivator argumentActivator = null;
+                ParameterInfo parameter = parameters[i];
+                if (this.ConstructorParameters.TryGetValue(parameter, out int ordinal))
+                {
+                    argumentActivator = new PrimitiveObjectActivator(parameter.ParameterType, ordinal);
+                }
+                else if (this.ConstructorComplexParameters.TryGetValue(parameter, out IObjectActivatorCreator argumentActivatorCreator))
+                {
+                    argumentActivator = argumentActivatorCreator.CreateObjectActivator(dbContext);
+                }
+                else
+                {
+                    throw new Exception("####This is a bug####");
+                }
+
+                argumentActivators.Add(argumentActivator);
+            }
+
+            return argumentActivators;
         }
 
         public IFitter CreateFitter(IDbContext dbContext)

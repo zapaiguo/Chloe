@@ -45,6 +45,10 @@ namespace Chloe.Mapper.Activators
             this._activator = GetActivator(collectionType);
         }
 
+        public void Prepare(IDataReader reader)
+        {
+
+        }
         public object CreateInstance(IDataReader reader)
         {
             return this._activator();

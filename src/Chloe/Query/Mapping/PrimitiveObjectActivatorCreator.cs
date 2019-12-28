@@ -29,8 +29,7 @@ namespace Chloe.Query.Mapping
         }
         public IObjectActivator CreateObjectActivator(IDbContext dbContext)
         {
-            Func<IDataReader, int, object> fn = MappingTypeConstructor.GetInstance(this.ObjectType).InstanceCreator;
-            PrimitiveObjectActivator activator = new PrimitiveObjectActivator(fn, this.ReaderOrdinal);
+            PrimitiveObjectActivator activator = new PrimitiveObjectActivator(this.ObjectType, this.ReaderOrdinal);
             return activator;
         }
 

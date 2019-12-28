@@ -1,4 +1,6 @@
-﻿using Chloe.Exceptions;
+﻿using Chloe.Data;
+using Chloe.Exceptions;
+using Chloe.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,18 +11,24 @@ namespace Chloe.Mapper.Activators
 {
     public class PrimitiveObjectActivator : IObjectActivator
     {
-        Func<IDataReader, int, object> _fn = null;
+        Type _primitiveType;
+        IDbValueReader _dbValueReader = null;
         int _readerOrdinal;
-        public PrimitiveObjectActivator(Func<IDataReader, int, object> fn, int readerOrdinal)
+        public PrimitiveObjectActivator(Type primitiveType, int readerOrdinal)
         {
-            this._fn = fn;
+            this._primitiveType = primitiveType;
             this._readerOrdinal = readerOrdinal;
+            this._dbValueReader = DataReaderConstant.GetDbValueReader(primitiveType);
+        }
+        public void Prepare(IDataReader reader)
+        {
+
         }
         public object CreateInstance(IDataReader reader)
         {
             try
             {
-                return _fn(reader, _readerOrdinal);
+                return this._dbValueReader.GetValue(reader, _readerOrdinal);
             }
             catch (Exception ex)
             {

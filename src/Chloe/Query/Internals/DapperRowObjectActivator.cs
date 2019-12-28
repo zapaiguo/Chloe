@@ -14,6 +14,11 @@ namespace Chloe.Query.Internals
         {
         }
 
+        public void Prepare(IDataReader reader)
+        {
+
+        }
+
         public object CreateInstance(IDataReader reader)
         {
             int effectiveFieldCount = reader.FieldCount;

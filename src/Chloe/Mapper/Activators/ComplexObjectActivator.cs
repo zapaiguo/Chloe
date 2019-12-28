@@ -12,25 +12,34 @@ namespace Chloe.Mapper.Activators
     public class ComplexObjectActivator : IObjectActivator
     {
         int? _checkNullOrdinal;
-        Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> _instanceCreator;
-        List<int> _readerOrdinals;
-        List<IObjectActivator> _objectActivators;
-        List<IValueSetter> _memberSetters;
+        InstanceCreator _instanceCreator;
+        List<IObjectActivator> _argumentActivators;
+        List<IMemberBinder> _memberBinders;
 
-        ReaderOrdinalEnumerator _readerOrdinalEnumerator;
-        ObjectActivatorEnumerator _objectActivatorEnumerator;
-        public ComplexObjectActivator(Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator, List<int> readerOrdinals, List<IObjectActivator> objectActivators, List<IValueSetter> memberSetters, int? checkNullOrdinal)
+        ObjectActivatorEnumerator _argumentActivatorEnumerator;
+        public ComplexObjectActivator(InstanceCreator instanceCreator, List<IObjectActivator> argumentActivators, List<IMemberBinder> memberBinders, int? checkNullOrdinal)
         {
             this._instanceCreator = instanceCreator;
-            this._readerOrdinals = readerOrdinals;
-            this._objectActivators = objectActivators;
-            this._memberSetters = memberSetters;
+            this._argumentActivators = argumentActivators;
+            this._memberBinders = memberBinders;
             this._checkNullOrdinal = checkNullOrdinal;
 
-            this._readerOrdinalEnumerator = new ReaderOrdinalEnumerator(readerOrdinals);
-            this._objectActivatorEnumerator = new ObjectActivatorEnumerator(objectActivators);
+            this._argumentActivatorEnumerator = new ObjectActivatorEnumerator(argumentActivators);
         }
 
+        public void Prepare(IDataReader reader)
+        {
+            for (int i = 0; i < this._argumentActivators.Count; i++)
+            {
+                IObjectActivator argumentActivator = this._argumentActivators[i];
+                argumentActivator.Prepare(reader);
+            }
+            for (int i = 0; i < this._memberBinders.Count; i++)
+            {
+                IMemberBinder binder = this._memberBinders[i];
+                binder.Prepare(reader);
+            }
+        }
         public virtual object CreateInstance(IDataReader reader)
         {
             if (this._checkNullOrdinal != null)
@@ -39,36 +48,18 @@ namespace Chloe.Mapper.Activators
                     return null;
             }
 
-            this._readerOrdinalEnumerator.Reset();
-            this._objectActivatorEnumerator.Reset();
+            this._argumentActivatorEnumerator.Reset();
 
-            object obj = null;
+            object obj = this._instanceCreator(reader, this._argumentActivatorEnumerator);
+
+            IMemberBinder memberBinder = null;
             try
             {
-                obj = this._instanceCreator(reader, this._readerOrdinalEnumerator, this._objectActivatorEnumerator);
-            }
-            catch (ChloeException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                if (this._readerOrdinalEnumerator.CurrentOrdinal >= 0)
-                {
-                    throw new ChloeException(AppendErrorMsg(reader, this._readerOrdinalEnumerator.CurrentOrdinal, ex), ex);
-                }
-
-                throw;
-            }
-
-            IValueSetter memberSetter = null;
-            try
-            {
-                int count = this._memberSetters.Count;
+                int count = this._memberBinders.Count;
                 for (int i = 0; i < count; i++)
                 {
-                    memberSetter = this._memberSetters[i];
-                    memberSetter.SetValue(obj, reader);
+                    memberBinder = this._memberBinders[i];
+                    memberBinder.Bind(obj, reader);
                 }
             }
             catch (ChloeException)
@@ -77,7 +68,7 @@ namespace Chloe.Mapper.Activators
             }
             catch (Exception ex)
             {
-                PrimitiveMemberBinder binder = memberSetter as PrimitiveMemberBinder;
+                PrimitiveMemberBinder binder = memberBinder as PrimitiveMemberBinder;
                 if (binder != null)
                 {
                     throw new ChloeException(AppendErrorMsg(reader, binder.Ordinal, ex), ex);
@@ -109,8 +100,8 @@ namespace Chloe.Mapper.Activators
     public class ObjectActivatorWithTracking : ComplexObjectActivator
     {
         IDbContext _dbContext;
-        public ObjectActivatorWithTracking(Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> instanceCreator, List<int> readerOrdinals, List<IObjectActivator> objectActivators, List<IValueSetter> memberSetters, int? checkNullOrdinal, IDbContext dbContext)
-            : base(instanceCreator, readerOrdinals, objectActivators, memberSetters, checkNullOrdinal)
+        public ObjectActivatorWithTracking(InstanceCreator instanceCreator, List<IObjectActivator> argumentActivators, List<IMemberBinder> memberBinders, int? checkNullOrdinal, IDbContext dbContext)
+            : base(instanceCreator, argumentActivators, memberBinders, checkNullOrdinal)
         {
             this._dbContext = dbContext;
         }

@@ -38,7 +38,7 @@ namespace Chloe.Descriptors
 
         public ConstructorInfo ConstructorInfo { get; private set; }
         public Dictionary<MemberInfo, ParameterInfo> MemberParameterMap { get; private set; }
-        public Func<IDataReader, ReaderOrdinalEnumerator, ObjectActivatorEnumerator, object> GetInstanceCreator()
+        public InstanceCreator GetInstanceCreator()
         {
             ObjectConstructor objectConstructor = null;
             if (null == this._objectConstructor)

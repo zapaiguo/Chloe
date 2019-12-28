@@ -10,13 +10,15 @@ using System.Reflection;
 using System.Text;
 using Chloe.Infrastructure;
 using Chloe.Utility;
+using Chloe.Reflection;
+using System.Threading;
 
 namespace Chloe.Mapper
 {
     public class ObjectMemberMapper
     {
-        Dictionary<MemberInfo, IMRM> _mappingMemberMappers;
-        Dictionary<MemberInfo, Action<object, object>> _complexMemberSetters;
+        Dictionary<MemberInfo, MRMTuple> _mappingMemberMappers;
+        Dictionary<MemberInfo, Lazy<MemberValueSetter>> _memberSetters;
 
         ObjectMemberMapper(Type t)
         {
@@ -28,9 +30,8 @@ namespace Chloe.Mapper
         {
             Type t = this.Type;
             var members = t.GetMembers(BindingFlags.Public | BindingFlags.Instance);
-
-            Dictionary<MemberInfo, IMRM> mappingMemberMappers = new Dictionary<MemberInfo, IMRM>();
-            Dictionary<MemberInfo, Action<object, object>> complexMemberSetters = new Dictionary<MemberInfo, Action<object, object>>();
+            Dictionary<MemberInfo, MRMTuple> mappingMemberMappers = new Dictionary<MemberInfo, MRMTuple>();
+            Dictionary<MemberInfo, Lazy<MemberValueSetter>> memberSetters = new Dictionary<MemberInfo, Lazy<MemberValueSetter>>();
 
             foreach (var member in members)
             {
@@ -42,38 +43,39 @@ namespace Chloe.Mapper
                 //只支持公共属性和字段
                 Type memberType = member.GetMemberType();
 
-                MappingTypeInfo mappingTypeInfo;
-                if (MappingTypeSystem.IsMappingType(memberType, out mappingTypeInfo))
+                memberSetters.Add(member, new Lazy<MemberValueSetter>(() =>
                 {
-                    IMRM mrm = MRMHelper.CreateMRM(member, mappingTypeInfo);
-                    mappingMemberMappers.Add(member, mrm);
-                }
-                else
+                    MemberValueSetter valueSetter = DelegateGenerator.CreateValueSetter(member);
+                    return valueSetter;
+                }, LazyThreadSafetyMode.ExecutionAndPublication));
+
+                Infrastructure.MappingType mappingType;
+                if (MappingTypeSystem.IsMappingType(memberType, out mappingType))
                 {
-                    Action<object, object> valueSetter = DelegateGenerator.CreateValueSetter(member);
-                    complexMemberSetters.Add(member, valueSetter);
+                    MRMTuple mrmTuple = MRMHelper.CreateMRMTuple(member, mappingType);
+                    mappingMemberMappers.Add(member, mrmTuple);
                 }
             }
 
             this._mappingMemberMappers = PublicHelper.Clone(mappingMemberMappers);
-            this._complexMemberSetters = PublicHelper.Clone(complexMemberSetters);
+            this._memberSetters = PublicHelper.Clone(memberSetters);
         }
 
         public Type Type { get; private set; }
 
-        public IMRM TryGetMappingMemberMapper(MemberInfo memberInfo)
+        public MRMTuple GetMappingMemberMapper(MemberInfo memberInfo)
         {
             memberInfo = memberInfo.AsReflectedMemberOf(this.Type);
-            IMRM mapper = null;
-            this._mappingMemberMappers.TryGetValue(memberInfo, out mapper);
-            return mapper;
+            MRMTuple mapperTuple = null;
+            this._mappingMemberMappers.TryGetValue(memberInfo, out mapperTuple);
+            return mapperTuple;
         }
-        public Action<object, object> FindComplexMemberSetter(MemberInfo memberInfo)
+        public MemberValueSetter GetMemberSetter(MemberInfo memberInfo)
         {
             memberInfo = memberInfo.AsReflectedMemberOf(this.Type);
-            Action<object, object> valueSetter = null;
-            this._complexMemberSetters.TryGetValue(memberInfo, out valueSetter);
-            return valueSetter;
+            Lazy<MemberValueSetter> valueSetter = null;
+            this._memberSetters.TryGetValue(memberInfo, out valueSetter);
+            return valueSetter.Value;
         }
 
         static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, ObjectMemberMapper> InstanceCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, ObjectMemberMapper>();

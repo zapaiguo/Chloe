@@ -183,7 +183,7 @@ namespace Chloe.Extensions
             return val;
         }
 
-        public static TEnum GetEnum<TEnum>(this IDataReader reader, int ordinal) where TEnum : struct
+        public static object GetEnum(this IDataReader reader, int ordinal, Type enumType)
         {
             Type fieldType = reader.GetFieldType(ordinal);
 
@@ -197,6 +197,11 @@ namespace Chloe.Extensions
             else
                 value = reader.GetInt64(ordinal);
 
+            return Enum.ToObject(enumType, value);
+        }
+        public static TEnum GetEnum<TEnum>(this IDataReader reader, int ordinal) where TEnum : struct
+        {
+            object value = GetEnum(reader, ordinal, typeof(TEnum));
             return (TEnum)Enum.ToObject(typeof(TEnum), value);
         }
         public static TEnum? GetEnum_Nullable<TEnum>(this IDataReader reader, int ordinal) where TEnum : struct
