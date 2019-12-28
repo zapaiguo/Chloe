@@ -12,7 +12,6 @@ namespace Chloe.Infrastructure
 
     public class DbParameterAssembler : IDbParameterAssembler
     {
-        Dictionary<Type, DbType> _dbTypes = new Dictionary<Type, DbType>();
         static readonly DbType[] DbTypes = {
             DbType.Object,
             DbType.Object,
@@ -74,7 +73,6 @@ namespace Chloe.Infrastructure
                 parameter.DbType = param.DbType.Value;
             else
             {
-
                 TypeCode typeCode = Convert.GetTypeCode(parameter.Value);
                 DbType dbType = DbTypes[(int)typeCode];
                 if (dbType != DbType.Object)
@@ -83,8 +81,9 @@ namespace Chloe.Infrastructure
                 }
                 else
                 {
-                    if (this._dbTypes.TryGetValue(parameterType, out dbType))
-                        parameter.DbType = dbType;
+                    var t = MappingTypeSystem.GetDbType(parameterType);
+                    if (t != null)
+                        parameter.DbType = t.Value;
                 }
             }
 

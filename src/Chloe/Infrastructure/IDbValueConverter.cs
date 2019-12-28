@@ -29,7 +29,18 @@ namespace Chloe.Infrastructure
         {
         }
     }
-
+    internal class InternalDbValueConverter : IDbValueConverter
+    {
+        Func<object, object> _converter;
+        public InternalDbValueConverter(Func<object, object> converter)
+        {
+            this._converter = converter;
+        }
+        public object Convert(object value)
+        {
+            return this._converter(value);
+        }
+    }
 
     public class Byte_ValueConverter : DbValueConverter<Byte>
     {
@@ -126,6 +137,9 @@ namespace Chloe.Infrastructure
     {
         public override object Convert(object value)
         {
+            if (value.GetType() == typeof(string))
+                return Guid.Parse((string)value);
+
             return base.Convert(value);
         }
     }

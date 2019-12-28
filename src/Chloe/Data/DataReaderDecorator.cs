@@ -55,12 +55,7 @@ namespace Chloe.Data
 
         public virtual bool GetBoolean(int i)
         {
-            Type fieldType = this._reader.GetFieldType(i);
-
-            if (fieldType == UtilConstants.TypeOfBoolean)
-                return this._reader.GetBoolean(i);
-
-            return Convert.ToBoolean(this._reader.GetValue(i));
+            return this._reader.GetBoolean(i);
         }
         public virtual byte GetByte(int i)
         {

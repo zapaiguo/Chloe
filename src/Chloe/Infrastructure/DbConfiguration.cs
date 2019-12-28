@@ -43,9 +43,14 @@ namespace Chloe.Infrastructure
             }
         }
 
-        //public static void UseMappingType(IMappingType mappingType)
-        //{
-        //    MappingTypeSystem.Configure(mappingType);
-        //}
+        /// <summary>
+        /// 配置映射类型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static MappingTypeBuilder ConfigureMappingType<T>()
+        {
+            return MappingTypeSystem.Configure<T>();
+        }
     }
 }

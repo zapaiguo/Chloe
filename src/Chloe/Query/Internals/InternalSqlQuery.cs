@@ -4,7 +4,7 @@ using Chloe.Descriptors;
 using Chloe.Infrastructure;
 using Chloe.Mapper;
 using Chloe.Query.Mapping;
-using Chloe.InternalExtensions;
+using Chloe.Reflection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,7 +42,6 @@ namespace Chloe.Query.Internals
         {
             return this.GetEnumerator();
         }
-
 
         struct QueryEnumerator : IEnumerator<T>
         {

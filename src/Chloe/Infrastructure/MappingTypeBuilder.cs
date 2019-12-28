@@ -26,6 +26,20 @@ namespace Chloe.Infrastructure
             this._mappingType.DbValueConverter = dbValueConverter;
             return this;
         }
+        public MappingTypeBuilder HasDbValueConverter(Func<object, object> dbValueConverter)
+        {
+            if (dbValueConverter == null)
+                throw new ArgumentNullException(nameof(dbValueConverter));
+
+            this._mappingType.DbValueConverter = new InternalDbValueConverter(dbValueConverter);
+            return this;
+        }
+        public MappingTypeBuilder HasDbValueConverter<TConverter>()
+        {
+            IDbValueConverter dbValueConverter = Activator.CreateInstance(typeof(TConverter)) as IDbValueConverter;
+            return this.HasDbValueConverter(dbValueConverter);
+        }
+
         public MappingTypeBuilder HasDbParameterAssembler(IDbParameterAssembler dbParameterAssembler)
         {
             if (dbParameterAssembler == null)
@@ -33,6 +47,11 @@ namespace Chloe.Infrastructure
 
             this._mappingType.DbParameterAssembler = dbParameterAssembler;
             return this;
+        }
+        public MappingTypeBuilder HasDbParameterAssembler<TAssembler>()
+        {
+            IDbParameterAssembler dbParameterAssembler = Activator.CreateInstance(typeof(TAssembler)) as IDbParameterAssembler;
+            return this.HasDbParameterAssembler(dbParameterAssembler);
         }
     }
 }
