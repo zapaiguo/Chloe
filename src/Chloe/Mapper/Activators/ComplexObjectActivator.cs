@@ -11,10 +11,10 @@ namespace Chloe.Mapper.Activators
 {
     public class ComplexObjectActivator : IObjectActivator
     {
-        int? _checkNullOrdinal;
         InstanceCreator _instanceCreator;
         List<IObjectActivator> _argumentActivators;
         List<IMemberBinder> _memberBinders;
+        int? _checkNullOrdinal;
 
         public ComplexObjectActivator(InstanceCreator instanceCreator, List<IObjectActivator> argumentActivators, List<IMemberBinder> memberBinders, int? checkNullOrdinal)
         {

@@ -78,7 +78,7 @@ namespace Chloe.Query.Mapping
         List<IMemberBinder> CreateMemberBinders(IDbContext dbContext)
         {
             ObjectMemberMapper mapper = this.ConstructorDescriptor.GetEntityMemberMapper();
-            List<IMemberBinder> memberBinders = new List<IMemberBinder>(this.PrimitiveMembers.Count + this.ComplexMembers.Count);
+            List<IMemberBinder> memberBinders = new List<IMemberBinder>(this.PrimitiveMembers.Count + this.ComplexMembers.Count + this.CollectionMembers.Count);
             foreach (var kv in this.PrimitiveMembers)
             {
                 MRMTuple mrmTuple = mapper.GetMappingMemberMapper(kv.Key);

@@ -12,8 +12,9 @@ namespace Chloe.Mapper.Activators
     public class PrimitiveObjectActivator : IObjectActivator
     {
         Type _primitiveType;
-        IDbValueReader _dbValueReader = null;
         int _readerOrdinal;
+        IDbValueReader _dbValueReader;
+
         public PrimitiveObjectActivator(Type primitiveType, int readerOrdinal)
         {
             this._primitiveType = primitiveType;
