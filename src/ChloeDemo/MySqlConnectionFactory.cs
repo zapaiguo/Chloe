@@ -19,7 +19,6 @@ namespace ChloeDemo
         public IDbConnection CreateConnection()
         {
             IDbConnection conn = new MySqlConnection(this._connString);
-            conn = new Chloe.MySql.ChloeMySqlConnection(conn);
             return conn;
         }
     }

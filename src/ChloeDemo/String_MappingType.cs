@@ -10,14 +10,18 @@ using System.Text;
 
 namespace ChloeDemo
 {
-    class String_MappingType : MappingType<string>, IMappingType
+    /// <summary>
+    /// 处理 PostgreSQL json、Oracle Clob/NClob
+    /// </summary>
+    class String_MappingType : DbParameterAssembler, IDbParameterAssembler, IDbValueConverter
     {
-        public String_MappingType() : base(DbType.String)
+        public object Convert(object value)
         {
+            return value.ToString();
         }
-        public override IDbDataParameter CreateDataParameter(IDbCommand cmd, DbParam param)
+        public override void SetupParameter(IDbDataParameter parameter, DbParam param)
         {
-            IDbDataParameter parameter = base.CreateDataParameter(cmd, param);
+            base.SetupParameter(parameter, param);
 
             if (parameter is NpgsqlParameter)
             {
@@ -49,8 +53,6 @@ namespace ChloeDemo
                         oracleParameter.OracleDbType = OracleDbType.Clob;
                 }
             }
-
-            return parameter;
         }
     }
 }
