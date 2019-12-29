@@ -45,7 +45,6 @@ namespace Chloe.Query.QueryState
             if (type.IsAbstract || type.IsInterface)
                 throw new ArgumentException("The type of input can not be abstract class or interface.");
 
-            //TODO init queryModel
             QueryModel queryModel = new QueryModel(scopeParameters, scopeTables);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(type);

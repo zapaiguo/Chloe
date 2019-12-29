@@ -30,11 +30,11 @@ namespace Chloe.Mapper.Binders
             Type fieldType = reader.GetFieldType(this._ordinal);
             if (fieldType == this._member.GetMemberType().GetUnderlyingType())
             {
-                this._mMapper = _mrmTuple.StrongMRM.Value;
+                this._mMapper = this._mrmTuple.StrongMRM.Value;
                 return;
             }
 
-            this._mMapper = _mrmTuple.SafeMRM.Value;
+            this._mMapper = this._mrmTuple.SafeMRM.Value;
         }
         public void Bind(object obj, IDataReader reader)
         {
