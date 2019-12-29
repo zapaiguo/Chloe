@@ -21,21 +21,10 @@ namespace Chloe.Entity
         public bool IsAutoIncrement { get; set; }
         public bool IsNullable { get; set; }
         public bool IsRowVersion { get; set; }
-        public DbType? DbType { get; set; }
+        public DbType DbType { get; set; }
         public int? Size { get; set; }
         public byte? Scale { get; set; }
         public byte? Precision { get; set; }
-
-        internal void SetIsPrimaryKey(bool isPrimaryKey)
-        {
-            this.IsPrimaryKey = isPrimaryKey;
-
-            if (isPrimaryKey && this.DbType == null && this.Property.PropertyType == typeof(string))
-            {
-                //如果主键是 string 类型并且未显示指定 DbType，默认为 AnsiString
-                this.DbType = System.Data.DbType.AnsiString;
-            }
-        }
 
         public PrimitivePropertyDefinition MakeDefinition()
         {

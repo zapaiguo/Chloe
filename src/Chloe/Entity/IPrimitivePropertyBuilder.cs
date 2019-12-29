@@ -14,7 +14,7 @@ namespace Chloe.Entity
         IPrimitivePropertyBuilder IsAutoIncrement(bool autoIncrement = true);
         IPrimitivePropertyBuilder IsNullable(bool isNullable = true);
         IPrimitivePropertyBuilder IsRowVersion(bool isRowVersion = true);
-        IPrimitivePropertyBuilder HasDbType(DbType? dbType);
+        IPrimitivePropertyBuilder HasDbType(DbType dbType);
         IPrimitivePropertyBuilder HasSize(int? size);
         IPrimitivePropertyBuilder HasScale(byte? scale);
         IPrimitivePropertyBuilder HasPrecision(byte? precision);
@@ -28,7 +28,7 @@ namespace Chloe.Entity
         new IPrimitivePropertyBuilder<TProperty> IsAutoIncrement(bool autoIncrement = true);
         new IPrimitivePropertyBuilder<TProperty> IsNullable(bool isNullable = true);
         new IPrimitivePropertyBuilder<TProperty> IsRowVersion(bool isRowVersion = true);
-        new IPrimitivePropertyBuilder<TProperty> HasDbType(DbType? dbType);
+        new IPrimitivePropertyBuilder<TProperty> HasDbType(DbType dbType);
         new IPrimitivePropertyBuilder<TProperty> HasSize(int? size);
         new IPrimitivePropertyBuilder<TProperty> HasScale(byte? scale);
         new IPrimitivePropertyBuilder<TProperty> HasPrecision(byte? precision);

@@ -52,7 +52,7 @@ namespace Chloe.Entity
         }
         IPrimitivePropertyBuilder IPrimitivePropertyBuilder.IsPrimaryKey(bool isPrimaryKey)
         {
-            this.Property.SetIsPrimaryKey(isPrimaryKey);
+            this.Property.IsPrimaryKey = isPrimaryKey;
             return this;
         }
 
@@ -67,6 +67,7 @@ namespace Chloe.Entity
             if (isAutoIncrement)
             {
                 this.Property.SequenceName = null;
+                this.Property.SequenceSchema = null;
             }
 
             return this;
@@ -94,12 +95,12 @@ namespace Chloe.Entity
             return this;
         }
 
-        public IPrimitivePropertyBuilder<TProperty> HasDbType(DbType? dbType)
+        public IPrimitivePropertyBuilder<TProperty> HasDbType(DbType dbType)
         {
             this.AsNonGenericBuilder().HasDbType(dbType);
             return this;
         }
-        IPrimitivePropertyBuilder IPrimitivePropertyBuilder.HasDbType(DbType? dbType)
+        IPrimitivePropertyBuilder IPrimitivePropertyBuilder.HasDbType(DbType dbType)
         {
             this.Property.DbType = dbType;
             return this;

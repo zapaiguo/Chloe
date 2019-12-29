@@ -69,8 +69,9 @@ namespace Chloe.Entity
                         if (!string.IsNullOrEmpty(columnAttribute.Name))
                             propertyBuilder.MapTo(columnAttribute.Name);
 
-                        /* 为防止覆盖 IsPrimaryKey() 里的 DbType 设置，IsPrimaryKey() 方法调用在 HasDbType() 之后 */
-                        propertyBuilder.HasDbType(columnAttribute.GetDbType());
+                        if (columnAttribute.HasDbType())
+                            propertyBuilder.HasDbType(columnAttribute.DbType);
+
                         propertyBuilder.IsPrimaryKey(columnAttribute.IsPrimaryKey);
                         propertyBuilder.IsRowVersion(columnAttribute.IsRowVersion);
                         propertyBuilder.HasSize(columnAttribute.GetSize());

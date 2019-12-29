@@ -1,6 +1,7 @@
 ﻿using Chloe.DbExpressions;
 using Chloe.Exceptions;
 using Chloe.Infrastructure;
+using Chloe.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,10 +21,30 @@ namespace Chloe.Entity
 
             foreach (PropertyInfo property in properties)
             {
-                if (!MappingTypeSystem.IsMappingType(property.PropertyType))
+                MappingType mappingType;
+                if (!MappingTypeSystem.IsMappingType(property.PropertyType, out mappingType))
                     continue;
 
-                this.PrimitiveProperties.Add(new PrimitiveProperty(property));
+                PrimitiveProperty primitiveProperty = new PrimitiveProperty(property);
+                primitiveProperty.DbType = mappingType.DbType;
+                primitiveProperty.IsNullable = property.PropertyType.CanNull();
+
+                if (string.Equals(property.Name, "id", StringComparison.OrdinalIgnoreCase))
+                {
+                    /* 默认为主键 */
+                    primitiveProperty.IsPrimaryKey = true;
+
+                    if (Utils.IsAutoIncrementType(property.PropertyType))
+                        primitiveProperty.IsAutoIncrement = true;
+
+                    if (property.PropertyType == typeof(string))
+                    {
+                        //如果主键是 string 类型，默认为 AnsiString
+                        primitiveProperty.DbType = System.Data.DbType.AnsiString;
+                    }
+                }
+
+                this.PrimitiveProperties.Add(primitiveProperty);
             }
         }
 
