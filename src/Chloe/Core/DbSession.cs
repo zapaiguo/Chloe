@@ -79,6 +79,10 @@ namespace Chloe.Core
             return this.ExecuteReader(cmdText, cmdType, PublicHelper.BuildParams(this._dbContext, parameter));
         }
 
+        public void UseTransaction(IDbTransaction dbTransaction)
+        {
+            this._dbContext.AdoSession.UseExternalTransaction(dbTransaction);
+        }
         public void BeginTransaction()
         {
             this._dbContext.AdoSession.BeginTransaction(null);

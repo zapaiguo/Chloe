@@ -6,12 +6,12 @@ namespace Chloe.Data
 {
     class InternalDataReader : DataReaderDecorator, IDataReader, IDisposable, IDataRecord
     {
-        InternalAdoSession _adoSession;
+        IAdoSession _adoSession;
         IDbCommand _cmd;
         List<OutputParameter> _outputParameters;
         bool _disposed = false;
 
-        public InternalDataReader(InternalAdoSession adoSession, IDataReader reader, IDbCommand cmd, List<OutputParameter> outputParameters) : base(reader)
+        public InternalDataReader(IAdoSession adoSession, IDataReader reader, IDbCommand cmd, List<OutputParameter> outputParameters) : base(reader)
         {
             Utils.CheckNull(adoSession);
             Utils.CheckNull(cmd);

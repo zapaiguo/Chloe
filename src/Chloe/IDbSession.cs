@@ -14,7 +14,7 @@ namespace Chloe
         IDbTransaction CurrentTransaction { get; }
         bool IsInTransaction { get; }
         int CommandTimeout { get; set; }
-        
+
         int ExecuteNonQuery(string cmdText, params DbParam[] parameters);
         int ExecuteNonQuery(string cmdText, CommandType cmdType, params DbParam[] parameters);
         int ExecuteNonQuery(string cmdText, object parameter);
@@ -51,6 +51,11 @@ namespace Chloe
         /// <returns></returns>
         IDataReader ExecuteReader(string cmdText, CommandType cmdType, object parameter);
 
+        /// <summary>
+        /// 使用外部事务。传 null 则取消使用外部事务。
+        /// </summary>
+        /// <param name="dbTransaction"></param>
+        void UseTransaction(IDbTransaction dbTransaction);
         void BeginTransaction();
         void BeginTransaction(IsolationLevel il);
         void CommitTransaction();

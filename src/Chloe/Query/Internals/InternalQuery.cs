@@ -69,7 +69,7 @@ namespace Chloe.Query.Internals
         public override string ToString()
         {
             DbCommandFactor commandFactor = this.GenerateCommandFactor();
-            return InternalAdoSession.AppendDbCommandInfo(commandFactor.CommandText, commandFactor.Parameters);
+            return InnerAdoSession.AppendDbCommandInfo(commandFactor.CommandText, commandFactor.Parameters);
         }
     }
 }

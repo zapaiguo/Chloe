@@ -21,7 +21,7 @@ namespace Chloe
     public abstract partial class DbContext : IDbContext, IDisposable
     {
         bool _disposed = false;
-        InternalAdoSession _adoSession;
+        InnerAdoSession _adoSession;
         DbSession _session;
 
         Dictionary<Type, TrackEntityCollection> _trackingEntityContainer;
@@ -39,13 +39,13 @@ namespace Chloe
             }
         }
 
-        internal InternalAdoSession AdoSession
+        internal InnerAdoSession AdoSession
         {
             get
             {
                 this.CheckDisposed();
                 if (this._adoSession == null)
-                    this._adoSession = new InternalAdoSession(this.DatabaseProvider.CreateConnection());
+                    this._adoSession = new InnerAdoSession(this.DatabaseProvider.CreateConnection());
                 return this._adoSession;
             }
         }
