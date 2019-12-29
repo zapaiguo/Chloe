@@ -9,6 +9,7 @@ using Chloe.Infrastructure;
 using Chloe.Mapper.Binders;
 using Chloe.Mapper.Activators;
 using Chloe.Reflection;
+using Chloe.Exceptions;
 
 namespace Chloe.Query.Mapping
 {
@@ -123,7 +124,7 @@ namespace Chloe.Query.Mapping
                 }
                 else
                 {
-                    throw new Exception("####This is a bug####");
+                    throw new UnbelievableException();
                 }
 
                 argumentActivators.Add(argumentActivator);
