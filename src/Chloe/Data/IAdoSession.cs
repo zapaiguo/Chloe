@@ -26,7 +26,9 @@ namespace Chloe.Data
         event AdoEventHandler<object> OnScalarExecuted;
 
         void Activate();
-        /* 表示一次查询完成。在事务中的话不关闭连接，交给 CommitTransaction() 或者 RollbackTransaction() 控制，否则调用 IDbConnection.Close() 关闭连接 */
+        /// <summary>
+        /// 表示一次查询完成。在事务中的话不关闭连接，交给 CommitTransaction() 或者 RollbackTransaction() 控制，否则调用 IDbConnection.Close() 关闭连接
+        /// </summary>
         void Complete();
 
         void BeginTransaction(IsolationLevel? il);

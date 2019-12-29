@@ -186,55 +186,5 @@ namespace Chloe.Data
             }
         }
         #endregion
-
-        public static string AppendDbCommandInfo(string cmdText, DbParam[] parameters)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (parameters != null)
-            {
-                foreach (DbParam param in parameters)
-                {
-                    if (param == null)
-                        continue;
-
-                    string typeName = null;
-                    object value = null;
-                    Type parameterType;
-                    if (param.Value == null || param.Value == DBNull.Value)
-                    {
-                        parameterType = param.Type;
-                        value = "NULL";
-                    }
-                    else
-                    {
-                        value = param.Value;
-                        parameterType = param.Value.GetType();
-
-                        if (parameterType == typeof(string) || parameterType == typeof(DateTime))
-                            value = "'" + value + "'";
-                    }
-
-                    if (parameterType != null)
-                        typeName = GetTypeName(parameterType);
-
-                    sb.AppendFormat("{0} {1} = {2};", typeName, param.Name, value);
-                    sb.AppendLine();
-                }
-            }
-
-            sb.AppendLine(cmdText);
-
-            return sb.ToString();
-        }
-        static string GetTypeName(Type type)
-        {
-            Type underlyingType;
-            if (ReflectionExtension.IsNullable(type, out underlyingType))
-            {
-                return string.Format("Nullable<{0}>", GetTypeName(underlyingType));
-            }
-
-            return type.Name;
-        }
     }
 }
