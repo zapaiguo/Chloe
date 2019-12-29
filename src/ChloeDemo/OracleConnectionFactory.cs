@@ -27,7 +27,7 @@ namespace ChloeDemo
              */
 
             OracleConnection oracleConnection = new OracleConnection(this._connString);
-            //OracleConnectionDecorator conn = new OracleConnectionDecorator(oracleConnection);
+            OracleConnectionDecorator conn = new OracleConnectionDecorator(oracleConnection);
             return oracleConnection;
         }
     }
