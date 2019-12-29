@@ -137,8 +137,12 @@ namespace Chloe.Infrastructure
     {
         public override object Convert(object value)
         {
-            if (value.GetType() == typeof(string))
+            Type valueType = value.GetType();
+            if (valueType == typeof(string))
                 return Guid.Parse((string)value);
+
+            if (valueType == typeof(byte[]))
+                return new Guid((byte[])value);
 
             return base.Convert(value);
         }

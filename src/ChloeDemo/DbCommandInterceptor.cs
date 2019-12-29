@@ -1,4 +1,5 @@
 ﻿using Chloe.Infrastructure.Interception;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,8 +15,22 @@ namespace ChloeDemo
     /// </summary>
     class DbCommandInterceptor : IDbCommandInterceptor
     {
+        /// <summary>
+        /// oracle：修改参数绑定方式
+        /// </summary>
+        /// <param name="command"></param>
+        void BindByName(IDbCommand command)
+        {
+            if (command is OracleCommand)
+            {
+                (command as OracleCommand).BindByName = true;
+            }
+        }
+
         public void ReaderExecuting(IDbCommand command, DbCommandInterceptionContext<IDataReader> interceptionContext)
         {
+            this.BindByName(command);
+
             //interceptionContext.DataBag.Add("startTime", DateTime.Now);
             Debug.WriteLine(AppendDbCommandInfo(command));
             Console.WriteLine(command.CommandText);
@@ -30,6 +45,8 @@ namespace ChloeDemo
 
         public void NonQueryExecuting(IDbCommand command, DbCommandInterceptionContext<int> interceptionContext)
         {
+            this.BindByName(command);
+
             Debug.WriteLine(AppendDbCommandInfo(command));
             Console.WriteLine(command.CommandText);
         }
@@ -41,6 +58,8 @@ namespace ChloeDemo
 
         public void ScalarExecuting(IDbCommand command, DbCommandInterceptionContext<object> interceptionContext)
         {
+            this.BindByName(command);
+
             //interceptionContext.DataBag.Add("startTime", DateTime.Now);
             Debug.WriteLine(AppendDbCommandInfo(command));
             Console.WriteLine(command.CommandText);

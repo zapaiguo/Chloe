@@ -20,12 +20,21 @@ namespace ChloeDemo
         }
         public IDbConnection CreateConnection()
         {
+            /*
+             * 修改参数绑定方式有两个途径：
+             * 1. 使用如下 OracleConnectionDecorator 的方式
+             * 2. 使用拦截器修改，在 IDbCommandInterceptor.ReaderExecuting()，IDbCommandInterceptor.NonQueryExecuting()，IDbCommandInterceptor.ScalarExecuting() 方法里对 DbCommand 做处理，参考 ChloeDemo.DbCommandInterceptor 类
+             */
+
             OracleConnection oracleConnection = new OracleConnection(this._connString);
-            OracleConnectionDecorator conn = new OracleConnectionDecorator(oracleConnection);
-            return conn;
+            //OracleConnectionDecorator conn = new OracleConnectionDecorator(oracleConnection);
+            return oracleConnection;
         }
     }
 
+    /// <summary>
+    /// 该装饰器主要修改参数绑定方式。
+    /// </summary>
     class OracleConnectionDecorator : DbConnectionDecorator, IDbConnection, IDisposable
     {
         OracleConnection _oracleConnection;
