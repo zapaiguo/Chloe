@@ -6,6 +6,9 @@ using System.Text;
 
 namespace Chloe.Data
 {
+    /// <summary>
+    /// 通过该扩展类方法从 DataReader 获取得到的值如果是 DBNull，则会返回 null
+    /// </summary>
     public static class DataReaderExtension
     {
         public static short GetInt16(IDataReader reader, int ordinal)

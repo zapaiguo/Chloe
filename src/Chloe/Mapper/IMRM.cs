@@ -11,6 +11,7 @@ using Chloe.InternalExtensions;
 using MappingType = Chloe.Infrastructure.MappingType;
 using System.Threading;
 using Chloe.Reflection;
+using Chloe.Data;
 
 namespace Chloe.Mapper
 {
@@ -86,10 +87,11 @@ namespace Chloe.Mapper
 
         public void Map(object instance, IDataReader reader, int ordinal)
         {
-            object value = reader.GetValue(ordinal);
-            if (value == DBNull.Value)
+            object value = DataReaderExtension.GetValue(reader, ordinal);
+            if (value == null)
             {
-                value = null;
+                this._valueSetter(instance, null);
+                return;
             }
 
             value = this._mappingType.DbValueConverter.Convert(value);

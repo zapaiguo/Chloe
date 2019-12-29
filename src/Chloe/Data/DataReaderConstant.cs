@@ -104,8 +104,8 @@ namespace Chloe.Data
 
                 return new DbValueReader((IDataReader reader, int ordinal) =>
                 {
-                    object value = reader.GetValue(ordinal);
-                    if (value == DBNull.Value || value == null)
+                    object value = DataReaderExtension.GetValue(reader, ordinal);
+                    if (value == null)
                         return null;
 
                     if (value.GetType() == mappingType.Type)
