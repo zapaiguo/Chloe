@@ -19,7 +19,7 @@ namespace ChloeDemo
         public UserMap()
         {
             this.MapTo("Users");
-            this.HasOne(a => a.City).HasForeignKey("CityId");
+            this.HasOne(a => a.City).WithForeignKey(a => a.CityId);
             this.Ignore(a => a.NotMapped);
             this.Property(a => a.Gender).HasDbType(DbType.Int32);
 
@@ -33,7 +33,7 @@ namespace ChloeDemo
         public CityMap()
         {
             this.HasMany(a => a.Users);
-            this.HasOne(a => a.Province).HasForeignKey("ProvinceId");
+            this.HasOne(a => a.Province).WithForeignKey(a => a.ProvinceId);
         }
     }
 
