@@ -22,9 +22,6 @@ namespace ChloeDemo
             this.HasOne(a => a.City).WithForeignKey(a => a.CityId);
             this.Ignore(a => a.NotMapped);
             this.Property(a => a.Gender).HasDbType(DbType.Int32);
-
-            /* Marks the column is timestamp type(sqlserver only) */
-            //this.Property(a => a.RowVersion).IsTimestamp();
         }
     }
 
