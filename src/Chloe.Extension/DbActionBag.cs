@@ -90,11 +90,10 @@ namespace Chloe
                 return affected;
             }
 
-
-            affected = this._dbContext.DoWithTransaction(() =>
-                {
-                    return this.InnerExecuteActions();
-                }, IsolationLevel.ReadCommitted);
+            this._dbContext.UseTransaction(() =>
+               {
+                   affected = this.InnerExecuteActions();
+               }, IsolationLevel.ReadCommitted);
 
             this._actions.Clear();
 

@@ -155,28 +155,6 @@ namespace Chloe
         {
             dbContext.Session.RollbackTransaction();
         }
-        [Obsolete("This method will be removed in future versions. Instead of using 'IDbContext.UseTransaction()'.")]
-        public static void DoWithTransaction(this IDbContext dbContext, Action action)
-        {
-            dbContext.UseTransaction(action);
-        }
-        [Obsolete("This method will be removed in future versions. Instead of using 'IDbContext.UseTransaction()'.")]
-        public static void DoWithTransaction(this IDbContext dbContext, Action action, IsolationLevel il)
-        {
-            dbContext.UseTransaction(action, il);
-        }
-        [Obsolete("This method will be removed in future versions. Instead of using 'IDbContext.UseTransaction()'.")]
-        public static T DoWithTransaction<T>(this IDbContext dbContext, Func<T> action)
-        {
-            dbContext.Session.BeginTransaction();
-            return ExecuteAction(dbContext, action);
-        }
-        [Obsolete("This method will be removed in future versions. Instead of using 'IDbContext.UseTransaction()'.")]
-        public static T DoWithTransaction<T>(this IDbContext dbContext, Func<T> action, IsolationLevel il)
-        {
-            dbContext.Session.BeginTransaction(il);
-            return ExecuteAction(dbContext, action);
-        }
 
         static T ExecuteAction<T>(IDbContext dbContext, Func<T> action)
         {
