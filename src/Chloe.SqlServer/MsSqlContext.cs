@@ -458,8 +458,6 @@ namespace Chloe.SqlServer
             IEntityState entityState = this.TryGetTrackedEntityState(entity);
             Dictionary<PrimitivePropertyDescriptor, DbExpression> updateColumns = new Dictionary<PrimitivePropertyDescriptor, DbExpression>();
 
-            PrimitivePropertyDescriptor rowVersionDescriptor = null;
-
             foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
                 if (propertyDescriptor.IsPrimaryKey)
@@ -473,12 +471,6 @@ namespace Chloe.SqlServer
                 if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence() || propertyDescriptor.IsRowVersion)
                     continue;
 
-                if (propertyDescriptor.IsTimestamp())
-                {
-                    rowVersionDescriptor = propertyDescriptor;
-                    continue;
-                }
-
                 object val = propertyDescriptor.GetValue(entity);
                 PublicHelper.NotNullCheck(propertyDescriptor, val);
 
@@ -489,30 +481,25 @@ namespace Chloe.SqlServer
                 updateColumns.Add(propertyDescriptor, valExp);
             }
 
-            object timestampValue = null;
+            PrimitivePropertyDescriptor rowVersionDescriptor = null;
+            object rowVersionValue = null;
             object rowVersionNewValue = null;
             if (typeDescriptor.HasRowVersion())
             {
                 rowVersionDescriptor = typeDescriptor.RowVersion;
                 if (rowVersionDescriptor.IsTimestamp())
                 {
-                    timestampValue = rowVersionDescriptor.GetValue(entity);
-                    PublicHelper.NotNullCheck(rowVersionDescriptor, timestampValue);
-                    keyValues.Add(rowVersionDescriptor, timestampValue);
+                    rowVersionValue = rowVersionDescriptor.GetValue(entity);
+                    this.EnsureRowVersionValueIsNotNull(rowVersionValue);
+                    keyValues.Add(rowVersionDescriptor, rowVersionValue);
                 }
                 else
                 {
-                    var rowVersionOldValue = rowVersionDescriptor.GetValue(entity);
-                    rowVersionNewValue = PublicHelper.IncreaseRowVersionNumber(rowVersionOldValue);
+                    rowVersionValue = rowVersionDescriptor.GetValue(entity);
+                    rowVersionNewValue = PublicHelper.IncreaseRowVersionNumber(rowVersionValue);
                     updateColumns.Add(rowVersionDescriptor, DbExpression.Parameter(rowVersionNewValue, rowVersionDescriptor.PropertyType, rowVersionDescriptor.Column.DbType));
-                    keyValues.Add(rowVersionDescriptor, rowVersionOldValue);
+                    keyValues.Add(rowVersionDescriptor, rowVersionValue);
                 }
-            }
-            else if (rowVersionDescriptor != null)
-            {
-                timestampValue = rowVersionDescriptor.GetValue(entity);
-                PublicHelper.NotNullCheck(rowVersionDescriptor, timestampValue);
-                keyValues.Add(rowVersionDescriptor, timestampValue);
             }
 
             if (updateColumns.Count == 0)
@@ -591,17 +578,8 @@ namespace Chloe.SqlServer
             {
                 rowVersionDescriptor = typeDescriptor.RowVersion;
                 var rowVersionValue = typeDescriptor.RowVersion.GetValue(entity);
+                this.EnsureRowVersionValueIsNotNull(rowVersionValue);
                 keyValues.Add(typeDescriptor.RowVersion, rowVersionValue);
-            }
-            else
-            {
-                rowVersionDescriptor = typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.IsTimestamp()).FirstOrDefault();
-                if (rowVersionDescriptor != null)
-                {
-                    object timestampValue = rowVersionDescriptor.GetValue(entity);
-                    PublicHelper.NotNullCheck(rowVersionDescriptor, timestampValue);
-                    keyValues.Add(rowVersionDescriptor, timestampValue);
-                }
             }
 
             DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
@@ -659,6 +637,12 @@ namespace Chloe.SqlServer
 
             return dt;
         }
-
+        void EnsureRowVersionValueIsNotNull(object rowVersionValue)
+        {
+            if (rowVersionValue == null)
+            {
+                throw new ArgumentException("The row version member of entity cannot be null.");
+            }
+        }
     }
 }
