@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Chloe.Entity
@@ -7,11 +8,12 @@ namespace Chloe.Entity
     public interface IComplexPropertyBuilder
     {
         ComplexProperty Property { get; }
-        IComplexPropertyBuilder HasForeignKey(string foreignKey);
+        IComplexPropertyBuilder WithForeignKey(string foreignKey);
     }
 
-    public interface IComplexPropertyBuilder<TProperty> : IComplexPropertyBuilder
+    public interface IComplexPropertyBuilder<TProperty, TEntity> : IComplexPropertyBuilder
     {
-        new IComplexPropertyBuilder<TProperty> HasForeignKey(string foreignKey);
+        new IComplexPropertyBuilder<TProperty, TEntity> WithForeignKey(string foreignKey);
+        IComplexPropertyBuilder<TProperty, TEntity> WithForeignKey<TForeignKey>(Expression<Func<TEntity, TForeignKey>> foreignKey);
     }
 }

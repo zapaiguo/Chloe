@@ -87,10 +87,10 @@ namespace Chloe.Entity
             return propertyBuilder;
         }
 
-        public IComplexPropertyBuilder<TProperty> HasOne<TProperty>(Expression<Func<TEntity, TProperty>> property)
+        public IComplexPropertyBuilder<TProperty, TEntity> HasOne<TProperty>(Expression<Func<TEntity, TProperty>> property)
         {
             string propertyName = PropertyNameExtractor.Extract(property);
-            IComplexPropertyBuilder<TProperty> propertyBuilder = this.HasOne(propertyName) as IComplexPropertyBuilder<TProperty>;
+            IComplexPropertyBuilder<TProperty, TEntity> propertyBuilder = this.HasOne(propertyName) as IComplexPropertyBuilder<TProperty, TEntity>;
             return propertyBuilder;
         }
         public IComplexPropertyBuilder HasOne(string property)
@@ -104,7 +104,7 @@ namespace Chloe.Entity
                 this.EntityType.ComplexProperties.Add(complexProperty);
             }
 
-            IComplexPropertyBuilder propertyBuilder = Activator.CreateInstance(typeof(ComplexPropertyBuilder<>).MakeGenericType(complexProperty.Property.PropertyType), complexProperty) as IComplexPropertyBuilder;
+            IComplexPropertyBuilder propertyBuilder = Activator.CreateInstance(typeof(ComplexPropertyBuilder<,>).MakeGenericType(complexProperty.Property.PropertyType, typeof(TEntity)), complexProperty) as IComplexPropertyBuilder;
 
             return propertyBuilder;
         }

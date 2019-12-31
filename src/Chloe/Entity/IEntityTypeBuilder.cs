@@ -24,7 +24,7 @@ namespace Chloe.Entity
         new IEntityTypeBuilder<TEntity> HasAnnotation(object value);
         IEntityTypeBuilder<TEntity> Ignore(Expression<Func<TEntity, object>> property);
         IPrimitivePropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> property);
-        IComplexPropertyBuilder<TProperty> HasOne<TProperty>(Expression<Func<TEntity, TProperty>> property);
+        IComplexPropertyBuilder<TProperty, TEntity> HasOne<TProperty>(Expression<Func<TEntity, TProperty>> property);
         ICollectionPropertyBuilder<TProperty> HasMany<TProperty>(Expression<Func<TEntity, TProperty>> property);
     }
 }
