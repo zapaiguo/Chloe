@@ -72,9 +72,9 @@ namespace Chloe.Core.Emit
                 //IObjectActivator oa = argumentActivators[i];
                 var oa = Expression.Call(pExp_argumentActivators, getItemMethod, Expression.Constant(i));
                 //object obj = oa.CreateInstance(IDataReader reader);
-                var entity = Expression.Call(oa, typeof(IObjectActivator).GetMethod("CreateInstance"), pExp_reader);
+                var obj = Expression.Call(oa, typeof(IObjectActivator).GetMethod("CreateInstance"), pExp_reader);
                 //T argument = (T)obj;
-                var argument = Expression.Convert(entity, parameter.ParameterType);
+                var argument = Expression.Convert(obj, parameter.ParameterType);
                 arguments.Add(argument);
             }
 
@@ -152,7 +152,7 @@ namespace Chloe.Core.Emit
 
         public static Func<object> CreateInstanceActivator(Type type)
         {
-            var body = Expression.New(type.GetConstructor(Type.EmptyTypes));
+            var body = Expression.New(type.GetDefaultConstructor());
             var ret = Expression.Lambda<Func<object>>(body).Compile();
             return ret;
         }

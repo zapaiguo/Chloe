@@ -91,5 +91,4 @@ namespace Chloe.Mapper
             this._elementFitter.Fill(entity, null, reader);
         }
     }
-
 }
