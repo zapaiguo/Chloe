@@ -29,10 +29,10 @@ namespace Chloe.Query.Visitors
             this._scopeParameters = scopeParameters;
         }
 
-        public static JoinQueryResult Resolve(QueryExpression queryExpression, QueryModel queryModel, JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters)
+        public static JoinQueryResult Resolve(JoinQueryInfo joinQueryInfo, QueryModel queryModel, ScopeParameterDictionary scopeParameters)
         {
-            JoinQueryExpressionResolver resolver = new JoinQueryExpressionResolver(queryModel, joinType, conditionExpression, scopeParameters);
-            return queryExpression.Accept(resolver);
+            JoinQueryExpressionResolver resolver = new JoinQueryExpressionResolver(queryModel, joinQueryInfo.JoinType, joinQueryInfo.Condition, scopeParameters);
+            return joinQueryInfo.Query.QueryExpression.Accept(resolver);
         }
 
         public override JoinQueryResult Visit(RootQueryExpression exp)

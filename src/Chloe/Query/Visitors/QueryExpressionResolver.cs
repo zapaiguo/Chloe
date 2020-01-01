@@ -81,7 +81,7 @@ namespace Chloe.Query.Visitors
                     scopeParameters[p] = modelList[i];
                 }
 
-                JoinQueryResult joinQueryResult = JoinQueryExpressionResolver.Resolve(joinQueryInfo.Query.QueryExpression, queryModel, joinQueryInfo.JoinType, joinQueryInfo.Condition, scopeParameters);
+                JoinQueryResult joinQueryResult = JoinQueryExpressionResolver.Resolve(joinQueryInfo, queryModel, scopeParameters);
 
                 var nullChecking = DbExpression.CaseWhen(new DbCaseWhenExpression.WhenThenExpressionPair(joinQueryResult.JoinTable.Condition, DbConstantExpression.One), DbConstantExpression.Null, DbConstantExpression.One.Type);
 
