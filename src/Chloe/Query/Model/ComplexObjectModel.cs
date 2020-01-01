@@ -58,7 +58,7 @@ namespace Chloe.Query
         /// 导航集合属性
         /// </summary>
         public List<NavigationNode> IncludeCollections { get; set; } = new List<NavigationNode>();
-        public DbExpression Filter { get; set; }
+        public List<DbExpression> Filters { get; set; } = new List<DbExpression>();
 
         /// <summary>
         /// 返回类型
@@ -299,11 +299,16 @@ namespace Chloe.Query
             return activatorCreator;
         }
 
-        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable)
+        public IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable, bool ignoreFilters)
         {
             ComplexObjectModel newModel = new ComplexObjectModel(this.ConstructorDescriptor);
             newModel.DependentTable = dependentTable;
             newModel.IncludeCollections.AddRange(this.IncludeCollections);
+
+            if (!ignoreFilters)
+            {
+                this.SetupFilters();
+            }
 
             foreach (var kv in this.PrimitiveConstructorParameters)
             {
@@ -321,7 +326,7 @@ namespace Chloe.Query
                 ParameterInfo pi = kv.Key;
                 IObjectModel val = kv.Value;
 
-                ComplexObjectModel complexMemberModel = val.ToNewObjectModel(sqlQuery, table, dependentTable) as ComplexObjectModel;
+                ComplexObjectModel complexMemberModel = val.ToNewObjectModel(sqlQuery, table, dependentTable, ignoreFilters) as ComplexObjectModel;
                 newModel.AddConstructorParameter(pi, complexMemberModel);
             }
 
@@ -347,7 +352,7 @@ namespace Chloe.Query
                 MemberInfo member = kv.Key;
                 IObjectModel val = kv.Value;
 
-                ComplexObjectModel complexMemberModel = val.ToNewObjectModel(sqlQuery, table, dependentTable) as ComplexObjectModel;
+                ComplexObjectModel complexMemberModel = val.ToNewObjectModel(sqlQuery, table, dependentTable, ignoreFilters) as ComplexObjectModel;
                 newModel.AddComplexMember(member, complexMemberModel);
             }
 
@@ -432,6 +437,28 @@ namespace Chloe.Query
                 memberObjectModel.SetupCollection(queryModel);
             }
         }
+        public void SetupFilters(bool ignoreFilters)
+        {
+            if (ignoreFilters)
+                return;
+
+            this.SetupFilters();
+
+            foreach (var kv in this.ComplexConstructorParameters)
+            {
+                kv.Value.SetupFilters(ignoreFilters);
+            }
+
+            foreach (var kv in this.ComplexMembers)
+            {
+                kv.Value.SetupFilters(ignoreFilters);
+            }
+
+            foreach (var kv in this.CollectionMembers)
+            {
+                kv.Value.ElementModel.SetupFilters(ignoreFilters);
+            }
+        }
 
         public bool HasMany()
         {
@@ -475,9 +502,7 @@ namespace Chloe.Query
             //AndWhere的条件放到join条件里去
             joinTableExp.AppendCondition(condition);
 
-            navigationObjectModel.Filter = this.ParseCondition(navigationNode.Filter, navigationObjectModel, queryModel.ScopeTables);
-
-            //queryModel.Filters.Add(navigationObjectModel.Filter);
+            navigationObjectModel.Filters.AddRange(navigationTypeDescriptor.Definition.Filters.Concat(navigationNode.InstanceFilters).Select(a => this.ParseCondition(a, navigationObjectModel, queryModel.ScopeTables)));
 
             return navigationObjectModel;
         }
@@ -509,7 +534,7 @@ namespace Chloe.Query
             //AndWhere的条件放到join条件里去
             joinTableExp.AppendCondition(condition);
 
-            elementObjectModel.Filter = this.ParseCondition(navigationNode.Filter, elementObjectModel, queryModel.ScopeTables);
+            elementObjectModel.Filters.AddRange(elementTypeDescriptor.Definition.Filters.Concat(navigationNode.InstanceFilters).Select(a => this.ParseCondition(a, elementObjectModel, queryModel.ScopeTables)));
 
             bool orderByPrimaryKeyExists = queryModel.Orderings.Where(a => a.Expression == this.PrimaryKey).Any();
             if (!orderByPrimaryKeyExists)
@@ -518,8 +543,6 @@ namespace Chloe.Query
                 DbOrdering ordering = new DbOrdering(this.PrimaryKey, DbOrderType.Asc);
                 queryModel.Orderings.Add(ordering);
             }
-
-            //queryModel.Filters.Add(elementObjectModel.Filter);
 
             return elementObjectModel;
         }
@@ -550,6 +573,17 @@ namespace Chloe.Query
             if (condition == null)
                 return null;
             return FilterPredicateParser.Parse(condition, new ScopeParameterDictionary(1) { { condition.Parameters[0], objectModel } }, scopeTables);
+        }
+        void SetupFilters()
+        {
+            DbJoinTableExpression joinTableExpression = this.DependentTable as DbJoinTableExpression;
+            if (joinTableExpression != null)
+            {
+                this.Filters.ForEach(a =>
+                {
+                    joinTableExpression.Condition = joinTableExpression.Condition.And(a);
+                });
+            }
         }
     }
 }

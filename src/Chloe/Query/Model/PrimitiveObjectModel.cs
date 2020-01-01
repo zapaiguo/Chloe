@@ -55,10 +55,9 @@ namespace Chloe.Query
             return activatorCreator;
         }
 
-        public override IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable)
+        public override IObjectModel ToNewObjectModel(DbSqlQueryExpression sqlQuery, DbTable table, DbMainTableExpression dependentTable, bool ignoreFilters)
         {
-            DbColumnAccessExpression cae = null;
-            cae = ObjectModelHelper.ParseColumnAccessExpression(sqlQuery, table, this.Expression);
+            DbColumnAccessExpression cae = ObjectModelHelper.ParseColumnAccessExpression(sqlQuery, table, this.Expression);
 
             PrimitiveObjectModel objectModel = new PrimitiveObjectModel(this.ObjectType, cae);
 

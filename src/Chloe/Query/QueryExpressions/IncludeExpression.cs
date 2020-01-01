@@ -33,13 +33,13 @@ namespace Chloe.Query.QueryExpressions
         }
         public PropertyInfo Property { get; set; }
         public LambdaExpression Condition { get; set; }
-        public LambdaExpression Filter { get; set; }
+        public List<LambdaExpression> InstanceFilters { get; private set; } = new List<LambdaExpression>();
         public NavigationNode Next { get; set; }
 
         public NavigationNode Clone()
         {
-            NavigationNode current = new NavigationNode(this.Property) { Condition = this.Condition, Filter = this.Filter };
-
+            NavigationNode current = new NavigationNode(this.Property) { Condition = this.Condition };
+            current.InstanceFilters.AddRange(this.InstanceFilters);
             if (this.Next != null)
             {
                 current.Next = current.Clone();

@@ -76,7 +76,7 @@ namespace Chloe.Query
                 for (int i = 0; i < this.Filters.Count; i++)
                 {
                     var filter = this.Filters[i];
-                    sqlQuery.Condition = sqlQuery.Condition.And(filter);
+                    sqlQuery.Condition = filter.And(sqlQuery.Condition);
                 }
             }
 
@@ -94,6 +94,7 @@ namespace Chloe.Query
             newQueryModel.Orderings.AddRange(this.Orderings);
             newQueryModel.Condition = this.Condition;
 
+            newQueryModel.Filters.AddRange(this.Filters);
             newQueryModel.GroupSegments.AddRange(this.GroupSegments);
             newQueryModel.AppendHavingCondition(this.HavingCondition);
 

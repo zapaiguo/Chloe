@@ -142,6 +142,10 @@ namespace Chloe.Query.QueryState
         {
             QueryModel newQueryModel = this._queryModel.Clone();
 
+            ComplexObjectModel complexObjectModel = this._queryModel.ResultModel as ComplexObjectModel;
+            if (complexObjectModel != null)
+                complexObjectModel.SetupFilters(this._queryModel.IgnoreFilters);
+
             ScopeParameterDictionary scopeParameters = this._queryModel.ScopeParameters.Clone(selector.Parameters[0], this._queryModel.ResultModel);
             IObjectModel newResultModel = SelectorResolver.Resolve(selector, scopeParameters, this._queryModel.ScopeTables);
             newQueryModel.ResultModel = newResultModel;
@@ -159,7 +163,10 @@ namespace Chloe.Query.QueryState
 
             ComplexObjectModel complexObjectModel = this._queryModel.ResultModel as ComplexObjectModel;
             if (complexObjectModel != null)
+            {
+                complexObjectModel.SetupFilters(this._queryModel.IgnoreFilters);
                 complexObjectModel.SetupCollection(this._queryModel);
+            }
 
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
 
@@ -187,7 +194,7 @@ namespace Chloe.Query.QueryState
             DbTable aliasTable = new DbTable(tableSeg.Alias);
 
             //TODO 根据旧的生成新 ResultModel
-            IObjectModel newResultModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, aliasTable, fromTable);
+            IObjectModel newResultModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, aliasTable, fromTable, newQueryModel.IgnoreFilters);
             newQueryModel.ResultModel = newResultModel;
 
             //得将 subQuery.SqlQuery.Orders 告诉 以下创建的 result
@@ -252,9 +259,9 @@ namespace Chloe.Query.QueryState
 
         public virtual QueryModel ToFromQueryModel()
         {
-            QueryModel queryModel = new QueryModel(this._queryModel.ScopeParameters, this._queryModel.ScopeTables, this._queryModel.IgnoreFilters);
+            QueryModel newQueryModel = new QueryModel(this._queryModel.ScopeParameters, this._queryModel.ScopeTables, this._queryModel.IgnoreFilters);
 
-            string alias = queryModel.GenerateUniqueTableAlias(UtilConstants.DefaultTableAlias);
+            string alias = newQueryModel.GenerateUniqueTableAlias(UtilConstants.DefaultTableAlias);
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
@@ -262,11 +269,11 @@ namespace Chloe.Query.QueryState
             DbFromTableExpression fromTable = new DbFromTableExpression(tableSeg);
 
             DbTable aliasTable = new DbTable(tableSeg.Alias);
-            IObjectModel newModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, aliasTable, fromTable);
+            IObjectModel newModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, aliasTable, fromTable, newQueryModel.IgnoreFilters);
 
-            queryModel.FromTable = fromTable;
-            queryModel.ResultModel = newModel;
-            return queryModel;
+            newQueryModel.FromTable = fromTable;
+            newQueryModel.ResultModel = newModel;
+            return newQueryModel;
         }
 
         public virtual JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, StringSet scopeTables, string tableAlias)
@@ -279,7 +286,7 @@ namespace Chloe.Query.QueryState
             DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType.AsDbJoinType(), tableSeg);
 
             DbTable aliasTable = new DbTable(tableSeg.Alias);
-            IObjectModel newModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, aliasTable, joinTable);
+            IObjectModel newModel = this.QueryModel.ResultModel.ToNewObjectModel(sqlQuery, aliasTable, joinTable, this.QueryModel.IgnoreFilters);
 
             scopeParameters[conditionExpression.Parameters[conditionExpression.Parameters.Count - 1]] = newModel;
 

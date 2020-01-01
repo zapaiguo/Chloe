@@ -9,13 +9,14 @@ using System.Collections.Generic;
 using Chloe.Utility;
 using Chloe.Infrastructure;
 using Chloe.Query.QueryExpressions;
+using Chloe.Query.Visitors;
 
 namespace Chloe.Query.QueryState
 {
     internal sealed class RootQueryState : QueryStateBase
     {
-        public RootQueryState(Type elementType, string explicitTableName, LockType @lock, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
-           : base(CreateQueryModel(elementType, explicitTableName, @lock, scopeParameters, scopeTables))
+        public RootQueryState(RootQueryExpression rootQueryExp, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
+           : base(CreateQueryModel(rootQueryExp, scopeParameters, scopeTables))
         {
         }
 
@@ -40,27 +41,31 @@ namespace Chloe.Query.QueryState
             return this;
         }
 
-        static QueryModel CreateQueryModel(Type type, string explicitTableName, LockType lockType, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
+        static QueryModel CreateQueryModel(RootQueryExpression rootQueryExp, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
         {
-            if (type.IsAbstract || type.IsInterface)
+            Type entityType = rootQueryExp.ElementType;
+
+            if (entityType.IsAbstract || entityType.IsInterface)
                 throw new ArgumentException("The type of input can not be abstract class or interface.");
 
             QueryModel queryModel = new QueryModel(scopeParameters, scopeTables);
 
-            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(type);
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entityType);
 
             DbTable dbTable = typeDescriptor.Table;
-            if (explicitTableName != null)
-                dbTable = new DbTable(explicitTableName, dbTable.Schema);
+            if (rootQueryExp.ExplicitTable != null)
+                dbTable = new DbTable(rootQueryExp.ExplicitTable, dbTable.Schema);
             string alias = queryModel.GenerateUniqueTableAlias(dbTable.Name);
 
-            queryModel.FromTable = CreateRootTable(dbTable, alias, lockType);
+            queryModel.FromTable = CreateRootTable(dbTable, alias, rootQueryExp.Lock);
 
             DbTable aliasTable = new DbTable(alias);
             ComplexObjectModel model = typeDescriptor.GenObjectModel(aliasTable);
             model.DependentTable = queryModel.FromTable;
 
             queryModel.ResultModel = model;
+
+            ParseFilters(queryModel, typeDescriptor.Definition.Filters.Concat(rootQueryExp.InstanceFilters));
 
             return queryModel;
         }
@@ -70,6 +75,15 @@ namespace Chloe.Query.QueryState
             DbTableSegment tableSeg = new DbTableSegment(tableExp, alias, lockType);
             var fromTableExp = new DbFromTableExpression(tableSeg);
             return fromTableExp;
+        }
+        static void ParseFilters(QueryModel queryModel, IEnumerable<LambdaExpression> filters)
+        {
+            foreach (var filter in filters)
+            {
+                ScopeParameterDictionary scopeParameters = queryModel.ScopeParameters.Clone(filter.Parameters[0], queryModel.ResultModel);
+                DbExpression filterCondition = FilterPredicateParser.Parse(filter, scopeParameters, queryModel.ScopeTables);
+                queryModel.Filters.Add(filterCondition);
+            }
         }
     }
 }

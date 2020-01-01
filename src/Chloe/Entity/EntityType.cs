@@ -5,6 +5,7 @@ using Chloe.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -54,6 +55,7 @@ namespace Chloe.Entity
         public List<PrimitiveProperty> PrimitiveProperties { get; private set; } = new List<PrimitiveProperty>();
         public List<ComplexProperty> ComplexProperties { get; private set; } = new List<ComplexProperty>();
         public List<CollectionProperty> CollectionProperties { get; private set; } = new List<CollectionProperty>();
+        public List<LambdaExpression> Filters { get; private set; } = new List<LambdaExpression>();
         public List<object> Annotations { get; private set; } = new List<object>();
 
         public virtual TypeDefinition MakeDefinition()
@@ -95,7 +97,7 @@ namespace Chloe.Entity
             List<ComplexPropertyDefinition> complexProperties = this.ComplexProperties.Select(a => a.MakeDefinition()).ToList();
             List<CollectionPropertyDefinition> collectionProperties = this.CollectionProperties.Select(a => a.MakeDefinition()).ToList();
 
-            TypeDefinition definition = new TypeDefinition(this.Type, new DbTable(this.TableName, this.SchemaName), primitiveProperties, complexProperties, collectionProperties, this.Annotations);
+            TypeDefinition definition = new TypeDefinition(this.Type, new DbTable(this.TableName, this.SchemaName), primitiveProperties, complexProperties, collectionProperties, this.Filters, this.Annotations);
             return definition;
         }
     }

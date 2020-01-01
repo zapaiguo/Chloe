@@ -70,6 +70,17 @@ namespace Chloe.Entity
             this.EntityType.PrimitiveProperties.RemoveAll(a => a.Property.Name == property);
             return this;
         }
+
+        public IEntityTypeBuilder<TEntity> HasQueryFilter(Expression<Func<TEntity, bool>> filter)
+        {
+            this.EntityType.Filters.Add(filter);
+            return this;
+        }
+        public IEntityTypeBuilder HasQueryFilter(LambdaExpression filter)
+        {
+            return this.HasQueryFilter((Expression<Func<TEntity, bool>>)filter);
+        }
+
         public IPrimitivePropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> property)
         {
             string propertyName = PropertyNameExtractor.Extract(property);

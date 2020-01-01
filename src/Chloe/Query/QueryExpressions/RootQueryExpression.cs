@@ -3,6 +3,7 @@ using Chloe.Query.Visitors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Chloe.Query.QueryExpressions
@@ -17,6 +18,7 @@ namespace Chloe.Query.QueryExpressions
         }
         public string ExplicitTable { get; private set; }
         public LockType Lock { get; private set; }
+        public List<LambdaExpression> InstanceFilters { get; private set; } = new List<LambdaExpression>();
         public override T Accept<T>(QueryExpressionVisitor<T> visitor)
         {
             return visitor.Visit(this);
