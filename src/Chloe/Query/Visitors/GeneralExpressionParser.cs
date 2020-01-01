@@ -271,7 +271,7 @@ namespace Chloe.Query.Visitors
         }
         static bool IsIQueryType(Type type)
         {
-            if (type.IsGenericType == false)
+            if (!type.IsGenericType)
                 return false;
 
             Type queryType = typeof(IQuery<>);
