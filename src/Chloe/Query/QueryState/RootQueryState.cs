@@ -15,22 +15,27 @@ namespace Chloe.Query.QueryState
 {
     internal sealed class RootQueryState : QueryStateBase
     {
-        public RootQueryState(RootQueryExpression rootQueryExp, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
-           : base(CreateQueryModel(rootQueryExp, scopeParameters, scopeTables))
+        RootQueryExpression _rootQueryExp;
+        public RootQueryState(RootQueryExpression rootQueryExp, ScopeParameterDictionary scopeParameters, StringSet scopeTables) : this(rootQueryExp, scopeParameters, scopeTables, null)
         {
+        }
+        public RootQueryState(RootQueryExpression rootQueryExp, ScopeParameterDictionary scopeParameters, StringSet scopeTables, Func<string, string> tableAliasGenerator)
+          : base(CreateQueryModel(rootQueryExp, scopeParameters, scopeTables, tableAliasGenerator))
+        {
+            this._rootQueryExp = rootQueryExp;
         }
 
         public override QueryModel ToFromQueryModel()
         {
-            if (this.QueryModel.Condition == null)
+            QueryModel newQueryModel = new QueryModel(this.QueryModel.ScopeParameters, this.QueryModel.ScopeTables, this.QueryModel.IgnoreFilters);
+            newQueryModel.FromTable = this.QueryModel.FromTable;
+            newQueryModel.ResultModel = this.QueryModel.ResultModel;
+            if (!this.QueryModel.IgnoreFilters)
             {
-                QueryModel newQueryModel = new QueryModel(this.QueryModel.ScopeParameters, this.QueryModel.ScopeTables, this.QueryModel.IgnoreFilters);
-                newQueryModel.FromTable = this.QueryModel.FromTable;
-                newQueryModel.ResultModel = this.QueryModel.ResultModel;
-                return newQueryModel;
+                newQueryModel.Filters.AddRange(this.QueryModel.Filters);
             }
 
-            return base.ToFromQueryModel();
+            return newQueryModel;
         }
 
         public override IQueryState Accept(IncludeExpression exp)
@@ -41,7 +46,28 @@ namespace Chloe.Query.QueryState
             return this;
         }
 
-        static QueryModel CreateQueryModel(RootQueryExpression rootQueryExp, ScopeParameterDictionary scopeParameters, StringSet scopeTables)
+        public override JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, StringSet scopeTables, Func<string, string> tableAliasGenerator)
+        {
+            scopeParameters = scopeParameters.Clone(conditionExpression.Parameters.Last(), this.QueryModel.ResultModel);
+            DbExpression condition = GeneralExpressionParser.Parse(conditionExpression, scopeParameters, scopeTables);
+            DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType.AsDbJoinType(), this.QueryModel.FromTable.Table, condition);
+
+            if (!this.QueryModel.IgnoreFilters)
+            {
+                this.QueryModel.Filters.ForEach(a =>
+                {
+                    joinTable.Condition = joinTable.Condition.And(a);
+                });
+            }
+
+            JoinQueryResult result = new JoinQueryResult();
+            result.ResultModel = this.QueryModel.ResultModel;
+            result.JoinTable = joinTable;
+
+            return result;
+        }
+
+        static QueryModel CreateQueryModel(RootQueryExpression rootQueryExp, ScopeParameterDictionary scopeParameters, StringSet scopeTables, Func<string, string> tableAliasGenerator)
         {
             Type entityType = rootQueryExp.ElementType;
 
@@ -52,10 +78,12 @@ namespace Chloe.Query.QueryState
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entityType);
 
-            DbTable dbTable = typeDescriptor.Table;
-            if (rootQueryExp.ExplicitTable != null)
-                dbTable = new DbTable(rootQueryExp.ExplicitTable, dbTable.Schema);
-            string alias = queryModel.GenerateUniqueTableAlias(dbTable.Name);
+            DbTable dbTable = typeDescriptor.GenDbTable(rootQueryExp.ExplicitTable);
+            string alias = null;
+            if (tableAliasGenerator != null)
+                alias = tableAliasGenerator(dbTable.Name);
+            else
+                alias = queryModel.GenerateUniqueTableAlias(dbTable.Name);
 
             queryModel.FromTable = CreateRootTable(dbTable, alias, rootQueryExp.Lock);
 

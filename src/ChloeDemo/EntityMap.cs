@@ -22,6 +22,8 @@ namespace ChloeDemo
             this.HasOne(a => a.City).WithForeignKey(a => a.CityId);
             this.Ignore(a => a.NotMapped);
             this.Property(a => a.Gender).HasDbType(DbType.Int32);
+
+            this.HasQueryFilter(a => a.Id > 0);
         }
     }
 
@@ -31,6 +33,8 @@ namespace ChloeDemo
         {
             this.HasMany(a => a.Users);
             this.HasOne(a => a.Province).WithForeignKey(a => a.ProvinceId);
+
+            this.HasQueryFilter(a => a.Id > -1);
         }
     }
 
@@ -39,6 +43,8 @@ namespace ChloeDemo
         public ProvinceMap()
         {
             this.HasMany(a => a.Cities);
+
+            this.HasQueryFilter(a => a.Id > -2);
         }
     }
 }

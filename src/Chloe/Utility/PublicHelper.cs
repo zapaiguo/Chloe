@@ -164,8 +164,7 @@ namespace Chloe.Utility
 
         public static DbTable CreateDbTable(TypeDescriptor typeDescriptor, string table)
         {
-            DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
-            return dbTable;
+            return typeDescriptor.GenDbTable(table);
         }
     }
 }

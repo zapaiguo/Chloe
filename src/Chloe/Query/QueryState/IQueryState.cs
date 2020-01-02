@@ -5,6 +5,7 @@ using Chloe.DbExpressions;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using Chloe.Utility;
+using System;
 
 namespace Chloe.Query.QueryState
 {
@@ -13,7 +14,7 @@ namespace Chloe.Query.QueryState
         MappingData GenerateMappingData();
 
         QueryModel ToFromQueryModel();
-        JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, StringSet scopeTables, string tableAlias);
+        JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, StringSet scopeTables, Func<string, string> tableAliasGenerator);
 
         IQueryState Accept(WhereExpression exp);
         IQueryState Accept(OrderExpression exp);

@@ -133,5 +133,13 @@ namespace Chloe.Descriptors
 
             return model;
         }
+        internal DbTable GenDbTable(string explicitTableName)
+        {
+            DbTable dbTable = this.Table;
+            if (!string.IsNullOrEmpty(explicitTableName))
+                dbTable = new DbTable(explicitTableName, dbTable.Schema);
+
+            return dbTable;
+        }
     }
 }

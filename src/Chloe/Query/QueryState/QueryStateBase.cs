@@ -276,12 +276,12 @@ namespace Chloe.Query.QueryState
             return newQueryModel;
         }
 
-        public virtual JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, StringSet scopeTables, string tableAlias)
+        public virtual JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, StringSet scopeTables, Func<string, string> tableAliasGenerator)
         {
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();
             DbSubQueryExpression subQuery = new DbSubQueryExpression(sqlQuery);
 
-            string alias = tableAlias;
+            string alias = tableAliasGenerator(UtilConstants.DefaultTableAlias);
             DbTableSegment tableSeg = new DbTableSegment(subQuery, alias, LockType.Unspecified);
             DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType.AsDbJoinType(), tableSeg);
 

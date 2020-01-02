@@ -37,30 +37,8 @@ namespace Chloe.Query.Visitors
 
         public override JoinQueryResult Visit(RootQueryExpression exp)
         {
-            Type type = exp.ElementType;
-            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(type);
-
-            string explicitTableName = exp.ExplicitTable;
-            DbTable dbTable = typeDescriptor.Table;
-            if (explicitTableName != null)
-                dbTable = new DbTable(explicitTableName, dbTable.Schema);
-            string alias = this._queryModel.GenerateUniqueTableAlias(dbTable.Name);
-
-            DbTableSegment tableSeg = CreateTableSegment(dbTable, alias, exp.Lock);
-
-            DbTable aliasTable = new DbTable(alias);
-            ComplexObjectModel model = typeDescriptor.GenObjectModel(aliasTable);
-
-            //TODO 解析 on 条件表达式
-            var scopeParameters = this._scopeParameters.Clone(this._conditionExpression.Parameters.Last(), model);
-            DbExpression condition = GeneralExpressionParser.Parse(this._conditionExpression, scopeParameters, this._queryModel.ScopeTables);
-
-            DbJoinTableExpression joinTable = new DbJoinTableExpression(this._joinType.AsDbJoinType(), tableSeg, condition);
-
-            JoinQueryResult result = new JoinQueryResult();
-            result.ResultModel = model;
-            result.JoinTable = joinTable;
-
+            IQueryState queryState = new RootQueryState(exp, this._scopeParameters, this._queryModel.ScopeTables, a => { return this._queryModel.GenerateUniqueTableAlias(a); });
+            JoinQueryResult result = queryState.ToJoinQueryResult(this._joinType, this._conditionExpression, this._scopeParameters, this._queryModel.ScopeTables, null);
             return result;
         }
         public override JoinQueryResult Visit(WhereExpression exp)
@@ -117,7 +95,7 @@ namespace Chloe.Query.Visitors
         JoinQueryResult Visit(QueryExpression exp)
         {
             IQueryState state = QueryExpressionResolver.Resolve(exp, this._scopeParameters, this._queryModel.ScopeTables);
-            JoinQueryResult ret = state.ToJoinQueryResult(this._joinType, this._conditionExpression, this._scopeParameters, this._queryModel.ScopeTables, this._queryModel.GenerateUniqueTableAlias());
+            JoinQueryResult ret = state.ToJoinQueryResult(this._joinType, this._conditionExpression, this._scopeParameters, this._queryModel.ScopeTables, a => { return this._queryModel.GenerateUniqueTableAlias(a); });
             return ret;
         }
         static DbTableSegment CreateTableSegment(DbTable table, string alias, LockType @lock)
