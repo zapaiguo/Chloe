@@ -22,7 +22,7 @@ namespace Chloe.Query.QueryState
             this._queryModel = queryModel;
         }
 
-        public virtual QueryModel QueryModel { get { return this._queryModel; } }
+        public QueryModel QueryModel { get { return this._queryModel; } }
 
         public virtual IQueryState Accept(WhereExpression exp)
         {
