@@ -45,6 +45,11 @@ namespace Chloe.Query.QueryState
 
             return this;
         }
+        public override IQueryState Accept(IgnoreAllFiltersExpression exp)
+        {
+            this.QueryModel.IgnoreFilters = true;
+            return this;
+        }
 
         public override JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, StringSet scopeTables, Func<string, string> tableAliasGenerator)
         {

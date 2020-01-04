@@ -22,7 +22,7 @@ namespace Chloe
 
         IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> keySelector);
         IQuery<T> Distinct();
-
+        IQuery<T> IgnoreAllFilters();
 
         IJoinQuery<T, TOther> Join<TOther>(JoinType joinType, Expression<Func<T, TOther, bool>> on);
         IJoinQuery<T, TOther> Join<TOther>(IQuery<TOther> q, JoinType joinType, Expression<Func<T, TOther, bool>> on);

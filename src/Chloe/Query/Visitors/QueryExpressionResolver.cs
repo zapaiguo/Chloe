@@ -139,5 +139,11 @@ namespace Chloe.Query.Visitors
             IQueryState state = prevState.Accept(exp);
             return state;
         }
+        public override IQueryState Visit(IgnoreAllFiltersExpression exp)
+        {
+            IQueryState prevState = exp.PrevExpression.Accept(this);
+            IQueryState state = prevState.Accept(exp);
+            return state;
+        }
     }
 }

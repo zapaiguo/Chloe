@@ -104,6 +104,11 @@ namespace Chloe.Query
             DistinctExpression e = new DistinctExpression(typeof(T), this._expression);
             return new Query<T>(this._dbContext, e, this._trackEntity);
         }
+        public IQuery<T> IgnoreAllFilters()
+        {
+            IgnoreAllFiltersExpression e = new IgnoreAllFiltersExpression(typeof(T), this._expression);
+            return new Query<T>(this._dbContext, e, this._trackEntity);
+        }
 
         public IJoinQuery<T, TOther> Join<TOther>(JoinType joinType, Expression<Func<T, TOther, bool>> on)
         {

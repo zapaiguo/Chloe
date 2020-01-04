@@ -135,7 +135,11 @@ namespace Chloe.Query.QueryState
         }
         public virtual IQueryState Accept(IncludeExpression exp)
         {
-            throw new NotSupportedException("Cannot call include method now.");
+            throw new NotSupportedException("Cannot call 'Include' method now.");
+        }
+        public virtual IQueryState Accept(IgnoreAllFiltersExpression exp)
+        {
+            throw new NotSupportedException("Cannot call 'IgnoreAllFilters' method now.");
         }
 
         public virtual QueryModel CreateNewQueryModel(LambdaExpression selector)
