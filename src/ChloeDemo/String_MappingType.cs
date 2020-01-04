@@ -34,8 +34,6 @@ namespace ChloeDemo
                     parameter.DbType = DbType.String;
                     pgsqlParameter.NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Json;
                 }
-                else if (param.DbType != null)
-                    parameter.DbType = param.DbType.Value;
             }
             else if (parameter is OracleParameter)
             {
@@ -44,7 +42,7 @@ namespace ChloeDemo
                 OracleParameter oracleParameter = (OracleParameter)parameter;
 
                 /* 针对 oracle 长文本做处理 */
-                string value = (string)oracleParameter.Value;
+                string value = oracleParameter.Value as string;
                 if (value != null && value.Length > 2000)
                 {
                     if (param.DbType == DbType.String || param.DbType == DbType.StringFixedLength)
