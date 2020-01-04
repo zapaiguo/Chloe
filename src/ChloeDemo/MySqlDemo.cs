@@ -285,8 +285,14 @@ namespace ChloeDemo
         /* 贪婪加载导航属性 */
         public static void QueryWithNavigation()
         {
+            /* context filter */
+            context.HasQueryFilter<User>(a => a.Id > -100);
+            context.HasQueryFilter<City>(a => a.Id > -200);
+            context.HasQueryFilter<Province>(a => a.Id > -300);
+
             object result = null;
             result = context.Query<User>().Include(a => a.City).ThenInclude(a => a.Province).ToList();
+            result = context.Query<User>().IgnoreAllFilters().Include(a => a.City).ThenInclude(a => a.Province).ToList();
             result = context.Query<City>().Include(a => a.Province).IncludeMany(a => a.Users).AndWhere(a => a.Age >= 18).ToList();
             result = context.Query<Province>().IncludeMany(a => a.Cities).ThenIncludeMany(a => a.Users).ToList();
 
