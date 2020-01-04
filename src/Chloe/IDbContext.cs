@@ -12,6 +12,8 @@ namespace Chloe
     {
         IDbSession Session { get; }
 
+        void HasQueryFilter<TEntity>(Expression<Func<TEntity, bool>> filter);
+
         IQuery<TEntity> Query<TEntity>();
         IQuery<TEntity> Query<TEntity>(string table);
         IQuery<TEntity> Query<TEntity>(LockType @lock);

@@ -40,7 +40,8 @@ namespace Chloe.Query
         public bool IgnoreFilters { get; set; }
         public List<DbOrdering> Orderings { get; private set; } = new List<DbOrdering>();
         public List<DbExpression> GroupSegments { get; private set; } = new List<DbExpression>();
-        public List<DbExpression> Filters { get; private set; } = new List<DbExpression>();
+        public List<DbExpression> GlobalFilters { get; private set; } = new List<DbExpression>();
+        public List<DbExpression> ContextFilters { get; private set; } = new List<DbExpression>();
 
         /// <summary>
         /// 如 takequery 了以后，则 table 的 Expression 类似 (select T.Id.. from User as T),Alias 则为新生成的
@@ -73,11 +74,7 @@ namespace Chloe.Query
 
             if (!this.IgnoreFilters)
             {
-                for (int i = 0; i < this.Filters.Count; i++)
-                {
-                    var filter = this.Filters[i];
-                    sqlQuery.Condition = filter.And(sqlQuery.Condition);
-                }
+                sqlQuery.Condition = this.ContextFilters.And().And(sqlQuery.Condition).And(this.GlobalFilters);
             }
 
             sqlQuery.GroupSegments.AddRange(this.GroupSegments);
@@ -94,7 +91,8 @@ namespace Chloe.Query
             newQueryModel.Orderings.AddRange(this.Orderings);
             newQueryModel.Condition = this.Condition;
 
-            newQueryModel.Filters.AddRange(this.Filters);
+            newQueryModel.GlobalFilters.AddRange(this.GlobalFilters);
+            newQueryModel.ContextFilters.AddRange(this.ContextFilters);
             newQueryModel.GroupSegments.AddRange(this.GroupSegments);
             newQueryModel.AppendHavingCondition(this.HavingCondition);
 

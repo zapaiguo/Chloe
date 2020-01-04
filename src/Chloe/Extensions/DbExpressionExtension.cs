@@ -194,5 +194,18 @@ namespace Chloe.InternalExtensions
 
             return new DbAndExpression(left, right);
         }
+        public static DbExpression And(this DbExpression left, List<DbExpression> right)
+        {
+            for (int i = 0; i < right.Count; i++)
+            {
+                left = left.And(right[i]);
+            }
+
+            return left;
+        }
+        public static DbExpression And(this List<DbExpression> expressions)
+        {
+            return And(null, expressions);
+        }
     }
 }

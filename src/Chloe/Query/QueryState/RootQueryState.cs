@@ -32,7 +32,8 @@ namespace Chloe.Query.QueryState
             newQueryModel.ResultModel = this.QueryModel.ResultModel;
             if (!this.QueryModel.IgnoreFilters)
             {
-                newQueryModel.Filters.AddRange(this.QueryModel.Filters);
+                newQueryModel.GlobalFilters.AddRange(this.QueryModel.GlobalFilters);
+                newQueryModel.ContextFilters.AddRange(this.QueryModel.ContextFilters);
             }
 
             return newQueryModel;
@@ -59,10 +60,7 @@ namespace Chloe.Query.QueryState
 
             if (!this.QueryModel.IgnoreFilters)
             {
-                this.QueryModel.Filters.ForEach(a =>
-                {
-                    joinTable.Condition = joinTable.Condition.And(a);
-                });
+                joinTable.Condition = joinTable.Condition.And(this.QueryModel.ContextFilters).And(this.QueryModel.GlobalFilters);
             }
 
             JoinQueryResult result = new JoinQueryResult();
@@ -98,7 +96,7 @@ namespace Chloe.Query.QueryState
 
             queryModel.ResultModel = model;
 
-            ParseFilters(queryModel, typeDescriptor.Definition.Filters.Concat(rootQueryExp.InstanceFilters));
+            ParseFilters(queryModel, typeDescriptor.Definition.Filters, rootQueryExp.ContextFilters);
 
             return queryModel;
         }
@@ -109,14 +107,23 @@ namespace Chloe.Query.QueryState
             var fromTableExp = new DbFromTableExpression(tableSeg);
             return fromTableExp;
         }
-        static void ParseFilters(QueryModel queryModel, IEnumerable<LambdaExpression> filters)
+        static void ParseFilters(QueryModel queryModel, IList<LambdaExpression> globalFilters, IList<LambdaExpression> contextFilters)
         {
-            foreach (var filter in filters)
+            for (int i = 0; i < globalFilters.Count; i++)
             {
-                ScopeParameterDictionary scopeParameters = queryModel.ScopeParameters.Clone(filter.Parameters[0], queryModel.ResultModel);
-                DbExpression filterCondition = FilterPredicateParser.Parse(filter, scopeParameters, queryModel.ScopeTables);
-                queryModel.Filters.Add(filterCondition);
+                queryModel.GlobalFilters.Add(ParseFilter(queryModel, globalFilters[i]));
             }
+
+            for (int i = 0; i < contextFilters.Count; i++)
+            {
+                queryModel.ContextFilters.Add(ParseFilter(queryModel, contextFilters[i]));
+            }
+        }
+        static DbExpression ParseFilter(QueryModel queryModel, LambdaExpression filter)
+        {
+            ScopeParameterDictionary scopeParameters = queryModel.ScopeParameters.Clone(filter.Parameters[0], queryModel.ResultModel);
+            DbExpression filterCondition = FilterPredicateParser.Parse(filter, scopeParameters, queryModel.ScopeTables);
+            return filterCondition;
         }
     }
 }

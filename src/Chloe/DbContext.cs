@@ -39,6 +39,7 @@ namespace Chloe
             }
         }
 
+        internal Dictionary<Type, List<LambdaExpression>> QueryFilters { get; set; } = new Dictionary<Type, List<LambdaExpression>>();
         internal InnerAdoSession AdoSession
         {
             get
@@ -58,6 +59,20 @@ namespace Chloe
 
         public IDbSession Session { get { return this._session; } }
 
+        public void HasQueryFilter<TEntity>(Expression<Func<TEntity, bool>> filter)
+        {
+            PublicHelper.CheckNull(filter, nameof(filter));
+
+            Type entityType = typeof(TEntity);
+            List<LambdaExpression> filters;
+            if (!this.QueryFilters.TryGetValue(entityType, out filters))
+            {
+                filters = new List<LambdaExpression>(1);
+                this.QueryFilters.Add(entityType, filters);
+            }
+
+            filters.Add(filter);
+        }
 
         public virtual IQuery<TEntity> Query<TEntity>()
         {

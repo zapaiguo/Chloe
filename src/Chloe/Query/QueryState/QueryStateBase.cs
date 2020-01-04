@@ -168,8 +168,8 @@ namespace Chloe.Query.QueryState
             ComplexObjectModel complexObjectModel = this._queryModel.ResultModel as ComplexObjectModel;
             if (complexObjectModel != null)
             {
-                complexObjectModel.SetupFilters(this._queryModel.IgnoreFilters);
                 complexObjectModel.SetupCollection(this._queryModel);
+                complexObjectModel.SetupFilters(this._queryModel.IgnoreFilters);
             }
 
             DbSqlQueryExpression sqlQuery = this.CreateSqlQuery();

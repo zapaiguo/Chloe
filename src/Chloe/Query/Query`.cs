@@ -25,10 +25,19 @@ namespace Chloe.Query
 
         Type IQuery.ElementType { get { return typeof(T); } }
 
-        public Query(DbContext dbContext, string explicitTable, LockType @lock)
-            : this(dbContext, new RootQueryExpression(typeof(T), explicitTable, @lock), false)
+        static RootQueryExpression CreateRootQueryExpression(DbContext dbContext, string explicitTable, LockType @lock)
         {
+            Type entityType = typeof(T);
+            RootQueryExpression ret = new RootQueryExpression(entityType, explicitTable, @lock);
+            List<LambdaExpression> filters = dbContext.QueryFilters.FindValue(entityType);
+            if (filters != null)
+                ret.ContextFilters.AddRange(filters);
 
+            return ret;
+        }
+        public Query(DbContext dbContext, string explicitTable, LockType @lock)
+            : this(dbContext, CreateRootQueryExpression(dbContext, explicitTable, @lock), false)
+        {
         }
         public Query(DbContext dbContext, QueryExpression exp)
             : this(dbContext, exp, false)

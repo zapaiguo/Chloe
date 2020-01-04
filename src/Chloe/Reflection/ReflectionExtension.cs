@@ -108,6 +108,18 @@ namespace Chloe.Reflection
             return typeName.Contains("<>") && typeName.Contains("__") && typeName.Contains("AnonymousType");
         }
 
+        public static bool IsGenericCollection(this Type type)
+        {
+            if (!type.IsGenericType)
+                return false;
+
+            Type implementedInterface = type.GetInterface("ICollection`1");
+            if (implementedInterface == null)
+                return false;
+
+            return true;
+        }
+
         public static Assembly GetAssembly(this Type type)
         {
             return type.Assembly;

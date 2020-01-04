@@ -15,7 +15,8 @@ namespace Chloe.Query.QueryState
             newQueryModel.ResultModel = this.QueryModel.ResultModel;
             if (!this.QueryModel.IgnoreFilters)
             {
-                newQueryModel.Filters.AddRange(this.QueryModel.Filters);
+                newQueryModel.GlobalFilters.AddRange(this.QueryModel.GlobalFilters);
+                newQueryModel.ContextFilters.AddRange(this.QueryModel.ContextFilters);
             }
 
             return newQueryModel;

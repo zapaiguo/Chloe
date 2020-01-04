@@ -502,7 +502,7 @@ namespace Chloe.Query
             //AndWhere的条件放到join条件里去
             joinTableExp.AppendCondition(condition);
 
-            navigationObjectModel.Filters.AddRange(navigationTypeDescriptor.Definition.Filters.Concat(navigationNode.InstanceFilters).Select(a => this.ParseCondition(a, navigationObjectModel, queryModel.ScopeTables)));
+            navigationObjectModel.Filters.AddRange(navigationNode.ContextFilters.Concat(navigationTypeDescriptor.Definition.Filters).Select(a => this.ParseCondition(a, navigationObjectModel, queryModel.ScopeTables)));
 
             return navigationObjectModel;
         }
@@ -534,7 +534,7 @@ namespace Chloe.Query
             //AndWhere的条件放到join条件里去
             joinTableExp.AppendCondition(condition);
 
-            elementObjectModel.Filters.AddRange(elementTypeDescriptor.Definition.Filters.Concat(navigationNode.InstanceFilters).Select(a => this.ParseCondition(a, elementObjectModel, queryModel.ScopeTables)));
+            elementObjectModel.Filters.AddRange(navigationNode.ContextFilters.Concat(elementTypeDescriptor.Definition.Filters).Select(a => this.ParseCondition(a, elementObjectModel, queryModel.ScopeTables)));
 
             bool orderByPrimaryKeyExists = queryModel.Orderings.Where(a => a.Expression == this.PrimaryKey).Any();
             if (!orderByPrimaryKeyExists)

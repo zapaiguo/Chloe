@@ -6,13 +6,14 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Reflection;
 using Chloe.Extensions;
+using Chloe.Reflection;
 
 namespace Chloe.Query
 {
     class IncludableQuery<TEntity, TNavigation> : Query<TEntity>, IIncludableQuery<TEntity, TNavigation>
     {
         public IncludableQuery(DbContext dbContext, bool trackEntity, QueryExpression prevExpression, LambdaExpression navigationPath)
-            : base(dbContext, BuildIncludeExpression(prevExpression, navigationPath), trackEntity)
+            : base(dbContext, BuildIncludeExpression(dbContext, prevExpression, navigationPath), trackEntity)
         {
 
         }
@@ -42,16 +43,17 @@ namespace Chloe.Query
             members.Reverse();
             return members;
         }
-        static QueryExpression BuildIncludeExpression(QueryExpression prevExpression, LambdaExpression navigationPath)
+        static QueryExpression BuildIncludeExpression(DbContext dbContext, QueryExpression prevExpression, LambdaExpression navigationPath)
         {
-            List<MemberExpression> members = ExtractMemberAccessChain(navigationPath);
+            List<MemberExpression> memberExps = ExtractMemberAccessChain(navigationPath);
 
             NavigationNode startNavigation = null;
             NavigationNode lastNavigation = null;
-            for (int i = 0; i < members.Count; i++)
+            for (int i = 0; i < memberExps.Count; i++)
             {
-                var member = members[i];
-                NavigationNode navigation = new NavigationNode((PropertyInfo)member.Member);
+                PropertyInfo member = memberExps[i].Member as PropertyInfo;
+                NavigationNode navigation = InitNavigationNode(member, dbContext);
+
                 if (startNavigation == null)
                 {
                     startNavigation = navigation;
@@ -67,6 +69,22 @@ namespace Chloe.Query
 
             return ret;
         }
+        static NavigationNode InitNavigationNode(PropertyInfo member, DbContext dbContext)
+        {
+            NavigationNode navigation = new NavigationNode(member);
+
+            Type elementType = member.PropertyType;
+            if (member.PropertyType.IsGenericCollection())
+            {
+                elementType = member.PropertyType.GetGenericArguments()[0];
+            }
+
+            List<LambdaExpression> filters = dbContext.QueryFilters.FindValue(elementType);
+            if (filters != null)
+                navigation.ContextFilters.AddRange(filters);
+
+            return navigation;
+        }
 
         IncludeExpression BuildThenIncludeExpression(LambdaExpression navigationPath)
         {
@@ -74,12 +92,12 @@ namespace Chloe.Query
             NavigationNode startNavigation = prevIncludeExpression.NavigationNode.Clone();
             NavigationNode lastNavigation = startNavigation.GetLast();
 
-            List<MemberExpression> members = ExtractMemberAccessChain(navigationPath);
+            List<MemberExpression> memberExps = ExtractMemberAccessChain(navigationPath);
 
-            for (int i = 0; i < members.Count; i++)
+            for (int i = 0; i < memberExps.Count; i++)
             {
-                var member = members[i];
-                NavigationNode navigation = new NavigationNode((PropertyInfo)member.Member);
+                PropertyInfo member = memberExps[i].Member as PropertyInfo;
+                NavigationNode navigation = InitNavigationNode(member, this.DbContext);
 
                 lastNavigation.Next = navigation;
                 lastNavigation = navigation;
