@@ -150,7 +150,7 @@ namespace Chloe.Oracle
 
         public override DbExpression Visit(DbMethodCallExpression exp)
         {
-            if (exp.Type == UtilConstants.TypeOfBoolean || exp.Type == UtilConstants.TypeOfBoolean_Nullable)
+            if (exp.Type == PublicConstants.TypeOfBoolean || exp.Type == PublicConstants.TypeOfBoolean_Nullable)
                 return this.ConvertDbBooleanExpression(exp);
             else
                 return exp;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Utility;
+using System;
 using System.Data;
 using System.Reflection;
 
@@ -18,13 +19,13 @@ namespace Chloe.DbExpressions
             if (value != null)
                 this._type = value.GetType();
             else
-                this._type = UtilConstants.TypeOfObject;
+                this._type = PublicConstants.TypeOfObject;
         }
 
         public DbParameterExpression(object value, Type type)
             : base(DbExpressionType.Parameter)
         {
-            Utils.CheckNull(type);
+            PublicHelper.CheckNull(type);
 
             if (value != null)
             {

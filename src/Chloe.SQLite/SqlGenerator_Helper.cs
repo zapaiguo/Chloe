@@ -245,7 +245,7 @@ namespace Chloe.SQLite
             if (withCast == true)
             {
                 Type underlyingType = ReflectionExtension.GetUnderlyingType(retType);
-                if (underlyingType != UtilConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise maybe cause problems. */ && CastTypeMap.TryGetValue(underlyingType, out dbTypeString))
+                if (underlyingType != PublicConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise maybe cause problems. */ && CastTypeMap.TryGetValue(underlyingType, out dbTypeString))
                 {
                     generator._sqlBuilder.Append("CAST(");
                 }

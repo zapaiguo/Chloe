@@ -28,7 +28,7 @@ namespace Chloe.Utility
              * 如果实体是多主键，则传入的 key 须是包含了与实体主键类型相同的属性的对象，如：new { Key1 = "1", Key2 = "2" }
              */
 
-            Utils.CheckNull(key);
+            PublicHelper.CheckNull(key);
 
             Type entityType = typeof(TEntity);
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entityType);

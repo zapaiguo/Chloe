@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Linq;
 using Chloe.Exceptions;
+using Chloe.Utility;
 
 namespace Chloe.Entity
 {
@@ -12,7 +13,7 @@ namespace Chloe.Entity
     {
         public PrimitivePropertyDefinition(PropertyInfo property, DbColumn column, bool isPrimaryKey, bool isAutoIncrement, bool isNullable, bool isRowVersion, string sequenceName, string sequenceSchema, IList<object> annotations) : base(property, annotations)
         {
-            Utils.CheckNull(column, nameof(column));
+            PublicHelper.CheckNull(column, nameof(column));
 
             this.Column = column;
             this.IsPrimaryKey = isPrimaryKey;

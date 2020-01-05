@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Utility;
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -13,8 +14,8 @@ namespace Chloe.Data
 
         public InternalDataReader(IAdoSession adoSession, IDataReader reader, IDbCommand cmd, List<OutputParameter> outputParameters) : base(reader)
         {
-            Utils.CheckNull(adoSession);
-            Utils.CheckNull(cmd);
+            PublicHelper.CheckNull(adoSession);
+            PublicHelper.CheckNull(cmd);
 
             this._adoSession = adoSession;
             this._cmd = cmd;

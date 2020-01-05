@@ -10,7 +10,7 @@ namespace Chloe.SQLite.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method != UtilConstants.MethodInfo_String_ToUpper)
+            if (exp.Method != PublicConstants.MethodInfo_String_ToUpper)
                 return false;
 
             return true;

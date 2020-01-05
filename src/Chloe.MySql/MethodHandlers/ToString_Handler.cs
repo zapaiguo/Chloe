@@ -17,7 +17,7 @@ namespace Chloe.MySql.MethodHandlers
                 return false;
             }
 
-            if (exp.Object.Type == UtilConstants.TypeOfString)
+            if (exp.Object.Type == PublicConstants.TypeOfString)
             {
                 return true;
             }
@@ -31,13 +31,13 @@ namespace Chloe.MySql.MethodHandlers
         }
         public void Process(DbMethodCallExpression exp, SqlGenerator generator)
         {
-            if (exp.Object.Type == UtilConstants.TypeOfString)
+            if (exp.Object.Type == PublicConstants.TypeOfString)
             {
                 exp.Object.Accept(generator);
                 return;
             }
 
-            DbConvertExpression c = DbExpression.Convert(exp.Object, UtilConstants.TypeOfString);
+            DbConvertExpression c = DbExpression.Convert(exp.Object, PublicConstants.TypeOfString);
             c.Accept(generator);
         }
     }

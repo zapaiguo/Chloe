@@ -28,7 +28,7 @@ namespace Chloe.Oracle.MethodHandlers
 
         public static string AppendNotSupportedDbFunctionsMsg(MethodInfo method, string insteadProperty)
         {
-            return string.Format("'{0}' is not supported. Instead of using '{1}.{2}'.", Utils.ToMethodString(method), Utils.ToMethodString(UtilConstants.MethodInfo_DateTime_Subtract_DateTime), insteadProperty);
+            return string.Format("'{0}' is not supported. Instead of using '{1}.{2}'.", Utils.ToMethodString(method), Utils.ToMethodString(PublicConstants.MethodInfo_DateTime_Subtract_DateTime), insteadProperty);
         }
     }
 }

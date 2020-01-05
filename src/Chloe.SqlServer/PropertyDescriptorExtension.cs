@@ -16,7 +16,7 @@ namespace Chloe.SqlServer
         /// <returns></returns>
         public static bool IsTimestamp(this PrimitivePropertyDescriptor propertyDescriptor)
         {
-            return propertyDescriptor.IsRowVersion && propertyDescriptor.PropertyType == UtilConstants.TypeOfByteArray;
+            return propertyDescriptor.IsRowVersion && propertyDescriptor.PropertyType == PublicConstants.TypeOfByteArray;
         }
     }
 }

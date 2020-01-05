@@ -41,7 +41,7 @@ namespace Chloe.Core.Visitors
                     return this.VisitLambda((LambdaExpression)exp);
                 default:
                     {
-                        if (exp.Type != UtilConstants.TypeOfBoolean)
+                        if (exp.Type != PublicConstants.TypeOfBoolean)
                             return exp;
 
                         if (!BooleanResultBinaryExpressionTypes.Contains(exp.NodeType))

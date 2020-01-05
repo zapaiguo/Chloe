@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,9 @@ namespace Chloe.DbExpressions
     public class DbInsertExpression : DbExpression
     {
         public DbInsertExpression(DbTable table)
-            : base(DbExpressionType.Insert, UtilConstants.TypeOfVoid)
+            : base(DbExpressionType.Insert, PublicConstants.TypeOfVoid)
         {
-            Utils.CheckNull(table);
+            PublicHelper.CheckNull(table);
 
             this.Table = table;
         }

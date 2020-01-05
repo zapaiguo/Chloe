@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,9 +15,9 @@ namespace Chloe.DbExpressions
         {
         }
         public DbDeleteExpression(DbTable table, DbExpression condition)
-            : base(DbExpressionType.Delete, UtilConstants.TypeOfVoid)
+            : base(DbExpressionType.Delete, PublicConstants.TypeOfVoid)
         {
-            Utils.CheckNull(table);
+            PublicHelper.CheckNull(table);
 
             this._table = table;
             this._condition = condition;

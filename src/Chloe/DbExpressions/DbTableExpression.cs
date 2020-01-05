@@ -9,7 +9,7 @@ namespace Chloe.DbExpressions
     {
         DbTable _table;
         public DbTableExpression(DbTable table)
-            : base(DbExpressionType.Table, UtilConstants.TypeOfVoid)
+            : base(DbExpressionType.Table, PublicConstants.TypeOfVoid)
         {
             this._table = table;
         }

@@ -10,7 +10,7 @@ namespace Chloe.PostgreSQL.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method != UtilConstants.MethodInfo_DateTime_Subtract_DateTime)
+            if (exp.Method != PublicConstants.MethodInfo_DateTime_Subtract_DateTime)
                 return false;
 
             return true;

@@ -41,7 +41,7 @@ namespace Chloe.Core
                 return true;
             }
 
-            if (propertyDescriptor.PropertyType == UtilConstants.TypeOfByteArray)
+            if (propertyDescriptor.PropertyType == PublicConstants.TypeOfByteArray)
             {
                 //byte[] is a big big hole~
                 return !AreEqual((byte[])oldVal, (byte[])val);
@@ -66,7 +66,7 @@ namespace Chloe.Core
                 var val = propertyDescriptor.GetValue(entity);
 
                 //I hate the byte[].
-                if (propertyDescriptor.PropertyType == UtilConstants.TypeOfByteArray)
+                if (propertyDescriptor.PropertyType == PublicConstants.TypeOfByteArray)
                 {
                     val = Clone((byte[])val);
                 }

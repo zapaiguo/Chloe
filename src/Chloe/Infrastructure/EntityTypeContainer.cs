@@ -12,7 +12,7 @@ namespace Chloe.Infrastructure
 
         public static TypeDescriptor GetDescriptor(Type type)
         {
-            Utils.CheckNull(type, nameof(type));
+            PublicHelper.CheckNull(type, nameof(type));
 
             TypeDescriptor instance;
             if (!InstanceCache.TryGetValue(type, out instance))
@@ -33,7 +33,7 @@ namespace Chloe.Infrastructure
 
         public static TypeDescriptor TryGetDescriptor(Type type)
         {
-            Utils.CheckNull(type, nameof(type));
+            PublicHelper.CheckNull(type, nameof(type));
 
             TypeDescriptor instance;
             InstanceCache.TryGetValue(type, out instance);

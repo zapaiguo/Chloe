@@ -10,7 +10,7 @@ namespace Chloe.SqlServer.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method.DeclaringType != UtilConstants.TypeOfMath)
+            if (exp.Method.DeclaringType != PublicConstants.TypeOfMath)
                 return false;
 
             return true;

@@ -10,7 +10,7 @@ namespace Chloe.SQLite.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method != UtilConstants.MethodInfo_String_IsNullOrEmpty)
+            if (exp.Method != PublicConstants.MethodInfo_String_IsNullOrEmpty)
                 return false;
 
             return true;
@@ -18,7 +18,7 @@ namespace Chloe.SQLite.MethodHandlers
         public void Process(DbMethodCallExpression exp, SqlGenerator generator)
         {
             DbExpression e = exp.Arguments.First();
-            DbEqualExpression equalNullExpression = DbExpression.Equal(e, DbExpression.Constant(null, UtilConstants.TypeOfString));
+            DbEqualExpression equalNullExpression = DbExpression.Equal(e, DbExpression.Constant(null, PublicConstants.TypeOfString));
             DbEqualExpression equalEmptyExpression = DbExpression.Equal(e, DbExpression.Constant(string.Empty));
 
             DbOrExpression orExpression = DbExpression.Or(equalNullExpression, equalEmptyExpression);
@@ -28,7 +28,7 @@ namespace Chloe.SQLite.MethodHandlers
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(1);
             whenThenExps.Add(whenThenPair);
 
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.Zero, UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.Zero, PublicConstants.TypeOfBoolean);
 
             var eqExp = DbExpression.Equal(caseWhenExpression, DbConstantExpression.One);
             eqExp.Accept(generator);

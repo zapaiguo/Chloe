@@ -12,7 +12,7 @@ namespace Chloe.DbExpressions
         {
         }
         public DbEqualExpression(DbExpression left, DbExpression right, MethodInfo method)
-            : base(DbExpressionType.Equal, UtilConstants.TypeOfBoolean, left, right, method)
+            : base(DbExpressionType.Equal, PublicConstants.TypeOfBoolean, left, right, method)
         {
         }
 

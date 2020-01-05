@@ -10,7 +10,7 @@ namespace Chloe.DbExpressions
         DbSqlQueryExpression _sqlQuery;
 
         public DbExistsExpression(DbSqlQueryExpression sqlQuery)
-            : base(DbExpressionType.Exists, UtilConstants.TypeOfBoolean)
+            : base(DbExpressionType.Exists, PublicConstants.TypeOfBoolean)
         {
             this._sqlQuery = sqlQuery;
         }

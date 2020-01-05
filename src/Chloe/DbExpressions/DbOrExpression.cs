@@ -9,7 +9,7 @@ namespace Chloe.DbExpressions
         {
         }
         public DbOrExpression(DbExpression left, DbExpression right, MethodInfo method)
-            : base(DbExpressionType.Or, UtilConstants.TypeOfBoolean, left, right, method)
+            : base(DbExpressionType.Or, PublicConstants.TypeOfBoolean, left, right, method)
         {
         }
 

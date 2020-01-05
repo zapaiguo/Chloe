@@ -70,7 +70,7 @@ namespace Chloe.Core.Visitors
         // & 
         protected override DbExpression VisitBinary_And(BinaryExpression exp)
         {
-            if (exp.Type == UtilConstants.TypeOfBoolean)
+            if (exp.Type == PublicConstants.TypeOfBoolean)
                 return this.Visit(Expression.AndAlso(exp.Left, exp.Right, exp.Method));
             else
                 return DbExpression.BitAnd(exp.Type, this.Visit(exp.Left), this.Visit(exp.Right));
@@ -130,7 +130,7 @@ namespace Chloe.Core.Visitors
         // |
         protected override DbExpression VisitBinary_Or(BinaryExpression exp)
         {
-            if (exp.Type == UtilConstants.TypeOfBoolean)
+            if (exp.Type == PublicConstants.TypeOfBoolean)
                 return this.Visit(Expression.OrElse(exp.Left, exp.Right, exp.Method));
             else
                 return DbExpression.BitOr(exp.Type, this.Visit(exp.Left), this.Visit(exp.Right));
@@ -256,13 +256,13 @@ namespace Chloe.Core.Visitors
             var right = exp.Right;
 
             // 对于应用于 bool 类型的相等情况
-            if (left.Type == UtilConstants.TypeOfBoolean)
+            if (left.Type == PublicConstants.TypeOfBoolean)
             {
                 return this.VisitBinary_Equal_Boolean(exp);
             }
 
             // 对于应用于 Nullable<bool> 类型的相等情况
-            if (left.Type == UtilConstants.TypeOfBoolean_Nullable)
+            if (left.Type == PublicConstants.TypeOfBoolean_Nullable)
             {
                 return this.VisitBinary_Equal_NullableBoolean(exp);
             }
@@ -273,7 +273,7 @@ namespace Chloe.Core.Visitors
 
         protected override DbExpression VisitBinary_NotEqual(BinaryExpression exp)
         {
-            if (exp.Left.Type == UtilConstants.TypeOfBoolean || exp.Left.Type == UtilConstants.TypeOfBoolean_Nullable)
+            if (exp.Left.Type == PublicConstants.TypeOfBoolean || exp.Left.Type == PublicConstants.TypeOfBoolean_Nullable)
                 return DbExpression.Not(this.VisitBinary_Equal(exp));
 
             return DbExpression.NotEqual(this.Visit(exp.Left), this.Visit(exp.Right));
@@ -281,7 +281,7 @@ namespace Chloe.Core.Visitors
 
         protected override DbExpression VisitMethodCall(MethodCallExpression exp)
         {
-            if (exp.Method == UtilConstants.MethodInfo_String_IsNullOrEmpty)
+            if (exp.Method == PublicConstants.MethodInfo_String_IsNullOrEmpty)
             {
                 /* string.IsNullOrEmpty(x) --> x == null || x == "" */
 
@@ -517,7 +517,7 @@ namespace Chloe.Core.Visitors
 
         static Expression BuildBoolEqual(Expression left, bool trueOrFalse)
         {
-            if (left.Type == UtilConstants.TypeOfBoolean)
+            if (left.Type == PublicConstants.TypeOfBoolean)
             {
                 if (trueOrFalse)
                     return Expression.Equal(left, UtilConstants.Constant_True);
@@ -525,7 +525,7 @@ namespace Chloe.Core.Visitors
                     return Expression.Equal(left, UtilConstants.Constant_False);
             }
 
-            if (left.Type == UtilConstants.TypeOfBoolean_Nullable)
+            if (left.Type == PublicConstants.TypeOfBoolean_Nullable)
             {
                 if (trueOrFalse)
                     return Expression.Equal(left, UtilConstants.Convert_TrueToNullable);

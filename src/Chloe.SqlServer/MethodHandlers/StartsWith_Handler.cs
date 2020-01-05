@@ -13,7 +13,7 @@ namespace Chloe.SqlServer.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method != UtilConstants.MethodInfo_String_StartsWith)
+            if (exp.Method != PublicConstants.MethodInfo_String_StartsWith)
                 return false;
 
             return true;

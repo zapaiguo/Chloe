@@ -18,21 +18,21 @@ namespace Chloe.Oracle
         static HashSet<MemberInfo> _toTranslateMembers = new HashSet<MemberInfo>();
         static EvaluableDbExpressionTransformer()
         {
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_String_Length);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_String_Length);
 
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Now);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_UtcNow);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Today);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Date);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_Now);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_UtcNow);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_Today);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_Date);
 
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Year);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Month);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Day);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Hour);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Minute);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Second);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_Millisecond);
-            _toTranslateMembers.Add(UtilConstants.PropertyInfo_DateTime_DayOfWeek);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_Year);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_Month);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_Day);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_Hour);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_Minute);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_Second);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_Millisecond);
+            _toTranslateMembers.Add(PublicConstants.PropertyInfo_DateTime_DayOfWeek);
 
             _toTranslateMembers.Add(OracleSemantics.PropertyInfo_ROWNUM);
 

@@ -18,7 +18,7 @@ namespace Chloe.Data
         IAdoSession _internalAdoSession;
         IAdoSession _externalAdoSession;
 
-        List<IDbCommandInterceptor> _dbCommandInterceptors;
+        List<IDbCommandInterceptor> _sessionInterceptors;
         IDbCommandInterceptor[] _globalInterceptors;
 
         public InnerAdoSession(IDbConnection conn)
@@ -41,14 +41,14 @@ namespace Chloe.Data
         public IDbTransaction DbTransaction { get { return this._adoSession.DbTransaction; } }
         public bool IsInTransaction { get { return this._adoSession.IsInTransaction; } }
         public int CommandTimeout { get { return this._adoSession.CommandTimeout; } set { this._adoSession.CommandTimeout = value; } }
-        public List<IDbCommandInterceptor> DbCommandInterceptors
+        public List<IDbCommandInterceptor> SessionInterceptors
         {
             get
             {
-                if (this._dbCommandInterceptors == null)
-                    this._dbCommandInterceptors = new List<IDbCommandInterceptor>();
+                if (this._sessionInterceptors == null)
+                    this._sessionInterceptors = new List<IDbCommandInterceptor>(1);
 
-                return this._dbCommandInterceptors;
+                return this._sessionInterceptors;
             }
         }
         IDbCommandInterceptor[] GlobalInterceptors
@@ -85,9 +85,11 @@ namespace Chloe.Data
                 throw new NotSupportedException("当前回话已经使用了一个外部事务，无法再次使用另一个外部事务。");
             }
 
-            this._externalAdoSession = new ExternalAdoSession(dbTransaction);
-            this._adoSession = this._externalAdoSession;
-            this.InitEvents(this._externalAdoSession);
+            ExternalAdoSession externalAdoSession = new ExternalAdoSession(dbTransaction);
+            this.InitEvents(externalAdoSession);
+
+            this._externalAdoSession = externalAdoSession;
+            this._adoSession = externalAdoSession;
         }
 
         public void BeginTransaction(IsolationLevel? il)
@@ -177,11 +179,11 @@ namespace Chloe.Data
                 act(globalInterceptors[i]);
             }
 
-            if (this._dbCommandInterceptors != null)
+            if (this._sessionInterceptors != null)
             {
-                for (int i = 0; i < this._dbCommandInterceptors.Count; i++)
+                for (int i = 0; i < this._sessionInterceptors.Count; i++)
                 {
-                    act(this._dbCommandInterceptors[i]);
+                    act(this._sessionInterceptors[i]);
                 }
             }
         }

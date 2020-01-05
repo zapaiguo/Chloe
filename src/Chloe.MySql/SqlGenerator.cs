@@ -86,7 +86,7 @@ namespace Chloe.MySql
             left = DbExpressionExtension.StripInvalidConvert(left);
             right = DbExpressionExtension.StripInvalidConvert(right);
 
-            MethodInfo method_Sql_Equals = UtilConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
+            MethodInfo method_Sql_Equals = PublicConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
 
             /* Sql.Equals(left, right) */
             DbMethodCallExpression left_equals_right = DbExpression.MethodCall(null, method_Sql_Equals, new List<DbExpression>(2) { left, right });
@@ -131,7 +131,7 @@ namespace Chloe.MySql
             left = DbExpressionExtension.StripInvalidConvert(left);
             right = DbExpressionExtension.StripInvalidConvert(right);
 
-            MethodInfo method_Sql_NotEquals = UtilConstants.MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
+            MethodInfo method_Sql_NotEquals = PublicConstants.MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
 
             /* Sql.NotEquals(left, right) */
             DbMethodCallExpression left_not_equals_right = DbExpression.MethodCall(null, method_Sql_NotEquals, new List<DbExpression>(2) { left, right });
@@ -157,7 +157,7 @@ namespace Chloe.MySql
                 return exp;
             }
 
-            MethodInfo method_Sql_Equals = UtilConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
+            MethodInfo method_Sql_Equals = PublicConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
 
             if (left.NodeType == DbExpressionType.Parameter || left.NodeType == DbExpressionType.Constant)
             {
@@ -643,27 +643,27 @@ namespace Chloe.MySql
         {
             MemberInfo member = exp.Member;
 
-            if (member.DeclaringType == UtilConstants.TypeOfDateTime)
+            if (member.DeclaringType == PublicConstants.TypeOfDateTime)
             {
-                if (member == UtilConstants.PropertyInfo_DateTime_Now)
+                if (member == PublicConstants.PropertyInfo_DateTime_Now)
                 {
                     this._sqlBuilder.Append("NOW()");
                     return exp;
                 }
 
-                if (member == UtilConstants.PropertyInfo_DateTime_UtcNow)
+                if (member == PublicConstants.PropertyInfo_DateTime_UtcNow)
                 {
                     this._sqlBuilder.Append("UTC_TIMESTAMP()");
                     return exp;
                 }
 
-                if (member == UtilConstants.PropertyInfo_DateTime_Today)
+                if (member == PublicConstants.PropertyInfo_DateTime_Today)
                 {
                     this._sqlBuilder.Append("CURDATE()");
                     return exp;
                 }
 
-                if (member == UtilConstants.PropertyInfo_DateTime_Date)
+                if (member == PublicConstants.PropertyInfo_DateTime_Date)
                 {
                     this._sqlBuilder.Append("DATE(");
                     exp.Expression.Accept(this);
@@ -677,7 +677,7 @@ namespace Chloe.MySql
                 }
             }
 
-            if (member.Name == "Length" && member.DeclaringType == UtilConstants.TypeOfString)
+            if (member.Name == "Length" && member.DeclaringType == PublicConstants.TypeOfString)
             {
                 this._sqlBuilder.Append("LENGTH(");
                 exp.Expression.Accept(this);
@@ -709,12 +709,12 @@ namespace Chloe.MySql
             }
 
             var objType = exp.Value.GetType();
-            if (objType == UtilConstants.TypeOfBoolean)
+            if (objType == PublicConstants.TypeOfBoolean)
             {
                 this._sqlBuilder.Append(((bool)exp.Value) ? "1" : "0");
                 return exp;
             }
-            else if (objType == UtilConstants.TypeOfString)
+            else if (objType == PublicConstants.TypeOfString)
             {
                 this._sqlBuilder.Append("N'", exp.Value, "'");
                 return exp;
@@ -761,7 +761,7 @@ namespace Chloe.MySql
             string paramName = GenParameterName(this._parameters.Count);
             p = DbParam.Create(paramName, paramValue, paramType);
 
-            if (paramValue.GetType() == UtilConstants.TypeOfString)
+            if (paramValue.GetType() == PublicConstants.TypeOfString)
             {
                 if (exp.DbType == DbType.AnsiStringFixedLength || exp.DbType == DbType.StringFixedLength)
                     p.Size = ((string)paramValue).Length;
@@ -953,37 +953,37 @@ namespace Chloe.MySql
         {
             MemberInfo member = exp.Member;
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Year)
+            if (member == PublicConstants.PropertyInfo_DateTime_Year)
             {
                 DbFunction_DATEPART(this, "YEAR", exp.Expression);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Month)
+            if (member == PublicConstants.PropertyInfo_DateTime_Month)
             {
                 DbFunction_DATEPART(this, "MONTH", exp.Expression);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Day)
+            if (member == PublicConstants.PropertyInfo_DateTime_Day)
             {
                 DbFunction_DATEPART(this, "DAY", exp.Expression);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Hour)
+            if (member == PublicConstants.PropertyInfo_DateTime_Hour)
             {
                 DbFunction_DATEPART(this, "HOUR", exp.Expression);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Minute)
+            if (member == PublicConstants.PropertyInfo_DateTime_Minute)
             {
                 DbFunction_DATEPART(this, "MINUTE", exp.Expression);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Second)
+            if (member == PublicConstants.PropertyInfo_DateTime_Second)
             {
                 DbFunction_DATEPART(this, "SECOND", exp.Expression);
                 return true;
@@ -992,7 +992,7 @@ namespace Chloe.MySql
             /* MySql is not supports MILLISECOND */
 
 
-            if (member == UtilConstants.PropertyInfo_DateTime_DayOfWeek)
+            if (member == PublicConstants.PropertyInfo_DateTime_DayOfWeek)
             {
                 this._sqlBuilder.Append("(");
                 DbFunction_DATEPART(this, "DAYOFWEEK", exp.Expression);

@@ -10,7 +10,7 @@ namespace Chloe.SQLite.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method != UtilConstants.MethodInfo_String_Substring_Int32 && exp.Method != UtilConstants.MethodInfo_String_Substring_Int32_Int32)
+            if (exp.Method != PublicConstants.MethodInfo_String_Substring_Int32 && exp.Method != PublicConstants.MethodInfo_String_Substring_Int32_Int32)
                 return false;
 
             return true;
@@ -33,11 +33,11 @@ namespace Chloe.SQLite.MethodHandlers
                 generator.SqlBuilder.Append(" + 1");
             }
 
-            if (exp.Method == UtilConstants.MethodInfo_String_Substring_Int32)
+            if (exp.Method == PublicConstants.MethodInfo_String_Substring_Int32)
             {
 
             }
-            else if (exp.Method == UtilConstants.MethodInfo_String_Substring_Int32_Int32)
+            else if (exp.Method == PublicConstants.MethodInfo_String_Substring_Int32_Int32)
             {
                 generator.SqlBuilder.Append(",");
                 exp.Arguments[1].Accept(generator);

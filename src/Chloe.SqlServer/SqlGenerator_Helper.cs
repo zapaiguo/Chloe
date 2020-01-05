@@ -95,7 +95,7 @@ namespace Chloe.SqlServer
             List<DbCaseWhenExpression.WhenThenExpressionPair> whenThenExps = new List<DbCaseWhenExpression.WhenThenExpressionPair>(2);
             whenThenExps.Add(whenThenPair);
             whenThenExps.Add(whenThenPair1);
-            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.Null, UtilConstants.TypeOfBoolean);
+            DbCaseWhenExpression caseWhenExpression = DbExpression.CaseWhen(whenThenExps, DbConstantExpression.Null, PublicConstants.TypeOfBoolean);
 
             return caseWhenExpression;
         }
@@ -129,10 +129,10 @@ namespace Chloe.SqlServer
             if (sourceType == targetType)
                 return false;
 
-            if (targetType == UtilConstants.TypeOfDecimal)
+            if (targetType == PublicConstants.TypeOfDecimal)
             {
                 //Casting to Decimal is not supported when missing the precision and scale information.I have no idea to deal with this case now.
-                if (sourceType != UtilConstants.TypeOfInt16 && sourceType != UtilConstants.TypeOfInt32 && sourceType != UtilConstants.TypeOfInt64 && sourceType != UtilConstants.TypeOfByte)
+                if (sourceType != PublicConstants.TypeOfInt16 && sourceType != PublicConstants.TypeOfInt32 && sourceType != PublicConstants.TypeOfInt64 && sourceType != PublicConstants.TypeOfByte)
                 {
                     if (throwNotSupportedException)
                         throw new NotSupportedException(AppendNotSupportedCastErrorMsg(sourceType, targetType));
@@ -228,7 +228,7 @@ namespace Chloe.SqlServer
             if (withCast == true)
             {
                 Type underlyingType = ReflectionExtension.GetUnderlyingType(retType);
-                if (underlyingType != UtilConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise maybe cause problems. */ && CastTypeMap.TryGetValue(underlyingType, out dbTypeString))
+                if (underlyingType != PublicConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise maybe cause problems. */ && CastTypeMap.TryGetValue(underlyingType, out dbTypeString))
                 {
                     generator._sqlBuilder.Append("CAST(");
                 }

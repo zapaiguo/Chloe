@@ -10,7 +10,7 @@ namespace Chloe.MySql.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method != UtilConstants.MethodInfo_String_Substring_Int32 && exp.Method != UtilConstants.MethodInfo_String_Substring_Int32_Int32)
+            if (exp.Method != PublicConstants.MethodInfo_String_Substring_Int32 && exp.Method != PublicConstants.MethodInfo_String_Substring_Int32_Int32)
                 return false;
 
             return true;
@@ -34,12 +34,12 @@ namespace Chloe.MySql.MethodHandlers
             }
 
             generator.SqlBuilder.Append(",");
-            if (exp.Method == UtilConstants.MethodInfo_String_Substring_Int32)
+            if (exp.Method == PublicConstants.MethodInfo_String_Substring_Int32)
             {
-                var string_LengthExp = DbExpression.MemberAccess(UtilConstants.PropertyInfo_String_Length, exp.Object);
+                var string_LengthExp = DbExpression.MemberAccess(PublicConstants.PropertyInfo_String_Length, exp.Object);
                 string_LengthExp.Accept(generator);
             }
-            else if (exp.Method == UtilConstants.MethodInfo_String_Substring_Int32_Int32)
+            else if (exp.Method == PublicConstants.MethodInfo_String_Substring_Int32_Int32)
             {
                 exp.Arguments[1].Accept(generator);
             }

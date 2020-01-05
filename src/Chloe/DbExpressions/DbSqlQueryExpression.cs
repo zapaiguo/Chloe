@@ -7,7 +7,7 @@ namespace Chloe.DbExpressions
     public class DbSqlQueryExpression : DbExpression
     {
         public DbSqlQueryExpression()
-            : this(UtilConstants.TypeOfVoid)
+            : this(PublicConstants.TypeOfVoid)
         {
         }
         /// <summary>

@@ -4,13 +4,14 @@ using Chloe.Exceptions;
 using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 using Chloe.Reflection;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Chloe.Utility
+namespace Chloe
 {
     public class PublicHelper
     {
@@ -44,7 +45,7 @@ namespace Chloe.Utility
         }
         public static DbMethodCallExpression MakeNextValueForSequenceDbExpression(Type retType, string sequenceName, string sequenceSchema)
         {
-            MethodInfo nextValueForSequenceMethod = UtilConstants.MethodInfo_Sql_NextValueForSequence.MakeGenericMethod(retType);
+            MethodInfo nextValueForSequenceMethod = PublicConstants.MethodInfo_Sql_NextValueForSequence.MakeGenericMethod(retType);
             List<DbExpression> arguments = new List<DbExpression>(2) { new DbConstantExpression(sequenceName), new DbConstantExpression(sequenceSchema) };
 
             DbMethodCallExpression getNextValueForSequenceExp = new DbMethodCallExpression(null, nextValueForSequenceMethod, arguments);
@@ -67,6 +68,19 @@ namespace Chloe.Utility
             return obj;
         }
 
+        public static List<T> Clone<T>(List<T> source, int? capacity = null)
+        {
+            List<T> ret = new List<T>(capacity ?? source.Count);
+            ret.AddRange(source);
+            return ret;
+        }
+        public static List<T> CloneAndAppendOne<T>(List<T> source, T t)
+        {
+            List<T> ret = new List<T>(source.Count + 1);
+            ret.AddRange(source);
+            ret.Add(t);
+            return ret;
+        }
         public static Dictionary<TKey, TValue> Clone<TKey, TValue>(Dictionary<TKey, TValue> source)
         {
             Dictionary<TKey, TValue> ret = Clone<TKey, TValue>(source, source.Count);
@@ -131,7 +145,7 @@ namespace Chloe.Utility
 
         public static object IncreaseRowVersionNumber(object val)
         {
-            if (val.GetType() == UtilConstants.TypeOfInt32)
+            if (val.GetType() == PublicConstants.TypeOfInt32)
             {
                 return (int)val + 1;
             }

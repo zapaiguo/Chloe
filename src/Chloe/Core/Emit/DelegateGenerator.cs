@@ -4,6 +4,7 @@ using Chloe.Infrastructure;
 using Chloe.InternalExtensions;
 using Chloe.Mapper;
 using Chloe.Reflection;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -56,7 +57,7 @@ namespace Chloe.Core.Emit
 
         public static InstanceCreator CreateInstanceCreator(ConstructorInfo constructor)
         {
-            Utils.CheckNull(constructor);
+            PublicHelper.CheckNull(constructor);
 
             var pExp_reader = Expression.Parameter(typeof(IDataReader), "reader");
             var pExp_argumentActivators = Expression.Parameter(typeof(List<IObjectActivator>), "argumentActivators");

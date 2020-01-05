@@ -10,7 +10,7 @@ namespace Chloe.DbExpressions
 
         }
         public DbGreaterThanOrEqualExpression(DbExpression left, DbExpression right, MethodInfo method)
-            : base(DbExpressionType.GreaterThanOrEqual, UtilConstants.TypeOfBoolean, left, right, method)
+            : base(DbExpressionType.GreaterThanOrEqual, PublicConstants.TypeOfBoolean, left, right, method)
         {
 
         }

@@ -37,9 +37,9 @@ namespace Chloe.Query
         {
             this._dbContext = jq._dbContext;
             this._rootQuery = jq._rootQuery;
-            this._joinedQueries = Utils.Clone(jq._joinedQueries);
+            this._joinedQueries = PublicHelper.Clone(jq._joinedQueries);
 
-            this._filterPredicates = Utils.CloneAndAppendOne(jq._filterPredicates, filterPredicate);
+            this._filterPredicates = PublicHelper.CloneAndAppendOne(jq._filterPredicates, filterPredicate);
         }
 
         public IJoinQuery<T1, T2> Where(Expression<Func<T1, T2, bool>> predicate)
@@ -143,17 +143,17 @@ namespace Chloe.Query
         {
             this._dbContext = joinQuery.DbContext;
             this._rootQuery = joinQuery.RootQuery;
-            this._joinedQueries = Utils.CloneAndAppendOne(joinQuery.JoinedQueries, new JoinQueryInfo(q, joinType, on));
+            this._joinedQueries = PublicHelper.CloneAndAppendOne(joinQuery.JoinedQueries, new JoinQueryInfo(q, joinType, on));
 
-            this._filterPredicates = Utils.Clone(joinQuery.FilterPredicates);
+            this._filterPredicates = PublicHelper.Clone(joinQuery.FilterPredicates);
         }
         public JoinQuery(JoinQuery<T1, T2, T3> jq, LambdaExpression filterPredicate)
         {
             this._dbContext = jq._dbContext;
             this._rootQuery = jq._rootQuery;
-            this._joinedQueries = Utils.Clone(jq._joinedQueries);
+            this._joinedQueries = PublicHelper.Clone(jq._joinedQueries);
 
-            this._filterPredicates = Utils.CloneAndAppendOne(jq._filterPredicates, filterPredicate);
+            this._filterPredicates = PublicHelper.CloneAndAppendOne(jq._filterPredicates, filterPredicate);
         }
 
         public IJoinQuery<T1, T2, T3> Where(Expression<Func<T1, T2, T3, bool>> predicate)
@@ -249,17 +249,17 @@ namespace Chloe.Query
         {
             this._dbContext = joinQuery.DbContext;
             this._rootQuery = joinQuery.RootQuery;
-            this._joinedQueries = Utils.CloneAndAppendOne(joinQuery.JoinedQueries, new JoinQueryInfo(q, joinType, on));
+            this._joinedQueries = PublicHelper.CloneAndAppendOne(joinQuery.JoinedQueries, new JoinQueryInfo(q, joinType, on));
 
-            this._filterPredicates = Utils.Clone(joinQuery.FilterPredicates);
+            this._filterPredicates = PublicHelper.Clone(joinQuery.FilterPredicates);
         }
         public JoinQuery(JoinQuery<T1, T2, T3, T4> jq, LambdaExpression filterPredicate)
         {
             this._dbContext = jq._dbContext;
             this._rootQuery = jq._rootQuery;
-            this._joinedQueries = Utils.Clone(jq._joinedQueries);
+            this._joinedQueries = PublicHelper.Clone(jq._joinedQueries);
 
-            this._filterPredicates = Utils.CloneAndAppendOne(jq._filterPredicates, filterPredicate);
+            this._filterPredicates = PublicHelper.CloneAndAppendOne(jq._filterPredicates, filterPredicate);
         }
 
         public IJoinQuery<T1, T2, T3, T4> Where(Expression<Func<T1, T2, T3, T4, bool>> predicate)
@@ -355,17 +355,17 @@ namespace Chloe.Query
         {
             this._dbContext = joinQuery.DbContext;
             this._rootQuery = joinQuery.RootQuery;
-            this._joinedQueries = Utils.CloneAndAppendOne(joinQuery.JoinedQueries, new JoinQueryInfo(q, joinType, on));
+            this._joinedQueries = PublicHelper.CloneAndAppendOne(joinQuery.JoinedQueries, new JoinQueryInfo(q, joinType, on));
 
-            this._filterPredicates = Utils.Clone(joinQuery.FilterPredicates);
+            this._filterPredicates = PublicHelper.Clone(joinQuery.FilterPredicates);
         }
         public JoinQuery(JoinQuery<T1, T2, T3, T4, T5> jq, LambdaExpression filterPredicate)
         {
             this._dbContext = jq._dbContext;
             this._rootQuery = jq._rootQuery;
-            this._joinedQueries = Utils.Clone(jq._joinedQueries);
+            this._joinedQueries = PublicHelper.Clone(jq._joinedQueries);
 
-            this._filterPredicates = Utils.CloneAndAppendOne(jq._filterPredicates, filterPredicate);
+            this._filterPredicates = PublicHelper.CloneAndAppendOne(jq._filterPredicates, filterPredicate);
         }
 
         public IJoinQuery<T1, T2, T3, T4, T5> Where(Expression<Func<T1, T2, T3, T4, T5, bool>> predicate)

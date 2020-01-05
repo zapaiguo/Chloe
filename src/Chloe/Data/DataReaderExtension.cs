@@ -195,11 +195,11 @@ namespace Chloe.Data
 
             Type fieldType = reader.GetFieldType(ordinal);
             object value;
-            if (fieldType == UtilConstants.TypeOfInt32)
+            if (fieldType == PublicConstants.TypeOfInt32)
                 value = reader.GetInt32(ordinal);
-            else if (fieldType == UtilConstants.TypeOfByte)
+            else if (fieldType == PublicConstants.TypeOfByte)
                 value = reader.GetByte(ordinal);
-            else if (fieldType == UtilConstants.TypeOfInt16)
+            else if (fieldType == PublicConstants.TypeOfInt16)
                 value = reader.GetInt16(ordinal);
             else
                 value = reader.GetInt64(ordinal);

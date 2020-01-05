@@ -11,8 +11,8 @@ namespace Chloe.Entity
     {
         protected PropertyDefinition(PropertyInfo property, IList<object> annotations)
         {
-            Utils.CheckNull(property, nameof(property));
-            Utils.CheckNull(annotations, nameof(annotations));
+            PublicHelper.CheckNull(property, nameof(property));
+            PublicHelper.CheckNull(annotations, nameof(annotations));
 
             this.Property = property;
             this.Annotations = annotations.Where(a => a != null).ToList().AsReadOnly();

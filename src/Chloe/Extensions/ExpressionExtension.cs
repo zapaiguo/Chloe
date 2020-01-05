@@ -142,19 +142,19 @@ namespace Chloe.Extensions
         {
             Type valueType = value.GetType();
 
-            if (valueType == UtilConstants.TypeOfString)
+            if (valueType == PublicConstants.TypeOfString)
             {
                 return new ConstantWrapper<string>((string)value);
             }
-            else if (valueType == UtilConstants.TypeOfInt32)
+            else if (valueType == PublicConstants.TypeOfInt32)
             {
                 return new ConstantWrapper<int>((int)value);
             }
-            else if (valueType == UtilConstants.TypeOfInt64)
+            else if (valueType == PublicConstants.TypeOfInt64)
             {
                 return new ConstantWrapper<long>((long)value);
             }
-            else if (valueType == UtilConstants.TypeOfGuid)
+            else if (valueType == PublicConstants.TypeOfGuid)
             {
                 return new ConstantWrapper<Guid>((Guid)value);
             }

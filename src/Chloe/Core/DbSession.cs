@@ -31,7 +31,7 @@ namespace Chloe.Core
         }
         public int ExecuteNonQuery(string cmdText, CommandType cmdType, params DbParam[] parameters)
         {
-            Utils.CheckNull(cmdText, "cmdText");
+            PublicHelper.CheckNull(cmdText, "cmdText");
             return this._dbContext.AdoSession.ExecuteNonQuery(cmdText, parameters, cmdType);
         }
         public int ExecuteNonQuery(string cmdText, object parameter)
@@ -49,7 +49,7 @@ namespace Chloe.Core
         }
         public object ExecuteScalar(string cmdText, CommandType cmdType, params DbParam[] parameters)
         {
-            Utils.CheckNull(cmdText, "cmdText");
+            PublicHelper.CheckNull(cmdText, "cmdText");
             return this._dbContext.AdoSession.ExecuteScalar(cmdText, parameters, cmdType);
         }
         public object ExecuteScalar(string cmdText, object parameter)
@@ -67,7 +67,7 @@ namespace Chloe.Core
         }
         public IDataReader ExecuteReader(string cmdText, CommandType cmdType, params DbParam[] parameters)
         {
-            Utils.CheckNull(cmdText, "cmdText");
+            PublicHelper.CheckNull(cmdText, "cmdText");
             return this._dbContext.AdoSession.ExecuteReader(cmdText, parameters, cmdType);
         }
         public IDataReader ExecuteReader(string cmdText, object parameter)
@@ -102,13 +102,13 @@ namespace Chloe.Core
 
         public void AddInterceptor(IDbCommandInterceptor interceptor)
         {
-            Utils.CheckNull(interceptor, "interceptor");
-            this._dbContext.AdoSession.DbCommandInterceptors.Add(interceptor);
+            PublicHelper.CheckNull(interceptor, "interceptor");
+            this._dbContext.AdoSession.SessionInterceptors.Add(interceptor);
         }
         public void RemoveInterceptor(IDbCommandInterceptor interceptor)
         {
-            Utils.CheckNull(interceptor, "interceptor");
-            this._dbContext.AdoSession.DbCommandInterceptors.Remove(interceptor);
+            PublicHelper.CheckNull(interceptor, "interceptor");
+            this._dbContext.AdoSession.SessionInterceptors.Remove(interceptor);
         }
 
         public void Dispose()

@@ -52,7 +52,7 @@ namespace Chloe.Query
 
         public IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector)
         {
-            Utils.CheckNull(selector);
+            PublicHelper.CheckNull(selector);
             SelectExpression e = new SelectExpression(typeof(TResult), _expression, selector);
             return new Query<TResult>(this._dbContext, e, this._trackEntity);
         }
@@ -68,19 +68,19 @@ namespace Chloe.Query
 
         public IQuery<T> Where(Expression<Func<T, bool>> predicate)
         {
-            Utils.CheckNull(predicate);
+            PublicHelper.CheckNull(predicate);
             WhereExpression e = new WhereExpression(typeof(T), this._expression, predicate);
             return new Query<T>(this._dbContext, e, this._trackEntity);
         }
         public IOrderedQuery<T> OrderBy<K>(Expression<Func<T, K>> keySelector)
         {
-            Utils.CheckNull(keySelector);
+            PublicHelper.CheckNull(keySelector);
             OrderExpression e = new OrderExpression(typeof(T), this._expression, QueryExpressionType.OrderBy, keySelector);
             return new OrderedQuery<T>(this._dbContext, e, this._trackEntity);
         }
         public IOrderedQuery<T> OrderByDesc<K>(Expression<Func<T, K>> keySelector)
         {
-            Utils.CheckNull(keySelector);
+            PublicHelper.CheckNull(keySelector);
             OrderExpression e = new OrderExpression(typeof(T), this._expression, QueryExpressionType.OrderByDesc, keySelector);
             return new OrderedQuery<T>(this._dbContext, e, this._trackEntity);
         }
@@ -105,7 +105,7 @@ namespace Chloe.Query
 
         public IGroupingQuery<T> GroupBy<K>(Expression<Func<T, K>> keySelector)
         {
-            Utils.CheckNull(keySelector);
+            PublicHelper.CheckNull(keySelector);
             return new GroupingQuery<T>(this, keySelector);
         }
         public IQuery<T> Distinct()
@@ -125,8 +125,8 @@ namespace Chloe.Query
         }
         public IJoinQuery<T, TOther> Join<TOther>(IQuery<TOther> q, JoinType joinType, Expression<Func<T, TOther, bool>> on)
         {
-            Utils.CheckNull(q);
-            Utils.CheckNull(on);
+            PublicHelper.CheckNull(q);
+            PublicHelper.CheckNull(on);
             return new JoinQuery<T, TOther>(this, (Query<TOther>)q, joinType, on);
         }
 
@@ -322,7 +322,7 @@ namespace Chloe.Query
         TResult ExecuteAggregateQuery<TResult>(MethodInfo method, Expression argument, bool checkArgument = true)
         {
             if (checkArgument)
-                Utils.CheckNull(argument);
+                PublicHelper.CheckNull(argument);
 
             List<Expression> arguments = argument == null ? EmptyArgumentList : new List<Expression>(1) { argument };
             var q = this.CreateAggregateQuery<TResult>(method, arguments);

@@ -10,7 +10,7 @@ namespace Chloe.SQLite.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method.DeclaringType != UtilConstants.TypeOfDateTime)
+            if (exp.Method.DeclaringType != PublicConstants.TypeOfDateTime)
                 return false;
 
             return true;

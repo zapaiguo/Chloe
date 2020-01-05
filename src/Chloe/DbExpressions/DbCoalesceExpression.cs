@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chloe.Utility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,8 @@ namespace Chloe.DbExpressions
         public DbCoalesceExpression(DbExpression checkExpression, DbExpression replacementValue)
             : base(DbExpressionType.Coalesce, replacementValue.Type)
         {
-            Utils.CheckNull(checkExpression);
-            Utils.CheckNull(replacementValue);
+            PublicHelper.CheckNull(checkExpression);
+            PublicHelper.CheckNull(replacementValue);
 
             this.CheckExpression = checkExpression;
             this.ReplacementValue = replacementValue;

@@ -14,7 +14,7 @@ namespace Chloe.PostgreSQL.MethodHandlers
                 return false;
 
             DbExpression arg = exp.Arguments[0];
-            if (arg.Type != UtilConstants.TypeOfString)
+            if (arg.Type != PublicConstants.TypeOfString)
                 return false;
 
             Type retType = exp.Method.ReturnType;

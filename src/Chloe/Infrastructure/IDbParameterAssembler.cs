@@ -97,7 +97,7 @@ namespace Chloe.Infrastructure
             {
                 parameter.Direction = ParameterDirection.Output;
                 param.Value = null;
-                if (param.Size == null && param.Type == UtilConstants.TypeOfString)
+                if (param.Size == null && param.Type == PublicConstants.TypeOfString)
                 {
                     parameter.Size = defaultSizeOfStringOutputParameter;
                 }
@@ -105,7 +105,7 @@ namespace Chloe.Infrastructure
             else if (param.Direction == ParamDirection.InputOutput)
             {
                 parameter.Direction = ParameterDirection.InputOutput;
-                if (param.Size == null && param.Type == UtilConstants.TypeOfString)
+                if (param.Size == null && param.Type == PublicConstants.TypeOfString)
                 {
                     parameter.Size = defaultSizeOfStringOutputParameter;
                 }

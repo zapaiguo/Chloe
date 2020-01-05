@@ -11,12 +11,12 @@ namespace Chloe.Entity
     {
         public TypeDefinition(Type entityType, DbTable table, IList<PrimitivePropertyDefinition> primitiveProperties, IList<ComplexPropertyDefinition> complexProperties, IList<CollectionPropertyDefinition> collectionProperties, IList<LambdaExpression> filters, IList<object> annotations)
         {
-            Utils.CheckNull(entityType, nameof(entityType));
-            Utils.CheckNull(table, nameof(table));
-            Utils.CheckNull(primitiveProperties, nameof(primitiveProperties));
-            Utils.CheckNull(complexProperties, nameof(complexProperties));
-            Utils.CheckNull(collectionProperties, nameof(collectionProperties));
-            Utils.CheckNull(annotations, nameof(annotations));
+            PublicHelper.CheckNull(entityType, nameof(entityType));
+            PublicHelper.CheckNull(table, nameof(table));
+            PublicHelper.CheckNull(primitiveProperties, nameof(primitiveProperties));
+            PublicHelper.CheckNull(complexProperties, nameof(complexProperties));
+            PublicHelper.CheckNull(collectionProperties, nameof(collectionProperties));
+            PublicHelper.CheckNull(annotations, nameof(annotations));
 
             this.Type = entityType;
             this.Table = table;

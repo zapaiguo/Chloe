@@ -123,7 +123,7 @@ namespace Chloe.Query.Internals
             {
                 Type type = typeof(T);
 
-                if (type != UtilConstants.TypeOfObject && MappingTypeSystem.IsMappingType(type))
+                if (type != PublicConstants.TypeOfObject && MappingTypeSystem.IsMappingType(type))
                 {
                     PrimitiveObjectActivatorCreator activatorCreator = new PrimitiveObjectActivatorCreator(type, 0);
                     this._objectActivator = activatorCreator.CreateObjectActivator();
@@ -142,7 +142,7 @@ namespace Chloe.Query.Internals
 
             static IObjectActivator GetObjectActivator(Type type, IDataReader reader)
             {
-                if (type == UtilConstants.TypeOfObject || type == typeof(DapperRow))
+                if (type == PublicConstants.TypeOfObject || type == typeof(DapperRow))
                 {
                     return new DapperRowObjectActivator();
                 }

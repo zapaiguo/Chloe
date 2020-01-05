@@ -11,7 +11,7 @@ namespace Chloe.Infrastructure.Interception
         static readonly object _lockObject = new object();
         public static void Add(IDbCommandInterceptor interceptor)
         {
-            Utils.CheckNull(interceptor);
+            PublicHelper.CheckNull(interceptor);
 
             lock (_lockObject)
             {
@@ -23,7 +23,7 @@ namespace Chloe.Infrastructure.Interception
         }
         public static void Remove(IDbCommandInterceptor interceptor)
         {
-            Utils.CheckNull(interceptor);
+            PublicHelper.CheckNull(interceptor);
 
             lock (_lockObject)
             {

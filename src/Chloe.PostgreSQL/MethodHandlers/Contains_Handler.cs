@@ -15,7 +15,7 @@ namespace Chloe.PostgreSQL.MethodHandlers
         {
             MethodInfo method = exp.Method;
 
-            if (exp.Method == UtilConstants.MethodInfo_String_Contains)
+            if (exp.Method == PublicConstants.MethodInfo_String_Contains)
             {
                 return true;
             }
@@ -36,7 +36,7 @@ namespace Chloe.PostgreSQL.MethodHandlers
         {
             MethodInfo method = exp.Method;
 
-            if (exp.Method == UtilConstants.MethodInfo_String_Contains)
+            if (exp.Method == PublicConstants.MethodInfo_String_Contains)
             {
                 Method_String_Contains(exp, generator);
                 return;

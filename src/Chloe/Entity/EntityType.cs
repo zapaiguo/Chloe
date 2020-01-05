@@ -88,7 +88,7 @@ namespace Chloe.Entity
             else if (rowVersionProperties.Count == 1)
             {
                 var rowVersionProperty = rowVersionProperties.First().Property;
-                if (rowVersionProperty.PropertyType != UtilConstants.TypeOfInt32 && rowVersionProperty.PropertyType != UtilConstants.TypeOfInt64 && rowVersionProperty.PropertyType != UtilConstants.TypeOfByteArray)
+                if (rowVersionProperty.PropertyType != PublicConstants.TypeOfInt32 && rowVersionProperty.PropertyType != PublicConstants.TypeOfInt64 && rowVersionProperty.PropertyType != PublicConstants.TypeOfByteArray)
                 {
                     throw new ChloeException("Row version member type must be Int32, Int64 or Byte[].");
                 }

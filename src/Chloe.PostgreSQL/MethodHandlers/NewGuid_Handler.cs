@@ -10,7 +10,7 @@ namespace Chloe.PostgreSQL.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method != UtilConstants.MethodInfo_Guid_NewGuid)
+            if (exp.Method != PublicConstants.MethodInfo_Guid_NewGuid)
                 return false;
 
             return false;

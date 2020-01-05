@@ -10,7 +10,7 @@ namespace Chloe.DbExpressions
 
         }
         public DbNotEqualExpression(DbExpression left, DbExpression right, MethodInfo method)
-            : base(DbExpressionType.NotEqual, UtilConstants.TypeOfBoolean, left, right, method)
+            : base(DbExpressionType.NotEqual, PublicConstants.TypeOfBoolean, left, right, method)
         {
 
         }

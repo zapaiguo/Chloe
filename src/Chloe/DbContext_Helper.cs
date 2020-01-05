@@ -74,7 +74,7 @@ namespace Chloe
                  */
                 Expression joinCondition = body.Expressions[indexOfJoinType + 1].StripConvert();
 
-                if (joinCondition.Type != UtilConstants.TypeOfBoolean)
+                if (joinCondition.Type != PublicConstants.TypeOfBoolean)
                 {
                     throw new ArgumentException(string.Format("Not support '{0}', please pass correct join condition.", joinCondition));
                 }
@@ -82,7 +82,7 @@ namespace Chloe
                 ParameterExpression[] parameters = joinInfoExp.Parameters.Take(i + 2).ToArray();
 
                 List<Type> typeArguments = parameters.Select(a => a.Type).ToList();
-                typeArguments.Add(UtilConstants.TypeOfBoolean);
+                typeArguments.Add(PublicConstants.TypeOfBoolean);
 
                 Type delegateType = Utils.GetFuncDelegateType(typeArguments.ToArray());
                 LambdaExpression lambdaOfJoinCondition = Expression.Lambda(delegateType, joinCondition, parameters);

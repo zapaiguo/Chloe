@@ -10,7 +10,7 @@ namespace Chloe.MySql.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method.DeclaringType != UtilConstants.TypeOfSql)
+            if (exp.Method.DeclaringType != PublicConstants.TypeOfSql)
                 return false;
 
             return false;

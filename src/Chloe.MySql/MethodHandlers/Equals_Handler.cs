@@ -14,12 +14,12 @@ namespace Chloe.MySql.MethodHandlers
         {
             MethodInfo method = exp.Method;
 
-            if (method.DeclaringType == UtilConstants.TypeOfSql)
+            if (method.DeclaringType == PublicConstants.TypeOfSql)
             {
                 return true;
             }
 
-            if (method.ReturnType != UtilConstants.TypeOfBoolean || method.IsStatic || method.GetParameters().Length != 1)
+            if (method.ReturnType != PublicConstants.TypeOfBoolean || method.IsStatic || method.GetParameters().Length != 1)
                 return false;
 
             return true;
@@ -27,7 +27,7 @@ namespace Chloe.MySql.MethodHandlers
         public void Process(DbMethodCallExpression exp, SqlGenerator generator)
         {
             MethodInfo method = exp.Method;
-            if (method.DeclaringType == UtilConstants.TypeOfSql)
+            if (method.DeclaringType == PublicConstants.TypeOfSql)
             {
                 Method_Sql_Equals(exp, generator);
                 return;

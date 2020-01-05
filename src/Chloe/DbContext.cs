@@ -155,7 +155,7 @@ namespace Chloe
         }
         public virtual IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters)
         {
-            Utils.CheckNull(sql, "sql");
+            PublicHelper.CheckNull(sql, "sql");
             return new InternalSqlQuery<T>(this, sql, cmdType, parameters);
         }
         public IEnumerable<T> SqlQuery<T>(string sql, object parameter)
@@ -184,7 +184,7 @@ namespace Chloe
         }
         public virtual TEntity Insert<TEntity>(TEntity entity, string table)
         {
-            Utils.CheckNull(entity);
+            PublicHelper.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
@@ -255,7 +255,7 @@ namespace Chloe
         }
         public virtual object Insert<TEntity>(Expression<Func<TEntity>> content, string table)
         {
-            Utils.CheckNull(content);
+            PublicHelper.CheckNull(content);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
@@ -348,7 +348,7 @@ namespace Chloe
         }
         public virtual int Update<TEntity>(TEntity entity, string table)
         {
-            Utils.CheckNull(entity);
+            PublicHelper.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
             PublicHelper.EnsureHasPrimaryKey(typeDescriptor);
@@ -422,8 +422,8 @@ namespace Chloe
         }
         public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table)
         {
-            Utils.CheckNull(condition);
-            Utils.CheckNull(content);
+            PublicHelper.CheckNull(condition);
+            PublicHelper.CheckNull(content);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
@@ -503,7 +503,7 @@ namespace Chloe
         }
         public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table)
         {
-            Utils.CheckNull(condition);
+            PublicHelper.CheckNull(condition);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
@@ -555,7 +555,7 @@ namespace Chloe
              * });
              */
 
-            Utils.CheckNull(action);
+            PublicHelper.CheckNull(action);
             using (ITransientTransaction tran = this.BeginTransaction())
             {
                 action();
@@ -564,7 +564,7 @@ namespace Chloe
         }
         public void UseTransaction(Action action, IsolationLevel il)
         {
-            Utils.CheckNull(action);
+            PublicHelper.CheckNull(action);
             using (ITransientTransaction tran = this.BeginTransaction(il))
             {
                 action();
@@ -574,7 +574,7 @@ namespace Chloe
 
         public virtual void TrackEntity(object entity)
         {
-            Utils.CheckNull(entity);
+            PublicHelper.CheckNull(entity);
             Type entityType = entity.GetType();
 
             if (ReflectionExtension.IsAnonymousType(entityType))
@@ -602,7 +602,7 @@ namespace Chloe
         }
         protected virtual IEntityState TryGetTrackedEntityState(object entity)
         {
-            Utils.CheckNull(entity);
+            PublicHelper.CheckNull(entity);
             Type entityType = entity.GetType();
             Dictionary<Type, TrackEntityCollection> entityContainer = this._trackingEntityContainer;
 

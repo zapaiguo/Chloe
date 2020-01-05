@@ -68,11 +68,11 @@ namespace Chloe.Data
                     result = Reader_GetString;
                     break;
                 default:
-                    if (type == UtilConstants.TypeOfGuid)
+                    if (type == PublicConstants.TypeOfGuid)
                     {
                         result = isNullable ? Reader_GetGuid_Nullable : Reader_GetGuid;
                     }
-                    else if (type == UtilConstants.TypeOfObject)
+                    else if (type == PublicConstants.TypeOfObject)
                     {
                         result = Reader_GetValue;
                     }

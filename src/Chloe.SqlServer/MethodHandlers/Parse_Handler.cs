@@ -14,7 +14,7 @@ namespace Chloe.SqlServer.MethodHandlers
                 return false;
 
             DbExpression arg = exp.Arguments[0];
-            if (arg.Type != UtilConstants.TypeOfString)
+            if (arg.Type != PublicConstants.TypeOfString)
                 return false;
 
             Type retType = exp.Method.ReturnType;
@@ -27,7 +27,7 @@ namespace Chloe.SqlServer.MethodHandlers
         {
             DbExpression arg = exp.Arguments[0];
             DbExpression e = DbExpression.Convert(arg, exp.Method.ReturnType);
-            if (exp.Method.ReturnType == UtilConstants.TypeOfBoolean)
+            if (exp.Method.ReturnType == PublicConstants.TypeOfBoolean)
             {
                 e.Accept(generator);
                 generator.SqlBuilder.Append(" = ");

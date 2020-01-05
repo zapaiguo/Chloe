@@ -12,7 +12,7 @@ namespace Chloe.SqlServer.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            return exp.Method.DeclaringType == UtilConstants.TypeOfSql;
+            return exp.Method.DeclaringType == PublicConstants.TypeOfSql;
         }
         public void Process(DbMethodCallExpression exp, SqlGenerator generator)
         {
@@ -26,7 +26,7 @@ namespace Chloe.SqlServer.MethodHandlers
             {
                 case CompareType.eq:
                     {
-                        MethodInfo method_Sql_Equals = UtilConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
+                        MethodInfo method_Sql_Equals = PublicConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
 
                         /* Sql.Equals(left, right) */
                         DbMethodCallExpression left_equals_right = DbExpression.MethodCall(null, method_Sql_Equals, new List<DbExpression>(2) { left, right });
@@ -36,7 +36,7 @@ namespace Chloe.SqlServer.MethodHandlers
                     break;
                 case CompareType.neq:
                     {
-                        MethodInfo method_Sql_NotEquals = UtilConstants.MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
+                        MethodInfo method_Sql_NotEquals = PublicConstants.MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
 
                         /* Sql.NotEquals(left, right) */
                         DbMethodCallExpression left_not_equals_right = DbExpression.MethodCall(null, method_Sql_NotEquals, new List<DbExpression>(2) { left, right });

@@ -10,7 +10,7 @@ namespace Chloe.DbExpressions
 
         }
         public DbLessThanOrEqualExpression(DbExpression left, DbExpression right, MethodInfo method)
-            : base(DbExpressionType.LessThanOrEqual, UtilConstants.TypeOfBoolean, left, right, method)
+            : base(DbExpressionType.LessThanOrEqual, PublicConstants.TypeOfBoolean, left, right, method)
         {
 
         }

@@ -13,7 +13,7 @@ namespace Chloe.PostgreSQL.MethodHandlers
         {
             MethodInfo method = exp.Method;
             /* public static bool In<T>(this T obj, IEnumerable<T> source) */
-            if (method.IsGenericMethod && method.ReturnType == UtilConstants.TypeOfBoolean)
+            if (method.IsGenericMethod && method.ReturnType == PublicConstants.TypeOfBoolean)
             {
                 Type[] genericArguments = method.GetGenericArguments();
                 ParameterInfo[] parameters = method.GetParameters();
@@ -38,7 +38,7 @@ namespace Chloe.PostgreSQL.MethodHandlers
             Type[] genericArguments = method.GetGenericArguments();
             Type genericType = genericArguments[0];
 
-            MethodInfo method_Contains = UtilConstants.MethodInfo_Enumerable_Contains.MakeGenericMethod(genericType);
+            MethodInfo method_Contains = PublicConstants.MethodInfo_Enumerable_Contains.MakeGenericMethod(genericType);
             List<DbExpression> arguments = new List<DbExpression>(2) { exp.Arguments[1], exp.Arguments[0] };
             DbMethodCallExpression newExp = new DbMethodCallExpression(null, method_Contains, arguments);
             newExp.Accept(generator);

@@ -71,7 +71,7 @@ namespace Chloe.Data
 
         }
 
-        NotSupportedException NotSupported()
+        static NotSupportedException NotSupported()
         {
             return new NotSupportedException("使用外部事务情况下无法调用此方法。");
         }

@@ -10,7 +10,7 @@ namespace Chloe.SqlServer.MethodHandlers
     {
         public bool CanProcess(DbMethodCallExpression exp)
         {
-            if (exp.Method != UtilConstants.MethodInfo_String_Trim)
+            if (exp.Method != PublicConstants.MethodInfo_String_Trim)
                 return false;
 
             return true;

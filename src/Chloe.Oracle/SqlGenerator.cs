@@ -89,7 +89,7 @@ namespace Chloe.Oracle
             left = DbExpressionExtension.StripInvalidConvert(left);
             right = DbExpressionExtension.StripInvalidConvert(right);
 
-            MethodInfo method_Sql_Equals = UtilConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
+            MethodInfo method_Sql_Equals = PublicConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
 
             /* Sql.Equals(left, right) */
             DbMethodCallExpression left_equals_right = DbExpression.MethodCall(null, method_Sql_Equals, new List<DbExpression>(2) { left, right });
@@ -134,7 +134,7 @@ namespace Chloe.Oracle
             left = DbExpressionExtension.StripInvalidConvert(left);
             right = DbExpressionExtension.StripInvalidConvert(right);
 
-            MethodInfo method_Sql_NotEquals = UtilConstants.MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
+            MethodInfo method_Sql_NotEquals = PublicConstants.MethodInfo_Sql_NotEquals.MakeGenericMethod(left.Type);
 
             /* Sql.NotEquals(left, right) */
             DbMethodCallExpression left_not_equals_right = DbExpression.MethodCall(null, method_Sql_NotEquals, new List<DbExpression>(2) { left, right });
@@ -160,7 +160,7 @@ namespace Chloe.Oracle
                 return exp;
             }
 
-            MethodInfo method_Sql_Equals = UtilConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
+            MethodInfo method_Sql_Equals = PublicConstants.MethodInfo_Sql_Equals.MakeGenericMethod(left.Type);
 
             if (left.NodeType == DbExpressionType.Parameter || left.NodeType == DbExpressionType.Constant)
             {
@@ -663,7 +663,7 @@ namespace Chloe.Oracle
 
             exp = (DbConvertExpression)stripedExp;
 
-            if (exp.Type == UtilConstants.TypeOfString)
+            if (exp.Type == PublicConstants.TypeOfString)
             {
                 this._sqlBuilder.Append("TO_CHAR(");
                 exp.Operand.Accept(this);
@@ -671,7 +671,7 @@ namespace Chloe.Oracle
                 return exp;
             }
 
-            if (exp.Type == UtilConstants.TypeOfDateTime)
+            if (exp.Type == PublicConstants.TypeOfDateTime)
             {
                 this._sqlBuilder.Append("TO_TIMESTAMP(");
                 exp.Operand.Accept(this);
@@ -749,28 +749,28 @@ namespace Chloe.Oracle
                 return exp;
             }
 
-            if (member.DeclaringType == UtilConstants.TypeOfDateTime)
+            if (member.DeclaringType == PublicConstants.TypeOfDateTime)
             {
-                if (member == UtilConstants.PropertyInfo_DateTime_Now)
+                if (member == PublicConstants.PropertyInfo_DateTime_Now)
                 {
                     this._sqlBuilder.Append("SYSTIMESTAMP");
                     return exp;
                 }
 
-                if (member == UtilConstants.PropertyInfo_DateTime_UtcNow)
+                if (member == PublicConstants.PropertyInfo_DateTime_UtcNow)
                 {
                     this._sqlBuilder.Append("SYS_EXTRACT_UTC(SYSTIMESTAMP)");
                     return exp;
                 }
 
-                if (member == UtilConstants.PropertyInfo_DateTime_Today)
+                if (member == PublicConstants.PropertyInfo_DateTime_Today)
                 {
                     //other way: this._sqlBuilder.Append("TO_DATE(TO_CHAR(SYSDATE,'yyyy-mm-dd'),'yyyy-mm-dd')");
                     this._sqlBuilder.Append("TRUNC(SYSDATE,'DD')");
                     return exp;
                 }
 
-                if (member == UtilConstants.PropertyInfo_DateTime_Date)
+                if (member == PublicConstants.PropertyInfo_DateTime_Date)
                 {
                     this._sqlBuilder.Append("TRUNC(");
                     exp.Expression.Accept(this);
@@ -789,7 +789,7 @@ namespace Chloe.Oracle
                 return exp;
             }
 
-            if (member.Name == "Length" && member.DeclaringType == UtilConstants.TypeOfString)
+            if (member.Name == "Length" && member.DeclaringType == PublicConstants.TypeOfString)
             {
                 this._sqlBuilder.Append("LENGTH(");
                 exp.Expression.Accept(this);
@@ -821,12 +821,12 @@ namespace Chloe.Oracle
             }
 
             var objType = exp.Value.GetType();
-            if (objType == UtilConstants.TypeOfBoolean)
+            if (objType == PublicConstants.TypeOfBoolean)
             {
                 this._sqlBuilder.Append(((bool)exp.Value) ? "1" : "0");
                 return exp;
             }
-            else if (objType == UtilConstants.TypeOfString)
+            else if (objType == PublicConstants.TypeOfString)
             {
                 if (string.Empty.Equals(exp.Value))
                     this._sqlBuilder.Append("'", exp.Value, "'");
@@ -861,9 +861,9 @@ namespace Chloe.Oracle
                 if (paramValue != null)
                     paramValue = Convert.ChangeType(paramValue, paramType);
             }
-            else if (paramType == UtilConstants.TypeOfBoolean)
+            else if (paramType == PublicConstants.TypeOfBoolean)
             {
-                paramType = UtilConstants.TypeOfInt32;
+                paramType = PublicConstants.TypeOfInt32;
                 if (paramValue != null)
                 {
                     paramValue = (bool)paramValue ? Boxed_1 : Boxed_0;
@@ -884,7 +884,7 @@ namespace Chloe.Oracle
             string paramName = GenParameterName(this._parameters.Count);
             p = DbParam.Create(paramName, paramValue, paramType);
 
-            if (paramValue.GetType() == UtilConstants.TypeOfString)
+            if (paramValue.GetType() == PublicConstants.TypeOfString)
             {
                 if (exp.DbType == DbType.AnsiStringFixedLength || exp.DbType == DbType.StringFixedLength)
                     p.Size = ((string)paramValue).Length;
@@ -1080,50 +1080,50 @@ namespace Chloe.Oracle
         {
             MemberInfo member = exp.Member;
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Year)
+            if (member == PublicConstants.PropertyInfo_DateTime_Year)
             {
                 DbFunction_DATEPART(this, "yyyy", exp.Expression);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Month)
+            if (member == PublicConstants.PropertyInfo_DateTime_Month)
             {
                 DbFunction_DATEPART(this, "mm", exp.Expression);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Day)
+            if (member == PublicConstants.PropertyInfo_DateTime_Day)
             {
                 DbFunction_DATEPART(this, "dd", exp.Expression);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Hour)
+            if (member == PublicConstants.PropertyInfo_DateTime_Hour)
             {
                 DbFunction_DATEPART(this, "hh24", exp.Expression);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Minute)
+            if (member == PublicConstants.PropertyInfo_DateTime_Minute)
             {
                 DbFunction_DATEPART(this, "mi", exp.Expression);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Second)
+            if (member == PublicConstants.PropertyInfo_DateTime_Second)
             {
                 DbFunction_DATEPART(this, "ss", exp.Expression);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_Millisecond)
+            if (member == PublicConstants.PropertyInfo_DateTime_Millisecond)
             {
                 /* exp.Expression must be TIMESTAMP,otherwise there will be an error occurred. */
                 DbFunction_DATEPART(this, "ff3", exp.Expression, true);
                 return true;
             }
 
-            if (member == UtilConstants.PropertyInfo_DateTime_DayOfWeek)
+            if (member == PublicConstants.PropertyInfo_DateTime_DayOfWeek)
             {
                 // CAST(TO_CHAR(SYSDATE,'D') AS NUMBER) - 1
                 this._sqlBuilder.Append("(");
@@ -1140,12 +1140,12 @@ namespace Chloe.Oracle
         {
             MemberInfo member = exp.Member;
 
-            if (member.DeclaringType == UtilConstants.TypeOfTimeSpan)
+            if (member.DeclaringType == PublicConstants.TypeOfTimeSpan)
             {
                 if (exp.Expression.NodeType == DbExpressionType.Call)
                 {
                     DbMethodCallExpression dbMethodExp = (DbMethodCallExpression)exp.Expression;
-                    if (dbMethodExp.Method == UtilConstants.MethodInfo_DateTime_Subtract_DateTime)
+                    if (dbMethodExp.Method == PublicConstants.MethodInfo_DateTime_Subtract_DateTime)
                     {
                         int? intervalDivisor = null;
 
@@ -1185,9 +1185,9 @@ namespace Chloe.Oracle
                 else
                 {
                     DbSubtractExpression dbSubtractExp = exp.Expression as DbSubtractExpression;
-                    if (dbSubtractExp != null && dbSubtractExp.Left.Type == UtilConstants.TypeOfDateTime && dbSubtractExp.Right.Type == UtilConstants.TypeOfDateTime)
+                    if (dbSubtractExp != null && dbSubtractExp.Left.Type == PublicConstants.TypeOfDateTime && dbSubtractExp.Right.Type == PublicConstants.TypeOfDateTime)
                     {
-                        DbMethodCallExpression dbMethodExp = new DbMethodCallExpression(dbSubtractExp.Left, UtilConstants.MethodInfo_DateTime_Subtract_DateTime, new List<DbExpression>(1) { dbSubtractExp.Right });
+                        DbMethodCallExpression dbMethodExp = new DbMethodCallExpression(dbSubtractExp.Left, PublicConstants.MethodInfo_DateTime_Subtract_DateTime, new List<DbExpression>(1) { dbSubtractExp.Right });
                         DbMemberExpression dbMemberExp = DbExpression.MemberAccess(member, dbMethodExp);
                         dbMemberExp.Accept(this);
 

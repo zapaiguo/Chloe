@@ -13,7 +13,7 @@ namespace Chloe.PostgreSQL.MethodHandlers
         public bool CanProcess(DbMethodCallExpression exp)
         {
             MethodInfo method = exp.Method;
-            if (method.DeclaringType != UtilConstants.TypeOfSql)
+            if (method.DeclaringType != PublicConstants.TypeOfSql)
             {
                 return false;
             }

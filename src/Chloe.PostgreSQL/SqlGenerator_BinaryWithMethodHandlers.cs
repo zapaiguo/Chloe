@@ -12,8 +12,8 @@ namespace Chloe.PostgreSQL
         static Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>> InitBinaryWithMethodHandlers()
         {
             var binaryWithMethodHandlers = new Dictionary<MethodInfo, Action<DbBinaryExpression, SqlGenerator>>();
-            binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_String_String, StringConcat);
-            binaryWithMethodHandlers.Add(UtilConstants.MethodInfo_String_Concat_Object_Object, StringConcat);
+            binaryWithMethodHandlers.Add(PublicConstants.MethodInfo_String_Concat_String_String, StringConcat);
+            binaryWithMethodHandlers.Add(PublicConstants.MethodInfo_String_Concat_Object_Object, StringConcat);
 
             var ret = PublicHelper.Clone(binaryWithMethodHandlers);
             return ret;
@@ -26,7 +26,7 @@ namespace Chloe.PostgreSQL
 
             DbExpression left = exp.Left;
             DbAddExpression e = null;
-            while ((e = (left as DbAddExpression)) != null && (e.Method == UtilConstants.MethodInfo_String_Concat_String_String || e.Method == UtilConstants.MethodInfo_String_Concat_Object_Object))
+            while ((e = (left as DbAddExpression)) != null && (e.Method == PublicConstants.MethodInfo_String_Concat_String_String || e.Method == PublicConstants.MethodInfo_String_Concat_Object_Object))
             {
                 operands.Add(e.Right);
                 left = e.Left;
@@ -40,13 +40,13 @@ namespace Chloe.PostgreSQL
             {
                 DbExpression operand = operands[i];
                 DbExpression opBody = operand;
-                if (opBody.Type != UtilConstants.TypeOfString)
+                if (opBody.Type != PublicConstants.TypeOfString)
                 {
                     // 需要 cast type
-                    opBody = DbExpression.Convert(opBody, UtilConstants.TypeOfString);
+                    opBody = DbExpression.Convert(opBody, PublicConstants.TypeOfString);
                 }
 
-                DbExpression equalNullExp = DbExpression.Equal(opBody, UtilConstants.DbConstant_Null_String);
+                DbExpression equalNullExp = DbExpression.Equal(opBody, PublicConstants.DbConstant_Null_String);
 
                 if (whenExp == null)
                     whenExp = equalNullExp;
