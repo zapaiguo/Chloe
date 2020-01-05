@@ -2,15 +2,10 @@
 using Chloe.Query.Mapping;
 using Chloe.Query.QueryExpressions;
 using Chloe.Query.Visitors;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Linq;
-using Chloe.Core.Visitors;
-using Chloe.Utility;
-using Chloe.Infrastructure;
-using Chloe.Descriptors;
-using Chloe.Entity;
 
 namespace Chloe.Query.QueryState
 {

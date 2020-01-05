@@ -1,16 +1,8 @@
-﻿using Chloe.Core;
-using Chloe.Core.Emit;
-using Chloe.Query.Mapping;
-using Chloe.InternalExtensions;
+﻿using Chloe.Infrastructure;
+using Chloe.Reflection;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using Chloe.Infrastructure;
-using Chloe.Utility;
-using Chloe.Reflection;
 using System.Threading;
 
 namespace Chloe.Mapper

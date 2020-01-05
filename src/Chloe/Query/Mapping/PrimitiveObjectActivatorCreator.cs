@@ -1,12 +1,6 @@
-﻿using Chloe.Core;
-using Chloe.Mapper;
+﻿using Chloe.Mapper;
 using Chloe.Mapper.Activators;
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace Chloe.Query.Mapping
 {

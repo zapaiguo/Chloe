@@ -1,9 +1,4 @@
 ﻿using Chloe.Descriptors;
-using Chloe.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Chloe.SqlServer
 {

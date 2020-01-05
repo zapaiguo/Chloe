@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Chloe.DbExpressions;
+using Chloe.InternalExtensions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using Chloe.DbExpressions;
-using Chloe.InternalExtensions;
 
 namespace Chloe.SQLite.MethodHandlers
 {
@@ -88,7 +87,7 @@ namespace Chloe.SQLite.MethodHandlers
 
             throw UtilExceptions.NotSupportedMethod(exp.Method);
 
-            constructInState:
+        constructInState:
             foreach (object value in values)
             {
                 if (value == null)

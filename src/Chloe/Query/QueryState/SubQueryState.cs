@@ -1,8 +1,5 @@
-﻿using Chloe.DbExpressions;
-using Chloe.Query.Mapping;
+﻿using Chloe.Query.Mapping;
 using Chloe.Query.QueryExpressions;
-using System;
-using System.Linq;
 
 namespace Chloe.Query.QueryState
 {

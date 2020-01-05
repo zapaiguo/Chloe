@@ -1,10 +1,4 @@
-﻿using Chloe.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Chloe.DbExpressions
+﻿namespace Chloe.DbExpressions
 {
     public class DbCoalesceExpression : DbExpression
     {

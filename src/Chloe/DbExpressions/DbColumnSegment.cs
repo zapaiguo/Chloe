@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Chloe.DbExpressions
+﻿namespace Chloe.DbExpressions
 {
     /// <summary>
     /// T.Name as Alias

@@ -1,11 +1,6 @@
 ﻿using Chloe.Infrastructure;
-using Chloe.Utility;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
 
 namespace Chloe.SqlServer
 {

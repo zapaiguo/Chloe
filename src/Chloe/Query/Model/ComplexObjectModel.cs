@@ -1,19 +1,19 @@
-﻿using Chloe.Extensions;
-using Chloe.InternalExtensions;
-using Chloe.DbExpressions;
+﻿using Chloe.DbExpressions;
 using Chloe.Descriptors;
+using Chloe.Exceptions;
+using Chloe.Extensions;
+using Chloe.Infrastructure;
+using Chloe.InternalExtensions;
 using Chloe.Query.Mapping;
+using Chloe.Query.QueryExpressions;
+using Chloe.Query.Visitors;
+using Chloe.Reflection;
+using Chloe.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Chloe.Query.QueryExpressions;
-using Chloe.Infrastructure;
-using Chloe.Query.Visitors;
-using Chloe.Exceptions;
-using Chloe.Utility;
-using Chloe.Reflection;
 
 namespace Chloe.Query
 {

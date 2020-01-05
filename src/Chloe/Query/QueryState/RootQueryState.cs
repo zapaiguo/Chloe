@@ -1,15 +1,14 @@
 ﻿using Chloe.DbExpressions;
-using System;
-using System.Linq;
 using Chloe.Descriptors;
-using System.Reflection;
-using Chloe.InternalExtensions;
-using System.Linq.Expressions;
-using System.Collections.Generic;
-using Chloe.Utility;
 using Chloe.Infrastructure;
+using Chloe.InternalExtensions;
 using Chloe.Query.QueryExpressions;
 using Chloe.Query.Visitors;
+using Chloe.Utility;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Chloe.Query.QueryState
 {

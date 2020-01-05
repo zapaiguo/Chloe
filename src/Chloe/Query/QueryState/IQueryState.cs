@@ -1,11 +1,8 @@
-﻿using Chloe.Query.QueryExpressions;
-using Chloe.Query.Mapping;
-using Chloe.Query.Visitors;
-using Chloe.DbExpressions;
-using System.Linq.Expressions;
-using System.Collections.Generic;
+﻿using Chloe.Query.Mapping;
+using Chloe.Query.QueryExpressions;
 using Chloe.Utility;
 using System;
+using System.Linq.Expressions;
 
 namespace Chloe.Query.QueryState
 {

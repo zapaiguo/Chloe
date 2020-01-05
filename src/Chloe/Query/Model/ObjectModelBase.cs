@@ -1,10 +1,8 @@
 ﻿using Chloe.DbExpressions;
 using Chloe.Query.Mapping;
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace Chloe.Query
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Chloe.Entity
+﻿namespace Chloe.Entity
 {
     public interface ICollectionPropertyBuilder
     {

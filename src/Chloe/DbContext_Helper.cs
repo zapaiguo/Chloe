@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Linq;
-using Chloe.Query;
-using Chloe.Core;
-using Chloe.Infrastructure;
-using Chloe.Descriptors;
-using Chloe.DbExpressions;
-using Chloe.Query.Internals;
-using Chloe.Core.Visitors;
-using Chloe.Exceptions;
-using System.Data;
-using Chloe.InternalExtensions;
+﻿using Chloe.Core.Visitors;
 using Chloe.Extensions;
-using Chloe.Utility;
+using Chloe.InternalExtensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Chloe
 {

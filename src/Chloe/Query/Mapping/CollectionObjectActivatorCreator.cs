@@ -1,12 +1,10 @@
 ﻿using Chloe.Descriptors;
 using Chloe.Infrastructure;
 using Chloe.Mapper;
+using Chloe.Mapper.Activators;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 using System.Linq;
-using Chloe.Mapper.Activators;
 
 namespace Chloe.Query.Mapping
 {

@@ -1,6 +1,4 @@
-﻿using Chloe.Extensions;
-using Chloe.DbExpressions;
-using Chloe.Descriptors;
+﻿using Chloe.DbExpressions;
 using Chloe.Query.Mapping;
 using System;
 using System.Collections.Generic;

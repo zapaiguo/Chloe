@@ -1,21 +1,17 @@
 ﻿using Chloe.Annotations;
-using Chloe.Core;
 using Chloe.Descriptors;
 using Chloe.Infrastructure;
 using Chloe.Mapper;
+using Chloe.Mapper.Activators;
+using Chloe.Mapper.Binders;
 using Chloe.Query.Mapping;
 using Chloe.Reflection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using Chloe.Mapper.Binders;
-using Chloe.Mapper.Activators;
 
 namespace Chloe.Query.Internals
 {

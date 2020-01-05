@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Chloe.Data;
 using System.Data;
-using Chloe.Data;
 
 namespace Chloe.Mapper.Activators
 {

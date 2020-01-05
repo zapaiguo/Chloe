@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Chloe
+﻿namespace Chloe
 {
     /// <summary>
     /// Usage: Case.When(a.Gender == Gender.Man).Then("Man").When(a.Gender == Gender.Woman).Then("Woman").Else(null)

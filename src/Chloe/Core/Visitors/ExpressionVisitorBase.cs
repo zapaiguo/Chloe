@@ -1,11 +1,9 @@
-﻿using System;
+﻿using Chloe.DbExpressions;
+using Chloe.Extensions;
+using Chloe.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Linq;
-using Chloe.DbExpressions;
-using Chloe.Extensions;
-using Chloe.InternalExtensions;
-using Chloe.Reflection;
 
 namespace Chloe.Core.Visitors
 {

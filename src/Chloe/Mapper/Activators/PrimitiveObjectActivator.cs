@@ -1,11 +1,7 @@
 ﻿using Chloe.Data;
 using Chloe.Exceptions;
-using Chloe.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 
 namespace Chloe.Mapper.Activators
 {

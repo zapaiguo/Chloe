@@ -1,11 +1,8 @@
-﻿using Chloe.Core;
-using Chloe.Core.Visitors;
+﻿using Chloe.Core.Visitors;
 using Chloe.DbExpressions;
 using Chloe.Descriptors;
-using Chloe.Entity;
 using Chloe.Exceptions;
 using Chloe.Infrastructure;
-using Chloe.InternalExtensions;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;

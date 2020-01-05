@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections;
+﻿using Chloe.Query.Internals;
+using Chloe.Query.QueryExpressions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Chloe.Core;
-using Chloe.Query.QueryExpressions;
-using Chloe.Infrastructure;
-using Chloe.Query.Internals;
-using System.Diagnostics;
 using System.Reflection;
-using Chloe.DbExpressions;
 
 namespace Chloe.Query
 {

@@ -1,17 +1,11 @@
-﻿using Chloe.Core;
-using Chloe.Core.Emit;
-using Chloe.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using Chloe.InternalExtensions;
-using MappingType = Chloe.Infrastructure.MappingType;
-using System.Threading;
-using Chloe.Reflection;
+﻿using Chloe.Core.Emit;
 using Chloe.Data;
+using Chloe.Reflection;
+using System;
+using System.Data;
+using System.Reflection;
+using System.Threading;
+using MappingType = Chloe.Infrastructure.MappingType;
 
 namespace Chloe.Mapper
 {

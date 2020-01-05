@@ -1,8 +1,7 @@
-﻿using System;
-using System.Reflection;
-using Chloe.InternalExtensions;
+﻿using Chloe.Reflection;
+using System;
 using System.Data;
-using Chloe.Reflection;
+using System.Reflection;
 
 namespace Chloe.DbExpressions
 {

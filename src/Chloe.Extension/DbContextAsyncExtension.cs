@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Chloe.Extension;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Chloe.Extension;
 
 namespace Chloe
 {

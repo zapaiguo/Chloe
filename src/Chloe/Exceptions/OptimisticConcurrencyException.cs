@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Chloe.Exceptions
+﻿namespace Chloe.Exceptions
 {
     public class OptimisticConcurrencyException : ChloeException
     {

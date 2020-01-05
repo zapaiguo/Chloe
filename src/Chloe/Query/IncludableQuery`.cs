@@ -1,12 +1,10 @@
-﻿using Chloe.Query.QueryExpressions;
+﻿using Chloe.Extensions;
+using Chloe.Query.QueryExpressions;
+using Chloe.Reflection;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 using System.Reflection;
-using Chloe.Extensions;
-using Chloe.Reflection;
 
 namespace Chloe.Query
 {

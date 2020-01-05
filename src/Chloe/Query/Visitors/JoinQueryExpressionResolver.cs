@@ -1,15 +1,7 @@
 ﻿using Chloe.DbExpressions;
-using Chloe.Descriptors;
 using Chloe.Query.QueryExpressions;
 using Chloe.Query.QueryState;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Reflection;
-using Chloe.InternalExtensions;
-using Chloe.Infrastructure;
 
 namespace Chloe.Query.Visitors
 {

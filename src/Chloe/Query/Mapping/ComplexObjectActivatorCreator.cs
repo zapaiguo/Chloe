@@ -1,15 +1,14 @@
-﻿using Chloe.Mapper;
-using Chloe.Descriptors;
+﻿using Chloe.Descriptors;
+using Chloe.Exceptions;
+using Chloe.Infrastructure;
+using Chloe.Mapper;
+using Chloe.Mapper.Activators;
+using Chloe.Mapper.Binders;
+using Chloe.Reflection;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Reflection;
-using Chloe.Infrastructure;
-using Chloe.Mapper.Binders;
-using Chloe.Mapper.Activators;
-using Chloe.Reflection;
-using Chloe.Exceptions;
 
 namespace Chloe.Query.Mapping
 {

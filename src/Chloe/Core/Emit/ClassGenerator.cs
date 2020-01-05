@@ -1,6 +1,4 @@
 ﻿using Chloe.Data;
-using Chloe.Extensions;
-using Chloe.InternalExtensions;
 using Chloe.Mapper;
 using Chloe.Reflection;
 using System;

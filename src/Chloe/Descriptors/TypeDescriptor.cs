@@ -1,16 +1,14 @@
 ﻿using Chloe.Core.Visitors;
 using Chloe.DbExpressions;
 using Chloe.Entity;
+using Chloe.Exceptions;
+using Chloe.Query;
+using Chloe.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
 using System.Linq;
 using System.Reflection;
-using Chloe.Reflection;
-using Chloe.Utility;
-using Chloe.Exceptions;
-using Chloe.Query;
 
 namespace Chloe.Descriptors
 {

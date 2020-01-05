@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Chloe.Query.QueryExpressions;
-using Chloe.Query.QueryState;
-using Chloe.Query.Visitors;
 
 namespace Chloe.Query.QueryExpressions
 {

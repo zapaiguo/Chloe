@@ -1,11 +1,6 @@
-﻿using Chloe.Core.Visitors;
-using Chloe.Infrastructure;
-using Chloe.Query;
+﻿using Chloe.Infrastructure;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 
 namespace Chloe.PostgreSQL
 {
