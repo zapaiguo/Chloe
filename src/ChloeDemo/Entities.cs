@@ -29,6 +29,7 @@ namespace ChloeDemo
         [Column(DbType = DbType.String)]
         public string Name { get; set; }
 
+        [NotMapped]
         public string NotMapped { get; set; }
     }
 
@@ -43,11 +44,13 @@ namespace ChloeDemo
         public int? CityId { get; set; }
         public DateTime? OpTime { get; set; }
 
-        [Chloe.Annotations.ForeignKey("CityId")]
+        [Chloe.Annotations.NavigationAttribute("CityId")]
         public City City { get; set; }
 
-        /* Marks the column is timestamp type(sqlserver only) */
-        //[Chloe.SqlServer.Annotations.TimestampAttribute]
+        //[Column(IsRowVersion = true)]
+        //public int RowVersion { get; set; }
+
+        //[Column(IsRowVersion = true)]
         //public Byte[] RowVersion { get; set; }
     }
 
@@ -57,8 +60,9 @@ namespace ChloeDemo
         public string Name { get; set; }
         public int? ProvinceId { get; set; }
 
-        [Chloe.Annotations.ForeignKey("ProvinceId")]
+        [Chloe.Annotations.NavigationAttribute("ProvinceId")]
         public Province Province { get; set; }
+        [Chloe.Annotations.NavigationAttribute]
         public List<User> Users { get; set; }
     }
 
@@ -67,6 +71,7 @@ namespace ChloeDemo
         public int Id { get; set; }
         public string Name { get; set; }
 
+        [Chloe.Annotations.NavigationAttribute]
         public List<City> Cities { get; set; }
     }
 }

@@ -123,19 +123,20 @@ namespace Chloe.Entity
                 if (MappingTypeSystem.IsMappingType(property.PropertyType))
                     continue;
 
+                NavigationAttribute navigationAttribute = property.GetCustomAttribute<NavigationAttribute>();
+
+                if (navigationAttribute == null)
+                    continue;
+
                 if (this.IsSupportedCollectionType(property.PropertyType))
                 {
                     this.EntityType.CollectionProperties.Add(new CollectionProperty(property));
                     continue;
                 }
 
-                ForeignKeyAttribute foreignKeyAttribute = property.GetCustomAttribute<ForeignKeyAttribute>();
-                if (foreignKeyAttribute != null)
-                {
-                    ComplexProperty complexProperty = new ComplexProperty(property);
-                    complexProperty.ForeignKey = foreignKeyAttribute.Name;
-                    this.EntityType.ComplexProperties.Add(complexProperty);
-                }
+                ComplexProperty complexProperty = new ComplexProperty(property);
+                complexProperty.ForeignKey = navigationAttribute.ForeignKey;
+                this.EntityType.ComplexProperties.Add(complexProperty);
             }
         }
 

@@ -10,6 +10,7 @@ using Chloe.Query.Internals;
 using Chloe.Reflection;
 using Chloe.Utility;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -177,6 +178,119 @@ namespace Chloe
             return this.SqlQuery<T>(sql, cmdType, PublicHelper.BuildParams(this, parameter));
         }
 
+        public TEntity Save<TEntity>(TEntity entity)
+        {
+            if (this.Session.IsInTransaction)
+            {
+                this.Save(entity, null);
+            }
+            else
+            {
+                this.UseTransaction(() =>
+                {
+                    this.Save(entity, null);
+                });
+            }
+
+            return entity;
+        }
+        TEntity Save<TEntity>(TEntity entity, TypeDescriptor declaringTypeDescriptor)
+        {
+            this.Insert(entity);
+
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
+
+            for (int i = 0; i < typeDescriptor.ComplexPropertyDescriptors.Count; i++)
+            {
+                //entity.TOther
+                ComplexPropertyDescriptor navPropertyDescriptor = typeDescriptor.ComplexPropertyDescriptors[i];
+
+                if (declaringTypeDescriptor != null && navPropertyDescriptor.PropertyType == declaringTypeDescriptor.Definition.Type)
+                {
+                    continue;
+                }
+
+                this.SaveOneToOne(navPropertyDescriptor, entity, typeDescriptor);
+            }
+
+            for (int i = 0; i < typeDescriptor.CollectionPropertyDescriptors.Count; i++)
+            {
+                //entity.List
+                CollectionPropertyDescriptor collectionPropertyDescriptor = typeDescriptor.CollectionPropertyDescriptors[i];
+                this.SaveCollection(collectionPropertyDescriptor, entity, typeDescriptor);
+            }
+
+            return entity;
+        }
+        void SaveOneToOne(ComplexPropertyDescriptor navPropertyDescriptor, object owner, TypeDescriptor ownerTypeDescriptor)
+        {
+            /*
+             * 1:1
+             * T    <1:1>    TOther
+             * T.TOther <--> TOther.T
+             * T.Id <--> TOther.Id
+             */
+
+            //owner is T
+            //navPropertyDescriptor is T.TOther
+            //TypeDescriptor of T.TOther
+            TypeDescriptor navTypeDescriptor = EntityTypeContainer.GetDescriptor(navPropertyDescriptor.PropertyType);
+            //TOther.T
+            ComplexPropertyDescriptor TOtherDotT = navTypeDescriptor.ComplexPropertyDescriptors.Where(a => a.PropertyType == ownerTypeDescriptor.Definition.Type).FirstOrDefault();
+
+            bool isOneToOne = TOtherDotT != null;
+            if (!isOneToOne)
+                return;
+
+            //instance of T.TOther
+            object navValue = navPropertyDescriptor.GetValue(owner);
+            if (navValue == null)
+                return;
+
+            //T.Id
+            PrimitivePropertyDescriptor foreignKeyProperty = navPropertyDescriptor.ForeignKeyProperty;
+            if (foreignKeyProperty.IsAutoIncrement || foreignKeyProperty.HasSequence())
+            {
+                //value of T.Id
+                object foreignKeyValue = foreignKeyProperty.GetValue(owner);
+
+                //T.TOther.Id = T.Id
+                TOtherDotT.ForeignKeyProperty.SetValue(navValue, foreignKeyValue);
+            }
+
+            MethodInfo method = GetSaveMethod(navPropertyDescriptor.PropertyType);
+            //DbContext.Save(navValue, ownerTypeDescriptor);
+            method.Invoke(this, navValue, ownerTypeDescriptor);
+        }
+        void SaveCollection(CollectionPropertyDescriptor collectionPropertyDescriptor, object owner, TypeDescriptor ownerTypeDescriptor)
+        {
+            PrimitivePropertyDescriptor ownerKeyPropertyDescriptor = ownerTypeDescriptor.PrimaryKeys.FirstOrDefault();
+            if (ownerKeyPropertyDescriptor == null)
+                return;
+
+            //T.Elements
+            IList elementList = collectionPropertyDescriptor.GetValue(owner) as IList;
+            if (elementList == null || elementList.Count == 0)
+                return;
+
+            TypeDescriptor elementTypeDescriptor = EntityTypeContainer.GetDescriptor(collectionPropertyDescriptor.ElementType);
+            //Element.T
+            ComplexPropertyDescriptor elementDotT = elementTypeDescriptor.ComplexPropertyDescriptors.Where(a => a.PropertyType == ownerTypeDescriptor.Definition.Type).FirstOrDefault();
+
+            object ownerKeyValue = ownerKeyPropertyDescriptor.GetValue(owner);
+            MethodInfo method = GetSaveMethod(collectionPropertyDescriptor.ElementType);
+            for (int i = 0; i < elementList.Count; i++)
+            {
+                object element = elementList[i];
+                if (element == null)
+                    continue;
+
+                //element.ForeignKey = T.Id
+                elementDotT.ForeignKeyProperty.SetValue(element, ownerKeyValue);
+                //DbContext.Save(element, ownerTypeDescriptor);
+                method.Invoke(this, element, ownerTypeDescriptor);
+            }
+        }
 
         public virtual TEntity Insert<TEntity>(TEntity entity)
         {

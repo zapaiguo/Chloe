@@ -71,6 +71,20 @@ namespace Chloe
         IEnumerable<T> SqlQuery<T>(string sql, object parameter);
         IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, object parameter);
 
+        /// <summary>
+        /// 插入数据，连同导航属性一并插入。
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        TEntity Save<TEntity>(TEntity entity);
+
+        /// <summary>
+        /// 插入数据，但不包括导航属性。
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         TEntity Insert<TEntity>(TEntity entity);
         TEntity Insert<TEntity>(TEntity entity, string table);
         /// <summary>

@@ -5,11 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Chloe
 {
     public abstract partial class DbContext : IDbContext, IDisposable
     {
+        static MethodInfo _saveMethod;
+        static DbContext()
+        {
+            DbContext dbContext = null;
+            Expression<Func<string>> e = () => dbContext.Save<string>("", null);
+            MethodInfo method = (e.Body as MethodCallExpression).Method;
+            _saveMethod = method;
+        }
         static KeyValuePairList<JoinType, Expression> ResolveJoinInfo(LambdaExpression joinInfoExp)
         {
             /*
@@ -81,6 +90,11 @@ namespace Chloe
             }
 
             return ret;
+        }
+        static MethodInfo GetSaveMethod(Type entityType)
+        {
+            MethodInfo method = _saveMethod.GetGenericMethodDefinition().MakeGenericMethod(entityType);
+            return method;
         }
     }
 }

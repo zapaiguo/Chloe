@@ -7,6 +7,8 @@ namespace Chloe.Reflection
 {
     public static class ReflectionExtension
     {
+        public static readonly object[] EmptyArray = new object[0];
+
         public static Type GetMemberType(this MemberInfo propertyOrField)
         {
             if (propertyOrField.MemberType == MemberTypes.Property)
@@ -50,7 +52,7 @@ namespace Chloe.Reflection
 
         public static object Invoke(this MethodInfo method, object obj, params object[] parameters)
         {
-            return method.Invoke(obj, parameters == null ? new object[0] : parameters.ToArray());
+            return method.Invoke(obj, parameters ?? EmptyArray);
         }
 
         public static MemberInfo AsReflectedMemberOf(this MemberInfo propertyOrField, Type type)
