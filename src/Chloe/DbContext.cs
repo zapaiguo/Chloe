@@ -16,6 +16,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Chloe
 {
@@ -26,7 +27,6 @@ namespace Chloe
         DbSession _session;
 
         Dictionary<Type, TrackEntityCollection> _trackingEntityContainer;
-
         Dictionary<Type, TrackEntityCollection> TrackingEntityContainer
         {
             get
@@ -682,6 +682,24 @@ namespace Chloe
             using (ITransientTransaction tran = this.BeginTransaction(il))
             {
                 action();
+                tran.Commit();
+            }
+        }
+        public async Task UseTransactionAsync(Func<Task> action)
+        {
+            PublicHelper.CheckNull(action);
+            using (ITransientTransaction tran = this.BeginTransaction())
+            {
+                await action();
+                tran.Commit();
+            }
+        }
+        public async Task UseTransactionAsync(Func<Task> action, IsolationLevel il)
+        {
+            PublicHelper.CheckNull(action);
+            using (ITransientTransaction tran = this.BeginTransaction(il))
+            {
+                await action();
                 tran.Commit();
             }
         }

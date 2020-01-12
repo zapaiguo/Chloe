@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace Chloe
 {
@@ -135,6 +136,8 @@ namespace Chloe
         ITransientTransaction BeginTransaction(IsolationLevel il);
         void UseTransaction(Action action);
         void UseTransaction(Action action, IsolationLevel il);
+        Task UseTransactionAsync(Func<Task> action);
+        Task UseTransactionAsync(Func<Task> action, IsolationLevel il);
 
         void TrackEntity(object entity);
     }
