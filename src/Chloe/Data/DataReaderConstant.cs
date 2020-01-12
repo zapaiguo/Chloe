@@ -140,7 +140,7 @@ namespace Chloe.Data
         internal static readonly MethodInfo Reader_GetString = typeof(DataReaderExtension).GetMethod("GetString");
         internal static readonly MethodInfo Reader_GetValue = typeof(DataReaderExtension).GetMethod("GetValue");
 
-        internal static readonly MethodInfo Reader_GetEnum = typeof(DataReaderExtension).GetMethod("GetEnum", new Type[] { typeof(int) });
+        internal static readonly MethodInfo Reader_GetEnum = typeof(DataReaderExtension).GetMethod("GetEnum", new Type[] { typeof(IDataReader), typeof(int) });
         internal static readonly MethodInfo Reader_GetEnum_Nullable = typeof(DataReaderExtension).GetMethod("GetEnum_Nullable");
 
         internal static readonly MethodInfo Reader_GetTValue = typeof(DataReaderExtension).GetMethod("GetTValue");
