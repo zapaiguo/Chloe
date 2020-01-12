@@ -686,27 +686,6 @@ namespace Chloe
             }
         }
 
-#if !net40
-        public async Task UseTransactionAsync(Func<Task> action)
-        {
-            PublicHelper.CheckNull(action);
-            using (ITransientTransaction tran = this.BeginTransaction())
-            {
-                await action();
-                tran.Commit();
-            }
-        }
-        public async Task UseTransactionAsync(Func<Task> action, IsolationLevel il)
-        {
-            PublicHelper.CheckNull(action);
-            using (ITransientTransaction tran = this.BeginTransaction(il))
-            {
-                await action();
-                tran.Commit();
-            }
-        }
-#endif
-
         public virtual void TrackEntity(object entity)
         {
             PublicHelper.CheckNull(entity);
