@@ -136,8 +136,10 @@ namespace Chloe
         ITransientTransaction BeginTransaction(IsolationLevel il);
         void UseTransaction(Action action);
         void UseTransaction(Action action, IsolationLevel il);
+#if !net40
         Task UseTransactionAsync(Func<Task> action);
         Task UseTransactionAsync(Func<Task> action, IsolationLevel il);
+#endif
 
         void TrackEntity(object entity);
     }

@@ -685,6 +685,8 @@ namespace Chloe
                 tran.Commit();
             }
         }
+
+#if !net40
         public async Task UseTransactionAsync(Func<Task> action)
         {
             PublicHelper.CheckNull(action);
@@ -703,6 +705,7 @@ namespace Chloe
                 tran.Commit();
             }
         }
+#endif
 
         public virtual void TrackEntity(object entity)
         {

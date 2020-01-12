@@ -32,9 +32,9 @@ namespace Chloe.Core.Emit
                         assemblyName.Version = new Version(1, 0, 0, 0);
 
                         AssemblyBuilder assemblyBuilder;
-#if NETCORE
+#if netcore
                         assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-#elif NETFX
+#elif netfx
                         assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #endif
                         moduleBuilder = assemblyBuilder.DefineDynamicModule("ChloeMRMModule");

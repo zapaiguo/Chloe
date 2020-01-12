@@ -11,8 +11,9 @@ namespace Chloe.Extension
     {
         public static Task<T> MakeTask<T>(Func<T> func)
         {
-#if NET40
-            var task = new Task<T>(func);
+#if net40
+            T result = func();
+            var task = new Task<T>(() => { return result; });
             task.Start();
             return task;
 #else

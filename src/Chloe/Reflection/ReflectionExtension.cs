@@ -131,7 +131,7 @@ namespace Chloe.Reflection
             return type.GetConstructor(Type.EmptyTypes);
         }
 
-#if NETFX
+#if net40
         public static IEnumerable<Attribute> GetCustomAttributes(this MemberInfo member)
         {
             return member.GetCustomAttributes<Attribute>();

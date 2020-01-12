@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Chloe
 {
-#if NETCORE
+#if netcore
     public static partial class DbContextExtension
     {
         /// <summary>

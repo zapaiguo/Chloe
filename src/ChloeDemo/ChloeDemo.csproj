@@ -15,10 +15,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
-    <DefineConstants>NETCORE</DefineConstants>
+    <DefineConstants>netcore</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <DefineConstants>NETFX</DefineConstants>
+    <DefineConstants>netfx</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
