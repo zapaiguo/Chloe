@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Chloe</id>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
     <title>Chloe</title>
     <authors>Shuxin Qin</authors>
     <owners>Shuxin Qin</owners>
@@ -18,6 +18,9 @@ A lightweight and high-performance Object/Relational Mapping(ORM) library.
    
    <dependencies>
       <group targetFramework="net40">      
+      </group>
+	  
+	  <group targetFramework="net45">	  
       </group>
 	  
       <group targetFramework="netstandard2.0">
