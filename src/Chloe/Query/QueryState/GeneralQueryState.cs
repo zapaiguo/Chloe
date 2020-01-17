@@ -13,6 +13,7 @@ namespace Chloe.Query.QueryState
             QueryModel newQueryModel = new QueryModel(this.QueryModel.ScopeParameters, this.QueryModel.ScopeTables, this.QueryModel.IgnoreFilters);
             newQueryModel.FromTable = this.QueryModel.FromTable;
             newQueryModel.ResultModel = this.QueryModel.ResultModel;
+            newQueryModel.Condition = this.QueryModel.Condition;
             if (!this.QueryModel.IgnoreFilters)
             {
                 newQueryModel.GlobalFilters.AddRange(this.QueryModel.GlobalFilters);
