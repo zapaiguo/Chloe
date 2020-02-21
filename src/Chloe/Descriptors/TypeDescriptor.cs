@@ -61,11 +61,6 @@ namespace Chloe.Descriptors
                 return new DefaultExpressionParser(this, explicitDbTable);
         }
 
-        public ConstructorInfo GetDefaultConstructor()
-        {
-            return this.Definition.Type.GetConstructor(Type.EmptyTypes);
-        }
-
         public bool HasPrimaryKey()
         {
             return this.PrimaryKeys.Count > 0;
