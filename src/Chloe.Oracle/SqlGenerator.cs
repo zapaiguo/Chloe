@@ -862,6 +862,11 @@ namespace Chloe.Oracle
                 {
                     paramValue = (bool)paramValue ? Boxed_1 : Boxed_0;
                 }
+
+                if (exp.DbType == null || exp.DbType == DbType.Boolean)
+                {
+                    exp.DbType = DbType.Int32;
+                }
             }
 
             if (paramValue == null)
