@@ -54,6 +54,11 @@ namespace Chloe.Query.QueryState
 
         public override JoinQueryResult ToJoinQueryResult(JoinType joinType, LambdaExpression conditionExpression, ScopeParameterDictionary scopeParameters, StringSet scopeTables, Func<string, string> tableAliasGenerator)
         {
+            if (this.QueryModel.Condition != null)
+            {
+                return base.ToJoinQueryResult(joinType, conditionExpression, scopeParameters, scopeTables, tableAliasGenerator);
+            }
+
             scopeParameters = scopeParameters.Clone(conditionExpression.Parameters.Last(), this.QueryModel.ResultModel);
             DbExpression condition = GeneralExpressionParser.Parse(conditionExpression, scopeParameters, scopeTables);
             DbJoinTableExpression joinTable = new DbJoinTableExpression(joinType.AsDbJoinType(), this.QueryModel.FromTable.Table, condition);
