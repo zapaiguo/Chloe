@@ -34,9 +34,10 @@ namespace Chloe.Mapper
 
             mrmTuple.StrongMRM = new Lazy<IMRM>(() =>
             {
-                Type type = ClassGenerator.CreateMRMType(member);
-                IMRM strongMrm = (IMRM)type.GetDefaultConstructor().Invoke(null);
-                return strongMrm;
+                return new MRM(member);
+                //Type type = ClassGenerator.CreateMRMType(member);
+                //IMRM strongMrm = (IMRM)type.GetDefaultConstructor().Invoke(null);
+                //return strongMrm;
             }, LazyThreadSafetyMode.ExecutionAndPublication);
 
             if (member.GetMemberType().GetUnderlyingType().IsEnum /* 枚举比较特殊 */)

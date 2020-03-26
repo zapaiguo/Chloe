@@ -30,21 +30,17 @@ namespace Chloe.Core.Emit
 
         public static Action<object, IDataReader, int> CreateSetValueFromReaderDelegate(MemberInfo member)
         {
-            Action<object, IDataReader, int> del = null;
-
             var p = Expression.Parameter(typeof(object), "instance");
             var instance = Expression.Convert(p, member.DeclaringType);
             var reader = Expression.Parameter(typeof(IDataReader), "reader");
             var ordinal = Expression.Parameter(typeof(int), "ordinal");
 
             var readerMethod = DataReaderConstant.GetReaderMethod(member.GetMemberType());
-
             var getValue = Expression.Call(null, readerMethod, reader, ordinal);
-
             var assign = ExpressionExtension.Assign(member, instance, getValue);
-
             var lambda = Expression.Lambda<Action<object, IDataReader, int>>(assign, p, reader, ordinal);
-            del = lambda.Compile();
+
+            Action<object, IDataReader, int> del = lambda.Compile();
 
             return del;
         }
