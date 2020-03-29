@@ -78,5 +78,4 @@ namespace Chloe.Descriptors
             return this.Definition.Annotations.Any(a => a.GetType() == attributeType);
         }
     }
-
 }

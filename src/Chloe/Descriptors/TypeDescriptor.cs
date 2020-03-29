@@ -25,6 +25,7 @@ namespace Chloe.Descriptors
             this.PrimitivePropertyDescriptors = this.Definition.PrimitiveProperties.Select(a => new PrimitivePropertyDescriptor(a, this)).ToList().AsReadOnly();
             this.ComplexPropertyDescriptors = this.Definition.ComplexProperties.Select(a => new ComplexPropertyDescriptor(a, this)).ToList().AsReadOnly();
             this.CollectionPropertyDescriptors = this.Definition.CollectionProperties.Select(a => new CollectionPropertyDescriptor(a, this)).ToList().AsReadOnly();
+            this.NavigationPropertyDescriptors = this.ComplexPropertyDescriptors.Cast<PropertyDescriptor>().Concat(this.CollectionPropertyDescriptors.Cast<PropertyDescriptor>()).ToList().AsReadOnly();
 
             var allPropertyDescriptors = this.PrimitivePropertyDescriptors.AsEnumerable<PropertyDescriptor>().Concat(this.ComplexPropertyDescriptors.AsEnumerable<PropertyDescriptor>()).Concat(this.CollectionPropertyDescriptors.AsEnumerable<PropertyDescriptor>());
             this._propertyDescriptorMap = PublicHelper.Clone(allPropertyDescriptors.ToDictionary(a => (MemberInfo)a.Definition.Property, a => a));
@@ -41,7 +42,10 @@ namespace Chloe.Descriptors
         public ReadOnlyCollection<PrimitivePropertyDescriptor> PrimitivePropertyDescriptors { get; private set; }
         public ReadOnlyCollection<ComplexPropertyDescriptor> ComplexPropertyDescriptors { get; private set; }
         public ReadOnlyCollection<CollectionPropertyDescriptor> CollectionPropertyDescriptors { get; private set; }
+        public ReadOnlyCollection<PropertyDescriptor> NavigationPropertyDescriptors { get; private set; }
+
         public ReadOnlyCollection<PrimitivePropertyDescriptor> PrimaryKeys { get; private set; }
+
         /* It will return null if an entity has no auto increment member. */
         public PrimitivePropertyDescriptor AutoIncrement { get; private set; }
 

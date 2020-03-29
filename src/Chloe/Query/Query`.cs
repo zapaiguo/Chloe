@@ -1,4 +1,6 @@
-﻿using Chloe.Query.Internals;
+﻿using Chloe.Descriptors;
+using Chloe.Infrastructure;
+using Chloe.Query.Internals;
 using Chloe.Query.QueryExpressions;
 using System;
 using System.Collections.Generic;
@@ -50,6 +52,115 @@ namespace Chloe.Query
             PublicHelper.CheckNull(selector);
             SelectExpression e = new SelectExpression(typeof(TResult), _expression, selector);
             return new Query<TResult>(this._dbContext, e, this._trackEntity);
+        }
+
+        public IQuery<T> IncludeAll()
+        {
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(T));
+
+            object lastQuery = this;
+            for (int i = 0; i < typeDescriptor.NavigationPropertyDescriptors.Count; i++)
+            {
+                PropertyDescriptor propertyDescriptor = typeDescriptor.NavigationPropertyDescriptors[i];
+                lastQuery = this.Include(typeDescriptor, lastQuery, propertyDescriptor);
+            }
+
+            return (IQuery<T>)lastQuery;
+        }
+        object Include(TypeDescriptor typeDescriptor, object lastQuery, PropertyDescriptor propertyDescriptor)
+        {
+            //entity.TOther or entity.List
+            TypeDescriptor navTypeDescriptor = propertyDescriptor.GetPropertyTypeDescriptor();
+
+            Func<object, object> queryBuilder = query =>
+            {
+                return this.CallIncludeMethod(query, propertyDescriptor);
+            };
+
+            lastQuery = this.ThenInclude(navTypeDescriptor, queryBuilder(lastQuery), typeDescriptor, queryBuilder);
+
+            return lastQuery;
+        }
+        object ThenInclude(TypeDescriptor typeDescriptor, object lastQuery, TypeDescriptor declaringTypeDescriptor, Func<object, object> queryBuilder)
+        {
+            int navCount = typeDescriptor.NavigationPropertyDescriptors.Count;
+
+            for (int i = 0; i < typeDescriptor.NavigationPropertyDescriptors.Count; i++)
+            {
+                //entity.TOther
+                PropertyDescriptor propertyDescriptor = typeDescriptor.NavigationPropertyDescriptors[i];
+                TypeDescriptor navTypeDescriptor = propertyDescriptor.GetPropertyTypeDescriptor();
+                if (declaringTypeDescriptor != null && navTypeDescriptor == declaringTypeDescriptor)
+                {
+                    continue;
+                }
+
+                Func<object, object> includableQueryBuilder = query =>
+                {
+                    return this.CallThenIncludeMethod(queryBuilder(query), propertyDescriptor);
+                };
+
+                lastQuery = this.ThenInclude(navTypeDescriptor, this.CallThenIncludeMethod(lastQuery, propertyDescriptor), typeDescriptor, includableQueryBuilder);
+
+                if (i < navCount - 1)
+                {
+                    lastQuery = queryBuilder(lastQuery);
+                }
+            }
+
+            return lastQuery;
+        }
+        object CallIncludeMethod(object query, PropertyDescriptor propertyDescriptor)
+        {
+            Type queryType = typeof(IQuery<T>);
+            MethodInfo includeMethod;
+            if (propertyDescriptor is ComplexPropertyDescriptor)
+            {
+                includeMethod = queryType.GetMethod("Include");
+                includeMethod = includeMethod.MakeGenericMethod(propertyDescriptor.PropertyType);
+            }
+            else
+            {
+                includeMethod = queryType.GetMethod("IncludeMany");
+                includeMethod = includeMethod.MakeGenericMethod((propertyDescriptor as CollectionPropertyDescriptor).ElementType);
+            }
+
+            var includeMethodArgument = this.MakeIncludeMethodArgument(includeMethod, typeof(T), propertyDescriptor.Property);
+
+            // query.Include<property>(a => a.property)
+            var includableQuery = includeMethod.Invoke(query, new object[] { includeMethodArgument });
+            return includableQuery;
+        }
+        object CallThenIncludeMethod(object includableQuery, PropertyDescriptor propertyDescriptor)
+        {
+            Type includableQueryType = includableQuery.GetType().GetInterface("IIncludableQuery`2");
+            MethodInfo thenIncludeMethod;
+            if (propertyDescriptor is ComplexPropertyDescriptor)
+            {
+                thenIncludeMethod = includableQueryType.GetMethod("ThenInclude");
+                thenIncludeMethod = thenIncludeMethod.MakeGenericMethod(propertyDescriptor.PropertyType);
+            }
+            else
+            {
+                thenIncludeMethod = includableQueryType.GetMethod("ThenIncludeMany");
+                thenIncludeMethod = thenIncludeMethod.MakeGenericMethod((propertyDescriptor as CollectionPropertyDescriptor).ElementType);
+            }
+
+            var lambdaParameterType = includableQueryType.GetGenericArguments()[1];
+            var includeMethodArgument = this.MakeIncludeMethodArgument(thenIncludeMethod, lambdaParameterType, propertyDescriptor.Property);
+
+            // includableQuery.ThenInclude<property>(a => a.property)
+            includableQuery = thenIncludeMethod.Invoke(includableQuery, new object[] { includeMethodArgument });
+            return includableQuery;
+        }
+        LambdaExpression MakeIncludeMethodArgument(MethodInfo includeMethod, Type lambdaParameterType, PropertyInfo includeProperty)
+        {
+            var p = Expression.Parameter(lambdaParameterType, "a");
+            var propertyAccess = Expression.MakeMemberAccess(p, includeProperty);
+            Type funcType = includeMethod.GetParameters()[0].ParameterType.GetGenericArguments()[0];
+            var lambda = Expression.Lambda(funcType, propertyAccess, p);
+
+            return lambda;
         }
 
         public IIncludableQuery<T, TProperty> Include<TProperty>(Expression<Func<T, TProperty>> navigationPath)

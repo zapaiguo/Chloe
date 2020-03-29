@@ -36,12 +36,15 @@ namespace Chloe
             }
         }
 
-        public static Type GetFuncDelegateType(Type[] typeArguments)
+        public static Type GetFuncDelegateType(params Type[] typeArguments)
         {
             int parameters = typeArguments.Length;
             Type funcType = null;
             switch (parameters)
             {
+                case 2:
+                    funcType = typeof(Func<,>);
+                    break;
                 case 3:
                     funcType = typeof(Func<,,>);
                     break;

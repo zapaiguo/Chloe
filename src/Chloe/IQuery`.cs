@@ -10,6 +10,7 @@ namespace Chloe
         IEnumerable<T> AsEnumerable();
         IQuery<TResult> Select<TResult>(Expression<Func<T, TResult>> selector);
 
+        IQuery<T> IncludeAll();
         IIncludableQuery<T, TProperty> Include<TProperty>(Expression<Func<T, TProperty>> p);
         IIncludableQuery<T, TCollectionItem> IncludeMany<TCollectionItem>(Expression<Func<T, IEnumerable<TCollectionItem>>> p);
 
