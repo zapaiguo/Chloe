@@ -5,6 +5,7 @@ using Chloe.Descriptors;
 using Chloe.Exceptions;
 using Chloe.Infrastructure;
 using Chloe.Reflection;
+using Chloe.Threading.Tasks;
 using Chloe.Utility;
 using System;
 using System.Collections.Generic;
@@ -378,7 +379,7 @@ namespace Chloe.SqlServer
         /// <param name="keepIdentity">是否保留源自增值。false 由数据库分配自增值</param>
         public virtual void BulkInsert<TEntity>(List<TEntity> entities, string table = null, int? batchSize = null, int? bulkCopyTimeout = null, bool keepIdentity = false)
         {
-            this.BulkInsert(entities, table, batchSize, bulkCopyTimeout, keepIdentity, false).Wait();
+            this.BulkInsert(entities, table, batchSize, bulkCopyTimeout, keepIdentity, false).GetResult();
         }
         public virtual async Task BulkInsertAsync<TEntity>(List<TEntity> entities, string table = null, int? batchSize = null, int? bulkCopyTimeout = null, bool keepIdentity = false)
         {

@@ -512,7 +512,7 @@ namespace Chloe
         }
         public virtual void InsertRange<TEntity>(List<TEntity> entities, string table)
         {
-            this.InsertRange(entities, table, false).Wait();
+            this.InsertRange(entities, table, false).GetResult();
         }
         public virtual async Task InsertRangeAsync<TEntity>(List<TEntity> entities)
         {
