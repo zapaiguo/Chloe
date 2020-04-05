@@ -14,6 +14,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Chloe.SqlServer
 {
@@ -45,7 +46,7 @@ namespace Chloe.SqlServer
             get { return this._databaseProvider; }
         }
 
-        public override TEntity Insert<TEntity>(TEntity entity, string table)
+        protected override async Task<TEntity> Insert<TEntity>(TEntity entity, string table, bool @async)
         {
             PublicHelper.CheckNull(entity);
 
@@ -102,20 +103,19 @@ namespace Chloe.SqlServer
 
             if (outputColumns.Count == 0)
             {
-                this.ExecuteNonQuery(insertExp);
+                await this.ExecuteNonQuery(insertExp, @async);
                 return entity;
             }
 
             List<Action<TEntity, IDataReader>> mappers = new List<Action<TEntity, IDataReader>>();
             IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            List<DbParam> parameters;
-            string sql = null;
+            DbCommandInfo dbCommandInfo;
             if (outputColumns.Count == 1 && outputColumns[0].IsAutoIncrement)
             {
-                sql = translator.Translate(insertExp, out parameters);
+                dbCommandInfo = translator.Translate(insertExp);
 
                 /* 自增 id 不能用 output  inserted.Id 输出，因为如果表设置了触发器的话会报错 */
-                sql = string.Concat(sql, ";", this.GetSelectLastInsertIdClause());
+                dbCommandInfo.CommandText = string.Concat(dbCommandInfo.CommandText, ";", this.GetSelectLastInsertIdClause());
                 mappers.Add(GetMapper<TEntity>(outputColumns[0], 0));
             }
             else
@@ -126,10 +126,10 @@ namespace Chloe.SqlServer
                     insertExp.Returns.Add(outputColumn.Column);
                 }
 
-                sql = translator.Translate(insertExp, out parameters);
+                dbCommandInfo = translator.Translate(insertExp);
             }
 
-            IDataReader dataReader = this.Session.ExecuteReader(sql, parameters.ToArray());
+            IDataReader dataReader = this.Session.ExecuteReader(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
             using (dataReader)
             {
                 dataReader.Read();
@@ -141,7 +141,7 @@ namespace Chloe.SqlServer
 
             return entity;
         }
-        public override object Insert<TEntity>(Expression<Func<TEntity>> content, string table)
+        protected override async Task<object> Insert<TEntity>(Expression<Func<TEntity>> content, string table, bool @async)
         {
             PublicHelper.CheckNull(content);
 
@@ -208,30 +208,29 @@ namespace Chloe.SqlServer
 
             if (keyPropertyDescriptor == null)
             {
-                this.ExecuteNonQuery(insertExp);
+                await this.ExecuteNonQuery(insertExp, @async);
                 return keyVal; /* It will return null if an entity does not define primary key. */
             }
             if (!keyPropertyDescriptor.IsAutoIncrement && !keyPropertyDescriptor.HasSequence())
             {
-                this.ExecuteNonQuery(insertExp);
+                await this.ExecuteNonQuery(insertExp, @async);
                 return keyVal;
             }
 
             IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            List<DbParam> parameters;
-            string sql = translator.Translate(insertExp, out parameters);
+            DbCommandInfo dbCommandInfo = translator.Translate(insertExp);
 
             if (keyPropertyDescriptor.IsAutoIncrement)
             {
                 /* 自增 id 不能用 output  inserted.Id 输出，因为如果表设置了触发器的话会报错 */
-                sql = string.Concat(sql, ";", this.GetSelectLastInsertIdClause());
+                dbCommandInfo.CommandText = string.Concat(dbCommandInfo.CommandText, ";", this.GetSelectLastInsertIdClause());
             }
             else if (keyPropertyDescriptor.HasSequence())
             {
                 insertExp.Returns.Add(keyPropertyDescriptor.Column);
             }
 
-            object ret = this.Session.ExecuteScalar(sql, parameters.ToArray());
+            object ret = this.Session.ExecuteScalar(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
             if (ret == null || ret == DBNull.Value)
             {
                 throw new ChloeException("Unable to get the identity/sequence value.");
@@ -240,7 +239,7 @@ namespace Chloe.SqlServer
             ret = PublicHelper.ConvertObjectType(ret, typeDescriptor.AutoIncrement.PropertyType);
             return ret;
         }
-        public override void InsertRange<TEntity>(List<TEntity> entities, string table)
+        protected override async Task InsertRange<TEntity>(List<TEntity> entities, string table, bool @async)
         {
             /*
              * 将 entities 分批插入数据库
@@ -263,7 +262,7 @@ namespace Chloe.SqlServer
             DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
             string sqlTemplate = AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors);
 
-            Action insertAction = () =>
+            Func<Task> insertAction = async () =>
             {
                 int batchCount = 0;
                 List<DbParam> dbParams = new List<DbParam>();
@@ -343,7 +342,7 @@ namespace Chloe.SqlServer
                     {
                         sqlBuilder.Insert(0, sqlTemplate);
                         string sql = sqlBuilder.ToString();
-                        this.Session.ExecuteNonQuery(sql, dbParams.ToArray());
+                        await this.ExecuteNonQuery(sql, dbParams.ToArray(), @async);
 
                         sqlBuilder.Clear();
                         dbParams.Clear();
@@ -352,28 +351,21 @@ namespace Chloe.SqlServer
                 }
             };
 
+            Func<Task> fAction = insertAction;
+
             if (this.Session.IsInTransaction)
             {
-                insertAction();
+                await fAction();
+                return;
             }
-            else
+
+            /* 因为分批插入，所以需要开启事务保证数据一致性 */
+            using (var tran = this.BeginTransaction())
             {
-                /* 因为分批插入，所以需要开启事务保证数据一致性 */
-                this.Session.BeginTransaction();
-                try
-                {
-                    insertAction();
-                    this.Session.CommitTransaction();
-                }
-                catch
-                {
-                    if (this.Session.IsInTransaction)
-                        this.Session.RollbackTransaction();
-                    throw;
-                }
+                await fAction();
+                tran.Commit();
             }
         }
-
 
         /// <summary>
         /// 利用 SqlBulkCopy 批量插入数据。
@@ -385,6 +377,14 @@ namespace Chloe.SqlServer
         /// <param name="bulkCopyTimeout">设置 SqlBulkCopy.BulkCopyTimeout 的值</param>
         /// <param name="keepIdentity">是否保留源自增值。false 由数据库分配自增值</param>
         public virtual void BulkInsert<TEntity>(List<TEntity> entities, string table = null, int? batchSize = null, int? bulkCopyTimeout = null, bool keepIdentity = false)
+        {
+            this.BulkInsert(entities, table, batchSize, bulkCopyTimeout, keepIdentity, false).Wait();
+        }
+        public virtual async Task BulkInsertAsync<TEntity>(List<TEntity> entities, string table = null, int? batchSize = null, int? bulkCopyTimeout = null, bool keepIdentity = false)
+        {
+            await this.BulkInsert(entities, table, batchSize, bulkCopyTimeout, keepIdentity, true);
+        }
+        protected virtual async Task BulkInsert<TEntity>(List<TEntity> entities, string table, int? batchSize, int? bulkCopyTimeout, bool keepIdentity, bool @async)
         {
             PublicHelper.CheckNull(entities);
 
@@ -431,7 +431,10 @@ namespace Chloe.SqlServer
                         shouldCloseConnection = true;
                     }
 
-                    sbc.WriteToServer(dtToWrite);
+                    if (@async)
+                        await sbc.WriteToServerAsync(dtToWrite);
+                    else
+                        sbc.WriteToServer(dtToWrite);
                 }
             }
             finally
@@ -444,7 +447,8 @@ namespace Chloe.SqlServer
             }
         }
 
-        public override int Update<TEntity>(TEntity entity, string table)
+
+        protected override async Task<int> Update<TEntity>(TEntity entity, string table, bool @async)
         {
             PublicHelper.CheckNull(entity);
 
@@ -515,7 +519,7 @@ namespace Chloe.SqlServer
             int rowsAffected = 0;
             if (rowVersionDescriptor == null)
             {
-                rowsAffected = this.ExecuteNonQuery(e);
+                rowsAffected = await this.ExecuteNonQuery(e, @async);
                 if (entityState != null)
                     entityState.Refresh();
                 return rowsAffected;
@@ -527,7 +531,7 @@ namespace Chloe.SqlServer
                 mappers.Add(GetMapper<TEntity>(rowVersionDescriptor, e.Returns.Count));
                 e.Returns.Add(rowVersionDescriptor.Column);
 
-                IDataReader dataReader = this.ExecuteReader(e);
+                IDataReader dataReader = await this.ExecuteReader(e, @async);
                 using (dataReader)
                 {
                     while (dataReader.Read())
@@ -544,7 +548,7 @@ namespace Chloe.SqlServer
             }
             else
             {
-                rowsAffected = this.ExecuteNonQuery(e);
+                rowsAffected = await this.ExecuteNonQuery(e, @async);
                 PublicHelper.CauseErrorIfOptimisticUpdateFailed(rowsAffected);
                 rowVersionDescriptor.SetValue(entity, rowVersionNewValue);
             }
@@ -555,7 +559,7 @@ namespace Chloe.SqlServer
             return rowsAffected;
         }
 
-        public override int Delete<TEntity>(TEntity entity, string table)
+        protected override async Task<int> Delete<TEntity>(TEntity entity, string table, bool @async)
         {
             PublicHelper.CheckNull(entity);
 
@@ -584,7 +588,7 @@ namespace Chloe.SqlServer
             DbExpression conditionExp = PublicHelper.MakeCondition(keyValues, dbTable);
             DbDeleteExpression e = new DbDeleteExpression(dbTable, conditionExp);
 
-            int rowsAffected = this.ExecuteNonQuery(e);
+            int rowsAffected = await this.ExecuteNonQuery(e, @async);
 
             if (rowVersionDescriptor != null)
             {

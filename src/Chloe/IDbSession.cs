@@ -1,6 +1,7 @@
 ﻿using Chloe.Infrastructure.Interception;
 using System;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Chloe
 {
@@ -27,6 +28,18 @@ namespace Chloe
         /// <returns></returns>
         int ExecuteNonQuery(string cmdText, CommandType cmdType, object parameter);
 
+        Task<int> ExecuteNonQueryAsync(string cmdText, params DbParam[] parameters);
+        Task<int> ExecuteNonQueryAsync(string cmdText, CommandType cmdType, params DbParam[] parameters);
+        Task<int> ExecuteNonQueryAsync(string cmdText, object parameter);
+        /// <summary>
+        /// dbSession.ExecuteNonQueryAsync("update Users set Age=18 where Id=@Id", CommandType.Text, new { Id = 1 })
+        /// </summary>
+        /// <param name="cmdText"></param>
+        /// <param name="cmdType"></param>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        Task<int> ExecuteNonQueryAsync(string cmdText, CommandType cmdType, object parameter);
+
         object ExecuteScalar(string cmdText, params DbParam[] parameters);
         object ExecuteScalar(string cmdText, CommandType cmdType, params DbParam[] parameters);
         object ExecuteScalar(string cmdText, object parameter);
@@ -39,6 +52,18 @@ namespace Chloe
         /// <returns></returns>
         object ExecuteScalar(string cmdText, CommandType cmdType, object parameter);
 
+        Task<object> ExecuteScalarAsync(string cmdText, params DbParam[] parameters);
+        Task<object> ExecuteScalarAsync(string cmdText, CommandType cmdType, params DbParam[] parameters);
+        Task<object> ExecuteScalarAsync(string cmdText, object parameter);
+        /// <summary>
+        /// dbSession.ExecuteScalarAsync("select Age from Users where Id=@Id", CommandType.Text, new { Id = 1 })
+        /// </summary>
+        /// <param name="cmdText"></param>
+        /// <param name="cmdType"></param>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        Task<object> ExecuteScalarAsync(string cmdText, CommandType cmdType, object parameter);
+
         IDataReader ExecuteReader(string cmdText, params DbParam[] parameters);
         IDataReader ExecuteReader(string cmdText, CommandType cmdType, params DbParam[] parameters);
         IDataReader ExecuteReader(string cmdText, object parameter);
@@ -50,6 +75,18 @@ namespace Chloe
         /// <param name="parameter"></param>
         /// <returns></returns>
         IDataReader ExecuteReader(string cmdText, CommandType cmdType, object parameter);
+
+        Task<IDataReader> ExecuteReaderAsync(string cmdText, params DbParam[] parameters);
+        Task<IDataReader> ExecuteReaderAsync(string cmdText, CommandType cmdType, params DbParam[] parameters);
+        Task<IDataReader> ExecuteReaderAsync(string cmdText, object parameter);
+        /// <summary>
+        /// dbSession.ExecuteReaderAsync("select * from Users where Id=@Id", CommandType.Text, new { Id = 1 })
+        /// </summary>
+        /// <param name="cmdText"></param>
+        /// <param name="cmdType"></param>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        Task<IDataReader> ExecuteReaderAsync(string cmdText, CommandType cmdType, object parameter);
 
         /// <summary>
         /// 使用外部事务。传 null 则取消使用外部事务。

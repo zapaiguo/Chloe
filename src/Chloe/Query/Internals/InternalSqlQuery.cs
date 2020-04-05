@@ -5,13 +5,15 @@ using Chloe.Mapper;
 using Chloe.Mapper.Activators;
 using Chloe.Mapper.Binders;
 using Chloe.Query.Mapping;
-using Chloe.Reflection;
+using Chloe.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Chloe.Query.Internals
 {
@@ -30,6 +32,26 @@ namespace Chloe.Query.Internals
             this._parameters = parameters;
         }
 
+        public List<T> Execute()
+        {
+            return this.ToList();
+        }
+        public async Task<List<T>> ExecuteAsync()
+        {
+            IAsyncEnumerator<T> enumerator = this.GetEnumerator() as IAsyncEnumerator<T>;
+
+            List<T> list = new List<T>();
+            using (enumerator)
+            {
+                while (await enumerator.MoveNextAsync())
+                {
+                    list.Add(enumerator.Current);
+                }
+            }
+
+            return list;
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             return new QueryEnumerator(this);
@@ -39,7 +61,7 @@ namespace Chloe.Query.Internals
             return this.GetEnumerator();
         }
 
-        struct QueryEnumerator : IEnumerator<T>
+        class QueryEnumerator : IEnumerator<T>, IAsyncEnumerator<T>
         {
             InternalSqlQuery<T> _internalSqlQuery;
 
@@ -66,15 +88,24 @@ namespace Chloe.Query.Internals
 
             public bool MoveNext()
             {
+                return this.MoveNext(false).GetResult();
+            }
+            public async ValueTask<bool> MoveNextAsync()
+            {
+                return await this.MoveNext(true);
+            }
+
+            async ValueTask<bool> MoveNext(bool @async)
+            {
                 if (this._hasFinished || this._disposed)
                     return false;
 
                 if (this._reader == null)
                 {
-                    this.Prepare();
+                    await this.Prepare(@async);
                 }
 
-                if (this._reader.Read())
+                if (await this._reader.Read(@async))
                 {
                     this._current = (T)this._objectActivator.CreateInstance(this._reader);
                     return true;
@@ -115,7 +146,7 @@ namespace Chloe.Query.Internals
                 throw new NotSupportedException();
             }
 
-            void Prepare()
+            async Task Prepare(bool @async)
             {
                 Type type = typeof(T);
 
@@ -123,16 +154,18 @@ namespace Chloe.Query.Internals
                 {
                     PrimitiveObjectActivatorCreator activatorCreator = new PrimitiveObjectActivatorCreator(type, 0);
                     this._objectActivator = activatorCreator.CreateObjectActivator();
-                    this._reader = this.ExecuteReader();
+                    this._reader = await this.ExecuteReader(@async);
                     return;
                 }
 
-                this._reader = this.ExecuteReader();
+                this._reader = await this.ExecuteReader(@async);
                 this._objectActivator = GetObjectActivator(type, this._reader);
             }
-            IDataReader ExecuteReader()
+
+            async Task<IDataReader> ExecuteReader(bool @async)
             {
-                IDataReader reader = this._internalSqlQuery._dbContext.AdoSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, this._internalSqlQuery._cmdType);
+                IDataReader reader = await this._internalSqlQuery._dbContext.AdoSession.ExecuteReader(this._internalSqlQuery._sql, this._internalSqlQuery._parameters, this._internalSqlQuery._cmdType, @async);
+
                 return reader;
             }
 

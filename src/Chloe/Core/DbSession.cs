@@ -1,5 +1,6 @@
 ﻿using Chloe.Infrastructure.Interception;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Chloe.Core
 {
@@ -38,6 +39,24 @@ namespace Chloe.Core
             return this.ExecuteNonQuery(cmdText, cmdType, PublicHelper.BuildParams(this._dbContext, parameter));
         }
 
+        public async Task<int> ExecuteNonQueryAsync(string cmdText, params DbParam[] parameters)
+        {
+            return await this.ExecuteNonQueryAsync(cmdText, CommandType.Text, parameters);
+        }
+        public async Task<int> ExecuteNonQueryAsync(string cmdText, CommandType cmdType, params DbParam[] parameters)
+        {
+            PublicHelper.CheckNull(cmdText, "cmdText");
+            return await this._dbContext.AdoSession.ExecuteNonQueryAsync(cmdText, parameters, cmdType);
+        }
+        public async Task<int> ExecuteNonQueryAsync(string cmdText, object parameter)
+        {
+            return await this.ExecuteNonQueryAsync(cmdText, PublicHelper.BuildParams(this._dbContext, parameter));
+        }
+        public async Task<int> ExecuteNonQueryAsync(string cmdText, CommandType cmdType, object parameter)
+        {
+            return await this.ExecuteNonQueryAsync(cmdText, cmdType, PublicHelper.BuildParams(this._dbContext, parameter));
+        }
+
         public object ExecuteScalar(string cmdText, params DbParam[] parameters)
         {
             return this.ExecuteScalar(cmdText, CommandType.Text, parameters);
@@ -56,6 +75,24 @@ namespace Chloe.Core
             return this.ExecuteScalar(cmdText, cmdType, PublicHelper.BuildParams(this._dbContext, parameter));
         }
 
+        public async Task<object> ExecuteScalarAsync(string cmdText, params DbParam[] parameters)
+        {
+            return await this.ExecuteScalarAsync(cmdText, CommandType.Text, parameters);
+        }
+        public async Task<object> ExecuteScalarAsync(string cmdText, CommandType cmdType, params DbParam[] parameters)
+        {
+            PublicHelper.CheckNull(cmdText, "cmdText");
+            return await this._dbContext.AdoSession.ExecuteScalarAsync(cmdText, parameters, cmdType);
+        }
+        public async Task<object> ExecuteScalarAsync(string cmdText, object parameter)
+        {
+            return await this.ExecuteScalarAsync(cmdText, PublicHelper.BuildParams(this._dbContext, parameter));
+        }
+        public async Task<object> ExecuteScalarAsync(string cmdText, CommandType cmdType, object parameter)
+        {
+            return await this.ExecuteScalarAsync(cmdText, cmdType, PublicHelper.BuildParams(this._dbContext, parameter));
+        }
+
         public IDataReader ExecuteReader(string cmdText, params DbParam[] parameters)
         {
             return this.ExecuteReader(cmdText, CommandType.Text, parameters);
@@ -72,6 +109,24 @@ namespace Chloe.Core
         public IDataReader ExecuteReader(string cmdText, CommandType cmdType, object parameter)
         {
             return this.ExecuteReader(cmdText, cmdType, PublicHelper.BuildParams(this._dbContext, parameter));
+        }
+
+        public async Task<IDataReader> ExecuteReaderAsync(string cmdText, params DbParam[] parameters)
+        {
+            return await this.ExecuteReaderAsync(cmdText, CommandType.Text, parameters);
+        }
+        public async Task<IDataReader> ExecuteReaderAsync(string cmdText, CommandType cmdType, params DbParam[] parameters)
+        {
+            PublicHelper.CheckNull(cmdText, "cmdText");
+            return await this._dbContext.AdoSession.ExecuteReaderAsync(cmdText, parameters, cmdType);
+        }
+        public async Task<IDataReader> ExecuteReaderAsync(string cmdText, object parameter)
+        {
+            return await this.ExecuteReaderAsync(cmdText, PublicHelper.BuildParams(this._dbContext, parameter));
+        }
+        public async Task<IDataReader> ExecuteReaderAsync(string cmdText, CommandType cmdType, object parameter)
+        {
+            return await this.ExecuteReaderAsync(cmdText, cmdType, PublicHelper.BuildParams(this._dbContext, parameter));
         }
 
         public void UseTransaction(IDbTransaction dbTransaction)

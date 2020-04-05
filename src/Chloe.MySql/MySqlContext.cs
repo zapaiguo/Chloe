@@ -3,6 +3,7 @@ using Chloe.DbExpressions;
 using Chloe.Descriptors;
 using Chloe.Exceptions;
 using Chloe.Infrastructure;
+using Chloe.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Chloe.MySql
 {
@@ -31,7 +33,7 @@ namespace Chloe.MySql
             get { return this._databaseProvider; }
         }
 
-        public override void InsertRange<TEntity>(List<TEntity> entities, string table)
+        protected override async Task InsertRange<TEntity>(List<TEntity> entities, string table, bool @async)
         {
             /*
              * 将 entities 分批插入数据库
@@ -54,7 +56,7 @@ namespace Chloe.MySql
             DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
             string sqlTemplate = AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors);
 
-            Action insertAction = () =>
+            Func<Task> insertAction = async () =>
             {
                 int batchCount = 0;
                 List<DbParam> dbParams = new List<DbParam>();
@@ -119,7 +121,7 @@ namespace Chloe.MySql
                     {
                         sqlBuilder.Insert(0, sqlTemplate);
                         string sql = sqlBuilder.ToString();
-                        this.Session.ExecuteNonQuery(sql, dbParams.ToArray());
+                        await this.ExecuteNonQuery(sql, dbParams.ToArray(), @async);
 
                         sqlBuilder.Clear();
                         dbParams.Clear();
@@ -128,27 +130,19 @@ namespace Chloe.MySql
                 }
             };
 
-            Action fAction = insertAction;
+            Func<Task> fAction = insertAction;
 
             if (this.Session.IsInTransaction)
             {
-                fAction();
+                await fAction();
+                return;
             }
-            else
+
+            /* 因为分批插入，所以需要开启事务保证数据一致性 */
+            using (var tran = this.BeginTransaction())
             {
-                /* 因为分批插入，所以需要开启事务保证数据一致性 */
-                this.Session.BeginTransaction();
-                try
-                {
-                    fAction();
-                    this.Session.CommitTransaction();
-                }
-                catch
-                {
-                    if (this.Session.IsInTransaction)
-                        this.Session.RollbackTransaction();
-                    throw;
-                }
+                await fAction();
+                tran.Commit();
             }
         }
 
@@ -185,6 +179,18 @@ namespace Chloe.MySql
         }
         public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table, int limits)
         {
+            return this.Update<TEntity>(condition, content, table, limits, false).GetResult();
+        }
+        public virtual async Task<int> UpdateAsync<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, int limits)
+        {
+            return await this.UpdateAsync<TEntity>(condition, content, null, limits);
+        }
+        public virtual async Task<int> UpdateAsync<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table, int limits)
+        {
+            return await this.Update<TEntity>(condition, content, table, limits, true);
+        }
+        protected virtual async Task<int> Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table, int limits, bool @async)
+        {
             PublicHelper.CheckNull(condition);
             PublicHelper.CheckNull(content);
 
@@ -218,7 +224,7 @@ namespace Chloe.MySql
             if (e.UpdateColumns.Count == 0)
                 return 0;
 
-            return this.ExecuteNonQuery(e);
+            return await this.ExecuteNonQuery(e, @async);
         }
 
         public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition, int limits)
@@ -226,6 +232,18 @@ namespace Chloe.MySql
             return this.Delete(condition, null, limits);
         }
         public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table, int limits)
+        {
+            return this.Delete(condition, table, limits, false).GetResult();
+        }
+        public virtual async Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition, int limits)
+        {
+            return await this.DeleteAsync(condition, null, limits);
+        }
+        public virtual async Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition, string table, int limits)
+        {
+            return await this.Delete(condition, table, limits, true);
+        }
+        protected virtual async Task<int> Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table, int limits, bool @async)
         {
             PublicHelper.CheckNull(condition);
 
@@ -238,7 +256,7 @@ namespace Chloe.MySql
             MySqlDbDeleteExpression e = new MySqlDbDeleteExpression(dbTable, conditionExp);
             e.Limits = limits;
 
-            return this.ExecuteNonQuery(e);
+            return await this.ExecuteNonQuery(e, @async);
         }
     }
 }

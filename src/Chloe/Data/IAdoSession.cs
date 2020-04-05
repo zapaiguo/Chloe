@@ -1,6 +1,7 @@
 ﻿using Chloe.Infrastructure.Interception;
 using System;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Chloe.Data
 {
@@ -35,7 +36,14 @@ namespace Chloe.Data
 
         IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType);
         IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType, CommandBehavior behavior);
+
+        Task<IDataReader> ExecuteReaderAsync(string cmdText, DbParam[] parameters, CommandType cmdType);
+        Task<IDataReader> ExecuteReaderAsync(string cmdText, DbParam[] parameters, CommandType cmdType, CommandBehavior behavior);
+
         int ExecuteNonQuery(string cmdText, DbParam[] parameters, CommandType cmdType);
+        Task<int> ExecuteNonQueryAsync(string cmdText, DbParam[] parameters, CommandType cmdType);
+
         object ExecuteScalar(string cmdText, DbParam[] parameters, CommandType cmdType);
+        Task<object> ExecuteScalarAsync(string cmdText, DbParam[] parameters, CommandType cmdType);
     }
 }

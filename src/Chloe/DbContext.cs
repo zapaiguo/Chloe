@@ -8,6 +8,7 @@ using Chloe.Infrastructure;
 using Chloe.Query;
 using Chloe.Query.Internals;
 using Chloe.Reflection;
+using Chloe.Threading.Tasks;
 using Chloe.Utility;
 using System;
 using System.Collections;
@@ -102,11 +103,30 @@ namespace Chloe
         }
         public virtual TEntity QueryByKey<TEntity>(object key, string table, LockType @lock, bool tracking = false)
         {
+            return this.QueryByKey<TEntity>(key, table, @lock, tracking, false).GetResult();
+        }
+        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, bool tracking = false)
+        {
+            return await this.QueryByKeyAsync<TEntity>(key, null, tracking);
+        }
+        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, bool tracking = false)
+        {
+            return await this.QueryByKeyAsync<TEntity>(key, table, LockType.Unspecified, tracking);
+        }
+        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, LockType @lock, bool tracking = false)
+        {
+            return await this.QueryByKey<TEntity>(key, table, @lock, tracking, true);
+        }
+        protected virtual async Task<TEntity> QueryByKey<TEntity>(object key, string table, LockType @lock, bool tracking, bool @async)
+        {
             Expression<Func<TEntity, bool>> condition = PrimaryKeyHelper.BuildCondition<TEntity>(key);
             var q = this.Query<TEntity>(table, @lock).Where(condition);
 
             if (tracking)
                 q = q.AsTracking();
+
+            if (@async)
+                return await q.FirstOrDefaultAsync();
 
             return q.FirstOrDefault();
         }
@@ -150,32 +170,50 @@ namespace Chloe
             return ret;
         }
 
-        public virtual IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters)
+        public virtual List<T> SqlQuery<T>(string sql, params DbParam[] parameters)
         {
             return this.SqlQuery<T>(sql, CommandType.Text, parameters);
         }
-        public virtual IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters)
+        public virtual List<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters)
         {
             PublicHelper.CheckNull(sql, "sql");
-            return new InternalSqlQuery<T>(this, sql, cmdType, parameters);
+            return new InternalSqlQuery<T>(this, sql, cmdType, parameters).Execute();
         }
-        public IEnumerable<T> SqlQuery<T>(string sql, object parameter)
+        public virtual async Task<List<T>> SqlQueryAsync<T>(string sql, params DbParam[] parameters)
+        {
+            return await this.SqlQueryAsync<T>(sql, CommandType.Text, parameters);
+        }
+        public virtual async Task<List<T>> SqlQueryAsync<T>(string sql, CommandType cmdType, params DbParam[] parameters)
+        {
+            PublicHelper.CheckNull(sql, "sql");
+            return await new InternalSqlQuery<T>(this, sql, cmdType, parameters).ExecuteAsync();
+        }
+
+        public List<T> SqlQuery<T>(string sql, object parameter)
         {
             /*
              * Usage:
-             * dbContext.SqlQuery<User>("select * from Users where Id=@Id", new { Id = 1 }).ToList();
+             * dbContext.SqlQuery<User>("select * from Users where Id=@Id", new { Id = 1 });
              */
 
             return this.SqlQuery<T>(sql, PublicHelper.BuildParams(this, parameter));
         }
-        public IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, object parameter)
+        public List<T> SqlQuery<T>(string sql, CommandType cmdType, object parameter)
         {
             /*
              * Usage:
-             * dbContext.SqlQuery<User>("select * from Users where Id=@Id", CommandType.Text, new { Id = 1 }).ToList();
+             * dbContext.SqlQuery<User>("select * from Users where Id=@Id", CommandType.Text, new { Id = 1 });
              */
 
             return this.SqlQuery<T>(sql, cmdType, PublicHelper.BuildParams(this, parameter));
+        }
+        public async Task<List<T>> SqlQueryAsync<T>(string sql, object parameter)
+        {
+            return await this.SqlQueryAsync<T>(sql, PublicHelper.BuildParams(this, parameter));
+        }
+        public async Task<List<T>> SqlQueryAsync<T>(string sql, CommandType cmdType, object parameter)
+        {
+            return await this.SqlQueryAsync<T>(sql, cmdType, PublicHelper.BuildParams(this, parameter));
         }
 
         public TEntity Save<TEntity>(TEntity entity)
@@ -298,6 +336,18 @@ namespace Chloe
         }
         public virtual TEntity Insert<TEntity>(TEntity entity, string table)
         {
+            return this.Insert(entity, table, false).GetResult();
+        }
+        public virtual async Task<TEntity> InsertAsync<TEntity>(TEntity entity)
+        {
+            return await this.InsertAsync(entity, null);
+        }
+        public virtual async Task<TEntity> InsertAsync<TEntity>(TEntity entity, string table)
+        {
+            return await this.Insert(entity, table, true);
+        }
+        protected virtual async Task<TEntity> Insert<TEntity>(TEntity entity, string table, bool @async)
+        {
             PublicHelper.CheckNull(entity);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
@@ -341,18 +391,17 @@ namespace Chloe
             PrimitivePropertyDescriptor autoIncrementPropertyDescriptor = typeDescriptor.AutoIncrement;
             if (autoIncrementPropertyDescriptor == null)
             {
-                this.ExecuteNonQuery(e);
+                await this.ExecuteNonQuery(e, @async);
                 return entity;
             }
 
             IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            List<DbParam> parameters;
-            string sql = translator.Translate(e, out parameters);
+            DbCommandInfo dbCommandInfo = translator.Translate(e);
 
-            sql = string.Concat(sql, ";", this.GetSelectLastInsertIdClause());
+            dbCommandInfo.CommandText = string.Concat(dbCommandInfo.CommandText, ";", this.GetSelectLastInsertIdClause());
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
-            object retIdentity = this.Session.ExecuteScalar(sql, parameters.ToArray());
+            object retIdentity = await this.ExecuteScalar(dbCommandInfo, @async);
 
             if (retIdentity == null || retIdentity == DBNull.Value)
             {
@@ -368,6 +417,18 @@ namespace Chloe
             return this.Insert(content, null);
         }
         public virtual object Insert<TEntity>(Expression<Func<TEntity>> content, string table)
+        {
+            return this.Insert(content, table, false).GetResult();
+        }
+        public virtual async Task<object> InsertAsync<TEntity>(Expression<Func<TEntity>> content)
+        {
+            return await this.InsertAsync(content, null);
+        }
+        public virtual async Task<object> InsertAsync<TEntity>(Expression<Func<TEntity>> content, string table)
+        {
+            return await this.Insert(content, table, true);
+        }
+        protected virtual async Task<object> Insert<TEntity>(Expression<Func<TEntity>> content, string table, bool @async)
         {
             PublicHelper.CheckNull(content);
 
@@ -426,18 +487,16 @@ namespace Chloe
 
             if (keyPropertyDescriptor == null || !keyPropertyDescriptor.IsAutoIncrement)
             {
-                this.ExecuteNonQuery(e);
+                await this.ExecuteNonQuery(e, @async);
                 return keyVal; /* It will return null if an entity does not define primary key. */
             }
 
             IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            List<DbParam> parameters;
-            string sql = translator.Translate(e, out parameters);
-            sql = string.Concat(sql, ";", this.GetSelectLastInsertIdClause());
+            DbCommandInfo dbCommandInfo = translator.Translate(e);
+            dbCommandInfo.CommandText = string.Concat(dbCommandInfo.CommandText, ";", this.GetSelectLastInsertIdClause());
 
             //SELECT @@IDENTITY 返回的是 decimal 类型
-            object retIdentity = this.Session.ExecuteScalar(sql, parameters.ToArray());
-
+            object retIdentity = await this.ExecuteScalar(dbCommandInfo, @async);
             if (retIdentity == null || retIdentity == DBNull.Value)
             {
                 throw new ChloeException("Unable to get the identity value.");
@@ -453,6 +512,18 @@ namespace Chloe
         }
         public virtual void InsertRange<TEntity>(List<TEntity> entities, string table)
         {
+            this.InsertRange(entities, table, false).Wait();
+        }
+        public virtual async Task InsertRangeAsync<TEntity>(List<TEntity> entities)
+        {
+            await this.InsertRangeAsync(entities, null);
+        }
+        public virtual async Task InsertRangeAsync<TEntity>(List<TEntity> entities, string table)
+        {
+            await this.InsertRange(entities, table, true);
+        }
+        protected virtual Task InsertRange<TEntity>(List<TEntity> entities, string table, bool @async)
+        {
             throw new NotImplementedException();
         }
 
@@ -461,6 +532,18 @@ namespace Chloe
             return this.Update(entity, null);
         }
         public virtual int Update<TEntity>(TEntity entity, string table)
+        {
+            return this.Update<TEntity>(entity, table, false).GetResult();
+        }
+        public virtual async Task<int> UpdateAsync<TEntity>(TEntity entity)
+        {
+            return await this.UpdateAsync(entity, null);
+        }
+        public virtual async Task<int> UpdateAsync<TEntity>(TEntity entity, string table)
+        {
+            return await this.Update<TEntity>(entity, table, true);
+        }
+        protected virtual async Task<int> Update<TEntity>(TEntity entity, string table, bool @async)
         {
             PublicHelper.CheckNull(entity);
 
@@ -517,7 +600,7 @@ namespace Chloe
                 e.UpdateColumns.Add(item.Key.Column, item.Value);
             }
 
-            int rowsAffected = this.ExecuteNonQuery(e);
+            int rowsAffected = await this.ExecuteNonQuery(e, @async);
 
             if (typeDescriptor.HasRowVersion())
             {
@@ -530,11 +613,24 @@ namespace Chloe
 
             return rowsAffected;
         }
+
         public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content)
         {
             return this.Update(condition, content, null);
         }
         public virtual int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table)
+        {
+            return this.Update<TEntity>(condition, content, table, false).GetResult();
+        }
+        public virtual async Task<int> UpdateAsync<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content)
+        {
+            return await this.UpdateAsync(condition, content, null);
+        }
+        public virtual async Task<int> UpdateAsync<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table)
+        {
+            return await this.Update<TEntity>(condition, content, table, true);
+        }
+        protected virtual async Task<int> Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table, bool @async)
         {
             PublicHelper.CheckNull(condition);
             PublicHelper.CheckNull(content);
@@ -569,7 +665,7 @@ namespace Chloe
             if (e.UpdateColumns.Count == 0)
                 return 0;
 
-            return this.ExecuteNonQuery(e);
+            return await this.ExecuteNonQuery(e, @async);
         }
 
         public virtual int Delete<TEntity>(TEntity entity)
@@ -577,6 +673,18 @@ namespace Chloe
             return this.Delete(entity, null);
         }
         public virtual int Delete<TEntity>(TEntity entity, string table)
+        {
+            return this.Delete<TEntity>(entity, table, false).GetResult();
+        }
+        public virtual async Task<int> DeleteAsync<TEntity>(TEntity entity)
+        {
+            return await this.DeleteAsync(entity, null);
+        }
+        public virtual async Task<int> DeleteAsync<TEntity>(TEntity entity, string table)
+        {
+            return await this.Delete<TEntity>(entity, table, true);
+        }
+        protected virtual async Task<int> Delete<TEntity>(TEntity entity, string table, bool @async)
         {
             PublicHelper.CheckNull(entity);
 
@@ -602,7 +710,7 @@ namespace Chloe
             DbExpression conditionExp = PublicHelper.MakeCondition(keyValues, dbTable);
             DbDeleteExpression e = new DbDeleteExpression(dbTable, conditionExp);
 
-            int rowsAffected = this.ExecuteNonQuery(e);
+            int rowsAffected = await this.ExecuteNonQuery(e, @async);
 
             if (typeDescriptor.HasRowVersion())
             {
@@ -611,35 +719,60 @@ namespace Chloe
 
             return rowsAffected;
         }
+
         public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition)
         {
             return this.Delete(condition, null);
         }
         public virtual int Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table)
         {
+            return this.Delete<TEntity>(condition, table, false).GetResult();
+        }
+        public virtual async Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition)
+        {
+            return await this.DeleteAsync(condition, null);
+        }
+        public virtual async Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition, string table)
+        {
+            return await this.Delete<TEntity>(condition, table, true);
+        }
+        protected virtual async Task<int> Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table, bool @async)
+        {
             PublicHelper.CheckNull(condition);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
-            DbTable explicitDbTable = null;
-            if (table != null)
-                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
-            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+            DbTable dbTable = typeDescriptor.GenDbTable(table);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(dbTable);
             DbExpression conditionExp = expressionParser.ParseFilterPredicate(condition);
 
-            DbDeleteExpression e = new DbDeleteExpression(explicitDbTable ?? typeDescriptor.Table, conditionExp);
+            DbDeleteExpression e = new DbDeleteExpression(dbTable, conditionExp);
 
-            return this.ExecuteNonQuery(e);
+            return await this.ExecuteNonQuery(e, @async);
         }
+
         public virtual int DeleteByKey<TEntity>(object key)
         {
             return this.DeleteByKey<TEntity>(key, null);
         }
         public virtual int DeleteByKey<TEntity>(object key, string table)
         {
-            Expression<Func<TEntity, bool>> condition = PrimaryKeyHelper.BuildCondition<TEntity>(key);
-            return this.Delete<TEntity>(condition, table);
+            return this.DeleteByKey<TEntity>(key, table, false).GetResult();
         }
+        public virtual async Task<int> DeleteByKeyAsync<TEntity>(object key)
+        {
+            return await this.DeleteByKeyAsync<TEntity>(key, null);
+        }
+        public virtual async Task<int> DeleteByKeyAsync<TEntity>(object key, string table)
+        {
+            return await this.DeleteByKey<TEntity>(key, table, true);
+        }
+        protected virtual async Task<int> DeleteByKey<TEntity>(object key, string table, bool @async)
+        {
+            Expression<Func<TEntity, bool>> condition = PrimaryKeyHelper.BuildCondition<TEntity>(key);
+            return await this.Delete<TEntity>(condition, table, @async);
+        }
+
 
         public ITransientTransaction BeginTransaction()
         {
@@ -733,27 +866,6 @@ namespace Chloe
             return ret;
         }
 
-        protected int ExecuteNonQuery(DbExpression e)
-        {
-            List<DbParam> parameters;
-            return this.ExecuteNonQuery(e, out parameters);
-        }
-        protected int ExecuteNonQuery(DbExpression e, out List<DbParam> parameters)
-        {
-            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            string cmdText = translator.Translate(e, out parameters);
-
-            int rowsAffected = this.Session.ExecuteNonQuery(cmdText, parameters.ToArray());
-            return rowsAffected;
-        }
-        protected IDataReader ExecuteReader(DbExpression e)
-        {
-            IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            List<DbParam> parameters;
-            string cmdText = translator.Translate(e, out parameters);
-            IDataReader dataReader = this.Session.ExecuteReader(cmdText, parameters.ToArray());
-            return dataReader;
-        }
 
         public void Dispose()
         {

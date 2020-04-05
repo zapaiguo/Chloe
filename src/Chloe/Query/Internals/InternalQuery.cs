@@ -12,7 +12,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Chloe.Query.Internals
 {
@@ -37,29 +39,21 @@ namespace Chloe.Query.Internals
                 objectActivator = data.ObjectActivatorCreator.CreateObjectActivator();
 
             IDbExpressionTranslator translator = this._query.DbContext.DatabaseProvider.CreateDbExpressionTranslator();
-            List<DbParam> parameters;
-            string cmdText = translator.Translate(data.SqlQuery, out parameters);
+            DbCommandInfo dbCommandInfo = translator.Translate(data.SqlQuery);
 
-            DbCommandFactor commandFactor = new DbCommandFactor(objectActivator, cmdText, parameters.ToArray());
+            DbCommandFactor commandFactor = new DbCommandFactor(objectActivator, dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
             return commandFactor;
         }
 
         public IEnumerator<T> GetEnumerator()
         {
             DbCommandFactor commandFactor = this.GenerateCommandFactor();
-            var enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(commandFactor, cmdFactor =>
+            QueryEnumerator<T> enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(commandFactor, cmdFactor =>
             {
                 IDataReader dataReader = this._query.DbContext.AdoSession.ExecuteReader(cmdFactor.CommandText, cmdFactor.Parameters, CommandType.Text);
 
-                if (cmdFactor.ObjectActivator is RootEntityActivator)
-                {
-                    dataReader = new QueryDataReader(dataReader);
-                }
-
-                cmdFactor.ObjectActivator.Prepare(dataReader);
-
-                return dataReader;
-            });
+                return DataReaderReady(dataReader, cmdFactor.ObjectActivator);
+            }, null);
             return enumerator;
         }
         IEnumerator IEnumerable.GetEnumerator()
@@ -67,10 +61,48 @@ namespace Chloe.Query.Internals
             return this.GetEnumerator();
         }
 
+        public List<T> Execute()
+        {
+            return this.ToList();
+        }
+        public async Task<List<T>> ExecuteAsync()
+        {
+            DbCommandFactor commandFactor = this.GenerateCommandFactor();
+            IAsyncEnumerator<T> enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(commandFactor, null, async cmdFactor =>
+              {
+                  IDataReader dataReader = await this._query.DbContext.AdoSession.ExecuteReaderAsync(cmdFactor.CommandText, cmdFactor.Parameters, CommandType.Text);
+
+                  return DataReaderReady(dataReader, cmdFactor.ObjectActivator);
+              });
+
+            List<T> list = new List<T>();
+            using (enumerator)
+            {
+                while (await enumerator.MoveNextAsync())
+                {
+                    list.Add(enumerator.Current);
+                }
+            }
+
+            return list;
+        }
+
         public override string ToString()
         {
             DbCommandFactor commandFactor = this.GenerateCommandFactor();
             return AppendDbCommandInfo(commandFactor.CommandText, commandFactor.Parameters);
+        }
+
+        static IDataReader DataReaderReady(IDataReader dataReader, IObjectActivator objectActivator)
+        {
+            if (objectActivator is RootEntityActivator)
+            {
+                dataReader = new QueryDataReader(dataReader);
+            }
+
+            objectActivator.Prepare(dataReader);
+
+            return dataReader;
         }
 
         static string AppendDbCommandInfo(string cmdText, DbParam[] parameters)

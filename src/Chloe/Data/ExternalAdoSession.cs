@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Chloe.Data
 {
@@ -38,6 +39,9 @@ namespace Chloe.Data
         }
 
         public override void Activate()
+        {
+        }
+        public override async Task ActivateAsync()
         {
         }
         public override void Complete()

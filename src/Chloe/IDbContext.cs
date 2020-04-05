@@ -33,6 +33,10 @@ namespace Chloe
         /// <returns></returns>
         TEntity QueryByKey<TEntity>(object key, string table, LockType @lock, bool tracking = false);
 
+        Task<TEntity> QueryByKeyAsync<TEntity>(object key, bool tracking = false);
+        Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, bool tracking = false);
+        Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, LockType @lock, bool tracking = false);
+
         /// <summary>
         /// context.JoinQuery&lt;User, City&gt;((user, city) => new object[] 
         /// { 
@@ -60,17 +64,22 @@ namespace Chloe
         IJoinQuery<T1, T2, T3, T4> JoinQuery<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, object[]>> joinInfo);
         IJoinQuery<T1, T2, T3, T4, T5> JoinQuery<T1, T2, T3, T4, T5>(Expression<Func<T1, T2, T3, T4, T5, object[]>> joinInfo);
 
-        IEnumerable<T> SqlQuery<T>(string sql, params DbParam[] parameters);
-        IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters);
+        List<T> SqlQuery<T>(string sql, params DbParam[] parameters);
+        List<T> SqlQuery<T>(string sql, CommandType cmdType, params DbParam[] parameters);
+        Task<List<T>> SqlQueryAsync<T>(string sql, params DbParam[] parameters);
+        Task<List<T>> SqlQueryAsync<T>(string sql, CommandType cmdType, params DbParam[] parameters);
+
         /// <summary>
-        /// dbContext.SqlQuery&lt;User&gt;("select * from Users where Id=@Id", new { Id = 1 }).ToList();
+        /// dbContext.SqlQuery&lt;User&gt;("select * from Users where Id=@Id", new { Id = 1 });
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="sql"></param>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        IEnumerable<T> SqlQuery<T>(string sql, object parameter);
-        IEnumerable<T> SqlQuery<T>(string sql, CommandType cmdType, object parameter);
+        List<T> SqlQuery<T>(string sql, object parameter);
+        List<T> SqlQuery<T>(string sql, CommandType cmdType, object parameter);
+        Task<List<T>> SqlQueryAsync<T>(string sql, object parameter);
+        Task<List<T>> SqlQueryAsync<T>(string sql, CommandType cmdType, object parameter);
 
         /// <summary>
         /// 插入数据，连同导航属性一并插入。
@@ -97,8 +106,15 @@ namespace Chloe
         object Insert<TEntity>(Expression<Func<TEntity>> content);
         object Insert<TEntity>(Expression<Func<TEntity>> content, string table);
 
+        Task<TEntity> InsertAsync<TEntity>(TEntity entity);
+        Task<TEntity> InsertAsync<TEntity>(TEntity entity, string table);
+        Task<object> InsertAsync<TEntity>(Expression<Func<TEntity>> content);
+        Task<object> InsertAsync<TEntity>(Expression<Func<TEntity>> content, string table);
+
         void InsertRange<TEntity>(List<TEntity> entities);
         void InsertRange<TEntity>(List<TEntity> entities, string table);
+        Task InsertRangeAsync<TEntity>(List<TEntity> entities);
+        Task InsertRangeAsync<TEntity>(List<TEntity> entities, string table);
 
         int Update<TEntity>(TEntity entity);
         int Update<TEntity>(TEntity entity, string table);
@@ -111,6 +127,11 @@ namespace Chloe
         /// <returns></returns>
         int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content);
         int Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table);
+
+        Task<int> UpdateAsync<TEntity>(TEntity entity);
+        Task<int> UpdateAsync<TEntity>(TEntity entity, string table);
+        Task<int> UpdateAsync<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content);
+        Task<int> UpdateAsync<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table);
 
         int Delete<TEntity>(TEntity entity);
         int Delete<TEntity>(TEntity entity, string table);
@@ -131,6 +152,13 @@ namespace Chloe
         /// <param name="table"></param>
         /// <returns></returns>
         int DeleteByKey<TEntity>(object key, string table);
+
+        Task<int> DeleteAsync<TEntity>(TEntity entity);
+        Task<int> DeleteAsync<TEntity>(TEntity entity, string table);
+        Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition);
+        Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition, string table);
+        Task<int> DeleteByKeyAsync<TEntity>(object key);
+        Task<int> DeleteByKeyAsync<TEntity>(object key, string table);
 
         ITransientTransaction BeginTransaction();
         ITransientTransaction BeginTransaction(IsolationLevel il);

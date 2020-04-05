@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <!--<TargetFramework>netstandard2.0</TargetFramework>-->
-    <!--<TargetFramework>net40</TargetFramework>-->
-    <TargetFrameworks>netstandard2.0;net45;net40</TargetFrameworks>
+    <!--<TargetFramework>net45</TargetFramework>-->
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
 
     <Version>4.1.0</Version>
     <AssemblyVersion>4.1.0.0</AssemblyVersion>
@@ -26,19 +26,8 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
     <DefineConstants>netfx;net45</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
-    <DefineConstants>netfx;net40</DefineConstants>
-  </PropertyGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\Chloe\Chloe.csproj" />
   </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-  </ItemGroup>
-
 </Project>

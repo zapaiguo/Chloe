@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Chloe.Data
 {
@@ -106,13 +107,68 @@ namespace Chloe.Data
         {
             return this._adoSession.ExecuteReader(cmdText, parameters, cmdType, behavior);
         }
+        public async Task<IDataReader> ExecuteReaderAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
+        {
+            return await this._adoSession.ExecuteReaderAsync(cmdText, parameters, cmdType);
+        }
+        public async Task<IDataReader> ExecuteReaderAsync(string cmdText, DbParam[] parameters, CommandType cmdType, CommandBehavior behavior)
+        {
+            return await this._adoSession.ExecuteReaderAsync(cmdText, parameters, cmdType, behavior);
+        }
+
+        public async Task<IDataReader> ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType, bool @async)
+        {
+            if (@async)
+            {
+                return await this.ExecuteReaderAsync(cmdText, parameters, cmdType);
+            }
+
+            return this.ExecuteReader(cmdText, parameters, cmdType);
+        }
+        public async Task<IDataReader> ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType, CommandBehavior behavior, bool @async)
+        {
+            if (@async)
+            {
+                return await this.ExecuteReaderAsync(cmdText, parameters, cmdType, behavior);
+            }
+
+            return this.ExecuteReader(cmdText, parameters, cmdType, behavior);
+        }
+
         public int ExecuteNonQuery(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             return this._adoSession.ExecuteNonQuery(cmdText, parameters, cmdType);
         }
+        public async Task<int> ExecuteNonQueryAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
+        {
+            return await this._adoSession.ExecuteNonQueryAsync(cmdText, parameters, cmdType);
+        }
+        public async Task<int> ExecuteNonQuery(string cmdText, DbParam[] parameters, CommandType cmdType, bool @async)
+        {
+            if (@async)
+            {
+                return await this.ExecuteNonQueryAsync(cmdText, parameters, cmdType);
+            }
+
+            return this.ExecuteNonQuery(cmdText, parameters, cmdType);
+        }
+
         public object ExecuteScalar(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             return this._adoSession.ExecuteScalar(cmdText, parameters, cmdType);
+        }
+        public async Task<object> ExecuteScalarAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
+        {
+            return await this._adoSession.ExecuteScalarAsync(cmdText, parameters, cmdType);
+        }
+        public async Task<object> ExecuteScalar(string cmdText, DbParam[] parameters, CommandType cmdType, bool @async)
+        {
+            if (@async)
+            {
+                return await this.ExecuteScalarAsync(cmdText, parameters, cmdType);
+            }
+
+            return this.ExecuteScalar(cmdText, parameters, cmdType);
         }
 
         public void Dispose()

@@ -6,7 +6,7 @@ using System.Data;
 
 namespace Chloe.Mapper.Activators
 {
-    public class CollectionObjectActivator : IObjectActivator
+    public class CollectionObjectActivator : ObjectActivatorBase, IObjectActivator
     {
         Type _collectionType;
         Func<object> _activator;
@@ -44,11 +44,7 @@ namespace Chloe.Mapper.Activators
             this._activator = GetActivator(collectionType);
         }
 
-        public void Prepare(IDataReader reader)
-        {
-
-        }
-        public object CreateInstance(IDataReader reader)
+        public override object CreateInstance(IDataReader reader)
         {
             return this._activator();
         }

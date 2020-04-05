@@ -4,6 +4,7 @@ using Chloe.Infrastructure.Interception;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Chloe.Data
 {
@@ -47,7 +48,20 @@ namespace Chloe.Data
                 this.DbConnection.Open();
             }
         }
+        public virtual async Task ActivateAsync()
+        {
+            this.CheckDisposed();
 
+            if (this.DbConnection.State == ConnectionState.Broken)
+            {
+                this.DbConnection.Close();
+            }
+
+            if (this.DbConnection.State == ConnectionState.Closed)
+            {
+                await this.DbConnection.OpenAsyncEx();
+            }
+        }
         /// <summary>
         /// 表示一次查询完成。在事务中的话不关闭连接，交给 CommitTransaction() 或者 RollbackTransaction() 控制，否则调用 IDbConnection.Close() 关闭连接
         /// </summary>
@@ -131,7 +145,46 @@ namespace Chloe.Data
 
             return dbCommandInterceptionContext.Result;
         }
-        public int ExecuteNonQuery(string cmdText, DbParam[] parameters, CommandType cmdType)
+
+        public virtual async Task<IDataReader> ExecuteReaderAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
+        {
+            return await this.ExecuteReaderAsync(cmdText, parameters, cmdType, CommandBehavior.Default);
+        }
+        public virtual async Task<IDataReader> ExecuteReaderAsync(string cmdText, DbParam[] parameters, CommandType cmdType, CommandBehavior behavior)
+        {
+            this.CheckDisposed();
+
+            List<OutputParameter> outputParameters;
+            IDbCommand cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
+
+            DbCommandInterceptionContext<IDataReader> dbCommandInterceptionContext = new DbCommandInterceptionContext<IDataReader>();
+
+            await this.ActivateAsync();
+            this.OnReaderExecuting(cmd, dbCommandInterceptionContext);
+
+            IDataReader reader;
+            try
+            {
+                reader = new InternalDataReader(this, await cmd.ExecuteReaderAsyncEx(behavior), cmd, outputParameters);
+            }
+            catch (Exception ex)
+            {
+                dbCommandInterceptionContext.Exception = ex;
+                this.OnReaderExecuted(cmd, dbCommandInterceptionContext);
+
+                throw WrapException(ex);
+            }
+
+            dbCommandInterceptionContext.Result = reader;
+            this.OnReaderExecuted(cmd, dbCommandInterceptionContext);
+            /*
+             * ps: 可在拦截器里对 dbCommandInterceptionContext.Result 进行装饰，然后重新设置到 dbCommandInterceptionContext.Result
+             */
+
+            return dbCommandInterceptionContext.Result;
+        }
+
+        public virtual int ExecuteNonQuery(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             this.CheckDisposed();
 
@@ -172,7 +225,49 @@ namespace Chloe.Data
                     cmd.Dispose();
             }
         }
-        public object ExecuteScalar(string cmdText, DbParam[] parameters, CommandType cmdType)
+        public virtual async Task<int> ExecuteNonQueryAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
+        {
+            this.CheckDisposed();
+
+            IDbCommand cmd = null;
+            try
+            {
+                List<OutputParameter> outputParameters;
+                cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
+
+                DbCommandInterceptionContext<int> dbCommandInterceptionContext = new DbCommandInterceptionContext<int>();
+
+                await this.ActivateAsync();
+                this.OnNonQueryExecuting(cmd, dbCommandInterceptionContext);
+
+                int rowsAffected;
+                try
+                {
+                    rowsAffected = await cmd.ExecuteNonQueryAsyncEx();
+                }
+                catch (Exception ex)
+                {
+                    dbCommandInterceptionContext.Exception = ex;
+                    this.OnNonQueryExecuted(cmd, dbCommandInterceptionContext);
+
+                    throw WrapException(ex);
+                }
+
+                dbCommandInterceptionContext.Result = rowsAffected;
+                this.OnNonQueryExecuted(cmd, dbCommandInterceptionContext);
+                OutputParameter.CallMapValue(outputParameters);
+
+                return dbCommandInterceptionContext.Result;
+            }
+            finally
+            {
+                this.Complete();
+                if (cmd != null)
+                    cmd.Dispose();
+            }
+        }
+
+        public virtual object ExecuteScalar(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
             this.CheckDisposed();
 
@@ -213,6 +308,48 @@ namespace Chloe.Data
                     cmd.Dispose();
             }
         }
+        public virtual async Task<object> ExecuteScalarAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
+        {
+            this.CheckDisposed();
+
+            IDbCommand cmd = null;
+            try
+            {
+                List<OutputParameter> outputParameters;
+                cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
+
+                DbCommandInterceptionContext<object> dbCommandInterceptionContext = new DbCommandInterceptionContext<object>();
+
+                await this.ActivateAsync();
+                this.OnScalarExecuting(cmd, dbCommandInterceptionContext);
+
+                object ret;
+                try
+                {
+                    ret = await cmd.ExecuteScalarAsyncEx();
+                }
+                catch (Exception ex)
+                {
+                    dbCommandInterceptionContext.Exception = ex;
+                    this.OnScalarExecuted(cmd, dbCommandInterceptionContext);
+
+                    throw WrapException(ex);
+                }
+
+                dbCommandInterceptionContext.Result = ret;
+                this.OnScalarExecuted(cmd, dbCommandInterceptionContext);
+                OutputParameter.CallMapValue(outputParameters);
+
+                return dbCommandInterceptionContext.Result;
+            }
+            finally
+            {
+                this.Complete();
+                if (cmd != null)
+                    cmd.Dispose();
+            }
+        }
+
 
         public void Dispose()
         {

@@ -7,10 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Chloe.Query
 {
-    class Query<T> : QueryBase, IQuery<T>, IQuery
+    partial class Query<T> : QueryBase, IQuery<T>, IQuery
     {
         static readonly List<Expression> EmptyArgumentList = new List<Expression>(0);
 
@@ -290,6 +291,7 @@ namespace Chloe.Query
         {
             return this.Where(predicate).FirstOrDefault();
         }
+
         public List<T> ToList()
         {
             IEnumerable<T> iterator = this.GenerateIterator();
@@ -418,22 +420,39 @@ namespace Chloe.Query
             return this.GenerateIterator();
         }
 
-        InternalQuery<T> GenerateIterator()
+        IEnumerable<T> GenerateIterator()
         {
             InternalQuery<T> internalQuery = new InternalQuery<T>(this);
             return internalQuery;
         }
+        async Task<List<T>> GenerateIteratorAsync()
+        {
+            InternalQuery<T> internalQuery = new InternalQuery<T>(this);
+            return await internalQuery.ExecuteAsync();
+        }
 
 
         TResult ExecuteAggregateQuery<TResult>(MethodInfo method, Expression argument, bool checkArgument = true)
+        {
+            var q = this.CreateAggregateQuery<TResult>(method, argument, checkArgument);
+            IEnumerable<TResult> iterator = q.GenerateIterator();
+            return iterator.Single();
+        }
+        async Task<TResult> ExecuteAggregateQueryAsync<TResult>(MethodInfo method, Expression argument, bool checkArgument = true)
+        {
+            var q = this.CreateAggregateQuery<TResult>(method, argument, checkArgument);
+            IEnumerable<TResult> iterator = await q.GenerateIteratorAsync();
+            return iterator.Single();
+        }
+
+        Query<TResult> CreateAggregateQuery<TResult>(MethodInfo method, Expression argument, bool checkArgument)
         {
             if (checkArgument)
                 PublicHelper.CheckNull(argument);
 
             List<Expression> arguments = argument == null ? EmptyArgumentList : new List<Expression>(1) { argument };
             var q = this.CreateAggregateQuery<TResult>(method, arguments);
-            InternalQuery<TResult> iterator = q.GenerateIterator();
-            return iterator.Single();
+            return q;
         }
         /// <summary>
         /// 类<see cref="Chloe.Query.Visitors.GeneralExpressionParser"/>有引用该方法[反射]
@@ -457,7 +476,7 @@ namespace Chloe.Query
 
         public override string ToString()
         {
-            InternalQuery<T> internalQuery = this.GenerateIterator();
+            IEnumerable<T> internalQuery = this.GenerateIterator();
             return internalQuery.ToString();
         }
     }

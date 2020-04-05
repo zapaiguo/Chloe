@@ -6,7 +6,7 @@ using System.Data;
 
 namespace Chloe.Mapper.Activators
 {
-    public class ComplexObjectActivator : IObjectActivator
+    public class ComplexObjectActivator : ObjectActivatorBase, IObjectActivator
     {
         InstanceCreator _instanceCreator;
         List<IObjectActivator> _argumentActivators;
@@ -21,7 +21,7 @@ namespace Chloe.Mapper.Activators
             this._checkNullOrdinal = checkNullOrdinal;
         }
 
-        public void Prepare(IDataReader reader)
+        public override void Prepare(IDataReader reader)
         {
             for (int i = 0; i < this._argumentActivators.Count; i++)
             {
@@ -34,7 +34,7 @@ namespace Chloe.Mapper.Activators
                 binder.Prepare(reader);
             }
         }
-        public virtual object CreateInstance(IDataReader reader)
+        public override object CreateInstance(IDataReader reader)
         {
             if (this._checkNullOrdinal != null)
             {

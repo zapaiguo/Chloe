@@ -12,6 +12,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Chloe.Oracle
 {
@@ -37,7 +38,7 @@ namespace Chloe.Oracle
             get { return this._databaseProvider; }
         }
 
-        public override TEntity Insert<TEntity>(TEntity entity, string table)
+        protected override async Task<TEntity> Insert<TEntity>(TEntity entity, string table, bool @async)
         {
             PublicHelper.CheckNull(entity);
 
@@ -80,10 +81,10 @@ namespace Chloe.Oracle
 
             e.Returns.AddRange(outputColumns.Select(a => a.Column));
 
-            List<DbParam> parameters;
-            this.ExecuteNonQuery(e, out parameters);
+            DbCommandInfo dbCommandInfo = this.Translate(e);
+            await this.ExecuteNonQuery(dbCommandInfo, @async);
 
-            List<DbParam> outputParams = parameters.Where(a => a.Direction == ParamDirection.Output).ToList();
+            List<DbParam> outputParams = dbCommandInfo.Parameters.Where(a => a.Direction == ParamDirection.Output).ToList();
 
             for (int i = 0; i < outputColumns.Count; i++)
             {
@@ -96,7 +97,7 @@ namespace Chloe.Oracle
 
             return entity;
         }
-        public override object Insert<TEntity>(Expression<Func<TEntity>> content, string table)
+        protected override async Task<object> Insert<TEntity>(Expression<Func<TEntity>> content, string table, bool @async)
         {
             PublicHelper.CheckNull(content);
 
@@ -177,19 +178,19 @@ namespace Chloe.Oracle
                 }
             }
 
-            List<DbParam> parameters;
-            this.ExecuteNonQuery(insertExp, out parameters);
+            DbCommandInfo dbCommandInfo = this.Translate(insertExp);
+            await this.ExecuteNonQuery(dbCommandInfo, @async);
 
             if (keyPropertyDescriptor != null && (keyPropertyDescriptor.IsAutoIncrement || keyPropertyDescriptor.HasSequence()))
             {
                 string outputColumnName = Utils.GenOutputColumnParameterName(keyPropertyDescriptor.Column.Name);
-                DbParam outputParam = parameters.Where(a => a.Direction == ParamDirection.Output && a.Name == outputColumnName).First();
+                DbParam outputParam = dbCommandInfo.Parameters.Where(a => a.Direction == ParamDirection.Output && a.Name == outputColumnName).First();
                 keyVal = PublicHelper.ConvertObjectType(outputParam.Value, keyPropertyDescriptor.PropertyType);
             }
 
             return keyVal; /* It will return null if an entity does not define primary key. */
         }
-        public override void InsertRange<TEntity>(List<TEntity> entities, string table)
+        protected override async Task InsertRange<TEntity>(List<TEntity> entities, string table, bool @async)
         {
             /*
              * 将 entities 分批插入数据库
@@ -213,7 +214,7 @@ namespace Chloe.Oracle
             DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
             string sqlTemplate = AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors);
 
-            Action insertAction = () =>
+            Func<Task> insertAction = async () =>
             {
                 int batchCount = 0;
                 List<DbParam> dbParams = new List<DbParam>();
@@ -283,7 +284,7 @@ namespace Chloe.Oracle
                         sqlBuilder.Append(") T");
 
                         string sql = sqlBuilder.ToString();
-                        this.Session.ExecuteNonQuery(sql, dbParams.ToArray());
+                        await this.ExecuteNonQuery(sql, dbParams.ToArray(), @async);
 
                         sqlBuilder.Clear();
                         dbParams.Clear();
@@ -292,31 +293,23 @@ namespace Chloe.Oracle
                 }
             };
 
-            Action fAction = insertAction;
+            Func<Task> fAction = insertAction;
 
             if (this.Session.IsInTransaction)
             {
-                fAction();
+                await fAction();
+                return;
             }
-            else
+
+            /* 因为分批插入，所以需要开启事务保证数据一致性 */
+            using (var tran = this.BeginTransaction())
             {
-                /* 因为分批插入，所以需要开启事务保证数据一致性 */
-                this.Session.BeginTransaction();
-                try
-                {
-                    fAction();
-                    this.Session.CommitTransaction();
-                }
-                catch
-                {
-                    if (this.Session.IsInTransaction)
-                        this.Session.RollbackTransaction();
-                    throw;
-                }
+                await fAction();
+                tran.Commit();
             }
         }
 
-        public override int Update<TEntity>(TEntity entity, string table)
+        protected override async Task<int> Update<TEntity>(TEntity entity, string table, bool @async)
         {
             PublicHelper.CheckNull(entity);
 
@@ -372,7 +365,7 @@ namespace Chloe.Oracle
                 e.UpdateColumns.Add(item.Key.Column, item.Value);
             }
 
-            int rowsAffected = this.ExecuteNonQuery(e);
+            int rowsAffected = await this.ExecuteNonQuery(e, @async);
 
             if (typeDescriptor.HasRowVersion())
             {

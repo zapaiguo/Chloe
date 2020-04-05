@@ -5,7 +5,7 @@ using System.Data;
 
 namespace Chloe.Mapper.Activators
 {
-    public class PrimitiveObjectActivator : IObjectActivator
+    public class PrimitiveObjectActivator : ObjectActivatorBase, IObjectActivator
     {
         Type _primitiveType;
         int _readerOrdinal;
@@ -17,11 +17,8 @@ namespace Chloe.Mapper.Activators
             this._readerOrdinal = readerOrdinal;
             this._dbValueReader = DataReaderConstant.GetDbValueReader(primitiveType);
         }
-        public void Prepare(IDataReader reader)
-        {
 
-        }
-        public object CreateInstance(IDataReader reader)
+        public override object CreateInstance(IDataReader reader)
         {
             try
             {

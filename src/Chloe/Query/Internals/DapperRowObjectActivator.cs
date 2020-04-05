@@ -1,22 +1,18 @@
 ﻿using Chloe.Mapper;
+using Chloe.Mapper.Activators;
 using System;
 using System.Data;
 
 namespace Chloe.Query.Internals
 {
-    class DapperRowObjectActivator : IObjectActivator
+    class DapperRowObjectActivator : ObjectActivatorBase, IObjectActivator
     {
         DapperTable _table = null;
         public DapperRowObjectActivator()
         {
         }
 
-        public void Prepare(IDataReader reader)
-        {
-
-        }
-
-        public object CreateInstance(IDataReader reader)
+        public override object CreateInstance(IDataReader reader)
         {
             int effectiveFieldCount = reader.FieldCount;
             if (this._table == null)

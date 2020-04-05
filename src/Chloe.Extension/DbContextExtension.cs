@@ -1,12 +1,14 @@
 ﻿using Chloe.Descriptors;
 using Chloe.Extension;
 using Chloe.Infrastructure;
+using Chloe.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Chloe
 {
@@ -26,6 +28,14 @@ namespace Chloe
         /// <param name="condition"></param>
         /// <returns></returns>
         public static int Update<TEntity>(this IDbContext dbContext, TEntity entity, Expression<Func<TEntity, bool>> condition)
+        {
+            return Update(dbContext, entity, condition, false).GetResult();
+        }
+        public static async Task<int> UpdateAsync<TEntity>(this IDbContext dbContext, TEntity entity, Expression<Func<TEntity, bool>> condition)
+        {
+            return await Update(dbContext, entity, condition, true);
+        }
+        static async Task<int> Update<TEntity>(IDbContext dbContext, TEntity entity, Expression<Func<TEntity, bool>> condition, bool @async)
         {
             PublicHelper.CheckNull(dbContext);
             PublicHelper.CheckNull(entity);
@@ -50,7 +60,7 @@ namespace Chloe
                 bindings.Add(bind);
             }
 
-            return UpdateOnly(dbContext, condition, bindings);
+            return await UpdateOnly(dbContext, condition, bindings, @async);
         }
 
         /// <summary>
@@ -77,6 +87,21 @@ namespace Chloe
         /// <param name="fields"></param>
         /// <returns></returns>
         public static int UpdateOnly<TEntity>(this IDbContext dbContext, TEntity entity, params string[] fields)
+        {
+            return UpdateOnly(dbContext, entity, fields, false).GetResult();
+        }
+        public static async Task<int> UpdateOnlyAsync<TEntity>(this IDbContext dbContext, TEntity entity, Expression<Func<TEntity, object>> fields)
+        {
+            PublicHelper.CheckNull(fields);
+
+            List<string> fieldList = FieldsResolver.Resolve(fields);
+            return await UpdateOnlyAsync(dbContext, entity, fieldList.ToArray());
+        }
+        public static async Task<int> UpdateOnlyAsync<TEntity>(IDbContext dbContext, TEntity entity, params string[] fields)
+        {
+            return await UpdateOnly(dbContext, entity, fields, true);
+        }
+        static async Task<int> UpdateOnly<TEntity>(IDbContext dbContext, TEntity entity, string[] fields, bool @async)
         {
             PublicHelper.CheckNull(dbContext);
             PublicHelper.CheckNull(entity);
@@ -120,9 +145,10 @@ namespace Chloe
 
             Expression<Func<TEntity, bool>> condition = Expression.Lambda<Func<TEntity, bool>>(conditionBody, parameter);
 
-            return UpdateOnly(dbContext, condition, bindings);
+            return await UpdateOnly(dbContext, condition, bindings, @async);
         }
-        static int UpdateOnly<TEntity>(this IDbContext dbContext, Expression<Func<TEntity, bool>> condition, List<MemberBinding> bindings)
+
+        static async Task<int> UpdateOnly<TEntity>(IDbContext dbContext, Expression<Func<TEntity, bool>> condition, List<MemberBinding> bindings, bool @async)
         {
             Type entityType = typeof(TEntity);
             NewExpression newExp = Expression.New(entityType);
@@ -131,6 +157,9 @@ namespace Chloe
             Expression lambdaBody = Expression.MemberInit(newExp, bindings);
 
             Expression<Func<TEntity, TEntity>> lambda = Expression.Lambda<Func<TEntity, TEntity>>(lambdaBody, parameter);
+
+            if (@async)
+                return await dbContext.UpdateAsync(condition, lambda);
 
             return dbContext.Update(condition, lambda);
         }
@@ -150,22 +179,6 @@ namespace Chloe
         public static void RollbackTransaction(this IDbContext dbContext)
         {
             dbContext.Session.RollbackTransaction();
-        }
-
-        static T ExecuteAction<T>(IDbContext dbContext, Func<T> action)
-        {
-            try
-            {
-                T ret = action();
-                dbContext.Session.CommitTransaction();
-                return ret;
-            }
-            catch
-            {
-                if (dbContext.Session.IsInTransaction)
-                    dbContext.Session.RollbackTransaction();
-                throw;
-            }
         }
 
         public static DbActionBag CreateActionBag(this IDbContext dbContext)

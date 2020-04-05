@@ -1,5 +1,4 @@
-﻿using Chloe.Extension;
-using Chloe.Infrastructure;
+﻿using Chloe.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,35 +18,37 @@ namespace Chloe
         /// <param name="dbContext"></param>
         /// <param name="sql"></param>
         /// <returns></returns>
-        public static IEnumerable<T> FormatSqlQuery<T>(this IDbContext dbContext, FormattableString sql)
+        public static List<T> FormatSqlQuery<T>(this IDbContext dbContext, FormattableString sql)
         {
             /*
              * Usage:
              * int id = 1;
-             * dbContext.FormatSqlQuery<User>($"select Id,Name from Users where Id={id}").ToList();
+             * dbContext.FormatSqlQuery<User>($"select Id,Name from Users where Id={id}");
              */
 
             (string Sql, DbParam[] Parameters) r = BuildSqlAndParameters(dbContext, sql);
             return dbContext.SqlQuery<T>(r.Sql, r.Parameters);
         }
-        public static IEnumerable<T> FormatSqlQuery<T>(this IDbContext dbContext, FormattableString sql, CommandType cmdType)
+        public static List<T> FormatSqlQuery<T>(this IDbContext dbContext, FormattableString sql, CommandType cmdType)
         {
             /*
              * Usage:
              * int id = 1;
-             * dbContext.FormatSqlQuery<User>($"select Id,Name from Users where Id={id}").ToList();
+             * dbContext.FormatSqlQuery<User>($"select Id,Name from Users where Id={id}");
              */
 
             (string Sql, DbParam[] Parameters) r = BuildSqlAndParameters(dbContext, sql);
             return dbContext.SqlQuery<T>(r.Sql, cmdType, r.Parameters);
         }
-        public static Task<List<T>> FormatSqlQueryAsync<T>(this IDbContext dbContext, FormattableString sql)
+        public static async Task<List<T>> FormatSqlQueryAsync<T>(this IDbContext dbContext, FormattableString sql)
         {
-            return Utils.MakeTask(() => DbContextExtension.FormatSqlQuery<T>(dbContext, sql).ToList());
+            (string Sql, DbParam[] Parameters) r = BuildSqlAndParameters(dbContext, sql);
+            return await dbContext.SqlQueryAsync<T>(r.Sql, r.Parameters);
         }
-        public static Task<List<T>> FormatSqlQueryAsync<T>(this IDbContext dbContext, FormattableString sql, CommandType cmdType)
+        public static async Task<List<T>> FormatSqlQueryAsync<T>(this IDbContext dbContext, FormattableString sql, CommandType cmdType)
         {
-            return Utils.MakeTask(() => DbContextExtension.FormatSqlQuery<T>(dbContext, sql, cmdType).ToList());
+            (string Sql, DbParam[] Parameters) r = BuildSqlAndParameters(dbContext, sql);
+            return await dbContext.SqlQueryAsync<T>(r.Sql, cmdType, r.Parameters);
         }
 
         static (string Sql, DbParam[] Parameters) BuildSqlAndParameters(IDbContext dbContext, FormattableString sql)

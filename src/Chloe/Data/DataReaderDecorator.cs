@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace Chloe.Data
 {
@@ -35,6 +37,16 @@ namespace Chloe.Data
         public virtual bool Read()
         {
             return this._reader.Read();
+        }
+        public virtual async ValueTask<bool> ReadAsync()
+        {
+            DbDataReader dbDataReader = this._reader as DbDataReader;
+            if (dbDataReader != null)
+            {
+                return await dbDataReader.ReadAsync();
+            }
+
+            return this.Read();
         }
 
         public virtual void Dispose()

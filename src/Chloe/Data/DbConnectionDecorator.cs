@@ -1,4 +1,6 @@
 ﻿using System.Data;
+using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace Chloe.Data
 {
@@ -50,6 +52,17 @@ namespace Chloe.Data
         public virtual IDbCommand CreateCommand()
         {
             return this._dbConnection.CreateCommand();
+        }
+        public virtual async Task OpenAsync()
+        {
+            DbConnection dbConnection = this._dbConnection as DbConnection;
+            if (dbConnection != null)
+            {
+                await dbConnection.OpenAsync();
+                return;
+            }
+
+            this.Open();
         }
         public virtual void Open()
         {

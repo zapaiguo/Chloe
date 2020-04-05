@@ -1,4 +1,5 @@
-﻿using Chloe.Core.Visitors;
+﻿using Chloe.Core;
+using Chloe.Core.Visitors;
 using Chloe.DbExpressions;
 using Chloe.Descriptors;
 using Chloe.Exceptions;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Chloe.PostgreSQL
 {
@@ -36,7 +38,7 @@ namespace Chloe.PostgreSQL
             get { return this._databaseProvider; }
         }
 
-        public override TEntity Insert<TEntity>(TEntity entity, string table)
+        protected override async Task<TEntity> Insert<TEntity>(TEntity entity, string table, bool @async)
         {
             PublicHelper.CheckNull(entity);
 
@@ -95,15 +97,14 @@ namespace Chloe.PostgreSQL
 
             if (mappers.Count == 0)
             {
-                this.ExecuteNonQuery(insertExp);
+                await this.ExecuteNonQuery(insertExp, @async);
                 return entity;
             }
 
             IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            List<DbParam> parameters;
-            string sql = translator.Translate(insertExp, out parameters);
+            DbCommandInfo dbCommandInfo = translator.Translate(insertExp);
 
-            IDataReader dataReader = this.Session.ExecuteReader(sql, parameters.ToArray());
+            IDataReader dataReader = this.Session.ExecuteReader(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
             using (dataReader)
             {
                 dataReader.Read();
@@ -115,7 +116,7 @@ namespace Chloe.PostgreSQL
 
             return entity;
         }
-        public override object Insert<TEntity>(Expression<Func<TEntity>> content, string table)
+        protected override async Task<object> Insert<TEntity>(Expression<Func<TEntity>> content, string table, bool @async)
         {
             PublicHelper.CheckNull(content);
 
@@ -182,22 +183,21 @@ namespace Chloe.PostgreSQL
 
             if (keyPropertyDescriptor == null)
             {
-                this.ExecuteNonQuery(insertExp);
+                await this.ExecuteNonQuery(insertExp, @async);
                 return keyVal; /* It will return null if an entity does not define primary key. */
             }
             if (!keyPropertyDescriptor.IsAutoIncrement && !keyPropertyDescriptor.HasSequence())
             {
-                this.ExecuteNonQuery(insertExp);
+                await this.ExecuteNonQuery(insertExp, @async);
                 return keyVal;
             }
 
             insertExp.Returns.Add(keyPropertyDescriptor.Column);
 
             IDbExpressionTranslator translator = this.DatabaseProvider.CreateDbExpressionTranslator();
-            List<DbParam> parameters;
-            string sql = translator.Translate(insertExp, out parameters);
+            DbCommandInfo dbCommandInfo = translator.Translate(insertExp);
 
-            object ret = this.Session.ExecuteScalar(sql, parameters.ToArray());
+            object ret = this.Session.ExecuteScalar(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
             if (ret == null || ret == DBNull.Value)
             {
                 throw new ChloeException("Unable to get the identity/sequence value.");
@@ -207,7 +207,7 @@ namespace Chloe.PostgreSQL
             return ret;
         }
 
-        public override void InsertRange<TEntity>(List<TEntity> entities, string table)
+        protected override async Task InsertRange<TEntity>(List<TEntity> entities, string table, bool @async)
         {
             /*
              * 将 entities 分批插入数据库
@@ -230,7 +230,7 @@ namespace Chloe.PostgreSQL
             DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
             string sqlTemplate = this.AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors);
 
-            Action insertAction = () =>
+            Func<Task> insertAction = async () =>
             {
                 int batchCount = 0;
                 List<DbParam> dbParams = new List<DbParam>();
@@ -312,7 +312,7 @@ namespace Chloe.PostgreSQL
                     {
                         sqlBuilder.Insert(0, sqlTemplate);
                         string sql = sqlBuilder.ToString();
-                        this.Session.ExecuteNonQuery(sql, dbParams.ToArray());
+                        await this.ExecuteNonQuery(sql, dbParams.ToArray(), @async);
 
                         sqlBuilder.Clear();
                         dbParams.Clear();
@@ -321,30 +321,19 @@ namespace Chloe.PostgreSQL
                 }
             };
 
-            Action fAction = () =>
-            {
-                insertAction();
-            };
+            Func<Task> fAction = insertAction;
 
             if (this.Session.IsInTransaction)
             {
-                fAction();
+                await fAction();
+                return;
             }
-            else
+
+            /* 因为分批插入，所以需要开启事务保证数据一致性 */
+            using (var tran = this.BeginTransaction())
             {
-                /* 因为分批插入，所以需要开启事务保证数据一致性 */
-                this.Session.BeginTransaction();
-                try
-                {
-                    fAction();
-                    this.Session.CommitTransaction();
-                }
-                catch
-                {
-                    if (this.Session.IsInTransaction)
-                        this.Session.RollbackTransaction();
-                    throw;
-                }
+                await fAction();
+                tran.Commit();
             }
         }
 

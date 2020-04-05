@@ -1,22 +1,23 @@
-﻿using Chloe.DbExpressions;
+﻿using Chloe.Core;
+using Chloe.DbExpressions;
 using Chloe.Infrastructure;
-using System.Collections.Generic;
 
 namespace Chloe.Oracle
 {
     class DbExpressionTranslator : IDbExpressionTranslator
     {
         public static readonly DbExpressionTranslator Instance = new DbExpressionTranslator();
-        public virtual string Translate(DbExpression expression, out List<DbParam> parameters)
+        public virtual DbCommandInfo Translate(DbExpression expression)
         {
             SqlGenerator generator = this.CreateSqlGenerator();
             expression = EvaluableDbExpressionTransformer.Transform(expression);
             expression.Accept(generator);
 
-            parameters = generator.Parameters;
-            string sql = generator.SqlBuilder.ToSql();
+            DbCommandInfo dbCommandInfo = new DbCommandInfo();
+            dbCommandInfo.Parameters = generator.Parameters;
+            dbCommandInfo.CommandText = generator.SqlBuilder.ToSql();
 
-            return sql;
+            return dbCommandInfo;
         }
         public virtual SqlGenerator CreateSqlGenerator()
         {

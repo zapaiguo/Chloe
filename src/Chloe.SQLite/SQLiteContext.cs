@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Chloe.SQLite
 {
@@ -47,7 +48,7 @@ namespace Chloe.SQLite
             return "SELECT LAST_INSERT_ROWID()";
         }
 
-        public override void InsertRange<TEntity>(List<TEntity> entities, string table)
+        protected override async Task InsertRange<TEntity>(List<TEntity> entities, string table, bool @async)
         {
             /*
              * 将 entities 分批插入数据库
@@ -70,7 +71,7 @@ namespace Chloe.SQLite
             DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
             string sqlTemplate = AppendInsertRangeSqlTemplate(dbTable, mappingPropertyDescriptors);
 
-            Action insertAction = () =>
+            Func<Task> insertAction = async () =>
             {
                 int batchCount = 0;
                 List<DbParam> dbParams = new List<DbParam>();
@@ -134,7 +135,7 @@ namespace Chloe.SQLite
                     {
                         sqlBuilder.Insert(0, sqlTemplate);
                         string sql = sqlBuilder.ToString();
-                        this.Session.ExecuteNonQuery(sql, dbParams.ToArray());
+                        await this.ExecuteNonQuery(sql, dbParams.ToArray(), @async);
 
                         sqlBuilder.Clear();
                         dbParams.Clear();
@@ -143,27 +144,19 @@ namespace Chloe.SQLite
                 }
             };
 
-            Action fAction = insertAction;
+            Func<Task> fAction = insertAction;
 
             if (this.Session.IsInTransaction)
             {
-                fAction();
+                await fAction();
+                return;
             }
-            else
+
+            /* 因为分批插入，所以需要开启事务保证数据一致性 */
+            using (var tran = this.BeginTransaction())
             {
-                /* 因为分批插入，所以需要开启事务保证数据一致性 */
-                this.Session.BeginTransaction();
-                try
-                {
-                    fAction();
-                    this.Session.CommitTransaction();
-                }
-                catch
-                {
-                    if (this.Session.IsInTransaction)
-                        this.Session.RollbackTransaction();
-                    throw;
-                }
+                await fAction();
+                tran.Commit();
             }
         }
 

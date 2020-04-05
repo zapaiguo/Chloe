@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace Chloe.Data
 {
@@ -96,10 +98,22 @@ namespace Chloe.Data
         {
             return this._dbCommand.CreateParameter();
         }
+
         public virtual int ExecuteNonQuery()
         {
             return this._dbCommand.ExecuteNonQuery();
         }
+        public virtual async Task<int> ExecuteNonQueryAsync()
+        {
+            DbCommand dbCommand = this._dbCommand as DbCommand;
+            if (dbCommand != null)
+            {
+                return await dbCommand.ExecuteNonQueryAsync();
+            }
+
+            return this._dbCommand.ExecuteNonQuery();
+        }
+
         public virtual IDataReader ExecuteReader()
         {
             return this._dbCommand.ExecuteReader();
@@ -108,10 +122,42 @@ namespace Chloe.Data
         {
             return this._dbCommand.ExecuteReader(behavior);
         }
+        public virtual async Task<IDataReader> ExecuteReaderAsync()
+        {
+            DbCommand dbCommand = this._dbCommand as DbCommand;
+            if (dbCommand != null)
+            {
+                return await dbCommand.ExecuteReaderAsync();
+            }
+
+            return this._dbCommand.ExecuteReader();
+        }
+        public virtual async Task<IDataReader> ExecuteReaderAsync(CommandBehavior behavior)
+        {
+            DbCommand dbCommand = this._dbCommand as DbCommand;
+            if (dbCommand != null)
+            {
+                return await dbCommand.ExecuteReaderAsync(behavior);
+            }
+
+            return this._dbCommand.ExecuteReader(behavior);
+        }
+
         public virtual object ExecuteScalar()
         {
             return this._dbCommand.ExecuteScalar();
         }
+        public virtual async Task<object> ExecuteScalarAsync()
+        {
+            DbCommand dbCommand = this._dbCommand as DbCommand;
+            if (dbCommand != null)
+            {
+                return await dbCommand.ExecuteScalarAsync();
+            }
+
+            return this._dbCommand.ExecuteScalar();
+        }
+
         public virtual void Prepare()
         {
             this._dbCommand.Prepare();

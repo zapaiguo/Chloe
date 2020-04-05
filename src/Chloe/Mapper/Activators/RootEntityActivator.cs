@@ -1,5 +1,6 @@
 ﻿using Chloe.Data;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace Chloe.Mapper.Activators
 {
@@ -35,6 +36,29 @@ namespace Chloe.Mapper.Activators
             while (queryDataReader.Read())
             {
                 if (!_entityRowComparer.IsEntityRow(entity, reader))
+                {
+                    queryDataReader.AllowReadNextRecord = false;
+                    break;
+                }
+
+                this._fitter.Fill(entity, null, reader);
+            }
+
+            return entity;
+        }
+        public async Task<object> CreateInstanceAsync(IDataReader reader)
+        {
+            var entity = this._entityActivator.CreateInstance(reader);
+
+            //导航属性
+            this._fitter.Fill(entity, null, reader);
+
+            IQueryDataReader queryDataReader = (IQueryDataReader)reader;
+            queryDataReader.AllowReadNextRecord = true;
+
+            while (await queryDataReader.ReadAsyncEx())
+            {
+                if (!this._entityRowComparer.IsEntityRow(entity, reader))
                 {
                     queryDataReader.AllowReadNextRecord = false;
                     break;

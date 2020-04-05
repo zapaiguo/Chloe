@@ -1,10 +1,10 @@
-﻿using Chloe.DbExpressions;
-using System.Collections.Generic;
+﻿using Chloe.Core;
+using Chloe.DbExpressions;
 
 namespace Chloe.Infrastructure
 {
     public interface IDbExpressionTranslator
     {
-        string Translate(DbExpression expression, out List<DbParam> parameters);
+        DbCommandInfo Translate(DbExpression expression);
     }
 }
