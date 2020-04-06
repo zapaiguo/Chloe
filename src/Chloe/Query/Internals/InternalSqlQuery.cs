@@ -377,7 +377,5 @@ namespace Chloe.Query.Internals
                 public Type Type { get { return this._type; } }
             }
         }
-
     }
-
 }
