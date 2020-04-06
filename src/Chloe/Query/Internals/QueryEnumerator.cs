@@ -11,16 +11,15 @@ namespace Chloe.Query.Internals
 {
     internal static class QueryEnumeratorCreator
     {
-        public static QueryEnumerator<T> CreateEnumerator<T>(DbCommandFactor commandFactor, Func<DbCommandFactor, IDataReader> dataReaderGetter, Func<DbCommandFactor, Task<IDataReader>> asyncDataReaderGetter)
+        public static QueryEnumerator<T> CreateEnumerator<T>(DbCommandFactor commandFactor, Func<DbCommandFactor, bool, Task<IDataReader>> dataReaderGetter)
         {
-            return new QueryEnumerator<T>(commandFactor, dataReaderGetter, asyncDataReaderGetter);
+            return new QueryEnumerator<T>(commandFactor, dataReaderGetter);
         }
     }
     internal class QueryEnumerator<T> : IEnumerator<T>, IAsyncEnumerator<T>
     {
         DbCommandFactor _commandFactor;
-        Func<DbCommandFactor, IDataReader> _dataReaderGetter;
-        Func<DbCommandFactor, Task<IDataReader>> _asyncDataReaderGetter;
+        Func<DbCommandFactor, bool, Task<IDataReader>> _dataReaderGetter;
         IObjectActivator _objectActivator;
 
         IDataReader _reader;
@@ -28,11 +27,10 @@ namespace Chloe.Query.Internals
         T _current;
         bool _hasFinished;
         bool _disposed;
-        public QueryEnumerator(DbCommandFactor commandFactor, Func<DbCommandFactor, IDataReader> dataReaderGetter, Func<DbCommandFactor, Task<IDataReader>> asyncDataReaderGetter)
+        public QueryEnumerator(DbCommandFactor commandFactor, Func<DbCommandFactor, bool, Task<IDataReader>> dataReaderGetter)
         {
             this._commandFactor = commandFactor;
             this._dataReaderGetter = dataReaderGetter;
-            this._asyncDataReaderGetter = asyncDataReaderGetter;
             this._objectActivator = commandFactor.ObjectActivator;
 
             this._reader = null;
@@ -62,15 +60,16 @@ namespace Chloe.Query.Internals
             if (this._reader == null)
             {
                 //TODO 执行 sql 语句，获取 DataReader
-                if (@async)
-                    this._reader = await this._asyncDataReaderGetter(this._commandFactor);
-                else
-                    this._reader = this._dataReaderGetter(this._commandFactor);
+                this._reader = await this._dataReaderGetter(this._commandFactor, @async);
             }
 
             if (await this._reader.Read(@async))
             {
-                this._current = (T)(await this._objectActivator.CreateInstanceAsync(this._reader));
+                if (@async)
+                    this._current = (T)(await this._objectActivator.CreateInstanceAsync(this._reader));
+                else
+                    this._current = (T)this._objectActivator.CreateInstance(this._reader);
+
                 return true;
             }
             else
@@ -81,7 +80,6 @@ namespace Chloe.Query.Internals
                 return false;
             }
         }
-
 
         public void Dispose()
         {

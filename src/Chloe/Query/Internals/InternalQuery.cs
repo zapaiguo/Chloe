@@ -48,12 +48,12 @@ namespace Chloe.Query.Internals
         public IEnumerator<T> GetEnumerator()
         {
             DbCommandFactor commandFactor = this.GenerateCommandFactor();
-            QueryEnumerator<T> enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(commandFactor, cmdFactor =>
+            QueryEnumerator<T> enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(commandFactor, async (cmdFactor, @async) =>
             {
-                IDataReader dataReader = this._query.DbContext.AdoSession.ExecuteReader(cmdFactor.CommandText, cmdFactor.Parameters, CommandType.Text);
+                IDataReader dataReader = await this._query.DbContext.Session.ExecuteReader(cmdFactor.CommandText, CommandType.Text, cmdFactor.Parameters, @async);
 
                 return DataReaderReady(dataReader, cmdFactor.ObjectActivator);
-            }, null);
+            });
             return enumerator;
         }
         IEnumerator IEnumerable.GetEnumerator()
@@ -67,13 +67,7 @@ namespace Chloe.Query.Internals
         }
         public async Task<List<T>> ExecuteAsync()
         {
-            DbCommandFactor commandFactor = this.GenerateCommandFactor();
-            IAsyncEnumerator<T> enumerator = QueryEnumeratorCreator.CreateEnumerator<T>(commandFactor, null, async cmdFactor =>
-              {
-                  IDataReader dataReader = await this._query.DbContext.AdoSession.ExecuteReaderAsync(cmdFactor.CommandText, cmdFactor.Parameters, CommandType.Text);
-
-                  return DataReaderReady(dataReader, cmdFactor.ObjectActivator);
-              });
+            IAsyncEnumerator<T> enumerator = this.GetEnumerator() as IAsyncEnumerator<T>;
 
             List<T> list = new List<T>();
             using (enumerator)

@@ -1,6 +1,7 @@
 ﻿using Chloe.Exceptions;
 using Chloe.Infrastructure;
 using Chloe.Infrastructure.Interception;
+using Chloe.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -36,19 +37,13 @@ namespace Chloe.Data
 
         public virtual void Activate()
         {
-            this.CheckDisposed();
-
-            if (this.DbConnection.State == ConnectionState.Broken)
-            {
-                this.DbConnection.Close();
-            }
-
-            if (this.DbConnection.State == ConnectionState.Closed)
-            {
-                this.DbConnection.Open();
-            }
+            this.Activate(false).GetResult();
         }
-        public virtual async Task ActivateAsync()
+        public virtual Task ActivateAsync()
+        {
+            return this.Activate(true);
+        }
+        protected virtual async Task Activate(bool @async)
         {
             this.CheckDisposed();
 
@@ -59,14 +54,12 @@ namespace Chloe.Data
 
             if (this.DbConnection.State == ConnectionState.Closed)
             {
-                await this.DbConnection.OpenAsyncEx();
+                await this.DbConnection.Open(@async);
             }
         }
-        /// <summary>
-        /// 表示一次查询完成。在事务中的话不关闭连接，交给 CommitTransaction() 或者 RollbackTransaction() 控制，否则调用 IDbConnection.Close() 关闭连接
-        /// </summary>
         public virtual void Complete()
         {
+            /* 表示一次查询完成。在事务中的话不关闭连接，交给 CommitTransaction() 或者 RollbackTransaction() 控制，否则调用 IDbConnection.Close() 关闭连接 */
             if (!this.IsInTransaction)
             {
                 if (this.DbConnection.State == ConnectionState.Open)
@@ -114,43 +107,18 @@ namespace Chloe.Data
         }
         public virtual IDataReader ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType, CommandBehavior behavior)
         {
-            this.CheckDisposed();
-
-            List<OutputParameter> outputParameters;
-            IDbCommand cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
-
-            DbCommandInterceptionContext<IDataReader> dbCommandInterceptionContext = new DbCommandInterceptionContext<IDataReader>();
-
-            this.Activate();
-            this.OnReaderExecuting(cmd, dbCommandInterceptionContext);
-
-            IDataReader reader;
-            try
-            {
-                reader = new InternalDataReader(this, cmd.ExecuteReader(behavior), cmd, outputParameters);
-            }
-            catch (Exception ex)
-            {
-                dbCommandInterceptionContext.Exception = ex;
-                this.OnReaderExecuted(cmd, dbCommandInterceptionContext);
-
-                throw WrapException(ex);
-            }
-
-            dbCommandInterceptionContext.Result = reader;
-            this.OnReaderExecuted(cmd, dbCommandInterceptionContext);
-            /*
-             * ps: 可在拦截器里对 dbCommandInterceptionContext.Result 进行装饰，然后重新设置到 dbCommandInterceptionContext.Result
-             */
-
-            return dbCommandInterceptionContext.Result;
+            return this.ExecuteReader(cmdText, parameters, cmdType, behavior, false).GetResult();
         }
 
-        public virtual async Task<IDataReader> ExecuteReaderAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
+        public virtual Task<IDataReader> ExecuteReaderAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
-            return await this.ExecuteReaderAsync(cmdText, parameters, cmdType, CommandBehavior.Default);
+            return this.ExecuteReaderAsync(cmdText, parameters, cmdType, CommandBehavior.Default);
         }
-        public virtual async Task<IDataReader> ExecuteReaderAsync(string cmdText, DbParam[] parameters, CommandType cmdType, CommandBehavior behavior)
+        public virtual Task<IDataReader> ExecuteReaderAsync(string cmdText, DbParam[] parameters, CommandType cmdType, CommandBehavior behavior)
+        {
+            return this.ExecuteReader(cmdText, parameters, cmdType, behavior, true);
+        }
+        protected virtual async Task<IDataReader> ExecuteReader(string cmdText, DbParam[] parameters, CommandType cmdType, CommandBehavior behavior, bool @async)
         {
             this.CheckDisposed();
 
@@ -159,13 +127,13 @@ namespace Chloe.Data
 
             DbCommandInterceptionContext<IDataReader> dbCommandInterceptionContext = new DbCommandInterceptionContext<IDataReader>();
 
-            await this.ActivateAsync();
+            await this.Activate(@async);
             this.OnReaderExecuting(cmd, dbCommandInterceptionContext);
 
             IDataReader reader;
             try
             {
-                reader = new InternalDataReader(this, await cmd.ExecuteReaderAsyncEx(behavior), cmd, outputParameters);
+                reader = new InternalDataReader(this, await cmd.ExecuteReader(behavior, @async), cmd, outputParameters);
             }
             catch (Exception ex)
             {
@@ -186,46 +154,13 @@ namespace Chloe.Data
 
         public virtual int ExecuteNonQuery(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
-            this.CheckDisposed();
-
-            IDbCommand cmd = null;
-            try
-            {
-                List<OutputParameter> outputParameters;
-                cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
-
-                DbCommandInterceptionContext<int> dbCommandInterceptionContext = new DbCommandInterceptionContext<int>();
-
-                this.Activate();
-                this.OnNonQueryExecuting(cmd, dbCommandInterceptionContext);
-
-                int rowsAffected;
-                try
-                {
-                    rowsAffected = cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    dbCommandInterceptionContext.Exception = ex;
-                    this.OnNonQueryExecuted(cmd, dbCommandInterceptionContext);
-
-                    throw WrapException(ex);
-                }
-
-                dbCommandInterceptionContext.Result = rowsAffected;
-                this.OnNonQueryExecuted(cmd, dbCommandInterceptionContext);
-                OutputParameter.CallMapValue(outputParameters);
-
-                return dbCommandInterceptionContext.Result;
-            }
-            finally
-            {
-                this.Complete();
-                if (cmd != null)
-                    cmd.Dispose();
-            }
+            return this.ExecuteNonQuery(cmdText, parameters, cmdType, false).GetResult();
         }
-        public virtual async Task<int> ExecuteNonQueryAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
+        public virtual Task<int> ExecuteNonQueryAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
+        {
+            return this.ExecuteNonQuery(cmdText, parameters, cmdType, true);
+        }
+        protected virtual async Task<int> ExecuteNonQuery(string cmdText, DbParam[] parameters, CommandType cmdType, bool @async)
         {
             this.CheckDisposed();
 
@@ -237,13 +172,13 @@ namespace Chloe.Data
 
                 DbCommandInterceptionContext<int> dbCommandInterceptionContext = new DbCommandInterceptionContext<int>();
 
-                await this.ActivateAsync();
+                await this.Activate(@async);
                 this.OnNonQueryExecuting(cmd, dbCommandInterceptionContext);
 
                 int rowsAffected;
                 try
                 {
-                    rowsAffected = await cmd.ExecuteNonQueryAsyncEx();
+                    rowsAffected = await cmd.ExecuteNonQuery(@async);
                 }
                 catch (Exception ex)
                 {
@@ -269,46 +204,13 @@ namespace Chloe.Data
 
         public virtual object ExecuteScalar(string cmdText, DbParam[] parameters, CommandType cmdType)
         {
-            this.CheckDisposed();
-
-            IDbCommand cmd = null;
-            try
-            {
-                List<OutputParameter> outputParameters;
-                cmd = this.PrepareCommand(cmdText, parameters, cmdType, out outputParameters);
-
-                DbCommandInterceptionContext<object> dbCommandInterceptionContext = new DbCommandInterceptionContext<object>();
-
-                this.Activate();
-                this.OnScalarExecuting(cmd, dbCommandInterceptionContext);
-
-                object ret;
-                try
-                {
-                    ret = cmd.ExecuteScalar();
-                }
-                catch (Exception ex)
-                {
-                    dbCommandInterceptionContext.Exception = ex;
-                    this.OnScalarExecuted(cmd, dbCommandInterceptionContext);
-
-                    throw WrapException(ex);
-                }
-
-                dbCommandInterceptionContext.Result = ret;
-                this.OnScalarExecuted(cmd, dbCommandInterceptionContext);
-                OutputParameter.CallMapValue(outputParameters);
-
-                return dbCommandInterceptionContext.Result;
-            }
-            finally
-            {
-                this.Complete();
-                if (cmd != null)
-                    cmd.Dispose();
-            }
+            return this.ExecuteScalar(cmdText, parameters, cmdType, false).GetResult();
         }
-        public virtual async Task<object> ExecuteScalarAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
+        public virtual Task<object> ExecuteScalarAsync(string cmdText, DbParam[] parameters, CommandType cmdType)
+        {
+            return this.ExecuteScalar(cmdText, parameters, cmdType, true);
+        }
+        protected virtual async Task<object> ExecuteScalar(string cmdText, DbParam[] parameters, CommandType cmdType, bool @async)
         {
             this.CheckDisposed();
 
@@ -320,13 +222,13 @@ namespace Chloe.Data
 
                 DbCommandInterceptionContext<object> dbCommandInterceptionContext = new DbCommandInterceptionContext<object>();
 
-                await this.ActivateAsync();
+                await this.Activate(@async);
                 this.OnScalarExecuting(cmd, dbCommandInterceptionContext);
 
                 object ret;
                 try
                 {
-                    ret = await cmd.ExecuteScalarAsyncEx();
+                    ret = await cmd.ExecuteScalar(@async);
                 }
                 catch (Exception ex)
                 {

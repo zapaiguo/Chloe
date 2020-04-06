@@ -343,7 +343,7 @@ namespace Chloe.SqlServer
                     {
                         sqlBuilder.Insert(0, sqlTemplate);
                         string sql = sqlBuilder.ToString();
-                        await this.ExecuteNonQuery(sql, dbParams.ToArray(), @async);
+                        await this.Session.ExecuteNonQuery(sql, dbParams.ToArray(), @async);
 
                         sqlBuilder.Clear();
                         dbParams.Clear();

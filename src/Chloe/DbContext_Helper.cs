@@ -39,23 +39,11 @@ namespace Chloe
         }
         protected Task<int> ExecuteNonQuery(DbCommandInfo dbCommandInfo, bool @async)
         {
-            return this.ExecuteNonQuery(dbCommandInfo.CommandText, dbCommandInfo.GetParameters(), @async);
-        }
-        protected Task<int> ExecuteNonQuery(string cmdText, DbParam[] parameters, bool @async)
-        {
-            if (@async)
-                return this.Session.ExecuteNonQueryAsync(cmdText, parameters);
-
-            int rowsAffected = this.Session.ExecuteNonQuery(cmdText, parameters);
-            return Task.FromResult(rowsAffected);
+            return this.Session.ExecuteNonQuery(dbCommandInfo.CommandText, dbCommandInfo.GetParameters(), @async);
         }
         protected Task<object> ExecuteScalar(DbCommandInfo dbCommandInfo, bool @async)
         {
-            if (@async)
-                return this.Session.ExecuteScalarAsync(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
-
-            object scalar = this.Session.ExecuteScalar(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
-            return Task.FromResult(scalar);
+            return this.Session.ExecuteScalar(dbCommandInfo.CommandText, dbCommandInfo.GetParameters(), @async);
         }
         protected Task<IDataReader> ExecuteReader(DbExpression e, bool @async)
         {
@@ -64,11 +52,7 @@ namespace Chloe
         }
         protected Task<IDataReader> ExecuteReader(DbCommandInfo dbCommandInfo, bool @async)
         {
-            if (@async)
-                return this.Session.ExecuteReaderAsync(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
-
-            IDataReader dataReader = this.Session.ExecuteReader(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
-            return Task.FromResult(dataReader);
+            return this.Session.ExecuteReader(dbCommandInfo.CommandText, dbCommandInfo.GetParameters(), @async);
         }
 
         static KeyValuePairList<JoinType, Expression> ResolveJoinInfo(LambdaExpression joinInfoExp)

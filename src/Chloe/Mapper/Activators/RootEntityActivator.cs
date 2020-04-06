@@ -56,7 +56,7 @@ namespace Chloe.Mapper.Activators
             IQueryDataReader queryDataReader = (IQueryDataReader)reader;
             queryDataReader.AllowReadNextRecord = true;
 
-            while (await queryDataReader.ReadAsyncEx())
+            while (await queryDataReader.Read(true))
             {
                 if (!this._entityRowComparer.IsEntityRow(entity, reader))
                 {

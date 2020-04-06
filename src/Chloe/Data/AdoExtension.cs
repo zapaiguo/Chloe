@@ -6,8 +6,14 @@ namespace System.Data
 {
     internal static class AdoExtension
     {
-        public static async Task OpenAsyncEx(this IDbConnection conn)
+        public static async Task Open(this IDbConnection conn, bool @async)
         {
+            if (!@async)
+            {
+                conn.Open();
+                return;
+            }
+
             DbConnection dbConnection = conn as DbConnection;
             if (dbConnection != null)
             {
@@ -25,8 +31,13 @@ namespace System.Data
             conn.Open();
         }
 
-        public static async Task<IDataReader> ExecuteReaderAsyncEx(this IDbCommand cmd)
+        public static async Task<IDataReader> ExecuteReader(this IDbCommand cmd, bool @async)
         {
+            if (!@async)
+            {
+                return cmd.ExecuteReader();
+            }
+
             DbCommand dbCommand = cmd as DbCommand;
             if (dbCommand != null)
             {
@@ -41,8 +52,13 @@ namespace System.Data
 
             return cmd.ExecuteReader();
         }
-        public static async Task<IDataReader> ExecuteReaderAsyncEx(this IDbCommand cmd, CommandBehavior behavior)
+        public static async Task<IDataReader> ExecuteReader(this IDbCommand cmd, CommandBehavior behavior, bool @async)
         {
+            if (!@async)
+            {
+                return cmd.ExecuteReader(behavior);
+            }
+
             DbCommand dbCommand = cmd as DbCommand;
             if (dbCommand != null)
             {
@@ -58,8 +74,13 @@ namespace System.Data
             return cmd.ExecuteReader(behavior);
         }
 
-        public static Task<object> ExecuteScalarAsyncEx(this IDbCommand cmd)
+        public static Task<object> ExecuteScalar(this IDbCommand cmd, bool @async)
         {
+            if (!@async)
+            {
+                return Task.FromResult(cmd.ExecuteScalar());
+            }
+
             DbCommand dbCommand = cmd as DbCommand;
             if (dbCommand != null)
             {
@@ -75,8 +96,13 @@ namespace System.Data
             return Task.FromResult(cmd.ExecuteScalar());
         }
 
-        public static Task<int> ExecuteNonQueryAsyncEx(this IDbCommand cmd)
+        public static Task<int> ExecuteNonQuery(this IDbCommand cmd, bool @async)
         {
+            if (!@async)
+            {
+                return Task.FromResult(cmd.ExecuteNonQuery());
+            }
+
             DbCommand dbCommand = cmd as DbCommand;
             if (dbCommand != null)
             {
@@ -92,17 +118,13 @@ namespace System.Data
             return Task.FromResult(cmd.ExecuteNonQuery());
         }
 
-        public static Task<bool> Read(this IDataReader dataReader, bool @async)
+        public static async Task<bool> Read(this IDataReader dataReader, bool @async)
         {
-            if (@async)
+            if (!@async)
             {
-                return ReadAsyncEx(dataReader);
+                return dataReader.Read();
             }
 
-            return Task.FromResult(dataReader.Read());
-        }
-        public static async Task<bool> ReadAsyncEx(this IDataReader dataReader)
-        {
             DbDataReader dbDataReader = dataReader as DbDataReader;
             if (dbDataReader != null)
             {
