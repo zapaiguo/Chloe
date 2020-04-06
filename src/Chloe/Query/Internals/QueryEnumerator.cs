@@ -1,4 +1,5 @@
-﻿using Chloe.Core;
+﻿using Chloe.Collections;
+using Chloe.Core;
 using Chloe.Mapper;
 using Chloe.Threading.Tasks;
 using System;

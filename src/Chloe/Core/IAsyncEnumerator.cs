@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections;
+using System.Threading.Tasks;
 
-namespace System.Collections
+namespace Chloe.Collections
 {
     internal interface IAsyncEnumerator : IEnumerator
     {
