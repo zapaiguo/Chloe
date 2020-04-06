@@ -17,18 +17,7 @@ namespace Chloe.PostgreSQL
 
             return UtilConstants.ParameterNamePrefix + ordinal.ToString();
         }
-        static string GenRowNumberName(List<DbColumnSegment> columns)
-        {
-            int ROW_NUMBER_INDEX = 1;
-            string row_numberName = "ROW_NUMBER_0";
-            while (columns.Any(a => string.Equals(a.Alias, row_numberName, StringComparison.OrdinalIgnoreCase)))
-            {
-                row_numberName = "ROW_NUMBER_" + ROW_NUMBER_INDEX.ToString();
-                ROW_NUMBER_INDEX++;
-            }
 
-            return row_numberName;
-        }
         public static void AmendDbInfo(DbExpression exp1, DbExpression exp2)
         {
             DbColumnAccessExpression datumPointExp = null;

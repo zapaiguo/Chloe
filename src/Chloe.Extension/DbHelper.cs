@@ -13,14 +13,11 @@ namespace Chloe.Extension
         public static DataSet FillDataSet(IDataReader reader)
         {
             DataSet ds = new DataSet();
-            var dt = FillDataTable(reader);
-            ds.Tables.Add(dt);
-
-            while (reader.NextResult())
+            do
             {
-                dt = FillDataTable(reader);
+                var dt = FillDataTable(reader);
                 ds.Tables.Add(dt);
-            }
+            } while (reader.NextResult());
 
             return ds;
         }

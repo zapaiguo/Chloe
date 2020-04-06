@@ -53,13 +53,14 @@ namespace Chloe.Extensions
         internal static bool IsDerivedFromParameter(this MemberExpression exp, out ParameterExpression p)
         {
             p = null;
-            Expression prevExp = exp.Expression;
-            MemberExpression memberExp = prevExp as MemberExpression;
-            while (memberExp != null)
+
+            MemberExpression memberExp = exp;
+            Expression prevExp;
+            do
             {
                 prevExp = memberExp.Expression;
                 memberExp = prevExp as MemberExpression;
-            }
+            } while (memberExp != null);
 
             if (prevExp == null)/* 静态属性访问 */
                 return false;
@@ -106,11 +107,12 @@ namespace Chloe.Extensions
         public static Stack<MemberExpression> Reverse(this MemberExpression exp)
         {
             var stack = new Stack<MemberExpression>();
-            stack.Push(exp);
-            while ((exp = exp.Expression as MemberExpression) != null)
+            do
             {
                 stack.Push(exp);
-            }
+                exp = exp.Expression as MemberExpression;
+            } while (exp != null);
+
             return stack;
         }
 
