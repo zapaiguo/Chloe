@@ -32,56 +32,43 @@ namespace Chloe
             DbCommandInfo dbCommandInfo = translator.Translate(e);
             return dbCommandInfo;
         }
-        protected async Task<int> ExecuteNonQuery(DbExpression e, bool @async)
+        protected Task<int> ExecuteNonQuery(DbExpression e, bool @async)
         {
             DbCommandInfo dbCommandInfo = this.Translate(e);
-            return await this.ExecuteNonQuery(dbCommandInfo, @async);
+            return this.ExecuteNonQuery(dbCommandInfo, @async);
         }
-        protected async Task<int> ExecuteNonQuery(DbCommandInfo dbCommandInfo, bool @async)
+        protected Task<int> ExecuteNonQuery(DbCommandInfo dbCommandInfo, bool @async)
         {
-            int rowsAffected;
-            if (@async)
-                rowsAffected = await this.Session.ExecuteNonQueryAsync(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
-            else
-                rowsAffected = this.Session.ExecuteNonQuery(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
-
-            return rowsAffected;
+            return this.ExecuteNonQuery(dbCommandInfo.CommandText, dbCommandInfo.GetParameters(), @async);
         }
-        protected async Task<int> ExecuteNonQuery(string cmdText, DbParam[] parameters, bool @async)
+        protected Task<int> ExecuteNonQuery(string cmdText, DbParam[] parameters, bool @async)
         {
-            int rowsAffected;
             if (@async)
-                rowsAffected = await this.Session.ExecuteNonQueryAsync(cmdText, parameters);
-            else
-                rowsAffected = this.Session.ExecuteNonQuery(cmdText, parameters);
+                return this.Session.ExecuteNonQueryAsync(cmdText, parameters);
 
-            return rowsAffected;
+            int rowsAffected = this.Session.ExecuteNonQuery(cmdText, parameters);
+            return Task.FromResult(rowsAffected);
         }
-        protected async Task<object> ExecuteScalar(DbCommandInfo dbCommandInfo, bool @async)
+        protected Task<object> ExecuteScalar(DbCommandInfo dbCommandInfo, bool @async)
         {
-            object scalar;
             if (@async)
-                scalar = await this.Session.ExecuteScalarAsync(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
-            else
-                scalar = this.Session.ExecuteScalar(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
+                return this.Session.ExecuteScalarAsync(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
 
-            return scalar;
+            object scalar = this.Session.ExecuteScalar(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
+            return Task.FromResult(scalar);
         }
-        protected async Task<IDataReader> ExecuteReader(DbExpression e, bool @async)
+        protected Task<IDataReader> ExecuteReader(DbExpression e, bool @async)
         {
             DbCommandInfo dbCommandInfo = this.Translate(e);
-            IDataReader dataReader = await this.ExecuteReader(dbCommandInfo, @async);
-            return dataReader;
+            return this.ExecuteReader(dbCommandInfo, @async);
         }
-        protected async Task<IDataReader> ExecuteReader(DbCommandInfo dbCommandInfo, bool @async)
+        protected Task<IDataReader> ExecuteReader(DbCommandInfo dbCommandInfo, bool @async)
         {
-            IDataReader dataReader;
             if (@async)
-                dataReader = await this.Session.ExecuteReaderAsync(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
-            else
-                dataReader = this.Session.ExecuteReader(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
+                return this.Session.ExecuteReaderAsync(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
 
-            return dataReader;
+            IDataReader dataReader = this.Session.ExecuteReader(dbCommandInfo.CommandText, dbCommandInfo.GetParameters());
+            return Task.FromResult(dataReader);
         }
 
         static KeyValuePairList<JoinType, Expression> ResolveJoinInfo(LambdaExpression joinInfoExp)

@@ -58,48 +58,48 @@ namespace System.Data
             return cmd.ExecuteReader(behavior);
         }
 
-        public static async Task<object> ExecuteScalarAsyncEx(this IDbCommand cmd)
+        public static Task<object> ExecuteScalarAsyncEx(this IDbCommand cmd)
         {
             DbCommand dbCommand = cmd as DbCommand;
             if (dbCommand != null)
             {
-                return await dbCommand.ExecuteScalarAsync();
+                return dbCommand.ExecuteScalarAsync();
             }
 
             DbCommandDecorator dbCommandDecorator = cmd as DbCommandDecorator;
             if (dbCommandDecorator != null)
             {
-                return await dbCommandDecorator.ExecuteScalarAsync();
+                return dbCommandDecorator.ExecuteScalarAsync();
             }
 
-            return cmd.ExecuteScalar();
+            return Task.FromResult(cmd.ExecuteScalar());
         }
 
-        public static async Task<int> ExecuteNonQueryAsyncEx(this IDbCommand cmd)
+        public static Task<int> ExecuteNonQueryAsyncEx(this IDbCommand cmd)
         {
             DbCommand dbCommand = cmd as DbCommand;
             if (dbCommand != null)
             {
-                return await dbCommand.ExecuteNonQueryAsync();
+                return dbCommand.ExecuteNonQueryAsync();
             }
 
             DbCommandDecorator dbCommandDecorator = cmd as DbCommandDecorator;
             if (dbCommandDecorator != null)
             {
-                return await dbCommandDecorator.ExecuteNonQueryAsync();
+                return dbCommandDecorator.ExecuteNonQueryAsync();
             }
 
-            return cmd.ExecuteNonQuery();
+            return Task.FromResult(cmd.ExecuteNonQuery());
         }
 
-        public static async Task<bool> Read(this IDataReader dataReader, bool @async)
+        public static Task<bool> Read(this IDataReader dataReader, bool @async)
         {
             if (@async)
             {
-                return await ReadAsyncEx(dataReader);
+                return ReadAsyncEx(dataReader);
             }
 
-            return dataReader.Read();
+            return Task.FromResult(dataReader.Read());
         }
         public static async Task<bool> ReadAsyncEx(this IDataReader dataReader)
         {
