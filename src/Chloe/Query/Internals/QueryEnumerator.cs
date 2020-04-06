@@ -63,7 +63,8 @@ namespace Chloe.Query.Internals
                 this._reader = await this._dataReaderGetter(this._commandFactor, @async);
             }
 
-            if (await this._reader.Read(@async))
+            bool readResult = @async ? await this._reader.Read(@async) : this._reader.Read();
+            if (readResult)
             {
                 if (@async)
                     this._current = (T)(await this._objectActivator.CreateInstanceAsync(this._reader));
