@@ -88,6 +88,7 @@ namespace Chloe
         /// <param name="entity"></param>
         /// <returns></returns>
         TEntity Save<TEntity>(TEntity entity);
+        Task<TEntity> SaveAsync<TEntity>(TEntity entity);
 
         /// <summary>
         /// 插入数据，但不包括导航属性。

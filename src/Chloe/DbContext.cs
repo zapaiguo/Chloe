@@ -218,23 +218,31 @@ namespace Chloe
 
         public TEntity Save<TEntity>(TEntity entity)
         {
-            if (this.Session.IsInTransaction)
-            {
-                this.Save(entity, null);
-            }
-            else
-            {
-                this.UseTransaction(() =>
-                {
-                    this.Save(entity, null);
-                });
-            }
-
+            this.Save(entity, false).GetResult();
             return entity;
         }
-        TEntity Save<TEntity>(TEntity entity, TypeDescriptor declaringTypeDescriptor)
+        public async Task<TEntity> SaveAsync<TEntity>(TEntity entity)
         {
-            this.Insert(entity);
+            await this.Save(entity, true);
+            return entity;
+        }
+        async Task Save<TEntity>(TEntity entity, bool @async)
+        {
+            if (this.Session.IsInTransaction)
+            {
+                await this.Save(entity, null, @async);
+                return;
+            }
+
+            using (var tran = this.BeginTransaction())
+            {
+                await this.Save(entity, null, @async);
+                tran.Commit();
+            }
+        }
+        async Task Save<TEntity>(TEntity entity, TypeDescriptor declaringTypeDescriptor, bool @async)
+        {
+            await this.Insert(entity, null, @async);
 
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
 
@@ -248,19 +256,17 @@ namespace Chloe
                     continue;
                 }
 
-                this.SaveOneToOne(navPropertyDescriptor, entity, typeDescriptor);
+                await this.SaveOneToOne(navPropertyDescriptor, entity, typeDescriptor, @async);
             }
 
             for (int i = 0; i < typeDescriptor.CollectionPropertyDescriptors.Count; i++)
             {
                 //entity.List
                 CollectionPropertyDescriptor collectionPropertyDescriptor = typeDescriptor.CollectionPropertyDescriptors[i];
-                this.SaveCollection(collectionPropertyDescriptor, entity, typeDescriptor);
+                await this.SaveCollection(collectionPropertyDescriptor, entity, typeDescriptor, @async);
             }
-
-            return entity;
         }
-        void SaveOneToOne(ComplexPropertyDescriptor navPropertyDescriptor, object owner, TypeDescriptor ownerTypeDescriptor)
+        async Task SaveOneToOne(ComplexPropertyDescriptor navPropertyDescriptor, object owner, TypeDescriptor ownerTypeDescriptor, bool @async)
         {
             /*
              * 1:1
@@ -297,10 +303,11 @@ namespace Chloe
             }
 
             MethodInfo method = GetSaveMethod(navPropertyDescriptor.PropertyType);
-            //DbContext.Save(navValue, ownerTypeDescriptor);
-            method.Invoke(this, navValue, ownerTypeDescriptor);
+            //DbContext.Save(navValue, ownerTypeDescriptor, @async);
+            Task task = (Task)method.Invoke(this, navValue, ownerTypeDescriptor, @async);
+            await task;
         }
-        void SaveCollection(CollectionPropertyDescriptor collectionPropertyDescriptor, object owner, TypeDescriptor ownerTypeDescriptor)
+        async Task SaveCollection(CollectionPropertyDescriptor collectionPropertyDescriptor, object owner, TypeDescriptor ownerTypeDescriptor, bool @async)
         {
             PrimitivePropertyDescriptor ownerKeyPropertyDescriptor = ownerTypeDescriptor.PrimaryKeys.FirstOrDefault();
             if (ownerKeyPropertyDescriptor == null)
@@ -316,7 +323,7 @@ namespace Chloe
             ComplexPropertyDescriptor elementDotT = elementTypeDescriptor.ComplexPropertyDescriptors.Where(a => a.PropertyType == ownerTypeDescriptor.Definition.Type).FirstOrDefault();
 
             object ownerKeyValue = ownerKeyPropertyDescriptor.GetValue(owner);
-            MethodInfo method = GetSaveMethod(collectionPropertyDescriptor.ElementType);
+            MethodInfo saveMethod = GetSaveMethod(collectionPropertyDescriptor.ElementType);
             for (int i = 0; i < elementList.Count; i++)
             {
                 object element = elementList[i];
@@ -325,8 +332,9 @@ namespace Chloe
 
                 //element.ForeignKey = T.Id
                 elementDotT.ForeignKeyProperty.SetValue(element, ownerKeyValue);
-                //DbContext.Save(element, ownerTypeDescriptor);
-                method.Invoke(this, element, ownerTypeDescriptor);
+                //DbContext.Save(element, ownerTypeDescriptor, @async);
+                Task task = (Task)saveMethod.Invoke(this, element, ownerTypeDescriptor, @async);
+                await task;
             }
         }
 
