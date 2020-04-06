@@ -302,9 +302,9 @@ namespace Chloe
                 TOtherDotT.ForeignKeyProperty.SetValue(navValue, foreignKeyValue);
             }
 
-            MethodInfo method = GetSaveMethod(navPropertyDescriptor.PropertyType);
+            MethodInfo saveMethod = GetSaveMethod(navPropertyDescriptor.PropertyType);
             //DbContext.Save(navValue, ownerTypeDescriptor, @async);
-            Task task = (Task)method.Invoke(this, navValue, ownerTypeDescriptor, @async);
+            Task task = (Task)saveMethod.Invoke(this, navValue, ownerTypeDescriptor, @async);
             await task;
         }
         async Task SaveCollection(CollectionPropertyDescriptor collectionPropertyDescriptor, object owner, TypeDescriptor ownerTypeDescriptor, bool @async)
