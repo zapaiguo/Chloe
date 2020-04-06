@@ -148,6 +148,12 @@ namespace Chloe
         /// <returns></returns>
         int Delete<TEntity>(Expression<Func<TEntity, bool>> condition);
         int Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table);
+
+        Task<int> DeleteAsync<TEntity>(TEntity entity);
+        Task<int> DeleteAsync<TEntity>(TEntity entity, string table);
+        Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition);
+        Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition, string table);
+
         int DeleteByKey<TEntity>(object key);
         /// <summary>
         /// 
@@ -157,11 +163,6 @@ namespace Chloe
         /// <param name="table"></param>
         /// <returns></returns>
         int DeleteByKey<TEntity>(object key, string table);
-
-        Task<int> DeleteAsync<TEntity>(TEntity entity);
-        Task<int> DeleteAsync<TEntity>(TEntity entity, string table);
-        Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition);
-        Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition, string table);
         Task<int> DeleteByKeyAsync<TEntity>(object key);
         Task<int> DeleteByKeyAsync<TEntity>(object key, string table);
 
