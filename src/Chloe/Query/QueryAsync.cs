@@ -28,10 +28,9 @@ namespace Chloe.Query
         {
             return await this.Where(predicate).FirstOrDefaultAsync();
         }
-        public async Task<List<T>> ToListAsync()
+        public Task<List<T>> ToListAsync()
         {
-            List<T> list = await this.GenerateIteratorAsync();
-            return list;
+            return this.GenerateIteratorAsync();
         }
 
         public async Task<bool> AnyAsync()
