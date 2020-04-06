@@ -93,27 +93,44 @@ namespace Chloe
             return new Query<TEntity>(this, table, @lock);
         }
 
-        public virtual TEntity QueryByKey<TEntity>(object key, bool tracking = false)
+        public virtual TEntity QueryByKey<TEntity>(object key)
+        {
+            return this.QueryByKey<TEntity>(key, false);
+        }
+        public virtual TEntity QueryByKey<TEntity>(object key, bool tracking)
         {
             return this.QueryByKey<TEntity>(key, null, tracking);
         }
-        public virtual TEntity QueryByKey<TEntity>(object key, string table, bool tracking = false)
+        public virtual TEntity QueryByKey<TEntity>(object key, string table)
+        {
+            return this.QueryByKey<TEntity>(key, table, false);
+        }
+        public virtual TEntity QueryByKey<TEntity>(object key, string table, bool tracking)
         {
             return this.QueryByKey<TEntity>(key, table, LockType.Unspecified, tracking);
         }
-        public virtual TEntity QueryByKey<TEntity>(object key, string table, LockType @lock, bool tracking = false)
+        public virtual TEntity QueryByKey<TEntity>(object key, string table, LockType @lock, bool tracking)
         {
             return this.QueryByKey<TEntity>(key, table, @lock, tracking, false).GetResult();
         }
-        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, bool tracking = false)
+
+        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key)
+        {
+            return await this.QueryByKeyAsync<TEntity>(key, false);
+        }
+        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, bool tracking)
         {
             return await this.QueryByKeyAsync<TEntity>(key, null, tracking);
         }
-        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, bool tracking = false)
+        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table)
+        {
+            return await this.QueryByKeyAsync<TEntity>(key, table, false);
+        }
+        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, bool tracking)
         {
             return await this.QueryByKeyAsync<TEntity>(key, table, LockType.Unspecified, tracking);
         }
-        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, LockType @lock, bool tracking = false)
+        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, LockType @lock, bool tracking)
         {
             return await this.QueryByKey<TEntity>(key, table, @lock, tracking, true);
         }

@@ -20,8 +20,10 @@ namespace Chloe
         IQuery<TEntity> Query<TEntity>(LockType @lock);
         IQuery<TEntity> Query<TEntity>(string table, LockType @lock);
 
-        TEntity QueryByKey<TEntity>(object key, bool tracking = false);
-        TEntity QueryByKey<TEntity>(object key, string table, bool tracking = false);
+        TEntity QueryByKey<TEntity>(object key);
+        TEntity QueryByKey<TEntity>(object key, bool tracking);
+        TEntity QueryByKey<TEntity>(object key, string table);
+        TEntity QueryByKey<TEntity>(object key, string table, bool tracking);
         /// <summary>
         /// 
         /// </summary>
@@ -31,11 +33,13 @@ namespace Chloe
         /// <param name="lock"></param>
         /// <param name="tracking"></param>
         /// <returns></returns>
-        TEntity QueryByKey<TEntity>(object key, string table, LockType @lock, bool tracking = false);
+        TEntity QueryByKey<TEntity>(object key, string table, LockType @lock, bool tracking);
 
-        Task<TEntity> QueryByKeyAsync<TEntity>(object key, bool tracking = false);
-        Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, bool tracking = false);
-        Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, LockType @lock, bool tracking = false);
+        Task<TEntity> QueryByKeyAsync<TEntity>(object key);
+        Task<TEntity> QueryByKeyAsync<TEntity>(object key, bool tracking);
+        Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table);
+        Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, bool tracking);
+        Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, LockType @lock, bool tracking);
 
         /// <summary>
         /// context.JoinQuery&lt;User, City&gt;((user, city) => new object[] 
