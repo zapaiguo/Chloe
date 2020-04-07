@@ -28,24 +28,55 @@ namespace ChloeDemo
         }
     }
 
-    public class CityMap : EntityTypeBuilder<City>
+    public class EntityMapBase<TEntity> : EntityTypeBuilder<TEntity> where TEntity : EntityBase
+    {
+        public EntityMapBase()
+        {
+            this.Property(a => a.Id).IsAutoIncrement().IsPrimaryKey();
+        }
+    }
+    public class PersonMap : EntityMapBase<Person>
+    {
+        public PersonMap()
+        {
+            this.MapTo("Person");
+            this.Property(a => a.Gender).HasDbType(DbType.Int32);
+
+            this.HasOne(a => a.City).WithForeignKey(a => a.CityId);
+            this.Ignore(a => a.NotMapped);
+
+            /* global filter */
+            this.HasQueryFilter(a => a.Id > -1);
+        }
+    }
+
+    public class CityMap : EntityMapBase<City>
     {
         public CityMap()
         {
-            this.HasMany(a => a.Users);
+            this.HasMany(a => a.Persons);
             this.HasOne(a => a.Province).WithForeignKey(a => a.ProvinceId);
 
             this.HasQueryFilter(a => a.Id > -2);
         }
     }
 
-    public class ProvinceMap : EntityTypeBuilder<Province>
+    public class ProvinceMap : EntityMapBase<Province>
     {
         public ProvinceMap()
         {
             this.HasMany(a => a.Cities);
 
             this.HasQueryFilter(a => a.Id > -3);
+        }
+    }
+
+    public class TestEntityMap : EntityTypeBuilder<TestEntity>
+    {
+        public TestEntityMap()
+        {
+            this.Property(a => a.Id).IsAutoIncrement().IsPrimaryKey();
+            this.HasQueryFilter(a => a.Id > 0);
         }
     }
 }

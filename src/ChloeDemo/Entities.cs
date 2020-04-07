@@ -42,7 +42,7 @@ namespace ChloeDemo
         public Gender? Gender { get; set; }
         public int? Age { get; set; }
         public int? CityId { get; set; }
-        public DateTime? OpTime { get; set; }
+        public DateTime? OpTime { get; set; } = DateTime.Now;
 
         [Chloe.Annotations.NavigationAttribute("CityId")]
         public City City { get; set; }
@@ -54,24 +54,53 @@ namespace ChloeDemo
         //public Byte[] RowVersion { get; set; }
     }
 
-    public class City
+    public class EntityBase : IEntity
     {
-        public int Id { get; set; }
+        [Column(IsPrimaryKey = true)]
+        [AutoIncrement]
+        public virtual int Id { get; set; }
+    }
+
+    [TableAttribute("Person")]
+    public class Person : EntityBase
+    {
+        [Chloe.Annotations.NavigationAttribute("CityId")]
+        public City City { get; set; }
+
+        [Column(DbType = DbType.String)]
         public string Name { get; set; }
-        public int? ProvinceId { get; set; }
+        [Column(DbType = DbType.Int32)]
+        public Gender? Gender { get; set; }
+        public int? Age { get; set; }
+        public int? CityId { get; set; }
+        public DateTime CreateTime { get; set; } = DateTime.Now;
+        public DateTime? EditTime { get; set; }
+
+        [NotMapped]
+        public string NotMapped { get; set; }
+
+        //[Column(IsRowVersion = true)]
+        //public int RowVersion { get; set; }
+    }
+
+    public class City : EntityBase
+    {
+        public string Name { get; set; }
+        public int ProvinceId { get; set; }
 
         [Chloe.Annotations.NavigationAttribute("ProvinceId")]
         public Province Province { get; set; }
+        //[Chloe.Annotations.NavigationAttribute]
+        public List<User> Users { get; set; } = new List<User>();
         [Chloe.Annotations.NavigationAttribute]
-        public List<User> Users { get; set; }
+        public List<Person> Persons { get; set; } = new List<Person>();
     }
 
-    public class Province
+    public class Province : EntityBase
     {
-        public int Id { get; set; }
         public string Name { get; set; }
 
         [Chloe.Annotations.NavigationAttribute]
-        public List<City> Cities { get; set; }
+        public List<City> Cities { get; set; } = new List<City>();
     }
 }

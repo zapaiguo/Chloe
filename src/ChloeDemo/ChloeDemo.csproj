@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <!--<TargetFramework>netcoreapp2.0</TargetFramework>-->
     <!--<TargetFramework>net45</TargetFramework>-->
-    <!--<TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>-->
+    <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
 
     <AssemblyName>ChloeDemo</AssemblyName>
     <OutputType>Exe</OutputType>

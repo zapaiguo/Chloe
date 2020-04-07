@@ -21,16 +21,28 @@ namespace ChloeDemo
 
             /* fluent mapping */
             DbConfiguration.UseTypeBuilders(typeof(UserMap));
+            DbConfiguration.UseTypeBuilders(typeof(PersonMap));
             DbConfiguration.UseTypeBuilders(typeof(CityMap));
             DbConfiguration.UseTypeBuilders(typeof(ProvinceMap));
+            DbConfiguration.UseTypeBuilders(typeof(TestEntityMap));
 
-            SQLiteDemo.Run();
-            MsSqlDemo.Run();
-            MySqlDemo.Run();
-            PostgreSQLDemo.Run();
-            OracleDemo.Run();
+            RunDemo<SQLiteDemo>();
+            RunDemo<MsSqlDemo>();
+            RunDemo<MySqlDemo>();
+            //PostgreSQLDemo.Run();
+            //OracleDemo.Run();
+        }
 
-            MsSqlTest.Run();
+        static void RunDemo<TDemo>() where TDemo : DemoBase, new()
+        {
+            Console.WriteLine($"Start {typeof(TDemo)}...");
+
+            using (TDemo demo = new TDemo())
+            {
+                demo.Run();
+            }
+
+            ConsoleHelper.WriteLineAndReadKey($"End {typeof(TDemo)}...");
         }
 
         /// <summary>

@@ -22,5 +22,6 @@ namespace ChloeDemo
         public DateTime? F_DateTime { get; set; }
         public Guid? F_Guid { get; set; }
         public string F_String { get; set; }
+        public Gender? F_Enum { get; set; }
     }
 }
