@@ -18,6 +18,8 @@ namespace ChloeDemo
         public SQLiteDemo()
         {
             this._dbContext = new SQLiteContext(new SQLiteConnectionFactory("Data Source=..\\..\\..\\Chloe.db;"));
+
+            DbConfiguration.UseTypeBuilders(typeof(TestEntityMap));
         }
 
         public override IDbContext DbContext

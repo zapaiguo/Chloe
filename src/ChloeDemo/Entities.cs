@@ -33,8 +33,6 @@ namespace ChloeDemo
         public string NotMapped { get; set; }
     }
 
-
-    //如果使用 fluentmapping，就可以不用打特性了
     [TableAttribute("Users")]
     public class User : UserLite
     {
@@ -61,6 +59,7 @@ namespace ChloeDemo
         public virtual int Id { get; set; }
     }
 
+    //如果使用 fluentmapping，就可以不用打特性了
     [TableAttribute("Person")]
     public class Person : EntityBase
     {

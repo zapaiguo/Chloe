@@ -133,7 +133,7 @@ namespace ChloeDemo
             return city;
         }
 
-        public void Crud()
+        public virtual void Crud()
         {
             Person person = null;
             var q = this.DbContext.Query<Person>();
@@ -173,7 +173,7 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey(1);
         }
-        public async Task CrudAsync()
+        public virtual async Task CrudAsync()
         {
             Person person = null;
             var q = this.DbContext.Query<Person>();
@@ -214,7 +214,7 @@ namespace ChloeDemo
             ConsoleHelper.WriteLineAndReadKey(1);
         }
 
-        public void BasicQuery()
+        public virtual void BasicQuery()
         {
             IQuery<Person> q = this.DbContext.Query<Person>();
 
@@ -278,7 +278,7 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
-        public void JoinQuery()
+        public virtual void JoinQuery()
         {
             var person_city_province = this.DbContext.Query<Person>()
                                      .InnerJoin<City>((person, city) => person.CityId == city.Id)
@@ -321,7 +321,7 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
-        public void AggregateQuery()
+        public virtual void AggregateQuery()
         {
             IQuery<Person> q = this.DbContext.Query<Person>();
 
@@ -367,7 +367,7 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
-        public void GroupQuery()
+        public virtual void GroupQuery()
         {
             IQuery<Person> q = this.DbContext.Query<Person>();
 
@@ -383,7 +383,7 @@ namespace ChloeDemo
             ConsoleHelper.WriteLineAndReadKey();
         }
         /*复杂查询*/
-        public void ComplexQuery()
+        public virtual void ComplexQuery()
         {
             /*
              * 支持 select * from Person where CityId in (1,2,3)    --in一个数组
@@ -466,7 +466,7 @@ namespace ChloeDemo
             ConsoleHelper.WriteLineAndReadKey();
         }
         /* 贪婪加载导航属性 */
-        public void QueryWithNavigation()
+        public virtual void QueryWithNavigation()
         {
             /* context filter */
             this.DbContext.HasQueryFilter<Person>(a => a.Id > -100);
@@ -487,7 +487,7 @@ namespace ChloeDemo
         }
 
 
-        public void Insert()
+        public virtual void Insert()
         {
             //返回主键 Id
             int id = (int)this.DbContext.Insert<Person>(() => new Person() { Name = "lu", Age = 18, Gender = Gender.Man, CityId = 1, CreateTime = DateTime.Now });
@@ -514,7 +514,7 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
-        public void Update()
+        public virtual void Update()
         {
             this.DbContext.Update<Person>(a => a.Id == 1, a => new Person() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, EditTime = DateTime.Now });
             /*
@@ -562,7 +562,7 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
-        public void Delete()
+        public virtual void Delete()
         {
             this.DbContext.Delete<Person>(a => a.Id == 1);
             /*
@@ -570,10 +570,10 @@ namespace ChloeDemo
              */
 
             //批量删除
-            //删除所有不男不女的用户
-            this.DbContext.Delete<Person>(a => a.Gender == null);
+            //根据条件删除
+            this.DbContext.Delete<Person>(a => a.Id < 0);
             /*
-             * DELETE FROM [Person] WHERE [Person].[Gender] IS NULL
+             * DELETE FROM [Person] WHERE [Person].[Id] < 0
              */
 
             Person person = new Person();
@@ -587,7 +587,7 @@ namespace ChloeDemo
             ConsoleHelper.WriteLineAndReadKey(1);
         }
 
-        public void Method()
+        public virtual void Method()
         {
             IQuery<Person> q = this.DbContext.Query<Person>();
 
@@ -664,7 +664,7 @@ namespace ChloeDemo
             ConsoleHelper.WriteLineAndReadKey();
         }
 
-        public void ExecuteCommandText()
+        public virtual void ExecuteCommandText()
         {
             List<Person> persons = this.DbContext.SqlQuery<Person>("select * from Person where Age > @age", DbParam.Create("@age", 1)).ToList();
 
@@ -679,7 +679,7 @@ namespace ChloeDemo
             ConsoleHelper.WriteLineAndReadKey();
         }
 
-        public void DoWithTransactionEx()
+        public virtual void DoWithTransactionEx()
         {
             this.DbContext.UseTransaction(() =>
             {
@@ -689,7 +689,7 @@ namespace ChloeDemo
 
             ConsoleHelper.WriteLineAndReadKey();
         }
-        public void DoWithTransaction()
+        public virtual void DoWithTransaction()
         {
             using (ITransientTransaction tran = this.DbContext.BeginTransaction())
             {

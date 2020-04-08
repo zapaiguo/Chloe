@@ -29,8 +29,8 @@ namespace ChloeDemo
             RunDemo<SQLiteDemo>();
             RunDemo<MsSqlDemo>();
             RunDemo<MySqlDemo>();
+            RunDemo<OracleDemo>();
             //PostgreSQLDemo.Run();
-            //OracleDemo.Run();
         }
 
         static void RunDemo<TDemo>() where TDemo : DemoBase, new()

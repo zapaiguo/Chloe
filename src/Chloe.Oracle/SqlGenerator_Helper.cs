@@ -242,7 +242,12 @@ namespace Chloe.Oracle
         }
         public static void Aggregate_Average(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            AppendAggregateFunction(generator, exp, retType, "AVG", false);
+            generator._sqlBuilder.Append("TRUNC", "(");
+            generator._sqlBuilder.Append("AVG", "(");
+            exp.Accept(generator);
+            generator._sqlBuilder.Append(")");
+
+            generator._sqlBuilder.Append(",7)");
         }
 
         static void AppendAggregateFunction(SqlGenerator generator, DbExpression exp, Type retType, string functionName, bool withCast)

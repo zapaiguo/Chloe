@@ -79,4 +79,13 @@ namespace ChloeDemo
             this.HasQueryFilter(a => a.Id > 0);
         }
     }
+
+    public class OracleTestEntityMap : TestEntityMap
+    {
+        public OracleTestEntityMap()
+        {
+            //oralce 暂时不支持 guid
+            this.Ignore(a => a.F_Guid);
+        }
+    }
 }
