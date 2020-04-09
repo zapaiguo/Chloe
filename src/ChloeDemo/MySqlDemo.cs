@@ -58,7 +58,7 @@ namespace ChloeDemo
             {
                 string key = typeDescriptor.PrimaryKeys.First().Column.Name;
                 sb.AppendLine(c);
-                sb.Append($"PRIMARY KEY ({this.QuoteName(key)}) USING BTREE");
+                sb.Append($"  PRIMARY KEY ({this.QuoteName(key)}) USING BTREE");
             }
 
             sb.AppendLine();

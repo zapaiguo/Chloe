@@ -1,393 +1,168 @@
 ﻿using Chloe;
-using Chloe.Core;
+using Chloe.Descriptors;
+using Chloe.Infrastructure;
 using Chloe.PostgreSQL;
-using Chloe.SqlServer;
+using Chloe.Reflection;
 using System;
 using System.Collections.Generic;
-using System.Data;
+using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ChloeDemo
 {
-    //[TestClass]
-    public class PostgreSQLDemo
+    class PostgreSQLDemo : DemoBase
     {
-        /* WARNING: DbContext 是非线程安全的，正式使用不能设置为 static，并且用完务必要调用 Dispose 方法销毁对象 */
-        static string ConnString = "User ID=postgres;Password=sa;Host=localhost;Port=5432;Database=chloe;Pooling=true;";
-        static PostgreSQLContext context = new PostgreSQLContext(new PostgreSQLConnectionFactory(ConnString));
-
-        public static void Run()
+        PostgreSQLContext _dbContext;
+        public PostgreSQLDemo()
         {
-            BasicQuery();
-            JoinQuery();
-            AggregateQuery();
-            GroupQuery();
-            ComplexQuery();
-            QueryWithNavigation();
-            Insert();
-            InsertRange();
-            Update();
-            Delete();
-            Method();
-            ExecuteCommandText();
-            DoWithTransaction();
-            DoWithTransactionEx();
+            this._dbContext = new PostgreSQLContext(new PostgreSQLConnectionFactory("User ID=postgres;Password=sasa;Host=localhost;Port=5432;Database=Chloe;Pooling=true;"));
 
-            ConsoleHelper.WriteLineAndReadKey();
+            DbConfiguration.UseTypeBuilders(typeof(TestEntityMap));
         }
 
-
-        public static void BasicQuery()
+        public override IDbContext DbContext
         {
-            IQuery<User> q = context.Query<User>();
-
-            q.Where(a => a.Id == 1).FirstOrDefault();
-            /*
-             * 
-             */
-
-
-            //可以选取指定的字段
-            q.Where(a => a.Id == 1).Select(a => new { a.Id, a.Name }).FirstOrDefault();
-            /*
-             * 
-             */
-
-
-            //分页
-            q.Where(a => a.Id > 0).OrderBy(a => a.Age).Skip(20).Take(10).ToList();
-            /*
-             * 
-             */
-
-
-            /* like 查询 */
-            q.Where(a => a.Name.Contains("so") || a.Name.StartsWith("s") || a.Name.EndsWith("o")).ToList();
-            /*
-             * 
-             */
-
-
-            /* in 一个数组 */
-            List<User> users = null;
-            List<int> userIds = new List<int>() { 1, 2, 3 };
-            users = q.Where(a => userIds.Contains(a.Id)).ToList(); /* list.Contains() 方法组合就会生成 in一个数组 sql 语句 */
-            /*
-             * 
-             */
-
-
-            /* in 子查询 */
-            users = q.Where(a => context.Query<City>().Select(c => c.Id).ToList().Contains((int)a.CityId)).ToList(); /* IQuery<T>.ToList().Contains() 方法组合就会生成 in 子查询 sql 语句 */
-            /*
-             * 
-             */
-
-
-            /* distinct 查询 */
-            q.Select(a => new { a.Name }).Distinct().ToList();
-            /*
-             * 
-             */
-
-            ConsoleHelper.WriteLineAndReadKey();
-        }
-        public static void JoinQuery()
-        {
-            //建立连接
-            var user_city_province = context.Query<User>()
-                                    .InnerJoin<City>((user, city) => user.CityId == city.Id)
-                                    .InnerJoin<Province>((user, city, province) => city.ProvinceId == province.Id);
-
-            //查出用户及其隶属的城市和省份的所有信息
-            var view = user_city_province.Select((user, city, province) => new { User = user, City = city, Province = province }).Where(a => a.User.Id > 1).ToList();
-            /*
-             * 
-             */
-
-            //也可以只获取指定的字段信息：UserId,UserName,CityName,ProvinceName
-            user_city_province.Select((user, city, province) => new { UserId = user.Id, UserName = user.Name, CityName = city.Name, ProvinceName = province.Name }).Where(a => a.UserId > 1).ToList();
-            /*
-             * 
-             */
-
-
-            /* quick join and paging. */
-            context.JoinQuery<User, City>((user, city) => new object[]
+            get
             {
-                JoinType.LeftJoin, user.CityId == city.Id
-            })
-            .Select((user, city) => new { User = user, City = city })
-            .Where(a => a.User.Id > -1)
-            .OrderByDesc(a => a.User.Age)
-            .TakePage(1, 20)
-            .ToList();
+                return this._dbContext;
+            }
+        }
 
-            context.JoinQuery<User, City, Province>((user, city, province) => new object[]
+        public override void InitTable<TEntity>()
+        {
+            Type entityType = typeof(TEntity);
+
+            string createTableScript = this.CreateTableScript(entityType);
+
+            this.DbContext.Session.ExecuteNonQuery(createTableScript);
+        }
+        string CreateTableScript(Type entityType)
+        {
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entityType);
+            string tableName = typeDescriptor.Table.Name;
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"CREATE TABLE IF NOT EXISTS {this.QuoteName(tableName)}(");
+
+            string c = "";
+            foreach (var propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
             {
-                JoinType.LeftJoin, user.CityId == city.Id,          /* 表 User 和 City 进行Left连接 */
-                JoinType.LeftJoin, city.ProvinceId == province.Id   /* 表 City 和 Province 进行Left连接 */
-            })
-            .Select((user, city, province) => new { User = user, City = city, Province = province })   /* 投影成匿名对象 */
-            .Where(a => a.User.Id > -1)     /* 进行条件过滤 */
-            .OrderByDesc(a => a.User.Age)   /* 排序 */
-            .TakePage(1, 20)                /* 分页 */
-            .ToList();
+                sb.AppendLine(c);
+                sb.Append($"  {this.BuildColumnPart(propertyDescriptor)}");
+                c = ",";
+            }
 
-            ConsoleHelper.WriteLineAndReadKey();
-        }
-        public static void AggregateQuery()
-        {
-            IQuery<User> q = context.Query<User>();
-
-            q.Select(a => Sql.Count()).First();
-            /*
-             * 
-             */
-
-            q.Select(a => new { Count = Sql.Count(), LongCount = Sql.LongCount(), Sum = Sql.Sum(a.Age), Max = Sql.Max(a.Age), Min = Sql.Min(a.Age), Average = Sql.Average(a.Age) }).First();
-            /*
-             * 
-             */
-
-            var count = q.Count();
-            /*
-             * 
-             */
-
-            var longCount = q.LongCount();
-            /*
-             * 
-             */
-
-            var sum = q.Sum(a => a.Age);
-            /*
-             * 
-             */
-
-            var max = q.Max(a => a.Age);
-            /*
-             * 
-             */
-
-            var min = q.Min(a => a.Age);
-            /*
-             * 
-             */
-
-            var avg = q.Average(a => a.Age);
-            /*
-             * 
-             */
-
-            ConsoleHelper.WriteLineAndReadKey();
-        }
-        public static void GroupQuery()
-        {
-            IQuery<User> q = context.Query<User>();
-
-            IGroupingQuery<User> g = q.Where(a => a.Id > 0).GroupBy(a => a.Age);
-
-            g = g.Having(a => a.Age > 1 && Sql.Count() > 0);
-
-            g.Select(a => new { a.Age, Count = Sql.Count(), Sum = Sql.Sum(a.Age), Max = Sql.Max(a.Age), Min = Sql.Min(a.Age), Avg = Sql.Average(a.Age) }).ToList();
-            /*
-             * 
-             */
-
-            ConsoleHelper.WriteLineAndReadKey();
-        }
-        /*复杂查询*/
-        public static void ComplexQuery()
-        {
-            /*
-             * 支持 select * from Users where CityId in (1,2,3)    --in一个数组
-             * 支持 select * from Users where CityId in (select Id from City)    --in子查询
-             * 支持 select * from Users exists (select 1 from City where City.Id=Users.CityId)    --exists查询
-             * 支持 select (select top 1 CityName from City where Users.CityId==City.Id) as CityName, Users.Id, Users.Name from Users    --select子查询
-             * 支持 select 
-             *            (select count(*) from Users where Users.CityId=City.Id) as UserCount,     --总数
-             *            (select max(Users.Age) from Users where Users.CityId=City.Id) as MaxAge,  --最大年龄
-             *            (select avg(Users.Age) from Users where Users.CityId=City.Id) as AvgAge   --平均年龄
-             *      from City
-             *      --统计查询
-             */
-
-            IQuery<User> userQuery = context.Query<User>();
-            IQuery<City> cityQuery = context.Query<City>();
-
-            List<User> users = null;
-
-            /* in 一个数组 */
-            List<int> userIds = new List<int>() { 1, 2, 3 };
-            users = userQuery.Where(a => userIds.Contains(a.Id)).ToList();  /* list.Contains() 方法组合就会生成 in一个数组 sql 语句 */
-            /*
-             * 
-             */
-
-
-            /* in 子查询 */
-            users = userQuery.Where(a => cityQuery.Select(c => c.Id).ToList().Contains((int)a.CityId)).ToList();  /* IQuery<T>.ToList().Contains() 方法组合就会生成 in 子查询 sql 语句 */
-            /*
-             * 
-             */
-
-
-            /* IQuery<T>.Any() 方法组合就会生成 exists 子查询 sql 语句 */
-            users = userQuery.Where(a => cityQuery.Where(c => c.Id == a.CityId).Any()).ToList();
-            /*
-             * 
-             */
-
-
-            /* select 子查询 */
-            var result = userQuery.Select(a => new
+            if (typeDescriptor.PrimaryKeys.Count > 0)
             {
-                CityName = cityQuery.Where(c => c.Id == a.CityId).First().Name,
-                User = a
-            }).ToList();
-            /*
-             * 
-             */
+                string key = typeDescriptor.PrimaryKeys.First().Column.Name;
+                sb.AppendLine(c);
+                sb.Append($"  PRIMARY KEY ({this.QuoteName(key)})");
+            }
 
+            sb.AppendLine();
+            sb.Append(");");
 
-            /* 统计 */
-            var statisticsResult = cityQuery.Select(a => new
+            return sb.ToString();
+        }
+        string QuoteName(string name)
+        {
+            return string.Concat("\"", name.ToLower(), "\"");
+        }
+
+        string BuildColumnPart(PrimitivePropertyDescriptor propertyDescriptor)
+        {
+            string part = $"{this.QuoteName(propertyDescriptor.Column.Name)} {this.GetMappedDbTypeName(propertyDescriptor)}";
+
+            if (!propertyDescriptor.IsNullable)
             {
-                UserCount = userQuery.Where(u => u.CityId == a.Id).Count(),
-                MaxAge = userQuery.Where(u => u.CityId == a.Id).Max(c => c.Age),
-                AvgAge = userQuery.Where(u => u.CityId == a.Id).Average(c => c.Age),
-            }).ToList();
-            /*
-             * 
-             */
+                part += " NOT NULL";
+            }
+            else
+            {
+                part += " NULL";
+            }
 
-            ConsoleHelper.WriteLineAndReadKey();
-        }
-        /* 贪婪加载导航属性 */
-        public static void QueryWithNavigation()
-        {
-            /* context filter */
-            context.HasQueryFilter<User>(a => a.Id > -100);
-            context.HasQueryFilter<City>(a => a.Id > -200);
-            context.HasQueryFilter<Province>(a => a.Id > -300);
-
-            object result = null;
-            result = context.Query<User>().Include(a => a.City).ThenInclude(a => a.Province).ToList();
-            result = context.Query<User>().IgnoreAllFilters().Include(a => a.City).ThenInclude(a => a.Province).ToList();
-            result = context.Query<City>().Include(a => a.Province).IncludeMany(a => a.Users).AndWhere(a => a.Age >= 18).ToList();
-            result = context.Query<Province>().IncludeMany(a => a.Cities).ThenIncludeMany(a => a.Users).ToList();
-
-            result = context.Query<Province>().IncludeMany(a => a.Cities).ThenIncludeMany(a => a.Users).Where(a => a.Id > 0).TakePage(1, 20).ToList();
-
-            result = context.Query<City>().IncludeMany(a => a.Users).AndWhere(a => a.Age > 18).ToList();
-
-            ConsoleHelper.WriteLineAndReadKey();
+            return part;
         }
 
-        public static void Insert()
+        string GetMappedDbTypeName(PrimitivePropertyDescriptor propertyDescriptor)
         {
-            //返回主键 Id
-            int id = (int)context.Insert<User>(() => new User() { Name = "lu", Age = 18, Gender = Gender.Man, CityId = 1, OpTime = DateTime.Now });
-            /*
-             * 
-             */
+            Type type = propertyDescriptor.PropertyType.GetUnderlyingType();
+            if (type.IsEnum)
+            {
+                type = type.GetEnumUnderlyingType();
+            }
 
-            User user = new User();
-            user.Name = "lu";
-            user.Age = 18;
-            user.Gender = Gender.Man;
-            user.CityId = 1;
-            user.OpTime = DateTime.Now;
+            if (type == typeof(string))
+            {
+                int stringLength = propertyDescriptor.Column.Size ?? 4000;
+                return $"varchar({stringLength})";
+            }
 
-            //会自动将自增 Id 设置到 user 的 Id 属性上
-            user = context.Insert(user);
-            /*
-             * 
-             */
+            if (type == typeof(int))
+            {
+                if (propertyDescriptor.IsAutoIncrement)
+                    return "serial4";
 
-            ConsoleHelper.WriteLineAndReadKey();
-        }
-        public static void InsertRange()
-        {
-            List<User> models = new List<User>();
-            models.Add(new User() { Name = "lu", Age = 18, Gender = Gender.Woman, CityId = 1, OpTime = DateTime.Now });
-            models.Add(new User() { Name = "shuxin", Age = 18, Gender = Gender.Man, CityId = 1, OpTime = DateTime.Now });
+                return "int4";
+            }
 
-            context.InsertRange(models);
+            if (type == typeof(byte))
+            {
+                return "int2";
+            }
 
-            ConsoleHelper.WriteLineAndReadKey(1);
-        }
-        public static void Update()
-        {
-            context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
-            /*
-             * 
-             */
+            if (type == typeof(Int16))
+            {
+                return "int2";
+            }
 
-            //批量更新
-            //给所有女性年轻 1 岁
-            context.Update<User>(a => a.Gender == Gender.Woman, a => new User() { Age = a.Age - 1, OpTime = DateTime.Now });
-            /*
-             * 
-             */
+            if (type == typeof(long))
+            {
+                if (propertyDescriptor.IsAutoIncrement)
+                    return "serial8";
 
-            User user = new User();
-            user.Id = 1;
-            user.Name = "lu";
-            user.Age = 28;
-            user.Gender = Gender.Man;
-            user.OpTime = DateTime.Now;
+                return "int8";
+            }
 
-            context.Update(user); //会更新所有映射的字段
-            /*
-             * 
-             */
+            if (type == typeof(float))
+            {
+                return "float4";
+            }
 
+            if (type == typeof(double))
+            {
+                return "float8";
+            }
 
-            /*
-             * 支持只更新属性值已变的属性
-             */
+            if (type == typeof(decimal))
+            {
+                return "decimal(18,4)";
+            }
 
-            context.TrackEntity(user);//在上下文中跟踪实体
-            user.Name = user.Name + "1";
-            context.Update(user);//这时只会更新被修改的字段
-            /*
-             * 
-             */
+            if (type == typeof(bool))
+            {
+                return "boolean";
+            }
 
-            ConsoleHelper.WriteLineAndReadKey();
-        }
-        public static void Delete()
-        {
-            context.Delete<User>(a => a.Id == 1);
-            /*
-             * 
-             */
+            if (type == typeof(DateTime))
+            {
+                return "timestamp";
+            }
 
-            //批量删除
-            //删除所有不男不女的用户
-            context.Delete<User>(a => a.Gender == null);
-            /*
-             * 
-             */
+            if (type == typeof(Guid))
+            {
+                return "uuid";
+            }
 
-            User user = new User();
-            user.Id = 1;
-            context.Delete(user);
-            /*
-             * 
-             */
-
-            ConsoleHelper.WriteLineAndReadKey(1);
+            throw new NotSupportedException(type.FullName);
         }
 
-        public static void Method()
+        public override void Method()
         {
-            IQuery<User> q = context.Query<User>();
+            IQuery<Person> q = this.DbContext.Query<Person>();
 
             var space = new char[] { ' ' };
 
@@ -397,7 +172,7 @@ namespace ChloeDemo
             {
                 Id = a.Id,
 
-                CustomFunction = DbFunctions.MyFunction(a.Id), //自定义函数
+                //CustomFunction = DbFunctions.MyFunction(a.Id), //自定义函数
 
                 String_Length = (int?)a.Name.Length,//
                 Substring = a.Name.Substring(0),//
@@ -465,44 +240,6 @@ namespace ChloeDemo
             ConsoleHelper.WriteLineAndReadKey();
         }
 
-        public static void ExecuteCommandText()
-        {
-            List<User> users = context.SqlQuery<User>("select * from Users where Age > @age", DbParam.Create("@age", 12)).ToList();
-
-            int rowsAffected = context.Session.ExecuteNonQuery("update Users set name=@name where Id = 1", DbParam.Create("@name", "Chloe"));
-
-            /* 
-             * 执行存储过程:
-             * User user = context.SqlQuery<User>("Proc_GetUser", CommandType.StoredProcedure, DbParam.Create("@id", 1)).FirstOrDefault();
-             * rowsAffected = context.Session.ExecuteNonQuery("Proc_UpdateUserName", CommandType.StoredProcedure, DbParam.Create("@name", "Chloe"));
-             */
-
-            ConsoleHelper.WriteLineAndReadKey();
-        }
-
-        public static void DoWithTransactionEx()
-        {
-            context.UseTransaction(() =>
-            {
-                context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
-                context.Delete<User>(a => a.Id == 1024);
-            });
-
-            ConsoleHelper.WriteLineAndReadKey();
-        }
-        public static void DoWithTransaction()
-        {
-            using (ITransientTransaction tran = context.BeginTransaction())
-            {
-                /* do some things here */
-                context.Update<User>(a => a.Id == 1, a => new User() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, OpTime = DateTime.Now });
-                context.Delete<User>(a => a.Id == 1024);
-
-                tran.Commit();
-            }
-
-            ConsoleHelper.WriteLineAndReadKey();
-        }
-
     }
+
 }

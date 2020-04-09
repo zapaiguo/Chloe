@@ -20,7 +20,6 @@ namespace ChloeDemo
             ConfigureMappingType();
 
             /* fluent mapping */
-            DbConfiguration.UseTypeBuilders(typeof(UserMap));
             DbConfiguration.UseTypeBuilders(typeof(PersonMap));
             DbConfiguration.UseTypeBuilders(typeof(CityMap));
             DbConfiguration.UseTypeBuilders(typeof(ProvinceMap));
@@ -29,20 +28,20 @@ namespace ChloeDemo
             RunDemo<SQLiteDemo>();
             RunDemo<MsSqlDemo>();
             RunDemo<MySqlDemo>();
+            RunDemo<PostgreSQLDemo>();
             RunDemo<OracleDemo>();
-            //PostgreSQLDemo.Run();
         }
 
         static void RunDemo<TDemo>() where TDemo : DemoBase, new()
         {
-            Console.WriteLine($"Start {typeof(TDemo)}...");
+            Console.WriteLine($"Start {typeof(TDemo).Name}...");
 
             using (TDemo demo = new TDemo())
             {
                 demo.Run();
             }
 
-            ConsoleHelper.WriteLineAndReadKey($"End {typeof(TDemo)}...");
+            ConsoleHelper.WriteLineAndReadKey($"End {typeof(TDemo).Name}...");
         }
 
         /// <summary>

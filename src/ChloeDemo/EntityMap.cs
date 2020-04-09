@@ -6,28 +6,6 @@ using System.Text;
 
 namespace ChloeDemo
 {
-    public class UserMapBase<TUser> : EntityTypeBuilder<TUser> where TUser : UserLite
-    {
-        public UserMapBase()
-        {
-            this.Ignore(a => a.NotMapped);
-            this.Property(a => a.Id).IsAutoIncrement().IsPrimaryKey();
-        }
-    }
-    public class UserMap : UserMapBase<User>
-    {
-        public UserMap()
-        {
-            this.MapTo("Users");
-            this.HasOne(a => a.City).WithForeignKey(a => a.CityId);
-            this.Ignore(a => a.NotMapped);
-            this.Property(a => a.Gender).HasDbType(DbType.Int32);
-
-            /* global filter */
-            this.HasQueryFilter(a => a.Id > -1);
-        }
-    }
-
     public class EntityMapBase<TEntity> : EntityTypeBuilder<TEntity> where TEntity : EntityBase
     {
         public EntityMapBase()
@@ -35,6 +13,7 @@ namespace ChloeDemo
             this.Property(a => a.Id).IsAutoIncrement().IsPrimaryKey();
         }
     }
+
     public class PersonMap : EntityMapBase<Person>
     {
         public PersonMap()

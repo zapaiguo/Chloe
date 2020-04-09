@@ -76,14 +76,14 @@ namespace ChloeDemo
 
             if (typeDescriptor.AutoIncrement != null)
             {
-                string seqName = $"{tableName.ToUpper()}_AUTOID";
+                string seqName = $"{tableName.ToUpper()}_{typeDescriptor.AutoIncrement.Column.Name.ToUpper()}_SEQ".ToUpper();
                 bool seqExists = this.DbContext.SqlQuery<int>($"select count(*) from dba_sequences where SEQUENCE_NAME='{seqName}'").First() > 0;
                 if (!seqExists)
                 {
                     string seqScript = $"CREATE SEQUENCE {this.QuoteName(seqName)} INCREMENT BY 1 MINVALUE 1 MAXVALUE 9999999999999999999999999999 START WITH 1 CACHE 20";
                     this.DbContext.Session.ExecuteNonQuery(seqScript);
 
-                    string triggerName = $"{seqName.ToUpper()}_{typeDescriptor.AutoIncrement.Column.Name.ToUpper()}";
+                    string triggerName = $"{seqName.ToUpper()}_TRIGGER";
                     string createTrigger = $@"create or replace trigger {triggerName} before insert on {tableName.ToUpper()} for each row 
 begin 
 select {seqName.ToUpper()}.nextval into :new.{typeDescriptor.AutoIncrement.Column.Name} from dual;
@@ -298,5 +298,4 @@ end;";
             ConsoleHelper.WriteLineAndReadKey();
         }
     }
-
 }

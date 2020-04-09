@@ -95,7 +95,7 @@ namespace ChloeDemo
                     F_DateTime = DateTime.Now.AddMinutes(i),
                     F_Guid = Guid.NewGuid(),
                     F_String = "Chloe.ORM-" + i,
-                    F_Enum = Gender.Man
+                    F_Enum = Gender.Male
                 };
 
                 testEntities.Add(testEntity);
@@ -125,9 +125,9 @@ namespace ChloeDemo
             City city = new City();
             city.Name = cityName;
 
-            city.Persons.Add(new Person() { Name = $"{city.Name}-张三", Age = 30, Gender = Gender.Man });
-            city.Persons.Add(new Person() { Name = $"{city.Name}-李四", Age = 31, Gender = Gender.Man });
-            city.Persons.Add(new Person() { Name = $"{city.Name}-Chloe", Age = 18, Gender = Gender.Woman });
+            city.Persons.Add(new Person() { Name = $"{city.Name}-张三", Age = 30, Gender = Gender.Male });
+            city.Persons.Add(new Person() { Name = $"{city.Name}-李四", Age = 31, Gender = Gender.Male });
+            city.Persons.Add(new Person() { Name = $"{city.Name}-Chloe", Age = 18, Gender = Gender.Female });
             city.Persons.Add(new Person() { Name = $"{city.Name}-东方不败" });
 
             return city;
@@ -146,7 +146,7 @@ namespace ChloeDemo
             this._result = q.Sum(a => a.Id);
             this._result = q.Average(a => a.Age);
 
-            person = new Person() { Name = "chloe", Age = 18, Gender = Gender.Woman, CityId = 1 };
+            person = new Person() { Name = "chloe", Age = 18, Gender = Gender.Female, CityId = 1 };
 
             //插入
             person = this.DbContext.Insert(person);
@@ -166,7 +166,7 @@ namespace ChloeDemo
             this._result = this.DbContext.Delete<Person>(person);
 
             //lambda 表达式插入，返回主键
-            var insertedId = this.DbContext.Insert(() => new Person() { Name = "chloe", Age = 18, Gender = Gender.Woman, CityId = 1, CreateTime = DateTime.Now });
+            var insertedId = this.DbContext.Insert(() => new Person() { Name = "chloe", Age = 18, Gender = Gender.Female, CityId = 1, CreateTime = DateTime.Now });
 
             //根据主键删除
             this._result = this.DbContext.DeleteByKey<Person>(insertedId);
@@ -186,7 +186,7 @@ namespace ChloeDemo
             this._result = await q.SumAsync(a => a.Id);
             this._result = await q.AverageAsync(a => a.Age);
 
-            person = new Person() { Name = "chloe", Age = 18, Gender = Gender.Woman, CityId = 1 };
+            person = new Person() { Name = "chloe", Age = 18, Gender = Gender.Female, CityId = 1 };
 
             //插入
             person = await this.DbContext.InsertAsync(person);
@@ -206,7 +206,7 @@ namespace ChloeDemo
             this._result = await this.DbContext.DeleteAsync<Person>(person);
 
             //lambda 表达式插入，返回主键
-            var insertedId = await this.DbContext.InsertAsync(() => new Person() { Name = "chloe", Age = 18, Gender = Gender.Woman, CityId = 1, CreateTime = DateTime.Now });
+            var insertedId = await this.DbContext.InsertAsync(() => new Person() { Name = "chloe", Age = 18, Gender = Gender.Female, CityId = 1, CreateTime = DateTime.Now });
 
             //根据主键删除
             this._result = await this.DbContext.DeleteByKeyAsync<Person>(insertedId);
@@ -490,7 +490,7 @@ namespace ChloeDemo
         public virtual void Insert()
         {
             //返回主键 Id
-            int id = (int)this.DbContext.Insert<Person>(() => new Person() { Name = "lu", Age = 18, Gender = Gender.Man, CityId = 1, CreateTime = DateTime.Now });
+            int id = (int)this.DbContext.Insert<Person>(() => new Person() { Name = "lu", Age = 18, Gender = Gender.Male, CityId = 1, CreateTime = DateTime.Now });
             /*
              * INSERT INTO [Person]([Name],[Age],[Gender],[CityId],[CreateTime]) VALUES('lu',18,1,1,DATETIME('NOW','LOCALTIME'));SELECT LAST_INSERT_ROWID()
              */
@@ -498,7 +498,7 @@ namespace ChloeDemo
             Person person = new Person();
             person.Name = "lu";
             person.Age = 18;
-            person.Gender = Gender.Man;
+            person.Gender = Gender.Male;
             person.CityId = 1;
 
             //会自动将自增 Id 设置到 person 的 Id 属性上
@@ -516,14 +516,14 @@ namespace ChloeDemo
         }
         public virtual void Update()
         {
-            this.DbContext.Update<Person>(a => a.Id == 1, a => new Person() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, EditTime = DateTime.Now });
+            this.DbContext.Update<Person>(a => a.Id == 1, a => new Person() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Male, EditTime = DateTime.Now });
             /*
              * UPDATE [Person] SET [Name]=[Person].[Name],[Age]=([Person].[Age] + 1),[Gender]=1,[EditTime]=DATETIME('NOW','LOCALTIME') WHERE [Person].[Id] = 1
              */
 
             //批量更新
             //给所有女性年轻 1 岁
-            this.DbContext.Update<Person>(a => a.Gender == Gender.Woman, a => new Person() { Age = a.Age - 1, EditTime = DateTime.Now });
+            this.DbContext.Update<Person>(a => a.Gender == Gender.Female, a => new Person() { Age = a.Age - 1, EditTime = DateTime.Now });
             /*
              * UPDATE [Person] SET [Age]=([Person].[Age] - 1),[EditTime]=DATETIME('NOW','LOCALTIME') WHERE [Person].[Gender] = 2
              */
@@ -532,7 +532,7 @@ namespace ChloeDemo
             person.Id = 1;
             person.Name = "lu";
             person.Age = 28;
-            person.Gender = Gender.Man;
+            person.Gender = Gender.Male;
             person.EditTime = DateTime.Now;
 
             this.DbContext.Update(person); //会更新所有映射的字段
@@ -683,7 +683,7 @@ namespace ChloeDemo
         {
             this.DbContext.UseTransaction(() =>
             {
-                this.DbContext.Update<Person>(a => a.Id == 1, a => new Person() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, EditTime = DateTime.Now });
+                this.DbContext.Update<Person>(a => a.Id == 1, a => new Person() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Male, EditTime = DateTime.Now });
                 this.DbContext.Delete<Person>(a => a.Id == 1024);
             });
 
@@ -694,7 +694,7 @@ namespace ChloeDemo
             using (ITransientTransaction tran = this.DbContext.BeginTransaction())
             {
                 /* do some things here */
-                this.DbContext.Update<Person>(a => a.Id == 1, a => new Person() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Man, EditTime = DateTime.Now });
+                this.DbContext.Update<Person>(a => a.Id == 1, a => new Person() { Name = a.Name, Age = a.Age + 1, Gender = Gender.Male, EditTime = DateTime.Now });
                 this.DbContext.Delete<Person>(a => a.Id == 1024);
 
                 tran.Commit();
