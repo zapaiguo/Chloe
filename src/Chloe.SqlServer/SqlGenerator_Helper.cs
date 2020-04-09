@@ -213,16 +213,36 @@ namespace Chloe.SqlServer
         }
         public static void Aggregate_Average(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            AppendAggregateFunction(generator, exp, retType, "AVG", true);
+            string targetDbType = null;
+
+            Type underlyingType = ReflectionExtension.GetUnderlyingType(retType);
+            if (underlyingType != exp.Type.GetUnderlyingType())
+            {
+                CastTypeMap.TryGetValue(underlyingType, out targetDbType);
+            }
+
+            generator._sqlBuilder.Append("AVG", "(");
+            if (string.IsNullOrEmpty(targetDbType))
+            {
+                exp.Accept(generator);
+            }
+            else
+            {
+                generator._sqlBuilder.Append("CAST(");
+                exp.Accept(generator);
+                generator._sqlBuilder.Append(" AS ", targetDbType, ")");
+            }
+
+            generator._sqlBuilder.Append(")");
         }
 
         static void AppendAggregateFunction(SqlGenerator generator, DbExpression exp, Type retType, string functionName, bool withCast)
         {
-            string dbTypeString = null;
+            string targetDbType = null;
             if (withCast == true)
             {
                 Type underlyingType = ReflectionExtension.GetUnderlyingType(retType);
-                if (underlyingType != PublicConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise maybe cause problems. */ && CastTypeMap.TryGetValue(underlyingType, out dbTypeString))
+                if (CastTypeMap.TryGetValue(underlyingType, out targetDbType))
                 {
                     generator._sqlBuilder.Append("CAST(");
                 }
@@ -232,9 +252,9 @@ namespace Chloe.SqlServer
             exp.Accept(generator);
             generator._sqlBuilder.Append(")");
 
-            if (dbTypeString != null)
+            if (targetDbType != null)
             {
-                generator._sqlBuilder.Append(" AS ", dbTypeString, ")");
+                generator._sqlBuilder.Append(" AS ", targetDbType, ")");
             }
         }
         #endregion
