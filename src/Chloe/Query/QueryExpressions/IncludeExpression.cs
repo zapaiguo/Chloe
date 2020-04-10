@@ -40,7 +40,7 @@ namespace Chloe.Query.QueryExpressions
             current.ContextFilters.AddRange(this.ContextFilters);
             if (this.Next != null)
             {
-                current.Next = current.Clone();
+                current.Next = this.Next.Clone();
             }
 
             return current;
@@ -52,6 +52,14 @@ namespace Chloe.Query.QueryExpressions
                 return this;
 
             return this.Next.GetLast();
+        }
+
+        public override string ToString()
+        {
+            if (this.Next == null)
+                return this.Property.Name;
+
+            return $"{this.Property.Name}.{this.Next.ToString()}";
         }
     }
 }
