@@ -32,6 +32,8 @@ namespace ChloeDemo
     [TableAttribute("Person")]
     public class Person : EntityBase
     {
+        [Navigation("Id")]
+        public PersonEx Ex { get; set; } /* 1:1 */
         [Chloe.Annotations.NavigationAttribute("CityId")]
         public City City { get; set; }
 
@@ -49,6 +51,18 @@ namespace ChloeDemo
 
         //[Column(IsRowVersion = true)]
         //public int RowVersion { get; set; }
+    }
+
+    public class PersonEx
+    {
+        [Navigation("Id")]
+        public Person Owner { get; set; }  /* 1:1 */
+
+        [Column(IsPrimaryKey = true)]
+        [NonAutoIncrement]
+        public int Id { get; set; }
+        public string IdNumber { get; set; }
+        public DateTime? BirthDay { get; set; }
     }
 
     public class City : EntityBase

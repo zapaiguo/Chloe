@@ -53,6 +53,7 @@ namespace ChloeDemo
         {
             this.InitTable<TestEntity>();
             this.InitTable<Person>();
+            this.InitTable<PersonEx>();
             this.InitTable<City>();
             this.InitTable<Province>();
         }
@@ -62,10 +63,8 @@ namespace ChloeDemo
         }
         public virtual void InitData()
         {
-            int provinceCount = this.DbContext.Query<Province>().Count();
-
             List<Province> provinces = new List<Province>();
-            if (provinceCount == 0)
+            if (!this.DbContext.Query<Province>().Any())
             {
                 provinces.Add(this.CreateProvince("广东", "广州", "深圳", "东莞"));
                 provinces.Add(this.CreateProvince("广西", "南宁", "柳州", "桂林", "河池"));
@@ -125,10 +124,10 @@ namespace ChloeDemo
             City city = new City();
             city.Name = cityName;
 
-            city.Persons.Add(new Person() { Name = $"{city.Name}-张三", Age = 30, Gender = Gender.Male });
-            city.Persons.Add(new Person() { Name = $"{city.Name}-李四", Age = 31, Gender = Gender.Male });
-            city.Persons.Add(new Person() { Name = $"{city.Name}-Chloe", Age = 18, Gender = Gender.Female });
-            city.Persons.Add(new Person() { Name = $"{city.Name}-东方不败" });
+            city.Persons.Add(new Person() { Name = $"{city.Name}-张三", Age = 30, Gender = Gender.Male, Ex = new PersonEx() { IdNumber = "452723197110211024", BirthDay = new DateTime(1971, 10, 21) } });
+            city.Persons.Add(new Person() { Name = $"{city.Name}-李四", Age = 31, Gender = Gender.Male, Ex = new PersonEx() { IdNumber = "452723197110221024", BirthDay = new DateTime(1971, 10, 22) } });
+            city.Persons.Add(new Person() { Name = $"{city.Name}-Chloe", Age = 18, Gender = Gender.Female, Ex = new PersonEx() { IdNumber = "452723197110231024", BirthDay = new DateTime(1971, 10, 23) } });
+            city.Persons.Add(new Person() { Name = $"{city.Name}-东方不败", Ex = new PersonEx() { IdNumber = "452723197110241024", BirthDay = new DateTime(1971, 10, 24) } });
 
             return city;
         }

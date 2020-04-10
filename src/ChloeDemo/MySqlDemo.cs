@@ -17,7 +17,7 @@ namespace ChloeDemo
         MySqlContext _dbContext;
         public MySqlDemo()
         {
-            this._dbContext = new MySqlContext(new MySqlConnectionFactory("Database='Chloe';Data Source=localhost;User ID=root;Password=sasa;CharSet=utf8;SslMode=None"));
+            this._dbContext = new MySqlContext(new MySqlConnectionFactory("Server=localhost;Port=3306;Database=Chloe;Uid=root;Password=sasa;Charset=utf8; Pooling=True; Max Pool Size=200;Allow User Variables=True;SslMode=none;"));
 
             DbConfiguration.UseTypeBuilders(typeof(TestEntityMap));
         }

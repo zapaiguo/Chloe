@@ -21,8 +21,23 @@ namespace ChloeDemo
             this.MapTo("Person");
             this.Property(a => a.Gender).HasDbType(DbType.Int32);
 
+            this.HasOne(a => a.Ex).WithForeignKey(a => a.Id);
             this.HasOne(a => a.City).WithForeignKey(a => a.CityId);
             this.Ignore(a => a.NotMapped);
+
+            /* global filter */
+            this.HasQueryFilter(a => a.Id > -1);
+        }
+    }
+
+    public class PersonExMap : EntityTypeBuilder<PersonEx>
+    {
+        public PersonExMap()
+        {
+            this.MapTo("PersonEx");
+            this.Property(a => a.Id).IsPrimaryKey().IsAutoIncrement(false);
+
+            this.HasOne(a => a.Owner).WithForeignKey(a => a.Id);
 
             /* global filter */
             this.HasQueryFilter(a => a.Id > -1);
