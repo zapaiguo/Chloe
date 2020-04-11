@@ -33,44 +33,44 @@ namespace ChloeDemo
         public override void InitTable<TEntity>()
         {
             Type entityType = typeof(TEntity);
-            this.CreateTableScript(entityType);
+            var sqlList = this.CreateTableScript(entityType);
+
+            foreach (var sql in sqlList)
+            {
+                this.DbContext.Session.ExecuteNonQuery(sql);
+            }
         }
-        void CreateTableScript(Type entityType)
+        List<string> CreateTableScript(Type entityType)
         {
             List<string> sqlList = new List<string>();
             TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(entityType);
             string tableName = typeDescriptor.Table.Name;
 
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"CREATE TABLE {this.QuoteName(tableName)}(");
-
-            string c = "";
-            foreach (var propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
-            {
-                sb.AppendLine(c);
-                sb.Append($"  {this.BuildColumnPart(propertyDescriptor)}");
-                c = ",";
-            }
-
-            sb.AppendLine();
-            sb.Append(")");
-
-            sqlList.Add(sb.ToString());
-
-            if (typeDescriptor.PrimaryKeys.Count > 0)
-            {
-                string key = typeDescriptor.PrimaryKeys.First().Column.Name;
-                sqlList.Add($"ALTER TABLE {this.QuoteName(tableName)} ADD CHECK ({this.QuoteName(key)} IS NOT NULL)");
-
-                sqlList.Add($"ALTER TABLE {this.QuoteName(tableName)} ADD PRIMARY KEY ({this.QuoteName(key)})");
-            }
-
             bool tableExists = this.DbContext.SqlQuery<int>($"select count(1) from user_tables where TABLE_NAME = '{tableName.ToUpper()}'").First() > 0;
             if (!tableExists)
             {
-                foreach (var sql in sqlList)
+                StringBuilder sb = new StringBuilder();
+                sb.Append($"CREATE TABLE {this.QuoteName(tableName)}(");
+
+                string c = "";
+                foreach (var propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
                 {
-                    this.DbContext.Session.ExecuteNonQuery(sql);
+                    sb.AppendLine(c);
+                    sb.Append($"  {this.BuildColumnPart(propertyDescriptor)}");
+                    c = ",";
+                }
+
+                sb.AppendLine();
+                sb.Append(")");
+
+                sqlList.Add(sb.ToString());
+
+                if (typeDescriptor.PrimaryKeys.Count > 0)
+                {
+                    string key = typeDescriptor.PrimaryKeys.First().Column.Name;
+                    sqlList.Add($"ALTER TABLE {this.QuoteName(tableName)} ADD CHECK ({this.QuoteName(key)} IS NOT NULL)");
+
+                    sqlList.Add($"ALTER TABLE {this.QuoteName(tableName)} ADD PRIMARY KEY ({this.QuoteName(key)})");
                 }
             }
 
@@ -81,15 +81,17 @@ namespace ChloeDemo
                 if (!seqExists)
                 {
                     string seqScript = $"CREATE SEQUENCE {this.QuoteName(seqName)} INCREMENT BY 1 MINVALUE 1 MAXVALUE 9999999999999999999999999999 START WITH 1 CACHE 20";
-                    this.DbContext.Session.ExecuteNonQuery(seqScript);
 
-                    string triggerName = $"{seqName.ToUpper()}_TRIGGER";
-                    string createTrigger = $@"create or replace trigger {triggerName} before insert on {tableName.ToUpper()} for each row 
+                    sqlList.Add(seqScript);
+                }
+
+                string triggerName = $"{seqName.ToUpper()}_TRIGGER";
+                string createTrigger = $@"create or replace trigger {triggerName} before insert on {tableName.ToUpper()} for each row 
 begin 
 select {seqName.ToUpper()}.nextval into :new.{typeDescriptor.AutoIncrement.Column.Name} from dual;
 end;";
-                    this.DbContext.Session.ExecuteNonQuery(createTrigger);
-                }
+
+                sqlList.Add(createTrigger);
             }
 
             var seqProperties = typeDescriptor.PrimitivePropertyDescriptors.Where(a => a.HasSequence());
@@ -106,9 +108,11 @@ end;";
                 if (!seqExists)
                 {
                     string seqScript = $"CREATE SEQUENCE {this.QuoteName(seqName)} INCREMENT BY 1 MINVALUE 1 MAXVALUE 9999999999999999999999999999 START WITH 1 CACHE 20";
-                    this.DbContext.Session.ExecuteNonQuery(seqScript);
+                    sqlList.Add(seqScript);
                 }
             }
+
+            return sqlList;
         }
         string QuoteName(string name)
         {
