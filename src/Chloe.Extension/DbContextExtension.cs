@@ -164,23 +164,6 @@ namespace Chloe
             return dbContext.Update(condition, lambda);
         }
 
-        public static void BeginTransaction(this IDbContext dbContext)
-        {
-            dbContext.Session.BeginTransaction();
-        }
-        public static void BeginTransaction(this IDbContext dbContext, IsolationLevel il)
-        {
-            dbContext.Session.BeginTransaction(il);
-        }
-        public static void CommitTransaction(this IDbContext dbContext)
-        {
-            dbContext.Session.CommitTransaction();
-        }
-        public static void RollbackTransaction(this IDbContext dbContext)
-        {
-            dbContext.Session.RollbackTransaction();
-        }
-
         public static DbActionBag CreateActionBag(this IDbContext dbContext)
         {
             DbActionBag bag = new DbActionBag(dbContext);
