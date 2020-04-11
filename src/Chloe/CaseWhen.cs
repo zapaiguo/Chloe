@@ -1,7 +1,7 @@
 ﻿namespace Chloe
 {
     /// <summary>
-    /// Usage: Case.When(a.Gender == Gender.Man).Then("Man").When(a.Gender == Gender.Woman).Then("Woman").Else(null)
+    /// Usage: Case.When(a.Gender == Gender.Male).Then("Male").When(a.Gender == Gender.Female).Then("Female").Else(null)
     /// </summary>
     public class Case
     {
