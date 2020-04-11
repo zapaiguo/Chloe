@@ -86,6 +86,7 @@ namespace Chloe.Query
         {
             int navCount = typeDescriptor.NavigationPropertyDescriptors.Count;
 
+            bool needRebuildQuery = false;
             for (int i = 0; i < typeDescriptor.NavigationPropertyDescriptors.Count; i++)
             {
                 //entity.TOther
@@ -101,12 +102,14 @@ namespace Chloe.Query
                     return this.CallThenIncludeMethod(queryBuilder(query), propertyDescriptor);
                 };
 
-                lastQuery = this.ThenInclude(navTypeDescriptor, this.CallThenIncludeMethod(lastQuery, propertyDescriptor), typeDescriptor, includableQueryBuilder);
-
-                if (i < navCount - 1)
-                {
+                if (needRebuildQuery)
                     lastQuery = queryBuilder(lastQuery);
-                }
+
+                // lastQuery = lastQuery.ThenInclude(a => a.propertyDescriptor );
+                lastQuery = this.CallThenIncludeMethod(lastQuery, propertyDescriptor);
+                lastQuery = this.ThenInclude(navTypeDescriptor, lastQuery, typeDescriptor, includableQueryBuilder);
+
+                needRebuildQuery = true;
             }
 
             return lastQuery;
