@@ -40,7 +40,7 @@ namespace Chloe.Query.QueryExpressions
             current.ContextFilters.AddRange(this.ContextFilters);
             if (this.Next != null)
             {
-                current.Next = current.Clone();
+                current.Next = this.Clone();
             }
 
             return current;

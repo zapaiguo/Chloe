@@ -213,7 +213,27 @@ namespace Chloe.SqlServer
         }
         public static void Aggregate_Average(SqlGenerator generator, DbExpression exp, Type retType)
         {
-            AppendAggregateFunction(generator, exp, retType, "AVG", true);
+            string targetDbType = null;
+
+            Type underlyingType = ReflectionExtension.GetUnderlyingType(retType);
+            if (underlyingType != exp.Type.GetUnderlyingType())
+            {
+                CastTypeMap.TryGetValue(underlyingType, out targetDbType);
+            }
+
+            generator._sqlBuilder.Append("AVG", "(");
+            if (string.IsNullOrEmpty(targetDbType))
+            {
+                exp.Accept(generator);
+            }
+            else
+            {
+                generator._sqlBuilder.Append("CAST(");
+                exp.Accept(generator);
+                generator._sqlBuilder.Append(" AS ", targetDbType, ")");
+            }
+
+            generator._sqlBuilder.Append(")");
         }
 
         static void AppendAggregateFunction(SqlGenerator generator, DbExpression exp, Type retType, string functionName, bool withCast)
