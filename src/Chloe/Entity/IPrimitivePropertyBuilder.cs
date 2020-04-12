@@ -15,7 +15,7 @@ namespace Chloe.Entity
         IPrimitivePropertyBuilder HasSize(int? size);
         IPrimitivePropertyBuilder HasScale(byte? scale);
         IPrimitivePropertyBuilder HasPrecision(byte? precision);
-        IPrimitivePropertyBuilder HasSequence(string name, string schema);
+        IPrimitivePropertyBuilder HasSequence(string name, string schema = null);
     }
     public interface IPrimitivePropertyBuilder<TProperty> : IPrimitivePropertyBuilder
     {
@@ -29,6 +29,6 @@ namespace Chloe.Entity
         new IPrimitivePropertyBuilder<TProperty> HasSize(int? size);
         new IPrimitivePropertyBuilder<TProperty> HasScale(byte? scale);
         new IPrimitivePropertyBuilder<TProperty> HasPrecision(byte? precision);
-        new IPrimitivePropertyBuilder<TProperty> HasSequence(string name, string schema);
+        new IPrimitivePropertyBuilder<TProperty> HasSequence(string name, string schema = null);
     }
 }

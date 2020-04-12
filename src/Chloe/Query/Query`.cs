@@ -105,7 +105,7 @@ namespace Chloe.Query
                 if (needRebuildQuery)
                     lastQuery = queryBuilder(lastQuery);
 
-                // lastQuery = lastQuery.ThenInclude(a => a.propertyDescriptor );
+                //lastQuery = lastQuery.ThenInclude(a => a.propertyDescriptor);
                 lastQuery = this.CallThenIncludeMethod(lastQuery, propertyDescriptor);
                 lastQuery = this.ThenInclude(navTypeDescriptor, lastQuery, typeDescriptor, includableQueryBuilder);
 
