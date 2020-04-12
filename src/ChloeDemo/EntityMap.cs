@@ -80,6 +80,9 @@ namespace ChloeDemo
         {
             //oralce 暂时不支持 guid
             this.Ignore(a => a.F_Guid);
+
+            //可以指定序列名
+            //this.Property(a => a.Id).HasSequence("TestEntity_AutoId", null);
         }
     }
 }
