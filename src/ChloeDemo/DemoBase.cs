@@ -183,7 +183,7 @@ namespace ChloeDemo
         {
             Province province = this.CreateProvince("上海", "黄浦区", "徐汇区");
             //保存数据到数据库，会将导航属性一起保存
-            this.DbContext.Save(province);
+            await this.DbContext.SaveAsync(province);
 
             //查询数据并包含关联的导航属性一并查出
             province = await this.DbContext.Query<Province>().IncludeAll().Where(a => a.Id == province.Id).FirstAsync();
