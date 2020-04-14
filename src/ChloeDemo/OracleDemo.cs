@@ -169,14 +169,14 @@ end;";
                 return "NUMBER(18,0)";
             }
 
-            if (type == typeof(double))
-            {
-                return "BINARY_DOUBLE";
-            }
-
             if (type == typeof(float))
             {
                 return "BINARY_FLOAT";
+            }
+
+            if (type == typeof(double))
+            {
+                return "BINARY_DOUBLE";
             }
 
             if (type == typeof(decimal))

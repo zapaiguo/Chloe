@@ -129,14 +129,14 @@ namespace ChloeDemo
                 return "INT64";
             }
 
-            if (type == typeof(double))
-            {
-                return "DOUBLE";
-            }
-
             if (type == typeof(float))
             {
                 return "FLOAT";
+            }
+
+            if (type == typeof(double))
+            {
+                return "DOUBLE";
             }
 
             if (type == typeof(decimal))

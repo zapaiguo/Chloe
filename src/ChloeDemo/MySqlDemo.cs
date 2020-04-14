@@ -126,14 +126,14 @@ namespace ChloeDemo
                 return "bigint";
             }
 
-            if (type == typeof(double))
+            if (type == typeof(float))
             {
                 return "float(10, 4)";
             }
 
-            if (type == typeof(float))
+            if (type == typeof(double))
             {
-                return "float(10, 4)";
+                return "double(10, 4)";
             }
 
             if (type == typeof(decimal))
