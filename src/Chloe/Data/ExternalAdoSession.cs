@@ -38,8 +38,9 @@ namespace Chloe.Data
             }
         }
 
-        protected override async Task Activate(bool @async)
+        protected override Task Activate(bool @async)
         {
+            return Task.CompletedTask;
         }
         public override void Complete()
         {
