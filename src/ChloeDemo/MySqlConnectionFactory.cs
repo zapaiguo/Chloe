@@ -18,7 +18,7 @@ namespace ChloeDemo
         }
         public IDbConnection CreateConnection()
         {
-            IDbConnection conn = new MySqlConnection("Database='Chloe';Data Source=localhost;User ID=root;Password=sasa;CharSet=utf8;SslMode=None");
+            IDbConnection conn = new MySqlConnection(this._connString);
             return conn;
         }
     }
