@@ -242,7 +242,7 @@ namespace Chloe.SqlServer
             if (withCast == true)
             {
                 Type underlyingType = ReflectionExtension.GetUnderlyingType(retType);
-                if (CastTypeMap.TryGetValue(underlyingType, out targetDbType))
+                if (underlyingType != PublicConstants.TypeOfDecimal/* We don't know the precision and scale,so,we can not cast exp to decimal,otherwise maybe cause problems. */ && CastTypeMap.TryGetValue(underlyingType, out targetDbType))
                 {
                     generator._sqlBuilder.Append("CAST(");
                 }
