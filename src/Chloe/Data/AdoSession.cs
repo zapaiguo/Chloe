@@ -326,8 +326,9 @@ namespace Chloe.Data
                     }
 
                     IDbDataParameter parameter = cmd.CreateParameter();
-                    Infrastructure.MappingType mappingType = MappingTypeSystem.GetMappingType(parameterType);
-                    mappingType.DbParameterAssembler.SetupParameter(parameter, param);
+                    Infrastructure.MappingType mappingType;
+                    IDbParameterAssembler dbParameterAssembler = MappingTypeSystem.IsMappingType(parameterType, out mappingType) ? mappingType.DbParameterAssembler : DbParameterAssembler.Default;
+                    dbParameterAssembler.SetupParameter(parameter, param);
 
                     cmd.Parameters.Add(parameter);
 
