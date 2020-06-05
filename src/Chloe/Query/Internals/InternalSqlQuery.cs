@@ -91,12 +91,20 @@ namespace Chloe.Query.Internals
             {
                 return this.MoveNext(false).GetResult();
             }
-            public async ValueTask<bool> MoveNextAsync()
+#if netfx
+            public Task<bool> MoveNextAsync()
+#else
+            public ValueTask<bool> MoveNextAsync()
+#endif
             {
-                return await this.MoveNext(true);
+                return this.MoveNext(true);
             }
 
+#if netfx
+            async Task<bool> MoveNext(bool @async)
+#else
             async ValueTask<bool> MoveNext(bool @async)
+#endif
             {
                 if (this._hasFinished || this._disposed)
                     return false;

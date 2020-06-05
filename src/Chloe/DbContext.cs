@@ -843,6 +843,33 @@ namespace Chloe
                 tran.Commit();
             }
         }
+        public async Task UseTransaction(Func<Task> func)
+        {
+            /*
+             * await dbContext.UseTransaction(async () =>
+             * {
+             *     await dbContext.InsertAsync()...
+             *     await dbContext.UpdateAsync()...
+             *     await dbContext.DeleteAsync()...
+             * });
+             */
+
+            PublicHelper.CheckNull(func);
+            using (ITransientTransaction tran = this.BeginTransaction())
+            {
+                await func();
+                tran.Commit();
+            }
+        }
+        public async Task UseTransaction(Func<Task> func, IsolationLevel il)
+        {
+            PublicHelper.CheckNull(func);
+            using (ITransientTransaction tran = this.BeginTransaction(il))
+            {
+                await func();
+                tran.Commit();
+            }
+        }
 
         public virtual void TrackEntity(object entity)
         {

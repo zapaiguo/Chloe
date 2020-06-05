@@ -37,7 +37,12 @@ namespace Chloe.Data
             this.AllowReadNextRecord = true;
             return ret;
         }
+
+#if netfx
+        public override async Task<bool> ReadAsync()
+#else
         public override async ValueTask<bool> ReadAsync()
+#endif
         {
             /*
              * 有些驱动（Microsoft.Data.Sqlite）支持循环读取数据，如 reader.Read() 返回 false 以后再次调用 reader.Read() 会返回 true，即又可以从第一条数据开始读取数据了，坑爹- -

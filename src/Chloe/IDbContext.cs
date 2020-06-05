@@ -170,6 +170,8 @@ namespace Chloe
         ITransientTransaction BeginTransaction(IsolationLevel il);
         void UseTransaction(Action action);
         void UseTransaction(Action action, IsolationLevel il);
+        Task UseTransaction(Func<Task> func);
+        Task UseTransaction(Func<Task> func, IsolationLevel il);
 
         void TrackEntity(object entity);
     }

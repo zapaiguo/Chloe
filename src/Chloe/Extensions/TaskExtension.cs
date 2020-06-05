@@ -13,9 +13,11 @@ namespace Chloe.Threading.Tasks
             task.GetAwaiter().GetResult();
         }
 
+#if !netfx
         public static TResult GetResult<TResult>(this ValueTask<TResult> task)
         {
             return task.GetAwaiter().GetResult();
         }
+#endif
     }
 }

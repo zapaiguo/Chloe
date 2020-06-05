@@ -38,7 +38,12 @@ namespace Chloe.Data
         {
             return this._reader.Read();
         }
+
+#if netfx
+        public virtual async Task<bool> ReadAsync()
+#else
         public virtual async ValueTask<bool> ReadAsync()
+#endif
         {
             DbDataReader dbDataReader = this._reader as DbDataReader;
             if (dbDataReader != null)
