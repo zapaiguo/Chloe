@@ -8,6 +8,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
+#if netfx
+using BoolResultTask = System.Threading.Tasks.Task<bool>;
+#else
+using BoolResultTask = System.Threading.Tasks.ValueTask<bool>;
+#endif
+
 namespace Chloe.Query.Internals
 {
     internal static class QueryEnumeratorCreator
@@ -50,20 +56,12 @@ namespace Chloe.Query.Internals
             return this.MoveNext(false).GetResult();
         }
 
-#if netfx
-        public Task<bool> MoveNextAsync()
-#else
-        public ValueTask<bool> MoveNextAsync()
-#endif
+        public BoolResultTask MoveNextAsync()
         {
             return this.MoveNext(true);
         }
 
-#if netfx
-        async Task<bool> MoveNext(bool @async)
-#else
-        async ValueTask<bool> MoveNext(bool @async)
-#endif
+        async BoolResultTask MoveNext(bool @async)
         {
             if (this._hasFinished || this._disposed)
                 return false;

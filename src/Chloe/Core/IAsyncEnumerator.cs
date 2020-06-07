@@ -2,15 +2,17 @@
 using System.Collections;
 using System.Threading.Tasks;
 
+#if netfx
+using BoolResultTask = System.Threading.Tasks.Task<bool>;
+#else
+using BoolResultTask = System.Threading.Tasks.ValueTask<bool>;
+#endif
+
 namespace Chloe.Collections
 {
     internal interface IAsyncEnumerator : IEnumerator
     {
-#if netfx
-        Task<bool> MoveNextAsync();
-#else
-        ValueTask<bool> MoveNextAsync();
-#endif
+        BoolResultTask MoveNextAsync();
     }
     internal interface IAsyncEnumerator<out T> : IAsyncEnumerator, IDisposable
     {

@@ -22,7 +22,7 @@ namespace Chloe
             DbContext dbContext = null;
             Expression<Func<Task>> e = () => dbContext.Save<string>("", null, false);
             MethodInfo method = (e.Body as MethodCallExpression).Method;
-            _saveMethod = method;
+            _saveMethod = method.GetGenericMethodDefinition();
         }
 
 
@@ -129,7 +129,7 @@ namespace Chloe
         }
         static MethodInfo GetSaveMethod(Type entityType)
         {
-            MethodInfo method = _saveMethod.GetGenericMethodDefinition().MakeGenericMethod(entityType);
+            MethodInfo method = _saveMethod.MakeGenericMethod(entityType);
             return method;
         }
     }
