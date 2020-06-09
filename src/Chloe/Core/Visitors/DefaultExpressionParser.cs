@@ -40,7 +40,7 @@ namespace Chloe.Core.Visitors
                     if (first)
                     {
                         DbColumnAccessExpression dbColumnAccessExpression = this._typeDescriptor.GetColumnAccessExpression(me.Member);
-                        if (this._explicitDbTable != null)
+                        if (this._explicitDbTable != null && this._explicitDbTable != dbColumnAccessExpression.Table)
                             dbColumnAccessExpression = new DbColumnAccessExpression(this._explicitDbTable, dbColumnAccessExpression.Column);
 
                         dbExp = dbColumnAccessExpression;

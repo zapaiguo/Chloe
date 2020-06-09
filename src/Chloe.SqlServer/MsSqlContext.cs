@@ -420,7 +420,7 @@ namespace Chloe.SqlServer
                     if (batchSize != null)
                         sbc.BatchSize = batchSize.Value;
 
-                    DbTable dbTable = string.IsNullOrEmpty(table) ? typeDescriptor.Table : new DbTable(table, typeDescriptor.Table.Schema);
+                    DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
                     sbc.DestinationTableName = AppendTableName(dbTable);
 
                     if (bulkCopyTimeout != null)

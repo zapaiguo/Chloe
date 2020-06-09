@@ -54,14 +54,16 @@ namespace Chloe.Descriptors
 
         public DefaultExpressionParser GetExpressionParser(DbTable explicitDbTable)
         {
-            if (explicitDbTable == null)
+            DbTable dbTable = explicitDbTable ?? this.Table;
+
+            if (dbTable == this.Table)
             {
                 if (this._expressionParser == null)
                     this._expressionParser = new DefaultExpressionParser(this, null);
                 return this._expressionParser;
             }
-            else
-                return new DefaultExpressionParser(this, explicitDbTable);
+
+            return new DefaultExpressionParser(this, explicitDbTable);
         }
 
         public bool HasPrimaryKey()

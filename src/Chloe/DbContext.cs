@@ -114,25 +114,25 @@ namespace Chloe
             return this.QueryByKey<TEntity>(key, table, @lock, tracking, false).GetResult();
         }
 
-        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key)
+        public virtual Task<TEntity> QueryByKeyAsync<TEntity>(object key)
         {
-            return await this.QueryByKeyAsync<TEntity>(key, false);
+            return this.QueryByKeyAsync<TEntity>(key, false);
         }
-        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, bool tracking)
+        public virtual Task<TEntity> QueryByKeyAsync<TEntity>(object key, bool tracking)
         {
-            return await this.QueryByKeyAsync<TEntity>(key, null, tracking);
+            return this.QueryByKeyAsync<TEntity>(key, null, tracking);
         }
-        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table)
+        public virtual Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table)
         {
-            return await this.QueryByKeyAsync<TEntity>(key, table, false);
+            return this.QueryByKeyAsync<TEntity>(key, table, false);
         }
-        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, bool tracking)
+        public virtual Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, bool tracking)
         {
-            return await this.QueryByKeyAsync<TEntity>(key, table, LockType.Unspecified, tracking);
+            return this.QueryByKeyAsync<TEntity>(key, table, LockType.Unspecified, tracking);
         }
-        public virtual async Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, LockType @lock, bool tracking)
+        public virtual Task<TEntity> QueryByKeyAsync<TEntity>(object key, string table, LockType @lock, bool tracking)
         {
-            return await this.QueryByKey<TEntity>(key, table, @lock, tracking, true);
+            return this.QueryByKey<TEntity>(key, table, @lock, tracking, true);
         }
         protected virtual async Task<TEntity> QueryByKey<TEntity>(object key, string table, LockType @lock, bool tracking, bool @async)
         {
@@ -196,14 +196,14 @@ namespace Chloe
             PublicHelper.CheckNull(sql, "sql");
             return new InternalSqlQuery<T>(this, sql, cmdType, parameters).Execute();
         }
-        public virtual async Task<List<T>> SqlQueryAsync<T>(string sql, params DbParam[] parameters)
+        public virtual Task<List<T>> SqlQueryAsync<T>(string sql, params DbParam[] parameters)
         {
-            return await this.SqlQueryAsync<T>(sql, CommandType.Text, parameters);
+            return this.SqlQueryAsync<T>(sql, CommandType.Text, parameters);
         }
-        public virtual async Task<List<T>> SqlQueryAsync<T>(string sql, CommandType cmdType, params DbParam[] parameters)
+        public virtual Task<List<T>> SqlQueryAsync<T>(string sql, CommandType cmdType, params DbParam[] parameters)
         {
             PublicHelper.CheckNull(sql, "sql");
-            return await new InternalSqlQuery<T>(this, sql, cmdType, parameters).ExecuteAsync();
+            return new InternalSqlQuery<T>(this, sql, cmdType, parameters).ExecuteAsync();
         }
 
         public List<T> SqlQuery<T>(string sql, object parameter)
@@ -224,13 +224,13 @@ namespace Chloe
 
             return this.SqlQuery<T>(sql, cmdType, PublicHelper.BuildParams(this, parameter));
         }
-        public async Task<List<T>> SqlQueryAsync<T>(string sql, object parameter)
+        public Task<List<T>> SqlQueryAsync<T>(string sql, object parameter)
         {
-            return await this.SqlQueryAsync<T>(sql, PublicHelper.BuildParams(this, parameter));
+            return this.SqlQueryAsync<T>(sql, PublicHelper.BuildParams(this, parameter));
         }
-        public async Task<List<T>> SqlQueryAsync<T>(string sql, CommandType cmdType, object parameter)
+        public Task<List<T>> SqlQueryAsync<T>(string sql, CommandType cmdType, object parameter)
         {
-            return await this.SqlQueryAsync<T>(sql, cmdType, PublicHelper.BuildParams(this, parameter));
+            return this.SqlQueryAsync<T>(sql, cmdType, PublicHelper.BuildParams(this, parameter));
         }
 
         public TEntity Save<TEntity>(TEntity entity)
@@ -363,13 +363,13 @@ namespace Chloe
         {
             return this.Insert(entity, table, false).GetResult();
         }
-        public virtual async Task<TEntity> InsertAsync<TEntity>(TEntity entity)
+        public virtual Task<TEntity> InsertAsync<TEntity>(TEntity entity)
         {
-            return await this.InsertAsync(entity, null);
+            return this.InsertAsync(entity, null);
         }
-        public virtual async Task<TEntity> InsertAsync<TEntity>(TEntity entity, string table)
+        public virtual Task<TEntity> InsertAsync<TEntity>(TEntity entity, string table)
         {
-            return await this.Insert(entity, table, true);
+            return this.Insert(entity, table, true);
         }
         protected virtual async Task<TEntity> Insert<TEntity>(TEntity entity, string table, bool @async)
         {
@@ -445,13 +445,13 @@ namespace Chloe
         {
             return this.Insert(content, table, false).GetResult();
         }
-        public virtual async Task<object> InsertAsync<TEntity>(Expression<Func<TEntity>> content)
+        public virtual Task<object> InsertAsync<TEntity>(Expression<Func<TEntity>> content)
         {
-            return await this.InsertAsync(content, null);
+            return this.InsertAsync(content, null);
         }
-        public virtual async Task<object> InsertAsync<TEntity>(Expression<Func<TEntity>> content, string table)
+        public virtual Task<object> InsertAsync<TEntity>(Expression<Func<TEntity>> content, string table)
         {
-            return await this.Insert(content, table, true);
+            return this.Insert(content, table, true);
         }
         protected virtual async Task<object> Insert<TEntity>(Expression<Func<TEntity>> content, string table, bool @async)
         {
@@ -469,11 +469,9 @@ namespace Chloe
 
             Dictionary<MemberInfo, Expression> insertColumns = InitMemberExtractor.Extract(content);
 
-            DbTable explicitDbTable = null;
-            if (table != null)
-                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
-            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
-            DbInsertExpression e = new DbInsertExpression(explicitDbTable ?? typeDescriptor.Table);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(dbTable);
+            DbInsertExpression e = new DbInsertExpression(dbTable);
 
             object keyVal = null;
 
@@ -539,13 +537,13 @@ namespace Chloe
         {
             this.InsertRange(entities, table, false).GetResult();
         }
-        public virtual async Task InsertRangeAsync<TEntity>(List<TEntity> entities)
+        public virtual Task InsertRangeAsync<TEntity>(List<TEntity> entities)
         {
-            await this.InsertRangeAsync(entities, null);
+            return this.InsertRangeAsync(entities, null);
         }
-        public virtual async Task InsertRangeAsync<TEntity>(List<TEntity> entities, string table)
+        public virtual Task InsertRangeAsync<TEntity>(List<TEntity> entities, string table)
         {
-            await this.InsertRange(entities, table, true);
+            return this.InsertRange(entities, table, true);
         }
         protected virtual Task InsertRange<TEntity>(List<TEntity> entities, string table, bool @async)
         {
@@ -560,13 +558,13 @@ namespace Chloe
         {
             return this.Update<TEntity>(entity, table, false).GetResult();
         }
-        public virtual async Task<int> UpdateAsync<TEntity>(TEntity entity)
+        public virtual Task<int> UpdateAsync<TEntity>(TEntity entity)
         {
-            return await this.UpdateAsync(entity, null);
+            return this.UpdateAsync(entity, null);
         }
-        public virtual async Task<int> UpdateAsync<TEntity>(TEntity entity, string table)
+        public virtual Task<int> UpdateAsync<TEntity>(TEntity entity, string table)
         {
-            return await this.Update<TEntity>(entity, table, true);
+            return this.Update<TEntity>(entity, table, true);
         }
         protected virtual async Task<int> Update<TEntity>(TEntity entity, string table, bool @async)
         {
@@ -647,13 +645,13 @@ namespace Chloe
         {
             return this.Update<TEntity>(condition, content, table, false).GetResult();
         }
-        public virtual async Task<int> UpdateAsync<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content)
+        public virtual Task<int> UpdateAsync<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content)
         {
-            return await this.UpdateAsync(condition, content, null);
+            return this.UpdateAsync(condition, content, null);
         }
-        public virtual async Task<int> UpdateAsync<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table)
+        public virtual Task<int> UpdateAsync<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table)
         {
-            return await this.Update<TEntity>(condition, content, table, true);
+            return this.Update<TEntity>(condition, content, table, true);
         }
         protected virtual async Task<int> Update<TEntity>(Expression<Func<TEntity, bool>> condition, Expression<Func<TEntity, TEntity>> content, string table, bool @async)
         {
@@ -664,14 +662,12 @@ namespace Chloe
 
             Dictionary<MemberInfo, Expression> updateColumns = InitMemberExtractor.Extract(content);
 
-            DbTable explicitDbTable = null;
-            if (table != null)
-                explicitDbTable = new DbTable(table, typeDescriptor.Table.Schema);
-            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(explicitDbTable);
+            DbTable dbTable = PublicHelper.CreateDbTable(typeDescriptor, table);
+            DefaultExpressionParser expressionParser = typeDescriptor.GetExpressionParser(dbTable);
 
             DbExpression conditionExp = expressionParser.ParseFilterPredicate(condition);
 
-            DbUpdateExpression e = new DbUpdateExpression(explicitDbTable ?? typeDescriptor.Table, conditionExp);
+            DbUpdateExpression e = new DbUpdateExpression(dbTable, conditionExp);
 
             foreach (var kv in updateColumns)
             {
@@ -701,13 +697,13 @@ namespace Chloe
         {
             return this.Delete<TEntity>(entity, table, false).GetResult();
         }
-        public virtual async Task<int> DeleteAsync<TEntity>(TEntity entity)
+        public virtual Task<int> DeleteAsync<TEntity>(TEntity entity)
         {
-            return await this.DeleteAsync(entity, null);
+            return this.DeleteAsync(entity, null);
         }
-        public virtual async Task<int> DeleteAsync<TEntity>(TEntity entity, string table)
+        public virtual Task<int> DeleteAsync<TEntity>(TEntity entity, string table)
         {
-            return await this.Delete<TEntity>(entity, table, true);
+            return this.Delete<TEntity>(entity, table, true);
         }
         protected virtual async Task<int> Delete<TEntity>(TEntity entity, string table, bool @async)
         {
@@ -753,15 +749,15 @@ namespace Chloe
         {
             return this.Delete<TEntity>(condition, table, false).GetResult();
         }
-        public virtual async Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition)
+        public virtual Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition)
         {
-            return await this.DeleteAsync(condition, null);
+            return this.DeleteAsync(condition, null);
         }
-        public virtual async Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition, string table)
+        public virtual Task<int> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> condition, string table)
         {
-            return await this.Delete<TEntity>(condition, table, true);
+            return this.Delete<TEntity>(condition, table, true);
         }
-        protected virtual async Task<int> Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table, bool @async)
+        protected virtual Task<int> Delete<TEntity>(Expression<Func<TEntity, bool>> condition, string table, bool @async)
         {
             PublicHelper.CheckNull(condition);
 
@@ -773,7 +769,7 @@ namespace Chloe
 
             DbDeleteExpression e = new DbDeleteExpression(dbTable, conditionExp);
 
-            return await this.ExecuteNonQuery(e, @async);
+            return this.ExecuteNonQuery(e, @async);
         }
 
         public virtual int DeleteByKey<TEntity>(object key)
@@ -784,18 +780,18 @@ namespace Chloe
         {
             return this.DeleteByKey<TEntity>(key, table, false).GetResult();
         }
-        public virtual async Task<int> DeleteByKeyAsync<TEntity>(object key)
+        public virtual Task<int> DeleteByKeyAsync<TEntity>(object key)
         {
-            return await this.DeleteByKeyAsync<TEntity>(key, null);
+            return this.DeleteByKeyAsync<TEntity>(key, null);
         }
-        public virtual async Task<int> DeleteByKeyAsync<TEntity>(object key, string table)
+        public virtual Task<int> DeleteByKeyAsync<TEntity>(object key, string table)
         {
-            return await this.DeleteByKey<TEntity>(key, table, true);
+            return this.DeleteByKey<TEntity>(key, table, true);
         }
-        protected virtual async Task<int> DeleteByKey<TEntity>(object key, string table, bool @async)
+        protected virtual Task<int> DeleteByKey<TEntity>(object key, string table, bool @async)
         {
             Expression<Func<TEntity, bool>> condition = PrimaryKeyHelper.BuildCondition<TEntity>(key);
-            return await this.Delete<TEntity>(condition, table, @async);
+            return this.Delete<TEntity>(condition, table, @async);
         }
 
 
