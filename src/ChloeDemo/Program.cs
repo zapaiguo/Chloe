@@ -51,6 +51,7 @@ namespace ChloeDemo
         {
             MappingTypeBuilder stringTypeBuilder = DbConfiguration.ConfigureMappingType<string>();
             stringTypeBuilder.HasDbParameterAssembler<String_MappingType>();
+            //stringTypeBuilder.HasDbValueConverter<String_MappingType>();
         }
     }
 }

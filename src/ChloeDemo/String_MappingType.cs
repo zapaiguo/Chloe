@@ -15,10 +15,21 @@ namespace ChloeDemo
     /// </summary>
     class String_MappingType : DbParameterAssembler, IDbParameterAssembler, IDbValueConverter
     {
+        /// <summary>
+        /// Implementation of IDbValueConverter.Convert
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public object Convert(object value)
         {
             return value.ToString();
         }
+
+        /// <summary>
+        /// Implementation of IDbParameterAssembler.SetupParameter
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <param name="param"></param>
         public override void SetupParameter(IDbDataParameter parameter, DbParam param)
         {
             base.SetupParameter(parameter, param);
@@ -28,7 +39,7 @@ namespace ChloeDemo
                 //For PostgreSQL json
                 NpgsqlParameter pgsqlParameter = (NpgsqlParameter)parameter;
 
-                DbType jsonDbType = (DbType)100;
+                DbType jsonDbType = DbTypeConsts.NpgJson;
                 if (param.DbType == jsonDbType)
                 {
                     parameter.DbType = DbType.String;
