@@ -60,10 +60,11 @@ namespace Chloe.Descriptors
             {
                 if (this._expressionParser == null)
                     this._expressionParser = new DefaultExpressionParser(this, null);
+
                 return this._expressionParser;
             }
 
-            return new DefaultExpressionParser(this, explicitDbTable);
+            return new DefaultExpressionParser(this, dbTable);
         }
 
         public bool HasPrimaryKey()
