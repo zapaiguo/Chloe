@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Chloe.Core.Emit
+namespace Chloe.Reflection.Emit
 {
     public static class ClassGenerator
     {

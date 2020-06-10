@@ -1,4 +1,4 @@
-﻿using Chloe.Core.Emit;
+﻿using Chloe.Reflection.Emit;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

@@ -8,7 +8,7 @@ using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Chloe.Core.Emit
+namespace Chloe.Reflection.Emit
 {
     public static class DelegateGenerator
     {
