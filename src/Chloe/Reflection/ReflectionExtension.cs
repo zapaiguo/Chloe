@@ -28,6 +28,30 @@ namespace Chloe.Reflection
 
             return false;
         }
+        public static bool HasPublicGetter(this MemberInfo propertyOrField)
+        {
+            if (propertyOrField.MemberType == MemberTypes.Property)
+                return ((PropertyInfo)propertyOrField).GetGetMethod() != null;
+
+            if (propertyOrField.MemberType == MemberTypes.Field && (propertyOrField as FieldInfo).IsPublic)
+                return true;
+
+            return false;
+        }
+
+        public static bool IsStaticMember(this MemberInfo propertyOrField)
+        {
+            if (propertyOrField.MemberType == MemberTypes.Property)
+            {
+                MethodInfo getter = ((PropertyInfo)propertyOrField).GetMethod;
+                return getter.IsStatic;
+            }
+
+            if (propertyOrField.MemberType == MemberTypes.Field && (propertyOrField as FieldInfo).IsStatic)
+                return true;
+
+            return false;
+        }
 
         public static void SetMemberValue(this MemberInfo propertyOrField, object obj, object value)
         {
@@ -46,6 +70,18 @@ namespace Chloe.Reflection
                 return ((FieldInfo)propertyOrField).GetValue(obj);
 
             throw new ArgumentException();
+        }
+
+        public static void FastSetMemberValue(this MemberInfo propertyOrField, object obj, object value)
+        {
+            MemberValueSetter setter = MemberValueSetterContainer.GetMemberValueSetter(propertyOrField);
+            setter(obj, value);
+            return;
+        }
+        public static object FastGetMemberValue(this MemberInfo propertyOrField, object obj)
+        {
+            MemberValueGetter getter = MemberValueGetterContainer.GetMemberValueGetter(propertyOrField);
+            return getter(obj);
         }
 
         public static object Invoke(this MethodInfo method, object obj, params object[] parameters)

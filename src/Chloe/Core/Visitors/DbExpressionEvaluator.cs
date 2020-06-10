@@ -43,7 +43,7 @@ namespace Chloe.Core.Visitors
                 }
             }
 
-            return exp.Member.GetMemberValue(instance);
+            return exp.Member.FastGetMemberValue(instance);
         }
         public override object Visit(DbMethodCallExpression exp)
         {

@@ -10,20 +10,23 @@ namespace Chloe.Extensions
     {
         public static BinaryExpression Assign(MemberInfo propertyOrField, Expression instance, Expression value)
         {
-            PropertyInfo propertyInfo = propertyOrField as PropertyInfo;
-            if (propertyInfo != null)
+            var member = MakeMemberExpression(propertyOrField, instance);
+            var setValue = Expression.Assign(member, value);
+            return setValue;
+        }
+
+        public static MemberExpression MakeMemberExpression(MemberInfo propertyOrField, Expression instance)
+        {
+            if (propertyOrField.MemberType == MemberTypes.Property)
             {
-                var pro = Expression.Property(instance, propertyInfo);
-                var setValue = Expression.Assign(pro, value);
-                return setValue;
+                var prop = Expression.Property(instance, (PropertyInfo)propertyOrField);
+                return prop;
             }
 
-            FieldInfo fieldInfo = propertyOrField as FieldInfo;
-            if (fieldInfo != null)
+            if (propertyOrField.MemberType == MemberTypes.Field)
             {
-                var field = Expression.Field(instance, fieldInfo);
-                var setValue = Expression.Assign(field, value);
-                return setValue;
+                var field = Expression.Field(instance, (FieldInfo)propertyOrField);
+                return field;
             }
 
             throw new ArgumentException();

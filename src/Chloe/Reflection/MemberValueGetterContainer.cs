@@ -8,10 +8,18 @@ namespace Chloe.Reflection
         static readonly System.Collections.Concurrent.ConcurrentDictionary<MemberInfo, MemberValueGetter> Cache = new System.Collections.Concurrent.ConcurrentDictionary<MemberInfo, MemberValueGetter>();
         public static MemberValueGetter GetMemberValueGetter(MemberInfo memberInfo)
         {
-            MemberValueGetter getter = Cache.GetOrAdd(memberInfo, member =>
+            MemberValueGetter getter = null;
+            if (!Cache.TryGetValue(memberInfo, out getter))
             {
-                return DelegateGenerator.CreateValueGetter(member);
-            });
+                lock (memberInfo)
+                {
+                    if (!Cache.TryGetValue(memberInfo, out getter))
+                    {
+                        getter = DelegateGenerator.CreateValueGetter(memberInfo);
+                        Cache.GetOrAdd(memberInfo, getter);
+                    }
+                }
+            }
 
             return getter;
         }

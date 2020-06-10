@@ -231,6 +231,9 @@ namespace ChloeDemo
         {
             IQuery<Person> q = this.DbContext.Query<Person>();
 
+            string name = "chloe";
+            this._result = q.Where(a => a.Name == name).ToList();
+
             this._result = q.Where(a => a.Id == 1).FirstOrDefault();
             /*
              * SELECT [Person].[Id] AS [Id],[Person].[Name] AS [Name],[Person].[Gender] AS [Gender],[Person].[Age] AS [Age],[Person].[CityId] AS [CityId],[Person].[EditTime] AS [EditTime] FROM [Person] AS [Person] WHERE [Person].[Id] = 1 LIMIT 1 OFFSET 0

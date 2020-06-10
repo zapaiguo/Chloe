@@ -27,22 +27,7 @@ namespace Chloe.Descriptors
         {
             if (null == this._valueGetter)
             {
-                if (Monitor.TryEnter(this))
-                {
-                    try
-                    {
-                        if (null == this._valueGetter)
-                            this._valueGetter = MemberValueGetterContainer.GetMemberValueGetter(this.Definition.Property);
-                    }
-                    finally
-                    {
-                        Monitor.Exit(this);
-                    }
-                }
-                else
-                {
-                    return this.Definition.Property.GetMemberValue(instance);
-                }
+                this._valueGetter = MemberValueGetterContainer.GetMemberValueGetter(this.Definition.Property);
             }
 
             return this._valueGetter(instance);
@@ -51,23 +36,7 @@ namespace Chloe.Descriptors
         {
             if (null == this._valueSetter)
             {
-                if (Monitor.TryEnter(this))
-                {
-                    try
-                    {
-                        if (null == this._valueSetter)
-                            this._valueSetter = MemberValueSetterContainer.GetMemberValueSetter(this.Definition.Property);
-                    }
-                    finally
-                    {
-                        Monitor.Exit(this);
-                    }
-                }
-                else
-                {
-                    this.Definition.Property.SetMemberValue(instance, value);
-                    return;
-                }
+                this._valueSetter = MemberValueSetterContainer.GetMemberValueSetter(this.Definition.Property);
             }
 
             this._valueSetter(instance, value);

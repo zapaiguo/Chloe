@@ -123,7 +123,7 @@ namespace Chloe
                     continue;
                 }
 
-                object value = ReflectionExtension.GetMemberValue(prop, parameter);
+                object value = ReflectionExtension.FastGetMemberValue(prop, parameter);
 
                 string paramName = dbContext.DatabaseProvider.CreateParameterName(prop.Name);
 

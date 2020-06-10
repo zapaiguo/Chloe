@@ -33,7 +33,7 @@ namespace Chloe.Core.Visitors
                 }
             }
 
-            return exp.Member.GetMemberValue(instance);
+            return exp.Member.FastGetMemberValue(instance);
         }
         protected override object VisitUnary_Not(UnaryExpression exp)
         {
