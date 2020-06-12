@@ -1,6 +1,7 @@
 ﻿using Chloe.Descriptors;
 using Chloe.Extension;
 using Chloe.Infrastructure;
+using Chloe.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -266,7 +267,7 @@ namespace Chloe
         static IOrderedQuery<T> Invoke<T>(object q, MethodInfo orderMethod, LambdaExpression keySelector)
         {
             orderMethod = orderMethod.MakeGenericMethod(new Type[] { keySelector.Body.Type });
-            IOrderedQuery<T> orderedQuery = (IOrderedQuery<T>)orderMethod.Invoke(q, new object[] { keySelector });
+            IOrderedQuery<T> orderedQuery = (IOrderedQuery<T>)orderMethod.FastInvoke(q, new object[] { keySelector });
             return orderedQuery;
         }
         static List<Ordering> SplitOrderingString(string orderString)

@@ -321,7 +321,7 @@ namespace Chloe
 
             MethodInfo saveMethod = GetSaveMethod(navPropertyDescriptor.PropertyType);
             //DbContext.Save(navValue, ownerTypeDescriptor, @async);
-            Task task = (Task)saveMethod.Invoke(this, navValue, ownerTypeDescriptor, @async);
+            Task task = (Task)saveMethod.FastInvoke(this, navValue, ownerTypeDescriptor, @async);
             await task;
         }
         async Task SaveCollection(CollectionPropertyDescriptor collectionPropertyDescriptor, object owner, TypeDescriptor ownerTypeDescriptor, bool @async)
@@ -350,7 +350,7 @@ namespace Chloe
                 //element.ForeignKey = T.Id
                 elementDotT.ForeignKeyProperty.SetValue(element, ownerKeyValue);
                 //DbContext.Save(element, ownerTypeDescriptor, @async);
-                Task task = (Task)saveMethod.Invoke(this, element, ownerTypeDescriptor, @async);
+                Task task = (Task)saveMethod.FastInvoke(this, element, ownerTypeDescriptor, @async);
                 await task;
             }
         }
