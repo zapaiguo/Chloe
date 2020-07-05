@@ -163,6 +163,39 @@ namespace Chloe
 
             return dbContext.Update(condition, lambda);
         }
+        
+        public static int UpdateWithout<TEntity>(this IDbContext dbContext, TEntity entity, params string[] fields)
+        {
+            TypeDescriptor typeDescriptor = EntityTypeContainer.GetDescriptor(typeof(TEntity));
+
+            IList<string> updateColumns = new List<string>(typeDescriptor.PrimitivePropertyDescriptors.Count);
+
+            foreach (PrimitivePropertyDescriptor propertyDescriptor in typeDescriptor.PrimitivePropertyDescriptors)
+            {
+                if (propertyDescriptor.IsPrimaryKey)
+                {
+                    continue;
+                }
+
+                if (propertyDescriptor.IsAutoIncrement || propertyDescriptor.HasSequence() || propertyDescriptor.IsRowVersion)
+                {
+                    continue;
+                }
+                if (!fields.Contains(propertyDescriptor.Column.Name))
+                {
+                    updateColumns.Add(propertyDescriptor.Column.Name);
+                }
+            }
+
+            if (updateColumns.Count == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return dbContext.UpdateOnly(entity, updateColumns.ToArray());
+            }
+        }
 
         public static DbActionBag CreateActionBag(this IDbContext dbContext)
         {
